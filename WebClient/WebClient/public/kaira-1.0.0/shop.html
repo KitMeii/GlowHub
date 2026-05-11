@@ -1,0 +1,2749 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta property="og:title" content="Cửa Hàng — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <title>Cửa Hàng - GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Marcellus&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="css/vendor.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      :root {
+        --pink: #f759ab;
+        --dark: #111;
+        --border: #e8e8e8;
+        --gray: #8f8f8f;
+        --bg: #fffdf9;
+      }
+      body {
+        background: var(--bg);
+        font-family: "Jost", sans-serif;
+        color: var(--dark);
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Marcellus", serif;
+        font-weight: 400;
+      }
+
+      /* ── SEARCH BAR ── */
+      .search-hero {
+        background: var(--dark);
+        padding: 48px 0;
+        text-align: center;
+      }
+      .search-hero h1 {
+        color: #fff;
+        font-size: 2rem;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+      }
+      .search-hero p {
+        color: #aaa;
+        font-size: 13px;
+        margin-bottom: 24px;
+      }
+      .search-wrap {
+        position: relative;
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      .search-input {
+        width: 100%;
+        padding: 16px 56px 16px 20px;
+        font-size: 15px;
+        border: none;
+        font-family: "Jost", sans-serif;
+        background: #fff;
+        color: var(--dark);
+        outline: none;
+      }
+      .search-input:focus {
+        box-shadow: 0 0 0 3px rgba(247, 89, 171, 0.3);
+      }
+      .search-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 52px;
+        background: var(--pink);
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #fff;
+        transition: 0.2s;
+      }
+      .search-btn:hover {
+        background: #d946a0;
+      }
+      .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid var(--border);
+        max-height: 280px;
+        overflow-y: auto;
+        z-index: 200;
+        display: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+      .suggestion-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #f5f5f5;
+      }
+      .suggestion-item:hover {
+        background: #fff0f8;
+      }
+      .suggestion-item img {
+        width: 36px;
+        height: 44px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+      .suggestion-item .sug-name {
+        font-weight: 500;
+      }
+      .suggestion-item .sug-price {
+        color: var(--pink);
+        font-size: 12px;
+      }
+      .suggestion-item .sug-cat {
+        font-size: 11px;
+        color: var(--gray);
+      }
+
+      /* ── FILTER SIDEBAR ── */
+      .shop-layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      .filter-sidebar {
+        position: sticky;
+        top: 80px;
+        background: #fff;
+        border: 1px solid var(--border);
+      }
+      .filter-sidebar-hd {
+        padding: 14px 16px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .filter-sidebar-hd button {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .filter-sidebar-hd button:hover {
+        color: var(--pink);
+      }
+      .filter-group {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .filter-group:last-child {
+        border-bottom: none;
+      }
+      .filter-group-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--dark);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+      }
+      .filter-group-title i {
+        font-size: 12px;
+        transition: 0.2s;
+        color: var(--gray);
+      }
+      .filter-group.collapsed .filter-group-body {
+        display: none;
+      }
+      .filter-group.collapsed .filter-group-title i {
+        transform: rotate(-90deg);
+      }
+
+      /* Category chips */
+      .cat-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+        font-size: 13px;
+        cursor: pointer;
+        border-bottom: 1px solid #f5f5f5;
+        transition: 0.15s;
+      }
+      .cat-chip:hover {
+        color: var(--pink);
+      }
+      .cat-chip.active {
+        color: var(--pink);
+        font-weight: 600;
+      }
+      .cat-chip.active::before {
+        content: "✓";
+        font-size: 10px;
+        color: var(--pink);
+      }
+      .cat-count {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--gray);
+        background: #f5f5f5;
+        padding: 1px 6px;
+        border-radius: 10px;
+      }
+
+      /* Price range */
+      .price-range-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .price-input {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 12px;
+        text-align: center;
+        border-radius: 2px;
+      }
+      .price-input:focus {
+        outline: none;
+        border-color: var(--pink);
+      }
+      .price-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 8px;
+      }
+      .price-preset {
+        padding: 4px 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: 0.15s;
+        border-radius: 2px;
+      }
+      .price-preset:hover,
+      .price-preset.active {
+        background: var(--pink);
+        color: #fff;
+        border-color: var(--pink);
+      }
+
+      /* Rating */
+      .rating-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .rating-option input {
+        accent-color: var(--pink);
+      }
+      .stars-display {
+        color: #f59e0b;
+        font-size: 13px;
+      }
+
+      /* Toggle switch */
+      .filter-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+      }
+      .filter-toggle label {
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .toggle-sw {
+        position: relative;
+        width: 36px;
+        height: 20px;
+      }
+      .toggle-sw input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-sl {
+        position: absolute;
+        inset: 0;
+        background: #ddd;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .toggle-sl::before {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+      }
+      .toggle-sw input:checked + .toggle-sl {
+        background: var(--pink);
+      }
+      .toggle-sw input:checked + .toggle-sl::before {
+        transform: translateX(16px);
+      }
+
+      /* Apply btn */
+      .btn-apply-filter {
+        width: 100%;
+        padding: 12px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: "Jost", sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        margin: 12px 0 0;
+        transition: 0.2s;
+      }
+      .btn-apply-filter:hover {
+        background: var(--pink);
+      }
+
+      /* Active filter tags */
+      .active-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 11px;
+        margin: 3px;
+        border-radius: 2px;
+      }
+      .active-tag button {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+      .active-tag button:hover {
+        color: #fff;
+      }
+
+      @media (max-width: 768px) {
+        .shop-layout {
+          grid-template-columns: 1fr;
+        }
+        .filter-sidebar {
+          position: static;
+        }
+      }
+      /* ── FILTER BAR ── */
+      .filter-bar {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .filter-scroll {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 0 4px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .filter-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .filter-chip {
+        flex-shrink: 0;
+        padding: 7px 16px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        cursor: pointer;
+        transition: 0.15s;
+        font-family: "Jost", sans-serif;
+        white-space: nowrap;
+        color: var(--gray);
+      }
+      .filter-chip:hover,
+      .filter-chip.active {
+        background: var(--dark);
+        color: #fff;
+        border-color: var(--dark);
+      }
+      .filter-chip.active-filter {
+        background: var(--pink);
+        color: #fff;
+        border-color: var(--pink);
+      }
+      .sort-select {
+        border: 1px solid var(--border);
+        padding: 7px 12px;
+        font-size: 12px;
+        font-family: "Jost", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--dark);
+        cursor: pointer;
+        background: #fff;
+      }
+
+      /* ── PRODUCT GRID ── */
+      .product-card {
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+        background: #fff;
+      }
+      .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+      .product-card img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        transition: 0.4s;
+      }
+      .product-card:hover img {
+        transform: scale(1.04);
+      }
+      .prod-title {
+        font-family: "Marcellus", serif;
+        font-size: 14px;
+        color: var(--dark);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 4px;
+        transition: 0.15s;
+      }
+      .prod-title:hover {
+        color: var(--pink);
+      }
+      .prod-price {
+        color: var(--pink);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .prod-price-old {
+        text-decoration: line-through;
+        color: var(--gray);
+        font-size: 12px;
+        margin-left: 6px;
+      }
+      .badge-new {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--pink);
+        color: #fff;
+        font-size: 10px;
+        padding: 3px 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 2;
+      }
+      .badge-sale {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 10px;
+        padding: 3px 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 2;
+      }
+      .btn-add-cart {
+        position: absolute;
+        bottom: -44px;
+        left: 0;
+        right: 0;
+        background: rgba(17, 17, 17, 0.9);
+        color: #fff;
+        border: none;
+        padding: 11px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-family: "Jost", sans-serif;
+      }
+      .product-card:hover .btn-add-cart {
+        bottom: 0;
+      }
+      .btn-add-cart:hover {
+        background: var(--pink);
+      }
+
+      /* ── PAGINATION ── */
+      .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin: 48px 0 24px;
+      }
+      .page-btn {
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--border);
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: "Jost", sans-serif;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.15s;
+        color: var(--dark);
+        text-decoration: none;
+      }
+      .page-btn:hover,
+      .page-btn.active {
+        background: var(--dark);
+        color: #fff;
+        border-color: var(--dark);
+      }
+      .page-btn:disabled,
+      .page-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* ── EMPTY / LOADING ── */
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--gray);
+      }
+      .empty-state i {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 16px;
+        color: #ccc;
+      }
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      /* ── BREADCRUMB ── */
+      .bc a {
+        color: var(--gray);
+        text-decoration: none;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .bc a:hover {
+        color: var(--pink);
+      }
+      .bc-sep {
+        margin: 0 8px;
+        color: #ccc;
+        font-size: 11px;
+      }
+      .bc-cur {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--dark);
+        font-weight: 600;
+      }
+
+      /* navbar */
+      .brand-name {
+        font-family: "Marcellus", serif;
+        letter-spacing: 4px;
+        color: var(--dark);
+        text-decoration: none;
+      }
+      .nav-link {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--dark) !important;
+        font-weight: 500;
+      }
+      .nav-link:hover {
+        color: var(--pink) !important;
+      }
+
+      /* active filters display */
+      .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .af-tag {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 4px 10px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+      .af-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--gray);
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+        margin-left: 2px;
+      }
+      .af-remove:hover {
+        color: var(--pink);
+      }
+
+      /* result count */
+      .result-meta {
+        font-size: 13px;
+        color: var(--gray);
+        margin-bottom: 20px;
+      }
+      .result-meta strong {
+        color: var(--dark);
+      }
+
+      /* .of-btn đã được định nghĩa trong filter sidebar CSS ở trên */
+
+      /* ── OF-BTN (section filter) ── */
+      .of-btn {
+        padding: 6px 14px;
+        border: 1px solid var(--border, #e8e8e8);
+        background: #fff;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        font-family: "Jost", sans-serif;
+        transition: 0.15s;
+        color: #8f8f8f;
+        border-radius: 2px;
+      }
+      .of-btn:hover,
+      .of-btn.active {
+        background: var(--pink, #f759ab);
+        color: #fff;
+        border-color: var(--pink, #f759ab);
+      }
+
+      /* ── PRICE RANGE SLIDER ── */
+      #sliderMin,
+      #sliderMax {
+        pointer-events: none;
+      }
+      #sliderMin::-webkit-slider-thumb,
+      #sliderMax::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--pink);
+        cursor: pointer;
+        pointer-events: all;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        transition: transform 0.15s;
+      }
+      #sliderMin::-webkit-slider-thumb:hover,
+      #sliderMax::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+      }
+      #sliderMin::-moz-range-thumb,
+      #sliderMax::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--pink);
+        cursor: pointer;
+        pointer-events: all;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+    <!-- GSAP + Lenis Luxury -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  </head>
+  <body>
+    <div id="lux-cursor-dot"></div>
+    <div id="lux-cursor-ring"></div>
+
+    <!-- CART OFFCANVAS -->
+    <div
+      class="offcanvas offcanvas-end"
+      data-bs-scroll="true"
+      tabindex="-1"
+      id="offcanvasCart"
+    >
+      <div class="offcanvas-header justify-content-between border-bottom py-3">
+        <h5
+          class="m-0"
+          style="
+            font-family: &quot;Marcellus&quot;, serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+          "
+        >
+          Giỏ Hàng
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="list-group list-group-flush mb-3" id="cart-list">
+          <li class="list-group-item text-center text-muted py-5">
+            Giỏ hàng trống
+          </li>
+        </ul>
+        <div
+          class="d-flex justify-content-between py-3 border-top border-bottom mb-3"
+        >
+          <span class="fw-bold text-uppercase" style="letter-spacing: 1px"
+            >Tổng cộng</span
+          >
+          <strong id="cart-total" style="color: var(--pink)">0 ₫</strong>
+        </div>
+        <a
+          href="checkout.html"
+          class="btn btn-dark w-100 text-uppercase"
+          style="letter-spacing: 2px; padding: 14px; border-radius: 0"
+          >Thanh Toán Ngay</a
+        >
+        <a
+          href="cart.html"
+          class="btn btn-outline-secondary w-100 text-uppercase mt-2"
+          style="letter-spacing: 1px; padding: 12px; border-radius: 0"
+          >Xem Giỏ Hàng</a
+        >
+      </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
+      <div class="container">
+        <a class="navbar-brand brand-name fs-3" href="index.html">GLOWHUB</a>
+        <div class="d-flex align-items-center gap-3 d-lg-none">
+          <a href="cart.html" class="position-relative">
+            <i class="bi bi-bag" style="font-size: 22px"></i>
+            <span
+              id="cart-count-mobile"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size: 10px"
+              >0</span
+            >
+          </a>
+          <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul
+              class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4"
+            >
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Trang Chủ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="shop.html">Cửa Hàng</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="policy.html">Blog</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="policy.html#lien-he">Liên Hệ</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="d-none d-lg-flex align-items-center gap-4">
+          <div id="nav-user-area"></div>
+          <a
+            href="cart.html"
+            class="nav-link position-relative"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasCart"
+          >
+            <i class="bi bi-bag" style="font-size: 20px"></i>
+            <span
+              id="cart-count"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size: 10px"
+              >0</span
+            >
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- SEARCH HERO -->
+    <div class="search-hero">
+      <div class="container">
+        <h1>Tìm Kiếm Sản Phẩm</h1>
+        <p>Khám phá hàng trăm sản phẩm làm đẹp & thời trang</p>
+        <div class="search-wrap">
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Tìm sản phẩm, danh mục, thương hiệu..."
+            autocomplete="off"
+          />
+          <button class="search-btn" onclick="doSearch()">
+            <i class="bi bi-search"></i>
+          </button>
+          <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="container">
+        <div
+          class="d-flex align-items-center justify-content-between gap-3 flex-wrap"
+        >
+          <div class="filter-scroll" id="categoryChips">
+            <button
+              class="filter-chip active"
+              data-cat=""
+              onclick="setCat('', this)"
+            >
+              Tất Cả
+            </button>
+            <!-- Filled by JS from API -->
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <select
+              class="sort-select"
+              id="sortSelect"
+              onchange="setSort(this.value)"
+            >
+              <option value="default">Mặc Định</option>
+              <option value="newest">Mới Nhất</option>
+              <option value="price_asc">Giá: Thấp → Cao</option>
+              <option value="price_desc">Giá: Cao → Thấp</option>
+              <option value="name">Tên A→Z</option>
+            </select>
+            <div class="d-flex" style="gap: 2px">
+              <button
+                class="filter-chip active"
+                id="viewGrid"
+                onclick="setView('grid')"
+                style="padding: 7px 10px"
+                title="Dạng lưới"
+              >
+                <i class="bi bi-grid-3x3-gap"></i>
+              </button>
+              <button
+                class="filter-chip"
+                id="viewList"
+                onclick="setView('list')"
+                style="padding: 7px 10px"
+                title="Dạng danh sách"
+              >
+                <i class="bi bi-list-ul"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREADCRUMB + CONTENT -->
+    <div class="container py-4">
+      <!-- Breadcrumb -->
+      <div class="bc mb-3">
+        <a href="index.html">Trang Chủ</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-cur" id="bcCur">Tất Cả Sản Phẩm</span>
+      </div>
+
+      <div class="shop-layout">
+        <!-- ── FILTER SIDEBAR ── -->
+        <div class="filter-sidebar" id="filterSidebar">
+          <div class="filter-sidebar-hd">
+            <span><i class="bi bi-funnel me-2"></i>Bộ Lọc</span>
+            <button onclick="resetAllFilters()">Xóa tất cả</button>
+          </div>
+
+          <!-- 1. DANH MỤC -->
+          <div class="filter-group" id="fg-cat">
+            <div
+              class="filter-group-title"
+              onclick="toggleFilterGroup('fg-cat')"
+            >
+              <span>Danh Mục</span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="filter-group-body" id="catList">
+              <div class="cat-chip active" onclick="setCatFilter('', this)">
+                <span>Tất Cả Sản Phẩm</span>
+              </div>
+              <!-- Filled by JS from API -->
+            </div>
+          </div>
+
+          <!-- 2. KHOẢNG GIÁ -->
+          <div class="filter-group" id="fg-price">
+            <div
+              class="filter-group-title"
+              onclick="toggleFilterGroup('fg-price')"
+            >
+              <span>Khoảng Giá</span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="filter-group-body">
+              <!-- Dual range slider -->
+              <div style="padding: 6px 4px 4px">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
+                  "
+                >
+                  <span
+                    style="
+                      font-size: 12px;
+                      color: var(--pink);
+                      font-weight: 600;
+                    "
+                    id="sliderMinLabel"
+                    >0 ₫</span
+                  >
+                  <span
+                    style="
+                      font-size: 12px;
+                      color: var(--pink);
+                      font-weight: 600;
+                    "
+                    id="sliderMaxLabel"
+                    >100.000.000 ₫</span
+                  >
+                </div>
+                <div
+                  style="position: relative; height: 20px; margin-bottom: 12px"
+                  id="priceSliderWrap"
+                >
+                  <div
+                    style="
+                      position: absolute;
+                      top: 8px;
+                      left: 0;
+                      right: 0;
+                      height: 4px;
+                      background: #e8e8e8;
+                      border-radius: 2px;
+                    "
+                  ></div>
+                  <div
+                    id="sliderTrack"
+                    style="
+                      position: absolute;
+                      top: 8px;
+                      height: 4px;
+                      background: var(--pink);
+                      border-radius: 2px;
+                    "
+                  ></div>
+                  <input
+                    type="range"
+                    id="sliderMin"
+                    min="0"
+                    max="100000000"
+                    step="100000"
+                    value="0"
+                    style="
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      width: 100%;
+                      height: 20px;
+                      -webkit-appearance: none;
+                      appearance: none;
+                      background: transparent;
+                      pointer-events: none;
+                    "
+                    oninput="onSliderMin(this.value)"
+                  />
+                  <input
+                    type="range"
+                    id="sliderMax"
+                    min="0"
+                    max="100000000"
+                    step="100000"
+                    value="100000000"
+                    style="
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      width: 100%;
+                      height: 20px;
+                      -webkit-appearance: none;
+                      appearance: none;
+                      background: transparent;
+                      pointer-events: none;
+                    "
+                    oninput="onSliderMax(this.value)"
+                  />
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center">
+                  <input
+                    type="number"
+                    id="minPriceInput"
+                    placeholder="Từ"
+                    min="0"
+                    max="100000000"
+                    step="100000"
+                    class="price-input"
+                    style="flex: 1; text-align: center"
+                    onchange="onPriceInputChange()"
+                  />
+                  <span style="color: #ccc; font-size: 12px">—</span>
+                  <input
+                    type="number"
+                    id="maxPriceInput"
+                    placeholder="Đến"
+                    min="0"
+                    max="100000000"
+                    step="100000"
+                    class="price-input"
+                    style="flex: 1; text-align: center"
+                    onchange="onPriceInputChange()"
+                  />
+                </div>
+              </div>
+              <div class="price-presets" style="margin-top: 10px">
+                <button
+                  class="price-preset"
+                  onclick="applyPricePreset(0, 200000)"
+                >
+                  Dưới 200K
+                </button>
+                <button
+                  class="price-preset"
+                  onclick="applyPricePreset(200000, 500000)"
+                >
+                  200K–500K
+                </button>
+                <button
+                  class="price-preset"
+                  onclick="applyPricePreset(500000, 1000000)"
+                >
+                  500K–1M
+                </button>
+                <button
+                  class="price-preset"
+                  onclick="applyPricePreset(1000000, 0)"
+                >
+                  Trên 1M
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group" id="fg-rating">
+            <div
+              class="filter-group-title"
+              onclick="toggleFilterGroup('fg-rating')"
+            >
+              <span>Đánh Giá</span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="filter-group-body">
+              <label class="rating-option">
+                <input
+                  type="radio"
+                  name="ratingFilter"
+                  value="0"
+                  checked
+                  onchange="setRating(0)"
+                />
+                <span>Tất cả</span>
+              </label>
+              <label class="rating-option">
+                <input
+                  type="radio"
+                  name="ratingFilter"
+                  value="4"
+                  onchange="setRating(4)"
+                />
+                <span class="stars-display">★★★★</span
+                ><span style="font-size: 11px; color: var(--gray)">
+                  trở lên</span
+                >
+              </label>
+              <label class="rating-option">
+                <input
+                  type="radio"
+                  name="ratingFilter"
+                  value="3"
+                  onchange="setRating(3)"
+                />
+                <span class="stars-display">★★★</span
+                ><span style="font-size: 11px; color: var(--gray)">
+                  trở lên</span
+                >
+              </label>
+              <label class="rating-option">
+                <input
+                  type="radio"
+                  name="ratingFilter"
+                  value="5"
+                  onchange="setRating(5)"
+                />
+                <span class="stars-display">★★★★★</span
+                ><span style="font-size: 11px; color: var(--gray)"> 5 sao</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. TRẠNG THÁI -->
+          <div class="filter-group" id="fg-status">
+            <div
+              class="filter-group-title"
+              onclick="toggleFilterGroup('fg-status')"
+            >
+              <span>Trạng Thái</span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="filter-group-body">
+              <div class="filter-toggle">
+                <label for="toggleNew">🆕 Hàng Mới</label>
+                <label class="toggle-sw">
+                  <input
+                    type="checkbox"
+                    id="toggleNew"
+                    onchange="setOnlyNew(this.checked)"
+                  />
+                  <span class="toggle-sl"></span>
+                </label>
+              </div>
+              <div class="filter-toggle">
+                <label for="toggleSale">🏷️ Đang Giảm Giá</label>
+                <label class="toggle-sw">
+                  <input
+                    type="checkbox"
+                    id="toggleSale"
+                    onchange="setOnlySale(this.checked)"
+                  />
+                  <span class="toggle-sl"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. SẮP XẾP (trong sidebar mobile) -->
+          <div class="filter-group d-md-none" id="fg-sort">
+            <div class="filter-group-title">
+              <span>Sắp Xếp</span>
+            </div>
+            <div class="filter-group-body">
+              <select
+                class="price-input"
+                onchange="setSort(this.value)"
+                style="width: 100%"
+              >
+                <option value="default">Mặc định</option>
+                <option value="newest">Mới nhất</option>
+                <option value="price_asc">Giá: Thấp → Cao</option>
+                <option value="price_desc">Giá: Cao → Thấp</option>
+                <option value="name">Tên A→Z</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PRODUCTS COLUMN ── -->
+        <div>
+          <!-- Section tabs -->
+          <div
+            style="
+              display: flex;
+              gap: 6px;
+              flex-wrap: wrap;
+              margin-bottom: 12px;
+            "
+            id="sectionTabs"
+          >
+            <button
+              class="of-btn active"
+              onclick="clearSection(this)"
+              data-section=""
+            >
+              Tất Cả
+            </button>
+            <button
+              class="of-btn"
+              onclick="setSection('new', this)"
+              data-section="new"
+            >
+              🆕 Hàng Mới
+            </button>
+            <button
+              class="of-btn"
+              onclick="setSection('best', this)"
+              data-section="best"
+            >
+              🔥 Bán Chạy
+            </button>
+            <button
+              class="of-btn"
+              onclick="setSection('sale', this)"
+              data-section="sale"
+            >
+              🏷️ Đang Giảm
+            </button>
+          </div>
+
+          <!-- Active filter tags -->
+          <div class="active-filters" id="activeFilters"></div>
+
+          <!-- Result meta -->
+          <div class="result-meta" id="resultMeta"></div>
+
+          <!-- Products grid -->
+          <div id="productsWrap"><!-- Filled by JS --></div>
+        </div>
+      </div>
+      <!-- /shop-layout -->
+
+      <!-- Pagination -->
+      <div class="pagination-wrap" id="paginationWrap"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-5 pb-3" style="background: #111; color: #ccc">
+      <div class="container">
+        <div class="row g-4 mb-4">
+          <div class="col-lg-3">
+            <div
+              style="
+                font-family: &quot;Marcellus&quot;, serif;
+                color: #fff;
+                font-size: 1.4rem;
+                margin-bottom: 12px;
+              "
+            >
+              GLOWHUB
+            </div>
+            <p style="font-size: 13px; line-height: 1.8">
+              Cửa hàng làm đẹp hàng đầu Việt Nam.
+            </p>
+          </div>
+          <div class="col-lg-2">
+            <div
+              style="
+                font-family: &quot;Marcellus&quot;, serif;
+                color: #fff;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 14px;
+                font-size: 13px;
+              "
+            >
+              Cửa Hàng
+            </div>
+            <ul class="list-unstyled" style="line-height: 2.2; font-size: 13px">
+              <li>
+                <a href="shop.html" style="color: #aaa; text-decoration: none"
+                  >Tất Cả</a
+                >
+              </li>
+              <li>
+                <a
+                  href="shop.html?cat=1"
+                  style="color: #aaa; text-decoration: none"
+                  >Chăm Sóc Da</a
+                >
+              </li>
+              <li>
+                <a
+                  href="shop.html?cat=2"
+                  style="color: #aaa; text-decoration: none"
+                  >Trang Điểm</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-2">
+            <div
+              style="
+                font-family: &quot;Marcellus&quot;, serif;
+                color: #fff;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 14px;
+                font-size: 13px;
+              "
+            >
+              Tài Khoản
+            </div>
+            <ul class="list-unstyled" style="line-height: 2.2; font-size: 13px">
+              <li>
+                <a href="login.html" style="color: #aaa; text-decoration: none"
+                  >Đăng Nhập</a
+                >
+              </li>
+              <li>
+                <a
+                  href="checkout.html"
+                  style="color: #aaa; text-decoration: none"
+                  >Đơn Hàng</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <hr style="border-color: #333" />
+        <p style="text-align: center; font-size: 12px; color: #666; margin: 0">
+          © 2025 GlowHub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script>
+      /* ═══════════════════════════════════════════════════════
+   GlowHub — shop.html
+   Tính năng: Search realtime, phân trang, lọc danh mục,
+              sắp xếp, 2 chế độ xem, URL params sync
+═══════════════════════════════════════════════════════ */
+
+      // ── STATE ──
+      var state = {
+        section: "", // 'new' | 'best' | 'sale'
+        query: "", // text search
+        cat: "", // category id
+        sort: "default",
+        view: "grid",
+        page: 1,
+        pageSize: 12,
+        total: 0,
+        products: [],
+        allProducts: [],
+        categories: [],
+        loading: false,
+        searchTimer: null,
+        // ── Tiêu chí lọc nâng cao ──
+        minPrice: 0, // giá từ
+        maxPrice: 0, // giá đến (0 = không giới hạn)
+        onlyNew: false, // chỉ hàng mới (IsNew=true)
+        onlySale: false, // chỉ hàng đang giảm
+        minRating: 0, // đánh giá tối thiểu (1-5)
+      };
+
+      var fmt = function (n) {
+        return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫";
+      };
+
+      // ── INIT ──
+      document.addEventListener("DOMContentLoaded", function () {
+        renderNavUser();
+        Cart._updateUI();
+        readURLParams();
+        loadCategories();
+        loadProducts();
+        initPriceSlider();
+      });
+
+      function readURLParams() {
+        var p = new URLSearchParams(location.search);
+        if (p.get("q")) {
+          state.query = p.get("q");
+          document.getElementById("searchInput").value = state.query;
+        }
+        if (p.get("cat")) {
+          state.cat = p.get("cat");
+        }
+        if (p.get("section")) {
+          var sec = p.get("section");
+          state.section = sec; // lưu section để filter dùng
+          state.sort = sec === "new" ? "newest" : "default";
+          document.getElementById("sortSelect").value = state.sort;
+          // Breadcrumb
+          var bcMap = { new: "Hàng Mới Về", best: "Bán Chạy Nhất" };
+          var bcEl = document.getElementById("bcCur");
+          if (bcEl) bcEl.textContent = bcMap[sec] || sec;
+          // Active filter button highlight
+          var filterBtns = document.querySelectorAll("[data-section]");
+          filterBtns.forEach(function (btn) {
+            btn.classList.toggle("active", btn.dataset.section === sec);
+          });
+        }
+        if (p.get("page")) {
+          state.page = parseInt(p.get("page")) || 1;
+        }
+      }
+
+      function updateURL() {
+        var p = new URLSearchParams();
+        if (state.query) p.set("q", state.query);
+        if (state.cat) p.set("cat", state.cat);
+        if (state.section) p.set("section", state.section);
+        if (state.sort && state.sort !== "default") p.set("sort", state.sort);
+        if (state.page > 1) p.set("page", state.page);
+        var url = location.pathname + (p.toString() ? "?" + p.toString() : "");
+        history.replaceState(null, "", url);
+      }
+
+      // ── CATEGORIES ──
+      function loadCategories() {
+        if (typeof apiFetch === "undefined") return;
+        apiFetch(PRODUCT_API, "/api/categories", "GET")
+          .then(function (cats) {
+            if (!cats || !cats.length) return;
+            state.categories = cats;
+            renderCategoryList();
+            var wrap = document.getElementById("categoryChips");
+            var existing = wrap.querySelector('[data-cat=""]');
+            cats.forEach(function (c) {
+              var btn = document.createElement("button");
+              btn.className =
+                "filter-chip" + (state.cat == c.Id ? " active" : "");
+              btn.setAttribute("data-cat", c.Id);
+              btn.textContent = c.Name || c.name;
+              btn.onclick = function () {
+                setCat(c.Id, this);
+              };
+              wrap.appendChild(btn);
+            });
+            // Highlight active
+            if (state.cat) {
+              wrap.querySelectorAll(".filter-chip").forEach(function (b) {
+                b.classList.toggle(
+                  "active",
+                  b.getAttribute("data-cat") == state.cat,
+                );
+              });
+            }
+          })
+          .catch(function () {
+            // Fallback categories
+            var defaults = [
+              { Id: 1, Name: "Chăm Sóc Da Mặt" },
+              { Id: 2, Name: "Trang Điểm" },
+              { Id: 3, Name: "Chăm Sóc Cơ Thể" },
+              { Id: 4, Name: "Nước Hoa" },
+              { Id: 5, Name: "Chăm Sóc Tóc" },
+              { Id: 6, Name: "Chống Nắng" },
+            ];
+            state.categories = defaults;
+            renderCategoryList();
+            var wrap = document.getElementById("categoryChips");
+            defaults.forEach(function (c) {
+              var btn = document.createElement("button");
+              btn.className =
+                "filter-chip" + (state.cat == c.Id ? " active" : "");
+              btn.setAttribute("data-cat", c.Id);
+              btn.textContent = c.Name;
+              btn.onclick = function () {
+                setCat(c.Id, this);
+              };
+              wrap.appendChild(btn);
+            });
+          });
+      }
+
+      // ── LOAD PRODUCTS ──
+      function loadProducts() {
+        if (state.loading) return;
+        state.loading = true;
+        renderSkeletons();
+
+        var params = {};
+        if (state.cat) params.categoryId = state.cat;
+        if (state.query) params.keyword = state.query;
+        params.isActive = true;
+
+        var doLoad =
+          typeof Product !== "undefined"
+            ? Product.getAll(params)
+            : Promise.reject(new Error("API not ready"));
+
+        doLoad
+          .then(function (result) {
+            var items = Array.isArray(result)
+              ? result
+              : result && result.items
+                ? result.items
+                : result && result.data
+                  ? result.data
+                  : [];
+            state.allProducts = items;
+            renderCategoryList();
+            applyFilter();
+          })
+          .catch(function () {
+            state.allProducts = getSampleProducts();
+            renderCategoryList();
+            applyFilter();
+          })
+          .finally(function () {
+            state.loading = false;
+          });
+      }
+
+      // ── Section filter functions ──
+      function setSection(sec, btn) {
+        state.section = sec;
+        state.page = 1;
+        document.querySelectorAll("[data-section]").forEach(function (b) {
+          b.classList.toggle("active", b.dataset.section === sec);
+        });
+        // Update sort nếu section=new
+        if (sec === "new") {
+          state.sort = "newest";
+          var sortEl = document.getElementById("sortSelect");
+          if (sortEl) sortEl.value = "newest";
+        }
+        applyFilter();
+        // Sync section tab highlight with URL
+        if (state.section) {
+          document.querySelectorAll("[data-section]").forEach(function (b) {
+            b.classList.toggle("active", b.dataset.section === state.section);
+          });
+        }
+      }
+
+      function clearSection(btn) {
+        state.section = "";
+        document.querySelectorAll("[data-section]").forEach(function (b) {
+          b.classList.toggle("active", b.dataset.section === "");
+        });
+        applyFilter();
+      }
+
+      function applyFilter() {
+        var items = state.allProducts.slice();
+
+        // ── 1. FILTER: Hàng Mới (isNew = true) ──
+        if (state.section === "new") {
+          // Đẩy sản phẩm mới lên đầu, giữ tất cả SP khác phía sau
+          var newItems = items.filter(function (p) {
+            return p.IsNew || p.isNew;
+          });
+          var restItems = items.filter(function (p) {
+            return !(p.IsNew || p.isNew);
+          });
+          // Nếu có sản phẩm mới → chỉ hiện SP mới, không hiện phần còn lại
+          if (newItems.length > 0) {
+            items = newItems;
+          }
+          // Sort: mới nhất lên đầu
+          items.sort(function (a, b) {
+            return (
+              new Date(b.CreatedAt || b.createdAt || 0) -
+              new Date(a.CreatedAt || a.createdAt || 0)
+            );
+          });
+        }
+
+        // ── 2. FILTER: Bán Chạy (section=best) ──
+        if (state.section === "best") {
+          // Sort theo SortOrder (admin set) hoặc theo doanh số
+          items.sort(function (a, b) {
+            var aOrder = a.SortOrder || a.sortOrder || 0;
+            var bOrder = b.SortOrder || b.sortOrder || 0;
+            return bOrder - aOrder;
+          });
+        }
+
+        // ── 3. FILTER: Danh mục (cat) ──
+        if (state.cat) {
+          var searchId = state.cat.toString().trim();
+          items = items.filter(function (p) {
+            var catId = (p.CategoryId || p.categoryId || "").toString().trim();
+            if (catId === searchId) return true;
+            // Fallback: so sánh tên danh mục
+            var catName = (
+              (p.Category && (p.Category.Name || p.Category.name)) ||
+              p.CategoryName ||
+              ""
+            )
+              .toLowerCase()
+              .trim();
+            var matchCat = state.categories.find(function (c) {
+              return (c.Id || c.id).toString() === searchId;
+            });
+            if (matchCat) {
+              return (
+                catName ===
+                (matchCat.Name || matchCat.name || "").toLowerCase().trim()
+              );
+            }
+            return false;
+          });
+        }
+
+        // ── 4. FILTER: Tìm kiếm text ──
+        if (state.query) {
+          var q = state.query.toLowerCase();
+          items = items.filter(function (p) {
+            var name = (p.Name || p.name || "").toLowerCase();
+            var desc = (p.Description || p.description || "").toLowerCase();
+            var cat = (
+              (p.Category && (p.Category.Name || p.Category.name)) ||
+              ""
+            ).toLowerCase();
+            return name.includes(q) || desc.includes(q) || cat.includes(q);
+          });
+        }
+
+        // ── 5. FILTER: Khoảng giá ──
+        if (state.minPrice || state.maxPrice) {
+          items = items.filter(function (p) {
+            var price = p.Price || p.price || 0;
+            var ok = true;
+            if (state.minPrice) ok = ok && price >= state.minPrice;
+            if (state.maxPrice) ok = ok && price <= state.maxPrice;
+            return ok;
+          });
+        }
+
+        // ── 6. SORT (nếu không phải section đặc biệt) ──
+        if (!state.section) {
+          switch (state.sort) {
+            case "newest":
+              items.sort(function (a, b) {
+                return (
+                  new Date(b.CreatedAt || b.createdAt || 0) -
+                  new Date(a.CreatedAt || a.createdAt || 0)
+                );
+              });
+              break;
+            case "price_asc":
+              items.sort(function (a, b) {
+                return (a.Price || a.price || 0) - (b.Price || b.price || 0);
+              });
+              break;
+            case "price_desc":
+              items.sort(function (a, b) {
+                return (b.Price || b.price || 0) - (a.Price || a.price || 0);
+              });
+              break;
+            case "name":
+              items.sort(function (a, b) {
+                return (a.Name || a.name || "").localeCompare(
+                  b.Name || b.name || "",
+                );
+              });
+              break;
+            case "sale":
+              // Sort theo % giảm giá
+              items.sort(function (a, b) {
+                var aDisc =
+                  a.DiscountPrice || a.discountPrice
+                    ? Math.round(
+                        (1 -
+                          (a.DiscountPrice || a.discountPrice) /
+                            (a.Price || a.price || 1)) *
+                          100,
+                      )
+                    : 0;
+                var bDisc =
+                  b.DiscountPrice || b.discountPrice
+                    ? Math.round(
+                        (1 -
+                          (b.DiscountPrice || b.discountPrice) /
+                            (b.Price || b.price || 1)) *
+                          100,
+                      )
+                    : 0;
+                return bDisc - aDisc;
+              });
+              break;
+          }
+        }
+
+        state.products = items;
+        state.total = items.length;
+        state.page = 1; // reset về trang 1 khi filter
+        renderProducts();
+        renderPagination();
+        renderResultMeta();
+        renderActiveFilters();
+        updateURL();
+        updateBreadcrumb();
+      }
+
+      // ── RENDER PRODUCTS ──
+      function renderProducts() {
+        var wrap = document.getElementById("productsWrap");
+        var start = (state.page - 1) * state.pageSize;
+        var page = state.products.slice(start, start + state.pageSize);
+
+        if (!page.length) {
+          wrap.innerHTML =
+            '<div class="empty-state"><i class="bi bi-search"></i>' +
+            "<h4 style=\"font-family:'Marcellus',serif;color:var(--gray)\">Không tìm thấy sản phẩm</h4>" +
+            '<p style="font-size:13px">Thử tìm kiếm với từ khóa khác</p>' +
+            '<button onclick="clearAllFilters()" style="background:var(--dark);color:#fff;border:none;' +
+            "padding:10px 24px;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;" +
+            "font-family:'Jost',sans-serif;margin-top:12px\">Xóa Bộ Lọc</button></div>";
+          return;
+        }
+
+        if (state.view === "list") {
+          wrap.innerHTML =
+            '<div class="d-flex flex-column gap-2">' +
+            page.map(renderListCard).join("") +
+            "</div>";
+        } else {
+          wrap.innerHTML =
+            '<div class="row g-3">' +
+            page
+              .map(function (p) {
+                return (
+                  '<div class="col-6 col-md-4 col-lg-3">' +
+                  renderGridCard(p) +
+                  "</div>"
+                );
+              })
+              .join("") +
+            "</div>";
+        }
+      }
+
+      function renderGridCard(p) {
+        var id = p.Id || p.id;
+        var name = p.Name || p.name || "Sản phẩm";
+        var price = p.Price || p.price || 0;
+        var oldP = p.DiscountPrice || p.discountPrice || null;
+        var img =
+          p.ImageUrl ||
+          p.imageUrl ||
+          p.Image ||
+          p.image ||
+          "images/product-item-1.jpg";
+        var isNew = p.IsNew || p.isNew;
+        var disc =
+          oldP && oldP > price ? Math.round((1 - price / oldP) * 100) : 0;
+        var cat =
+          (p.Category && (p.Category.Name || p.Category.name)) ||
+          p.CategoryName ||
+          "";
+        return (
+          '<div class="product-card" data-id="' +
+          id +
+          '">' +
+          (isNew
+            ? '<span class="badge-new">Mới</span>'
+            : disc
+              ? '<span class="badge-sale">-' + disc + "%</span>"
+              : "") +
+          '<a href="product.html?id=' +
+          id +
+          '"><img src="' +
+          img +
+          '" alt="' +
+          name +
+          '" loading="lazy" onerror="this.src=\'images/product-item-1.jpg\'"/></a>' +
+          '<div class="p-3"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:3px">' +
+          cat +
+          "</div>" +
+          '<a href="product.html?id=' +
+          id +
+          '" class="prod-title">' +
+          name +
+          "</a>" +
+          '<span class="prod-price">' +
+          fmt(price) +
+          "</span>" +
+          (oldP
+            ? '<span class="prod-price-old">' + fmt(oldP) + "</span>"
+            : "") +
+          "</div>" +
+          '<button class="btn-add-cart" onclick="addToCart(event,' +
+          id +
+          ",'" +
+          name.replace(/'/g, "\\'") +
+          "'," +
+          price +
+          ",'" +
+          img +
+          "')\">Thêm Vào Giỏ</button>" +
+          "</div>"
+        );
+      }
+
+      function renderListCard(p) {
+        var id = p.Id || p.id;
+        var name = p.Name || p.name || "Sản phẩm";
+        var price = p.Price || p.price || 0;
+        var oldP = p.DiscountPrice || p.discountPrice || null;
+        var img =
+          p.ImageUrl ||
+          p.imageUrl ||
+          p.Image ||
+          p.image ||
+          "images/product-item-1.jpg";
+        var desc = p.Description || p.description || "";
+        var isNew = p.IsNew || p.isNew;
+        return (
+          '<div style="display:flex;gap:0;background:#fff;border:1px solid var(--border);overflow:hidden;transition:.2s" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.08)\'" onmouseout="this.style.boxShadow=\'none\'">' +
+          '<div style="position:relative;width:140px;flex-shrink:0">' +
+          (isNew ? '<span class="badge-new">Mới</span>' : "") +
+          '<a href="product.html?id=' +
+          id +
+          '"><img src="' +
+          img +
+          '" alt="' +
+          name +
+          '" loading="lazy" style="width:140px;height:175px;object-fit:cover;display:block" onerror="this.src=\'images/product-item-1.jpg\'"/></a>' +
+          "</div>" +
+          '<div style="flex:1;padding:18px 20px;display:flex;flex-direction:column;justify-content:center">' +
+          '<a href="product.html?id=' +
+          id +
+          '" style="font-family:\'Marcellus\',serif;font-size:15px;color:var(--dark);text-decoration:none;display:block;margin-bottom:6px">' +
+          name +
+          "</a>" +
+          '<p style="font-size:13px;color:var(--gray);margin:0 0 12px;line-height:1.6">' +
+          desc +
+          "</p>" +
+          '<div style="display:flex;align-items:center;gap:12px">' +
+          '<span style="color:var(--pink);font-weight:700;font-size:15px">' +
+          fmt(price) +
+          "</span>" +
+          (oldP
+            ? '<span style="text-decoration:line-through;color:var(--gray);font-size:13px">' +
+              fmt(oldP) +
+              "</span>"
+            : "") +
+          '<button onclick="addToCart(event,' +
+          id +
+          ",'" +
+          name.replace(/'/g, "\\'") +
+          "'," +
+          price +
+          ",'" +
+          img +
+          "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Jost',sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +
+          "</div></div></div>"
+        );
+      }
+
+      // ── PAGINATION ──
+      function renderPagination() {
+        var total = Math.ceil(state.total / state.pageSize);
+        var wrap = document.getElementById("paginationWrap");
+        if (total <= 1) {
+          wrap.innerHTML = "";
+          return;
+        }
+
+        var html = "";
+        html +=
+          '<button class="page-btn' +
+          (state.page <= 1 ? " disabled" : "") +
+          '" onclick="goPage(' +
+          (state.page - 1) +
+          ')">‹</button>';
+
+        for (var i = 1; i <= total; i++) {
+          if (i === 1 || i === total || Math.abs(i - state.page) <= 2) {
+            html +=
+              '<button class="page-btn' +
+              (i === state.page ? " active" : "") +
+              '" onclick="goPage(' +
+              i +
+              ')">' +
+              i +
+              "</button>";
+          } else if (Math.abs(i - state.page) === 3) {
+            html +=
+              '<span class="page-btn disabled" style="cursor:default">…</span>';
+          }
+        }
+        html +=
+          '<button class="page-btn' +
+          (state.page >= total ? " disabled" : "") +
+          '" onclick="goPage(' +
+          (state.page + 1) +
+          ')">›</button>';
+        wrap.innerHTML = html;
+      }
+
+      function goPage(p) {
+        var total = Math.ceil(state.total / state.pageSize);
+        if (p < 1 || p > total) return;
+        state.page = p;
+        renderProducts();
+        renderPagination();
+        window.scrollTo({ top: 280, behavior: "smooth" });
+        updateURL();
+      }
+
+      // ── SEARCH ──
+      var searchTimer = null;
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          var q = this.value.trim();
+          clearTimeout(searchTimer);
+          if (q.length > 1) showSuggestions(q);
+          else hideSuggestions();
+          searchTimer = setTimeout(function () {
+            state.query = q;
+            state.page = 1;
+            applyFilter();
+          }, 350);
+        });
+
+      document
+        .getElementById("searchInput")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") doSearch();
+          if (e.key === "Escape") hideSuggestions();
+        });
+
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".search-wrap")) hideSuggestions();
+      });
+
+      function doSearch() {
+        state.query = document.getElementById("searchInput").value.trim();
+        state.page = 1;
+        hideSuggestions();
+        applyFilter();
+      }
+
+      function showSuggestions(q) {
+        var ql = q.toLowerCase();
+        var matches = state.allProducts
+          .filter(function (p) {
+            return (p.Name || p.name || "").toLowerCase().includes(ql);
+          })
+          .slice(0, 6);
+
+        var box = document.getElementById("searchSuggestions");
+        if (!matches.length) {
+          hideSuggestions();
+          return;
+        }
+
+        box.innerHTML = matches
+          .map(function (p) {
+            var id = p.Id || p.id;
+            var name = p.Name || p.name || "";
+            var price = p.Price || p.price || 0;
+            var img =
+              p.ImageUrl ||
+              p.imageUrl ||
+              p.Image ||
+              p.image ||
+              "images/product-item-1.jpg";
+            var cat =
+              (p.Category && (p.Category.Name || p.Category.name)) || "";
+            // Highlight matching text
+            var hi = name.replace(
+              new RegExp(
+                "(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")",
+                "gi",
+              ),
+              '<strong style="color:var(--pink)">$1</strong>',
+            );
+            return (
+              '<div class="suggestion-item" onclick="window.location.href=\'product.html?id=' +
+              id +
+              "'\">" +
+              '<img src="' +
+              img +
+              '" alt="' +
+              name +
+              '" onerror="this.src=\'images/product-item-1.jpg\'">' +
+              '<div><div class="sug-name">' +
+              hi +
+              "</div>" +
+              '<div class="sug-cat">' +
+              cat +
+              "</div>" +
+              '<div class="sug-price">' +
+              fmt(price) +
+              "</div></div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        // Add "See all results" footer
+        box.innerHTML +=
+          '<div style="padding:10px 16px;text-align:center;font-size:12px;border-top:1px solid #f5f5f5">' +
+          '<a href="javascript:void(0)" onclick="doSearch();return false" style="color:var(--pink);text-decoration:none;text-transform:uppercase;letter-spacing:1px">' +
+          'Xem tất cả kết quả cho "' +
+          q +
+          '"</a></div>';
+
+        box.style.display = "block";
+      }
+
+      function hideSuggestions() {
+        document.getElementById("searchSuggestions").style.display = "none";
+      }
+
+      // ── FILTERS ──
+      function setCat(id, btn) {
+        state.cat = id ? id.toString() : "";
+        state.page = 1;
+        var sel = document.getElementById("catSelect");
+        if (sel) sel.value = state.cat;
+        document
+          .querySelectorAll("#categoryChips .filter-chip")
+          .forEach(function (b) {
+            var cid = (b.getAttribute("data-cat") || "").toString();
+            b.classList.toggle("active", cid === state.cat);
+          });
+        if (state.allProducts.length > 0) applyFilter();
+        else loadProducts();
+      }
+
+      function setSort(val) {
+        state.sort = val;
+        state.page = 1;
+        applyFilter();
+      }
+
+      function setView(v) {
+        state.view = v;
+        document
+          .getElementById("viewGrid")
+          .classList.toggle("active", v === "grid");
+        document
+          .getElementById("viewList")
+          .classList.toggle("active", v === "list");
+        renderProducts();
+      }
+
+      function clearAllFilters() {
+        state.query = "";
+        state.cat = "";
+        state.sort = "default";
+        state.page = 1;
+        document.getElementById("searchInput").value = "";
+        document.getElementById("sortSelect").value = "default";
+        document
+          .querySelectorAll("#categoryChips .filter-chip")
+          .forEach(function (b) {
+            b.classList.toggle("active", b.getAttribute("data-cat") === "");
+          });
+        loadProducts();
+      }
+
+      // ══════════════════════════════════════════════════════
+      // FILTER FUNCTIONS — 5 tiêu chí
+      // ══════════════════════════════════════════════════════
+
+      // 1. DANH MỤC
+      function setCatFilter(catId, el) {
+        state.cat = catId ? catId.toString() : "";
+        state.page = 1;
+        var sel = document.getElementById("catSelect");
+        if (sel) sel.value = state.cat;
+        document
+          .querySelectorAll("#categoryChips .filter-chip")
+          .forEach(function (b) {
+            var cid = (b.getAttribute("data-cat") || "").toString();
+            b.classList.toggle("active", cid === state.cat);
+          });
+        if (state.allProducts.length > 0) applyFilter();
+        else loadProducts();
+      }
+
+      // Render category list từ API
+      function renderCategoryList() {
+        var sel = document.getElementById("catSelect");
+        if (!sel) return;
+        // Xóa options cũ, giữ "Tất Cả"
+        while (sel.options.length > 1) sel.remove(1);
+        state.categories.forEach(function (cat) {
+          var id = (cat.Id || cat.id || "").toString();
+          var name = cat.Name || cat.name || "";
+          var count = state.allProducts.filter(function (p) {
+            var pid = (p.CategoryId || p.categoryId || "").toString();
+            return pid === id;
+          }).length;
+          var opt = document.createElement("option");
+          opt.value = id;
+          opt.textContent = name + (count ? " (" + count + ")" : "");
+          if (state.cat === id) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.value = state.cat || "";
+      }
+
+      // 2. KHOẢNG GIÁ
+      function setPriceRange() {
+        var min = parseInt(document.getElementById("minPriceInput").value) || 0;
+        var max = parseInt(document.getElementById("maxPriceInput").value) || 0;
+        state.minPrice = min;
+        state.maxPrice = max;
+        state.page = 1;
+        // Clear preset active
+        document.querySelectorAll(".price-preset").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        applyFilter();
+      }
+
+      // ── PRICE RANGE SLIDER ──
+      var PRICE_MAX = 100000000;
+
+      function fmtSlider(n) {
+        if (n >= 1000000)
+          return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + "M";
+        if (n >= 1000) return Math.round(n / 1000) + "K";
+        return n + "";
+      }
+
+      function updateSliderTrack() {
+        var mn = parseInt(document.getElementById("sliderMin").value);
+        var mx = parseInt(document.getElementById("sliderMax").value);
+        var pct_min = (mn / PRICE_MAX) * 100;
+        var pct_max = (mx / PRICE_MAX) * 100;
+        var track = document.getElementById("sliderTrack");
+        if (track) {
+          track.style.left = pct_min + "%";
+          track.style.width = pct_max - pct_min + "%";
+        }
+        var lblMin = document.getElementById("sliderMinLabel");
+        var lblMax = document.getElementById("sliderMaxLabel");
+        if (lblMin) lblMin.textContent = fmtSlider(mn) + " ₫";
+        if (lblMax)
+          lblMax.textContent =
+            mx >= PRICE_MAX ? "Không giới hạn" : fmtSlider(mx) + " ₫";
+      }
+
+      function onSliderMin(val) {
+        val = parseInt(val);
+        var mx = parseInt(document.getElementById("sliderMax").value);
+        if (val > mx - 100000) {
+          val = mx - 100000;
+          document.getElementById("sliderMin").value = val;
+        }
+        document.getElementById("minPriceInput").value = val || "";
+        updateSliderTrack();
+        state.minPrice = val;
+        state.maxPrice = mx >= PRICE_MAX ? 0 : mx;
+        state.page = 1;
+        clearTimeout(state.searchTimer);
+        state.searchTimer = setTimeout(function () {
+          applyFilter();
+        }, 300);
+      }
+
+      function onSliderMax(val) {
+        val = parseInt(val);
+        var mn = parseInt(document.getElementById("sliderMin").value);
+        if (val < mn + 100000) {
+          val = mn + 100000;
+          document.getElementById("sliderMax").value = val;
+        }
+        document.getElementById("maxPriceInput").value =
+          val >= PRICE_MAX ? "" : val;
+        updateSliderTrack();
+        state.minPrice = mn;
+        state.maxPrice = val >= PRICE_MAX ? 0 : val;
+        state.page = 1;
+        clearTimeout(state.searchTimer);
+        state.searchTimer = setTimeout(function () {
+          applyFilter();
+        }, 300);
+      }
+
+      function onPriceInputChange() {
+        var mn = parseInt(document.getElementById("minPriceInput").value) || 0;
+        var mx =
+          parseInt(document.getElementById("maxPriceInput").value) || PRICE_MAX;
+        if (mx > PRICE_MAX) mx = PRICE_MAX;
+        if (mn > mx) mn = mx - 100000;
+        document.getElementById("sliderMin").value = mn;
+        document.getElementById("sliderMax").value = mx;
+        updateSliderTrack();
+        state.minPrice = mn;
+        state.maxPrice = mx >= PRICE_MAX ? 0 : mx;
+        state.page = 1;
+        applyFilter();
+      }
+
+      function initPriceSlider() {
+        updateSliderTrack();
+      }
+
+      function applyPricePreset(min, max) {
+        state.minPrice = min;
+        state.maxPrice = max;
+        state.page = 1;
+        var realMax = max === 0 ? PRICE_MAX : max;
+        document.getElementById("minPriceInput").value = min || "";
+        document.getElementById("maxPriceInput").value = max || "";
+        document.getElementById("sliderMin").value = min;
+        document.getElementById("sliderMax").value = realMax;
+        updateSliderTrack();
+        document.querySelectorAll(".price-preset").forEach(function (b) {
+          var bMin = parseInt(b.getAttribute("onclick").match(/\d+/g)[0]) || 0;
+          var bMax = parseInt(b.getAttribute("onclick").match(/\d+/g)[1]) || 0;
+          b.classList.toggle("active", bMin === min && bMax === max);
+        });
+        applyFilter();
+      }
+
+      // 3. ĐÁNH GIÁ
+      function setRating(stars) {
+        state.minRating = parseInt(stars) || 0;
+        state.page = 1;
+        applyFilter();
+      }
+
+      // 4. TRẠNG THÁI
+      function setOnlyNew(val) {
+        state.onlyNew = val;
+        state.page = 1;
+        applyFilter();
+      }
+
+      function setOnlySale(val) {
+        state.onlySale = val;
+        state.page = 1;
+        applyFilter();
+      }
+
+      // 5. COLLAPSE filter groups
+      function toggleFilterGroup(id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.toggle("collapsed");
+      }
+
+      // RESET ALL
+      function resetAllFilters() {
+        state.cat = "";
+        state.minPrice = 0;
+        state.maxPrice = 0;
+        state.minRating = 0;
+        state.onlyNew = false;
+        state.onlySale = false;
+        state.section = "";
+        state.query = "";
+        state.page = 1;
+        // Reset UI
+        var searchEl = document.getElementById("searchInput");
+        if (searchEl) searchEl.value = "";
+        var minEl = document.getElementById("minPriceInput");
+        var maxEl = document.getElementById("maxPriceInput");
+        if (minEl) minEl.value = "";
+        if (maxEl) maxEl.value = "";
+        var sMin = document.getElementById("sliderMin");
+        var sMax = document.getElementById("sliderMax");
+        if (sMin) sMin.value = 0;
+        if (sMax) sMax.value = PRICE_MAX;
+        updateSliderTrack();
+        document.querySelectorAll(".price-preset").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        var selReset = document.getElementById("catSelect");
+        if (selReset) selReset.value = "";
+        document.querySelectorAll('[name="ratingFilter"]')[0].checked = true;
+        var tnew = document.getElementById("toggleNew");
+        var tsale = document.getElementById("toggleSale");
+        if (tnew) tnew.checked = false;
+        if (tsale) tsale.checked = false;
+        // Reset section tabs
+        document.querySelectorAll("[data-section]").forEach(function (b) {
+          b.classList.toggle("active", b.dataset.section === "");
+        });
+        applyFilter();
+      }
+
+      // RENDER ACTIVE FILTER TAGS
+      function renderActiveFilters() {
+        var el = document.getElementById("activeFilters");
+        if (!el) return;
+        var tags = [];
+
+        if (state.section) {
+          var sMap = {
+            new: "🆕 Hàng Mới",
+            best: "🔥 Bán Chạy",
+            sale: "🏷️ Đang Giảm",
+          };
+          tags.push({
+            label: sMap[state.section] || state.section,
+            clear: function () {
+              state.section = "";
+              applyFilter();
+            },
+          });
+        }
+        if (state.cat) {
+          var catName = "";
+          state.categories.forEach(function (c) {
+            if ((c.Id || c.id).toString() === state.cat)
+              catName = c.Name || c.name;
+          });
+          tags.push({
+            label: "📂 " + (catName || state.cat),
+            clear: function () {
+              state.cat = "";
+              applyFilter();
+            },
+          });
+        }
+        if (state.minPrice || state.maxPrice) {
+          var priceLabel = "";
+          if (state.minPrice && state.maxPrice)
+            priceLabel = fmt(state.minPrice) + " – " + fmt(state.maxPrice);
+          else if (state.minPrice) priceLabel = "Từ " + fmt(state.minPrice);
+          else priceLabel = "Đến " + fmt(state.maxPrice);
+          tags.push({
+            label: "💰 " + priceLabel,
+            clear: function () {
+              state.minPrice = 0;
+              state.maxPrice = 0;
+              applyFilter();
+            },
+          });
+        }
+        if (state.minRating) {
+          tags.push({
+            label: "⭐ " + state.minRating + "★ trở lên",
+            clear: function () {
+              state.minRating = 0;
+              applyFilter();
+            },
+          });
+        }
+        if (state.onlyNew) {
+          tags.push({
+            label: "🆕 Chỉ hàng mới",
+            clear: function () {
+              state.onlyNew = false;
+              document.getElementById("toggleNew").checked = false;
+              applyFilter();
+            },
+          });
+        }
+        if (state.onlySale) {
+          tags.push({
+            label: "🏷️ Chỉ đang giảm",
+            clear: function () {
+              state.onlySale = false;
+              document.getElementById("toggleSale").checked = false;
+              applyFilter();
+            },
+          });
+        }
+        if (state.query) {
+          tags.push({
+            label: '🔍 "' + state.query + '"',
+            clear: function () {
+              state.query = "";
+              document.getElementById("searchInput").value = "";
+              applyFilter();
+            },
+          });
+        }
+
+        if (!tags.length) {
+          el.innerHTML = "";
+          return;
+        }
+        el.innerHTML =
+          `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">` +
+          tags
+            .map(function (t, i) {
+              return `<span class="active-tag">${t.label}<button onclick="removeTag(${i})">×</button></span>`;
+            })
+            .join("") +
+          `</div>`;
+
+        // Store clearers
+        window._tagClearers = tags.map(function (t) {
+          return t.clear;
+        });
+      }
+
+      function removeTag(i) {
+        if (window._tagClearers && window._tagClearers[i])
+          window._tagClearers[i]();
+      }
+
+      function fmt(n) {
+        return new Intl.NumberFormat("vi-VN").format(n) + "₫";
+      }
+
+      function clearTag(i) {
+        var wrap = document.getElementById("activeFilters");
+        if (wrap._tags && wrap._tags[i]) wrap._tags[i].clear();
+      }
+
+      function renderResultMeta() {
+        var el = document.getElementById("resultMeta");
+        var start = (state.page - 1) * state.pageSize + 1;
+        var end = Math.min(state.page * state.pageSize, state.total);
+        if (!state.total) {
+          el.textContent = "Không tìm thấy sản phẩm nào";
+          return;
+        }
+        el.innerHTML =
+          "Hiển thị <strong>" +
+          start +
+          "-" +
+          end +
+          "</strong> trong <strong>" +
+          state.total +
+          "</strong> sản phẩm" +
+          (state.query ? ' cho "<strong>' + state.query + '</strong>"' : "");
+      }
+
+      function updateBreadcrumb() {
+        var el = document.getElementById("bcCur");
+        if (state.query) el.textContent = 'Tìm kiếm: "' + state.query + '"';
+        else if (state.cat) {
+          var catName = "";
+          state.categories.forEach(function (c) {
+            if (c.Id == state.cat) catName = c.Name || c.name;
+          });
+          el.textContent = catName || "Sản Phẩm";
+        } else {
+          el.textContent = "Tất Cả Sản Phẩm";
+        }
+      }
+
+      // ── CART ──
+      function addToCart(e, id, name, price, img) {
+        e.stopPropagation();
+        Cart.add({ id: id, name: name, price: price, image: img });
+        showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
+      }
+
+      // ── SKELETON ──
+      function renderSkeletons() {
+        var html = '<div class="row g-3">';
+        for (var i = 0; i < 8; i++) {
+          html +=
+            '<div class="col-6 col-md-4 col-lg-3">' +
+            '<div class="skeleton" style="width:100%;aspect-ratio:3/4"></div>' +
+            '<div style="padding:10px">' +
+            '<div class="skeleton mb-2" style="height:12px;width:60%"></div>' +
+            '<div class="skeleton" style="height:12px;width:40%"></div>' +
+            "</div></div>";
+        }
+        html += "</div>";
+        document.getElementById("productsWrap").innerHTML = html;
+        document.getElementById("paginationWrap").innerHTML = "";
+        document.getElementById("resultMeta").textContent = "Đang tải...";
+      }
+
+      // ── SAMPLE DATA ──
+      function getSampleProducts() {
+        return [
+          {
+            Id: 1,
+            Name: "Serum Vitamin C SkinCeuticals",
+            Price: 3200000,
+            CategoryId: 1,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400",
+            Description: "Serum chống oxy hóa với Vitamin C 15%",
+            IsNew: true,
+            CreatedAt: new Date().toISOString(),
+          },
+          {
+            Id: 2,
+            Name: "Kem Dưỡng Ẩm Laneige",
+            Price: 850000,
+            CategoryId: 1,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400",
+            Description: "Mặt nạ ngủ cấp ẩm chuyên sâu",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+          {
+            Id: 3,
+            Name: "Toner Some By Mi AHA BHA PHA",
+            Price: 420000,
+            CategoryId: 1,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",
+            Description: "Toner tẩy tế bào chết 3 loại acid",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+          },
+          {
+            Id: 4,
+            Name: "Sữa Rửa Mặt CeraVe",
+            Price: 380000,
+            CategoryId: 1,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400",
+            Description: "Sữa rửa mặt dịu nhẹ cho da nhạy cảm",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+          },
+          {
+            Id: 5,
+            Name: "Son Kem Lì Black Rouge",
+            Price: 285000,
+            CategoryId: 2,
+            Category: { Name: "Trang Điểm" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=400",
+            Description: "Son kem lì mịn màng công thức Air-fit",
+            IsNew: true,
+            CreatedAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+          },
+          {
+            Id: 6,
+            Name: "Kem Nền Maybelline Fit Me",
+            Price: 220000,
+            CategoryId: 2,
+            Category: { Name: "Trang Điểm" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1631214524020-3c69b8b0c7b9?w=400",
+            Description: "Kem nền kiềm dầu 24 giờ",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+          },
+          {
+            Id: 7,
+            Name: "Phấn Má NARS Blush Orgasm",
+            Price: 1150000,
+            CategoryId: 2,
+            Category: { Name: "Trang Điểm" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400",
+            Description: "Tông hồng đào ánh vàng biểu tượng",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+          },
+          {
+            Id: 8,
+            Name: "Kem Dưỡng Thể Vaseline",
+            Price: 145000,
+            CategoryId: 3,
+            Category: { Name: "Chăm Sóc Cơ Thể" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
+            Description: "Dưỡng ẩm 24 giờ với Vitamin B3",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+          },
+          {
+            Id: 9,
+            Name: "Tẩy Tế Bào Chết The Body Shop",
+            Price: 650000,
+            CategoryId: 3,
+            Category: { Name: "Chăm Sóc Cơ Thể" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400",
+            Description: "Tẩy tế bào chết dạng kem với hạt walnut",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+          },
+          {
+            Id: 10,
+            Name: "Nước Hoa Chloe EDP 50ml",
+            Price: 2800000,
+            CategoryId: 4,
+            Category: { Name: "Nước Hoa" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400",
+            Description: "Hương hoa hồng thanh tao pha lẫn mộc lan",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 9 * 86400000).toISOString(),
+          },
+          {
+            Id: 11,
+            Name: "Nước Hoa Viktor Rolf Flowerbomb",
+            Price: 2100000,
+            CategoryId: 4,
+            Category: { Name: "Nước Hoa" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1592945403407-9caf930a5b57?w=400",
+            Description: "Hương jasmine, rose, freesia và musk",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+          },
+          {
+            Id: 12,
+            Name: "Dầu Gội Kérastase",
+            Price: 780000,
+            CategoryId: 5,
+            Category: { Name: "Chăm Sóc Tóc" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=400",
+            Description: "Dầu gội cao cấp phục hồi tóc khô",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 11 * 86400000).toISOString(),
+          },
+          {
+            Id: 13,
+            Name: "Serum Dưỡng Tóc Moroccanoil",
+            Price: 920000,
+            CategoryId: 5,
+            Category: { Name: "Chăm Sóc Tóc" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
+            Description: "Dầu argan đa năng chống xơ rối",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 12 * 86400000).toISOString(),
+          },
+          {
+            Id: 14,
+            Name: "Kem Chống Nắng Anessa SPF50+",
+            Price: 680000,
+            CategoryId: 6,
+            Category: { Name: "Chống Nắng" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400",
+            Description: "Công nghệ Aqua Booster chống nước",
+            IsNew: true,
+            CreatedAt: new Date(Date.now() - 13 * 86400000).toISOString(),
+          },
+          {
+            Id: 15,
+            Name: "Kem Chống Nắng La Roche-Posay",
+            Price: 750000,
+            CategoryId: 6,
+            Category: { Name: "Chống Nắng" },
+            ImageUrl:
+              "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400",
+            Description: "Cho da nhạy cảm UVA/UVB SPF50",
+            IsNew: false,
+            CreatedAt: new Date(Date.now() - 14 * 86400000).toISOString(),
+          },
+        ];
+      }
+    </script>
+    <script src="js/gsap.js" defer></script>
+  </body>
+</html>

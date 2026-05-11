@@ -1,0 +1,1421 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta property="og:title" content="Giỏ Hàng — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <title>Giỏ Hàng - GlowHub</title>
+    <meta charset="utf-8" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --pink: #f759ab;
+        --pink-soft: #fff0f8;
+        --dark: #111111;
+        --light: #fffdf9;
+        --border: #eeeeee;
+        --muted: #888888;
+        --success: #22c55e;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--light);
+        font-family: "Jost", sans-serif;
+        font-size: 14px;
+        color: var(--dark);
+      }
+
+      /* ── HEADER ── */
+      .site-header {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 0 0;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+      }
+      .header-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo {
+        font-family: "Marcellus", serif;
+        font-size: 1.5rem;
+        letter-spacing: 4px;
+        color: var(--dark);
+        text-decoration: none;
+      }
+      .logo:hover {
+        color: var(--pink);
+      }
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .header-nav a {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .header-nav a:hover {
+        color: var(--pink);
+      }
+      .header-nav a.active {
+        color: var(--pink);
+        border-bottom: 1px solid var(--pink);
+        padding-bottom: 2px;
+      }
+
+      /* ── BREADCRUMB ── */
+      .breadcrumb-bar {
+        background: #faf8f5;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+      }
+      .breadcrumb-bar .inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.5px;
+      }
+      .breadcrumb-bar a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .breadcrumb-bar a:hover {
+        color: var(--pink);
+      }
+      .breadcrumb-bar .sep {
+        opacity: 0.4;
+      }
+      .breadcrumb-bar .current {
+        color: var(--dark);
+        font-weight: 500;
+      }
+
+      /* ── PROGRESS STEPS ── */
+      .checkout-steps {
+        max-width: 500px;
+        margin: 32px auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+      }
+      .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+        flex: 1;
+      }
+      .step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: calc(50% + 18px);
+        right: calc(-50% + 18px);
+        height: 1px;
+        background: var(--border);
+      }
+      .step.done:not(:last-child)::after {
+        background: var(--pink);
+      }
+      .step-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        background: #fff;
+        color: var(--muted);
+        transition: 0.2s;
+      }
+      .step.active .step-circle {
+        border-color: var(--pink);
+        color: var(--pink);
+      }
+      .step.done .step-circle {
+        border-color: var(--pink);
+        background: var(--pink);
+        color: #fff;
+      }
+      .step-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .step.active .step-label {
+        color: var(--dark);
+        font-weight: 600;
+      }
+      .step.done .step-label {
+        color: var(--pink);
+      }
+
+      /* ── PAGE TITLE ── */
+      .page-title {
+        text-align: center;
+        padding: 40px 24px 16px;
+      }
+      .page-title h1 {
+        font-family: "Marcellus", serif;
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+        color: var(--dark);
+      }
+      .page-title p {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+
+      /* ── LAYOUT ── */
+      .cart-layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      /* ── EMPTY STATE ── */
+      .empty-cart {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 80px 24px;
+        animation: fadeIn 0.5s ease;
+      }
+      .empty-cart .empty-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--pink-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 44px;
+      }
+      .empty-cart h3 {
+        font-family: "Marcellus", serif;
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+      }
+      .empty-cart p {
+        color: var(--muted);
+        margin-bottom: 28px;
+        font-size: 14px;
+      }
+
+      /* ── CART TABLE ── */
+      .cart-section {
+        background: #fff;
+        border: 1px solid var(--border);
+      }
+      .cart-section-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .cart-section-header h2 {
+        font-family: "Marcellus", serif;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+      }
+      .clear-cart-btn {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 12px;
+        cursor: pointer;
+        letter-spacing: 0.5px;
+        padding: 4px 0;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+      .clear-cart-btn:hover {
+        color: #e11d48;
+      }
+
+      /* Cart item row */
+      .cart-item {
+        display: grid;
+        grid-template-columns: 80px 1fr auto auto auto;
+        gap: 16px;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #f5f5f5;
+        transition: background 0.15s;
+        animation: slideIn 0.25s ease;
+      }
+      .cart-item:last-child {
+        border-bottom: none;
+      }
+      .cart-item:hover {
+        background: #fafafa;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(40px);
+        }
+      }
+
+      .item-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+      }
+      .item-img-placeholder {
+        width: 80px;
+        height: 80px;
+        background: var(--pink-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .item-info .item-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--dark);
+        line-height: 1.4;
+        margin-bottom: 4px;
+        text-decoration: none;
+      }
+      .item-info .item-name:hover {
+        color: var(--pink);
+      }
+      .item-info .item-cat {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .item-price-col {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--dark);
+        white-space: nowrap;
+        text-align: right;
+        min-width: 90px;
+      }
+      .item-price-col .unit-price {
+        font-size: 11px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      /* Qty control */
+      .qty-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+      .qty-btn {
+        width: 34px;
+        height: 34px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+      }
+      .qty-btn:hover {
+        background: var(--pink-soft);
+        color: var(--pink);
+      }
+      .qty-input {
+        width: 40px;
+        border: none;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        text-align: center;
+        font-size: 13px;
+        font-family: "Jost", sans-serif;
+        font-weight: 500;
+        outline: none;
+        height: 34px;
+        background: #fff;
+      }
+      /* Remove arrows on number input */
+      .qty-input::-webkit-outer-spin-button,
+      .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+      }
+      .qty-input[type="number"] {
+        -moz-appearance: textfield;
+      }
+
+      .remove-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border);
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        transition: 0.2s;
+        border-radius: 2px;
+      }
+      .remove-btn:hover {
+        border-color: #e11d48;
+        color: #e11d48;
+        background: #fff5f5;
+      }
+
+      /* ── COUPON ── */
+      .coupon-bar {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border);
+        background: #fafaf8;
+        display: flex;
+        gap: 0;
+      }
+      .coupon-bar input {
+        flex: 1;
+        border: 1px solid var(--border);
+        border-right: none;
+        padding: 10px 14px;
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        outline: none;
+        background: #fff;
+        letter-spacing: 0.5px;
+        transition: border-color 0.2s;
+      }
+      .coupon-bar input:focus {
+        border-color: var(--pink);
+      }
+      .coupon-bar button {
+        padding: 10px 20px;
+        background: var(--dark);
+        color: #fff;
+        border: 1px solid var(--dark);
+        font-family: "Jost", sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+      }
+      .coupon-bar button:hover {
+        background: var(--pink);
+        border-color: var(--pink);
+      }
+      .coupon-msg {
+        padding: 8px 24px;
+        font-size: 12px;
+        display: none;
+      }
+      .coupon-msg.ok {
+        color: var(--success);
+        display: block;
+      }
+      .coupon-msg.error {
+        color: #e11d48;
+        display: block;
+      }
+
+      /* Continue shopping */
+      .continue-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 16px 24px;
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.2s;
+      }
+      .continue-link:hover {
+        color: var(--dark);
+      }
+
+      /* ── ORDER SUMMARY ── */
+      .summary-box {
+        background: #fff;
+        border: 1px solid var(--border);
+        position: sticky;
+        top: 80px;
+      }
+      .summary-box-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+      }
+      .summary-box-header h2 {
+        font-family: "Marcellus", serif;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+      }
+      .summary-body {
+        padding: 20px 24px;
+      }
+
+      .summary-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        font-size: 13px;
+        border-bottom: 1px solid #f5f5f5;
+      }
+      .summary-line:last-of-type {
+        border-bottom: none;
+      }
+      .summary-line .label {
+        color: var(--muted);
+      }
+      .summary-line .value {
+        font-weight: 500;
+      }
+      .summary-line.discount .value {
+        color: var(--success);
+      }
+      .summary-line.shipping .value {
+        color: var(--success);
+      }
+
+      .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0 0;
+        margin-top: 8px;
+        border-top: 2px solid var(--dark);
+      }
+      .summary-total .label {
+        font-family: "Marcellus", serif;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .summary-total .value {
+        font-family: "Marcellus", serif;
+        font-size: 1.4rem;
+        color: var(--pink);
+      }
+
+      .btn-checkout {
+        display: block;
+        width: 100%;
+        padding: 16px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.2s;
+      }
+      .btn-checkout:hover {
+        background: var(--pink);
+        color: #fff;
+      }
+
+      .secure-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 14px;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.5px;
+      }
+
+      /* Shipping estimator */
+      .shipping-options {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .shipping-options p {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .shipping-opt {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f5f5;
+        cursor: pointer;
+      }
+      .shipping-opt:last-child {
+        border-bottom: none;
+      }
+      .shipping-opt input[type="radio"] {
+        accent-color: var(--pink);
+        width: 15px;
+        height: 15px;
+      }
+      .shipping-opt .opt-label {
+        flex: 1;
+        font-size: 13px;
+      }
+      .shipping-opt .opt-sub {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .shipping-opt .opt-price {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+      .shipping-opt .opt-price.free {
+        color: var(--success);
+      }
+
+      /* ── RECENTLY VIEWED ── */
+      .recently-section {
+        max-width: 1200px;
+        margin: 0 auto 60px;
+        padding: 0 24px;
+        border-top: 1px solid var(--border);
+        padding-top: 48px;
+      }
+      .recently-section h3 {
+        font-family: "Marcellus", serif;
+        font-size: 1.4rem;
+        margin-bottom: 24px;
+        letter-spacing: 0.5px;
+      }
+      .recently-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+      .recent-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        cursor: pointer;
+      }
+      .recent-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+      }
+      .recent-card img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        display: block;
+      }
+      .recent-card-info {
+        padding: 12px;
+      }
+      .recent-card-name {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .recent-card-price {
+        font-size: 13px;
+        color: var(--pink);
+        font-weight: 500;
+      }
+      .recent-card-btn {
+        display: block;
+        width: 100%;
+        padding: 9px;
+        border: 1px solid var(--dark);
+        background: none;
+        font-family: "Jost", sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: 0.2s;
+      }
+      .recent-card-btn:hover {
+        background: var(--dark);
+        color: #fff;
+      }
+
+      /* ── TOAST ── */
+      #toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast-item {
+        padding: 12px 20px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        border-left: 3px solid var(--pink);
+        border-radius: 2px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+      }
+      .toast-item.show {
+        transform: translateX(0);
+      }
+      .toast-item.error {
+        border-left-color: #e11d48;
+      }
+      .toast-item.success {
+        border-left-color: var(--success);
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 900px) {
+        .cart-layout {
+          grid-template-columns: 1fr;
+        }
+        .summary-box {
+          position: static;
+        }
+        .recently-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        .cart-item {
+          grid-template-columns: 64px 1fr;
+          grid-template-rows: auto auto;
+        }
+        .cart-item .item-img,
+        .cart-item .item-img-placeholder {
+          width: 64px;
+          height: 64px;
+          font-size: 22px;
+        }
+        .cart-item .item-price-col {
+          grid-column: 2;
+          text-align: left;
+        }
+        .cart-item .qty-control {
+          grid-column: 2;
+        }
+        .cart-item .remove-btn {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+        }
+        .cart-item {
+          position: relative;
+        }
+        .header-nav {
+          display: none;
+        }
+        .recently-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Marcellus&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <!-- GSAP + Lenis Luxury -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div id="lux-cursor-dot"></div>
+    <div id="lux-cursor-ring"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">GLOWHUB</a>
+        <nav class="header-nav">
+          <a href="index.html">Trang Chủ</a>
+          <a href="index.html#shop">Cửa Hàng</a>
+          <a href="cart.html" class="active">Giỏ Hàng</a>
+          <a href="checkout.html">Thanh Toán</a>
+          <div id="nav-user-area"></div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ── BREADCRUMB ── -->
+    <div class="breadcrumb-bar">
+      <div class="inner">
+        <a href="index.html">Trang Chủ</a>
+        <span class="sep">›</span>
+        <span class="current">Giỏ Hàng</span>
+      </div>
+    </div>
+
+    <!-- ── PAGE TITLE ── -->
+    <div class="page-title">
+      <h1>Giỏ Hàng</h1>
+      <p id="cart-header-count">Đang tải...</p>
+    </div>
+
+    <!-- ── CHECKOUT STEPS ── -->
+    <div class="checkout-steps">
+      <div class="step done">
+        <div class="step-circle">✓</div>
+        <div class="step-label">Giỏ Hàng</div>
+      </div>
+      <div class="step">
+        <div class="step-circle">2</div>
+        <div class="step-label">Thanh Toán</div>
+      </div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <div class="step-label">Xác Nhận</div>
+      </div>
+    </div>
+
+    <!-- ── MAIN ── -->
+    <main style="padding-top: 36px">
+      <div class="cart-layout" id="cart-layout">
+        <!-- Filled by JS -->
+      </div>
+    </main>
+
+    <!-- ── RECENTLY VIEWED ── -->
+    <section
+      class="recently-section"
+      id="recently-section"
+      style="display: none"
+    >
+      <h3>Bạn Có Thể Thích</h3>
+      <div class="recently-grid" id="recently-grid"></div>
+    </section>
+
+    <!-- ── TOAST ── -->
+    <div id="toast-container"></div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/api.js" defer></script>
+
+    <script>
+      // ══════════════════════════════════════════════
+      //  CONSTANTS
+      // ══════════════════════════════════════════════
+      const COUPONS = {
+        GLOW10: { type: "percent", value: 10, label: "Giảm 10%" },
+        BEAUTY20: { type: "percent", value: 20, label: "Giảm 20%" },
+        SHIP0: { type: "ship", value: 0, label: "Miễn phí ship" },
+        NEWUSER: { type: "fixed", value: 50000, label: "Giảm 50.000₫" },
+      };
+
+      const SHIPPING_OPTS = [
+        {
+          id: "standard",
+          name: "Tiêu Chuẩn",
+          sub: "3–5 ngày • GHN / GHTK",
+          fee: 0,
+          free: true,
+        },
+        {
+          id: "express",
+          name: "Nhanh",
+          sub: "1–2 ngày • J&T Express",
+          fee: 25000,
+          free: false,
+        },
+        {
+          id: "sameday",
+          name: "Trong Ngày",
+          sub: "Nội thành trước 22:00",
+          fee: 60000,
+          free: false,
+        },
+      ];
+
+      const SUGGESTIONS = [
+        {
+          id: 901,
+          name: "Serum Vitamin C",
+          price: 285000,
+          img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80",
+        },
+        {
+          id: 902,
+          name: "Toner Hoa Hồng",
+          price: 195000,
+          img: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80",
+        },
+        {
+          id: 903,
+          name: "Kem Chống Nắng",
+          price: 320000,
+          img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80",
+        },
+        {
+          id: 904,
+          name: "Son Lì Đỏ",
+          price: 145000,
+          img: "https://images.unsplash.com/photo-1586495777744-4e6232bf2263?w=400&q=80",
+        },
+      ];
+
+      // ══════════════════════════════════════════════
+      //  STATE
+      // ══════════════════════════════════════════════
+      let appliedCoupon = null;
+      let selectedShipping = SHIPPING_OPTS[0]; // default: standard (free)
+
+      // ══════════════════════════════════════════════
+      //  FORMAT
+      // ══════════════════════════════════════════════
+      function fmt(n) {
+        return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫";
+      }
+
+      // ══════════════════════════════════════════════
+      //  TOAST
+      // ══════════════════════════════════════════════
+      function toast(msg, type = "success") {
+        // Use global if available, otherwise local
+        if (typeof showGlobalToast === "function") {
+          showGlobalToast(msg, type);
+          return;
+        }
+        const c = document.getElementById("toast-container");
+        const t = document.createElement("div");
+        t.className = "toast-item " + type;
+        t.textContent = (type === "success" ? "✓  " : "✕  ") + msg;
+        c.appendChild(t);
+        requestAnimationFrame(() => t.classList.add("show"));
+        setTimeout(() => {
+          t.classList.remove("show");
+          setTimeout(() => t.remove(), 350);
+        }, 3000);
+      }
+
+      // ══════════════════════════════════════════════
+      //  RENDER
+      // ══════════════════════════════════════════════
+      function render() {
+        const items =
+          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const layout = document.getElementById("cart-layout");
+        const countEl = document.getElementById("cart-header-count");
+
+        if (!items || items.length === 0) {
+          layout.innerHTML = `
+                        <div class="empty-cart" style="text-align:center; padding:50px;">
+                          <div class="empty-icon" style="font-size:50px;">🛒</div>
+                          <h3>Giỏ hàng của bạn đang trống</h3>
+                          <p>Hãy thêm sản phẩm vào giỏ để bắt đầu mua sắm nhé!</p>
+                          <a href="index.html" class="btn-checkout" style="display:inline-block;width:auto;padding:14px 40px;text-decoration:none">
+                            Tiếp Tục Mua Sắm
+                          </a>
+                        </div>`;
+          if (countEl) countEl.textContent = "Giỏ hàng trống";
+          if (typeof renderSuggestions === "function") renderSuggestions();
+          return;
+        }
+
+        if (countEl)
+          countEl.textContent = `${items.length} sản phẩm trong giỏ hàng`;
+
+        // Left side: items list
+        const leftHTML = `
+                      <div>
+                        <div class="cart-section">
+                          <div class="cart-section-header">
+                            <h2>Sản Phẩm (${items.length})</h2>
+                            <button class="clear-cart-btn" onclick="clearAll()">🗑 Xóa tất cả</button>
+                          </div>
+                          <div id="items-body">
+                            ${items.map((item) => renderItem(item)).join("")}
+                          </div>
+                          <div class="coupon-bar">
+                            <input type="text" id="coupon-input" placeholder="Nhập mã giảm giá..." maxlength="20"
+                              onkeydown="if(event.key==='Enter')applyCoupon()" />
+                            <button onclick="applyCoupon()">Áp Dụng</button>
+                          </div>
+                          <div class="coupon-msg" id="coupon-msg"></div>
+                        </div>
+                        <a href="index.html" class="continue-link">← Tiếp Tục Mua Sắm</a>
+                      </div>`;
+
+        // Right side: summary
+        const rightHTML = `
+                      <div class="summary-box">
+                        <div class="summary-box-header"><h2>Tóm Tắt Đơn Hàng</h2></div>
+                        <div class="summary-body">
+                          ${renderSummaryLines(items)}
+                          <div class="shipping-options">
+                            <p>Phương Thức Vận Chuyển</p>
+                            ${SHIPPING_OPTS.map(
+                              (opt) => `
+                              <label class="shipping-opt">
+                                <input type="radio" name="shipping" value="${opt.id}"
+                                  ${opt.id === selectedShipping.id ? "checked" : ""}
+                                  onchange="selectShipping('${opt.id}')" />
+                                <div class="opt-label">
+                                  ${opt.name}
+                                  <div class="opt-sub">${opt.sub}</div>
+                                </div>
+                                <span class="opt-price ${opt.free ? "free" : ""}">${opt.free ? "Miễn phí" : fmt(opt.fee)}</span>
+                              </label>
+                            `,
+                            ).join("")}
+                          </div>
+                          <a href="checkout.html" class="btn-checkout" onclick="saveCartToSession()">
+                            Tiến Hành Thanh Toán →
+                          </a>
+                          <div class="secure-note">🔒 Thanh toán an toàn & bảo mật</div>
+                        </div>
+                      </div>`;
+
+        layout.innerHTML = leftHTML + rightHTML;
+
+        // Restore coupon state
+        if (typeof appliedCoupon !== "undefined" && appliedCoupon) {
+          const msg = document.getElementById("coupon-msg");
+          const inp = document.getElementById("coupon-input");
+          if (msg) {
+            msg.textContent = `✓ ${appliedCoupon.label} đã được áp dụng!`;
+            msg.className = "coupon-msg ok";
+          }
+          if (inp) {
+            inp.value = appliedCoupon.code;
+            inp.disabled = true;
+          }
+        }
+      }
+
+      function renderItem(item) {
+        const id = item.id || item.Id;
+        const name = item.name || item.Name || "Sản phẩm";
+        const price = item.price || item.Price || 0;
+        const qty = item.qty || 1;
+        const img = item.image || item.Image || "";
+        const cat = item.category || item.Category || "";
+
+        // Logic xử lý ảnh lỗi sạch hơn
+        const imgHTML = img
+          ? `<img loading="lazy" class="item-img" src="${img}" alt="${name}"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                   <div class="item-img-placeholder" style="display:none">🛍</div>`
+          : `<div class="item-img-placeholder">🛍</div>`;
+
+        return `
+                <div class="cart-item" id="item-row-${id}" data-id="${id}">
+                  ${imgHTML}
+                  <div class="item-info">
+                    <a href="javascript:void(0)" class="item-name">${name}</a>
+                    ${cat ? `<div class="item-cat">${cat}</div>` : ""}
+                  </div>
+                  <div class="item-price-col">
+                    <span class="unit-price">${fmt(price)} / cái</span>
+                    <strong>${fmt(price * qty)}</strong>
+                  </div>
+                  <div class="qty-control">
+                    <button class="qty-btn" onclick="changeQty('${id}', ${qty - 1})" title="Giảm">−</button>
+                    <input class="qty-input" type="number" value="${qty}" min="1" max="99"
+                           onchange="changeQty('${id}', parseInt(this.value)||1)" />
+                    <button class="qty-btn" onclick="changeQty('${id}', ${qty + 1})" title="Tăng">+</button>
+                  </div>
+                  <button class="remove-btn" onclick="removeItem('${id}')" title="Xóa sản phẩm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>`;
+      }
+
+      function renderSummaryLines(items) {
+        const subtotal = items.reduce(
+          (s, i) => s + (i.price || 0) * (i.qty || 1),
+          0,
+        );
+        const shipFee = selectedShipping.fee;
+        let discountAmt = 0;
+
+        if (appliedCoupon) {
+          if (appliedCoupon.type === "percent")
+            discountAmt = Math.round((subtotal * appliedCoupon.value) / 100);
+          else if (appliedCoupon.type === "fixed")
+            discountAmt = appliedCoupon.value;
+          else if (appliedCoupon.type === "ship") discountAmt = shipFee;
+        }
+
+        const isFreeShip =
+          shipFee === 0 || (appliedCoupon && appliedCoupon.type === "ship");
+        const total = Math.max(
+          0,
+          subtotal +
+            (isFreeShip ? 0 : shipFee) -
+            (appliedCoupon && appliedCoupon.type !== "ship" ? discountAmt : 0),
+        );
+
+        return `
+          <div class="summary-line">
+            <span class="label">Tạm tính</span>
+            <span class="value">${fmt(subtotal)}</span>
+          </div>
+          <div class="summary-line shipping">
+            <span class="label">Vận chuyển</span>
+            <span class="value ${isFreeShip ? "free" : ""}">
+              ${isFreeShip ? "Miễn phí" : fmt(shipFee)}
+            </span>
+          </div>
+          ${
+            discountAmt > 0 && appliedCoupon.type !== "ship"
+              ? `
+            <div class="summary-line discount">
+              <span class="label">Giảm giá (${appliedCoupon.label})</span>
+              <span class="value">−${fmt(discountAmt)}</span>
+            </div>`
+              : ""
+          }
+          <div class="summary-total">
+            <span class="label">Tổng Cộng</span>
+            <span class="value">${fmt(total)}</span>
+          </div>`;
+      }
+
+      function renderSuggestions() {
+        const sec = document.getElementById("recently-section");
+        const grid = document.getElementById("recently-grid");
+        if (!sec || !grid) return;
+        sec.style.display = "block";
+
+        // Mặc định dùng danh sách tĩnh
+        let prods = typeof SUGGESTIONS !== "undefined" ? SUGGESTIONS : [];
+
+        if (typeof Product !== "undefined" && Product.getAll) {
+          Product.getAll({ limit: 4, isActive: true })
+            .then((res) => {
+              const list = Array.isArray(res)
+                ? res
+                : res.data || res.items || [];
+              if (list.length > 0) {
+                grid.innerHTML = list
+                  .slice(0, 4)
+                  .map((p) => suggestionCard(p))
+                  .join("");
+              }
+            })
+            .catch(() => {
+              grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
+            });
+        } else {
+          grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
+        }
+      }
+
+      function suggestionCard(p) {
+        const id = p.Id || p.id;
+        const name = p.Name || p.name;
+        const price = p.Price || p.price;
+        const img = p.Image || p.image || p.img;
+
+        // Dùng JSON.stringify an toàn để truyền dữ liệu vào hàm quickAdd
+        const productData = JSON.stringify(p).replace(/"/g, "'");
+
+        return `
+    <div class="recent-card">
+      <img loading="lazy" src="${img}" alt="${name}"
+           onerror="this.src='https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80'" />
+      <div class="recent-card-info">
+        <div class="recent-card-name">${name}</div>
+        <div class="recent-card-price">${fmt(price)}</div>
+        <button class="recent-card-btn" onclick="quickAdd(${productData})">
+          + Thêm Vào Giỏ
+        </button>
+      </div>
+    </div>`;
+      }
+      // ══════════════════════════════════════════════
+      //  ACTIONS
+      // ══════════════════════════════════════════════
+      function changeQty(id, newQty) {
+        if (newQty <= 0) {
+          removeItem(id);
+          return;
+        }
+        if (typeof Cart !== "undefined") Cart.setQty(id, newQty);
+        else _localSetQty(id, newQty);
+        render();
+      }
+
+      function removeItem(id) {
+        const row = document.getElementById("item-row-" + id);
+        if (row) {
+          row.style.animation = "fadeOut .25s ease forwards";
+          setTimeout(() => {
+            if (typeof Cart !== "undefined") Cart.remove(id);
+            else _localRemove(id);
+            render();
+          }, 240);
+        } else {
+          if (typeof Cart !== "undefined") Cart.remove(id);
+          render();
+        }
+      }
+
+      function clearAll() {
+        if (!confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) return;
+        if (typeof Cart !== "undefined") Cart.clear();
+        else localStorage.removeItem("glowhub_cart");
+        appliedCoupon = null;
+        render();
+        toast("Đã xóa toàn bộ giỏ hàng", "error");
+      }
+
+      function applyCoupon() {
+        const input = document.getElementById("coupon-input");
+        const msg = document.getElementById("coupon-msg");
+        if (!input || !msg) return;
+
+        const code = input.value.trim().toUpperCase();
+        if (!code) {
+          msg.textContent = "Vui lòng nhập mã giảm giá";
+          msg.className = "coupon-msg error";
+          return;
+        }
+
+        if (COUPONS[code]) {
+          appliedCoupon = { ...COUPONS[code], code };
+          msg.textContent = "✓ " + COUPONS[code].label + " đã được áp dụng!";
+          msg.className = "coupon-msg ok";
+          input.disabled = true;
+          toast("Áp dụng mã " + code + " thành công!");
+          renderSummaryOnly();
+        } else {
+          appliedCoupon = null;
+          msg.textContent = "✕ Mã giảm giá không hợp lệ hoặc đã hết hạn";
+          msg.className = "coupon-msg error";
+          toast("Mã giảm giá không hợp lệ", "error");
+        }
+      }
+
+      function selectShipping(id) {
+        selectedShipping =
+          SHIPPING_OPTS.find((o) => o.id === id) || SHIPPING_OPTS[0];
+        renderSummaryOnly();
+      }
+
+      /** Chỉ re-render phần tổng tiền (không rebuild toàn bộ) */
+      function renderSummaryOnly() {
+        const items =
+          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const summaryBox = document.querySelector(".summary-body");
+        if (!summaryBox) {
+          render();
+          return;
+        }
+        // Re-render only the summary lines (before shipping options)
+        const summaryLines = summaryBox.querySelector(".summary-total");
+        if (summaryLines) {
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = renderSummaryLines(items);
+          // Replace lines but keep shipping options + button
+          const existingLines = summaryBox.querySelectorAll(
+            ".summary-line, .summary-total",
+          );
+          existingLines.forEach((el) => el.remove());
+          const shippingSection = summaryBox.querySelector(".shipping-options");
+          summaryBox.insertBefore(tempDiv, shippingSection);
+        } else {
+          render();
+        }
+      }
+
+      function saveCartToSession() {
+        // Pass selected shipping to checkout page
+        const items =
+          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const subtotal = items.reduce(
+          (s, i) => s + (i.price || 0) * (i.qty || 1),
+          0,
+        );
+        sessionStorage.setItem(
+          "glowhub_checkout",
+          JSON.stringify({
+            shipping: selectedShipping,
+            coupon: appliedCoupon,
+            subtotal,
+          }),
+        );
+      }
+
+      function quickAdd(p) {
+        const prod =
+          typeof p === "string" ? JSON.parse(p.replace(/'/g, '"')) : p;
+        if (typeof Cart !== "undefined") Cart.add(prod);
+        else _localAdd(prod);
+        toast('Đã thêm "' + (prod.name || prod.Name) + '" vào giỏ hàng');
+        render();
+      }
+
+      // ══════════════════════════════════════════════
+      //  LOCAL CART FALLBACK (if api.js Cart not loaded)
+      // ══════════════════════════════════════════════
+      const CART_KEY = "glowhub_cart";
+      function _localCart() {
+        try {
+          return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+      function _localSave(items) {
+        localStorage.setItem(CART_KEY, JSON.stringify(items));
+      }
+      function _localAdd(p, qty = 1) {
+        const items = _localCart();
+        const id = p.Id || p.id;
+        const idx = items.findIndex((i) => (i.id || i.Id) == id);
+        if (idx > -1) items[idx].qty = (items[idx].qty || 1) + qty;
+        else
+          items.push({
+            id,
+            name: p.Name || p.name,
+            price: p.Price || p.price,
+            image: p.Image || p.image || "",
+            qty,
+          });
+        _localSave(items);
+      }
+      function _localRemove(id) {
+        _localSave(_localCart().filter((i) => (i.id || i.Id) != id));
+      }
+      function _localSetQty(id, qty) {
+        const items = _localCart();
+        const idx = items.findIndex((i) => (i.id || i.Id) == id);
+        if (idx > -1) {
+          if (qty <= 0) items.splice(idx, 1);
+          else items[idx].qty = qty;
+        }
+        _localSave(items);
+      }
+
+      // ══════════════════════════════════════════════
+      //  INIT
+      // ══════════════════════════════════════════════
+      document.addEventListener("DOMContentLoaded", function () {
+        // Render nav user if api.js loaded
+        if (typeof renderNavUser === "function") renderNavUser();
+
+        render();
+        renderSuggestions();
+
+        // If cart is not empty, don't show suggestions prominently
+        const items =
+          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        if (items.length > 0) {
+          const sec = document.getElementById("recently-section");
+          if (sec) sec.style.display = "block";
+        }
+      });
+    </script>
+    <script src="js/gsap.js" defer></script>
+  </body>
+</html>

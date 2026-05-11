@@ -1,0 +1,2334 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <title>GlowHub — Thời Trang & Làm Đẹp</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GlowHub" />
+    <meta
+      property="og:title"
+      content="GlowHub — Thời Trang & Làm Đẹp Hàng Đầu Việt Nam"
+    />
+    <meta
+      property="og:description"
+      content="Khám phá bộ sưu tập thời trang và làm đẹp mới nhất tại GlowHub."
+    />
+    <meta property="og:image" content="images/banner-image-6.jpg" />
+    <meta property="og:url" content="https://glowhub.vn" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f759ab" />
+    <link rel="canonical" href="https://glowhub.vn" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="GlowHub - Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="images/banner-image-6.jpg"
+      fetchpriority="high"
+    />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <!-- GSAP + Lenis -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+    <style>
+      /* ═══════════════════════════════════════════════
+   GLOWHUB — DIOR STYLE SYSTEM
+   Palette: #fff (white), #111 (black), #f759ab (brand pink)
+   Font: Cormorant Garamond (display) + Jost (body)
+═══════════════════════════════════════════════ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --pink: #f759ab;
+        --dark: #111;
+        --cream: #f8f5f0;
+        --border: #e2ddd8;
+        --gray: #888;
+        --ease-lux: cubic-bezier(0.25, 1, 0.5, 1);
+        --ease-exp: cubic-bezier(0.16, 1, 0.3, 1);
+        --font-disp: "Cormorant Garamond", "Georgia", serif;
+        --font-body: "Jost", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        color: var(--dark);
+        background: #fff;
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* ── CURSOR ── */
+      #lux-cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99999;
+        width: 5px;
+        height: 5px;
+        background: var(--pink);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition:
+          background 0.3s,
+          transform 0.15s;
+      }
+      #lux-cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99998;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--dark);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.5;
+        transition:
+          width 0.4s var(--ease-lux),
+          height 0.4s var(--ease-lux),
+          border-color 0.3s,
+          opacity 0.3s,
+          transform 0.12s linear;
+      }
+      body.cursor-hover #lux-cursor-ring {
+        width: 52px;
+        height: 52px;
+        opacity: 0.8;
+        border-color: var(--pink);
+      }
+      @media (hover: none), (pointer: coarse) {
+        #lux-cursor-dot,
+        #lux-cursor-ring {
+          display: none;
+        }
+        body,
+        body * {
+          cursor: auto !important;
+        }
+      }
+      @media (hover: hover) and (pointer: fine) {
+        body,
+        body * {
+          cursor: none !important;
+        }
+      }
+
+      /* ── TOPBAR ── */
+      .gh-topbar {
+        background: var(--dark);
+        color: rgba(255, 255, 255, 0.75);
+        text-align: center;
+        padding: 7px 20px;
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        font-weight: 300;
+      }
+
+      /* ── NAVBAR — Dior ultra-thin ── */
+      /* ── NAVBAR ── */
+      .gh-nav {
+        position: sticky;
+        top: 0;
+        z-index: 9000;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        transition: box-shadow 0.3s ease;
+      }
+      .gh-nav.scrolled {
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.07);
+      }
+      .gh-nav-inner {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 0 40px;
+        height: 60px;
+      }
+      .gh-nav-left {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .gh-nav-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        justify-content: flex-end;
+      }
+      .gh-nav-link {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .gh-nav-link:hover {
+        color: var(--pink);
+      }
+      .gh-logo {
+        font-family: var(--font-disp, "Cormorant Garamond", serif);
+        font-size: 1.4rem;
+        letter-spacing: 7px;
+        text-transform: uppercase;
+        color: var(--dark);
+        text-decoration: none;
+        text-align: center;
+      }
+      .gh-nav-icon {
+        position: relative;
+        color: var(--dark);
+        text-decoration: none;
+        font-size: 17px;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s;
+      }
+      .gh-nav-icon:hover {
+        color: var(--pink);
+      }
+      .gh-cart-count {
+        position: absolute;
+        top: -7px;
+        right: -8px;
+        width: 16px;
+        height: 16px;
+        background: var(--pink);
+        border-radius: 50%;
+        font-size: 9px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: normal;
+      }
+      /* User dropdown */
+      .gh-user-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+        color: var(--dark);
+        position: relative;
+      }
+      .gh-user-avatar {
+        width: 30px;
+        height: 30px;
+        background: var(--pink);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .gh-user-name {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .gh-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: #fff;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        z-index: 9999;
+        padding: 6px 0;
+      }
+      .gh-user-btn:focus .gh-dropdown,
+      .gh-user-btn.open .gh-dropdown {
+        display: block;
+      }
+      .gh-dropdown a {
+        display: block;
+        padding: 10px 18px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+      .gh-dropdown a:hover {
+        background: var(--cream);
+      }
+      .gh-dropdown hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 4px 0;
+      }
+      .gh-dropdown .logout {
+        color: #dc2626;
+      }
+      /* ── HERO — Full viewport, Dior cinematic ── */
+      .gh-hero {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 88px);
+        overflow: hidden;
+        background: var(--cream);
+      }
+      .gh-hero-media {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .gh-hero-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform-origin: center center;
+        transition: transform 8s var(--ease-lux);
+      }
+      .gh-hero:hover .gh-hero-media img {
+        transform: scale(1.04);
+      }
+      .gh-hero-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.72) 0%,
+          rgba(255, 255, 255, 0.3) 40%,
+          transparent 65%
+        );
+      }
+      .gh-hero-content {
+        position: absolute;
+        top: 50%;
+        left: 7%;
+        transform: translateY(-50%);
+        max-width: 440px;
+      }
+      .gh-hero-eyebrow {
+        font-size: 9px;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 18px;
+        font-weight: 400;
+      }
+      .gh-hero-title {
+        font-family: var(--font-disp);
+        font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+        font-weight: 300;
+        line-height: 1.05;
+        letter-spacing: 2px;
+        color: var(--dark);
+        margin-bottom: 20px;
+        font-style: italic;
+      }
+      .gh-hero-sub {
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 40px;
+        font-weight: 300;
+      }
+      .gh-hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--dark);
+        text-decoration: none;
+        font-weight: 400;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--dark);
+        transition:
+          color 0.3s,
+          border-color 0.3s;
+      }
+      .gh-hero-cta:hover {
+        color: var(--pink);
+        border-color: var(--pink);
+      }
+      .gh-hero-cta i {
+        font-size: 12px;
+        transition: transform 0.3s var(--ease-lux);
+      }
+      .gh-hero-cta:hover i {
+        transform: translateX(4px);
+      }
+      /* Hero scroll hint */
+      .gh-hero-scroll {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        color: var(--gray);
+        font-size: 9px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        animation: scrollBounce 2s ease-in-out infinite;
+      }
+      .gh-hero-scroll-line {
+        width: 1px;
+        height: 32px;
+        background: linear-gradient(to bottom, var(--dark), transparent);
+      }
+      @keyframes scrollBounce {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(6px);
+        }
+      }
+
+      /* ── SECTION HEADER — Dior minimal ── */
+      .gh-sec-hd {
+        text-align: center;
+        padding: clamp(60px, 8vw, 100px) 40px clamp(40px, 5vw, 60px);
+      }
+      .gh-sec-hd .eyebrow {
+        font-size: 9px;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 16px;
+        font-weight: 300;
+        display: block;
+      }
+      .gh-sec-hd h2 {
+        font-family: var(--font-disp);
+        font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+        font-weight: 300;
+        letter-spacing: 3px;
+        color: var(--dark);
+        margin-bottom: 12px;
+      }
+      .gh-sec-hd p {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--gray);
+        font-weight: 300;
+        text-transform: uppercase;
+      }
+      .gh-view-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 9px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 2px;
+        margin-top: 16px;
+        transition:
+          border-color 0.3s,
+          color 0.3s;
+      }
+      .gh-view-all:hover {
+        color: var(--pink);
+        border-color: var(--pink);
+      }
+
+      /* ── SPLIT HERO (2 big panels side by side, Dior homepage style) ── */
+      .gh-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        margin: 0 3px;
+      }
+      .gh-split-panel {
+        position: relative;
+        overflow: hidden;
+        height: clamp(420px, 65vh, 720px);
+        cursor: pointer;
+      }
+      .gh-split-panel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.2s var(--ease-lux);
+        transform-origin: center;
+      }
+      .gh-split-panel:hover img {
+        transform: scale(1.05);
+      }
+      .gh-split-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.55) 0%,
+          rgba(0, 0, 0, 0.05) 50%,
+          transparent 100%
+        );
+        transition: background 0.6s;
+      }
+      .gh-split-panel:hover .gh-split-overlay {
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.65) 0%,
+          rgba(0, 0, 0, 0.1) 50%,
+          transparent 100%
+        );
+      }
+      .gh-split-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 40px;
+        color: #fff;
+      }
+      .gh-split-label {
+        font-size: 9px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 10px;
+        font-weight: 300;
+      }
+      .gh-split-title {
+        font-family: var(--font-disp);
+        font-size: clamp(1.4rem, 3vw, 2.2rem);
+        font-weight: 300;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+      }
+      .gh-split-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 9px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        padding-bottom: 2px;
+        transition:
+          color 0.3s,
+          border-color 0.3s;
+      }
+      .gh-split-btn:hover {
+        color: #fff;
+        border-color: #fff;
+      }
+
+      /* ── ASYMMETRIC PRODUCT GRID ── */
+      .gh-asym {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 3px;
+        margin: 0 3px;
+      }
+      .gh-asym-card {
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--cream);
+      }
+      .gh-asym-card.featured {
+        grid-row: 1 / 3;
+      }
+      .gh-asym-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        min-height: 260px;
+        transition: transform 1s var(--ease-lux);
+      }
+      .gh-asym-card.featured img {
+        min-height: 520px;
+      }
+      .gh-asym-card:hover img {
+        transform: scale(1.06);
+      }
+      .gh-asym-ghost {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(17, 17, 17, 0.88);
+        color: #fff;
+        padding: 16px 18px;
+        transform: translateY(100%);
+        transition: transform 0.65s var(--ease-lux);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .gh-asym-card:hover .gh-asym-ghost {
+        transform: translateY(0);
+      }
+      .gh-asym-ghost-name {
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .gh-asym-ghost-btn {
+        font-size: 9px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--pink);
+        border: none;
+        background: none;
+        cursor: none;
+        font-family: var(--font-body);
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .gh-asym-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        z-index: 2;
+        font-size: 9px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--pink);
+        padding: 3px 10px;
+      }
+      .gh-asym-badge.sale {
+        background: var(--dark);
+      }
+      .gh-asym-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 16px 14px;
+        background: #fff;
+      }
+      .gh-asym-info .cat {
+        font-size: 9px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 4px;
+      }
+      .gh-asym-info .name {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--dark);
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .gh-asym-info .price {
+        font-size: 12px;
+        color: var(--pink);
+      }
+      .gh-asym-info .old {
+        font-size: 11px;
+        color: var(--gray);
+        text-decoration: line-through;
+        margin-left: 6px;
+      }
+
+      @media (max-width: 768px) {
+        .gh-asym {
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: auto;
+        }
+        .gh-asym-card.featured {
+          grid-row: auto;
+        }
+        .gh-asym-card img,
+        .gh-asym-card.featured img {
+          min-height: 200px;
+        }
+        .gh-split {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── LIFESTYLE STRIP — Dior editorial ── */
+      .gh-lifestyle {
+        display: grid;
+        grid-template-columns: 5fr 4fr 3fr;
+        gap: 3px;
+        margin: 0 3px;
+        height: clamp(300px, 42vh, 500px);
+      }
+      .gh-lifestyle-item {
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .gh-lifestyle-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.2s var(--ease-lux);
+      }
+      .gh-lifestyle-item:hover img {
+        transform: scale(1.06);
+      }
+      .gh-lifestyle-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.6),
+          rgba(0, 0, 0, 0.05) 60%,
+          transparent
+        );
+      }
+      .gh-lifestyle-label {
+        position: absolute;
+        bottom: 24px;
+        left: 24px;
+        color: #fff;
+      }
+      .gh-lifestyle-label .cat {
+        font-size: 9px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 6px;
+      }
+      .gh-lifestyle-label .title {
+        font-family: var(--font-disp);
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        font-weight: 300;
+        letter-spacing: 2px;
+      }
+      .gh-lifestyle-label .link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 9px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        margin-top: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        padding-bottom: 1px;
+        transition: color 0.3s;
+      }
+      .gh-lifestyle-label .link:hover {
+        color: #fff;
+      }
+
+      /* ── HORIZONTAL PRODUCT STRIP ── */
+      .gh-strip {
+        display: flex;
+        gap: 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 0 3px;
+      }
+      .gh-strip::-webkit-scrollbar {
+        display: none;
+      }
+      .gh-strip-card {
+        flex: 0 0 calc(25% - 1.5px);
+        min-width: 220px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--cream);
+      }
+      .gh-strip-card img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        display: block;
+        transition: transform 1s var(--ease-lux);
+      }
+      .gh-strip-card:hover img {
+        transform: scale(1.06);
+      }
+      .gh-strip-ghost {
+        position: absolute;
+        bottom: 64px;
+        left: 0;
+        right: 0;
+        background: rgba(17, 17, 17, 0.85);
+        color: #fff;
+        padding: 12px 16px;
+        transform: translateY(100%);
+        transition: transform 0.6s var(--ease-lux);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .gh-strip-card:hover .gh-strip-ghost {
+        transform: translateY(0);
+      }
+      .gh-strip-info {
+        padding: 12px 14px 14px;
+        background: #fff;
+      }
+      .gh-strip-info .name {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--dark);
+        margin-bottom: 4px;
+        display: block;
+        text-decoration: none;
+      }
+      .gh-strip-info .stars {
+        color: #f59e0b;
+        font-size: 11px;
+      }
+      .gh-strip-info .price {
+        font-size: 12px;
+        color: var(--pink);
+      }
+      .badge-new,
+      .badge-hot {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #fff;
+        padding: 3px 10px;
+      }
+      .badge-new {
+        background: var(--pink);
+      }
+      .badge-hot {
+        background: var(--dark);
+      }
+      .badge-sale {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--dark);
+        padding: 3px 10px;
+      }
+
+      /* ── PROMO BAND — Dior text-focused ── */
+      .gh-promo-band {
+        background: var(--cream);
+        padding: clamp(60px, 8vw, 100px) 40px;
+        text-align: center;
+      }
+      .gh-promo-band h2 {
+        font-family: var(--font-disp);
+        font-weight: 300;
+        font-size: clamp(2rem, 5vw, 4.5rem);
+        letter-spacing: 3px;
+        line-height: 1.1;
+        color: var(--dark);
+        margin-bottom: 20px;
+      }
+      .gh-promo-band p {
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 36px;
+      }
+      .gh-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--dark);
+        padding: 14px 36px;
+        text-decoration: none;
+        border: none;
+        cursor: none;
+        font-family: var(--font-body);
+        font-weight: 400;
+        transition: background 0.3s;
+      }
+      .gh-btn-primary:hover {
+        background: var(--pink);
+      }
+      .gh-btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--dark);
+        background: transparent;
+        padding: 13px 36px;
+        border: 1px solid var(--dark);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-weight: 400;
+        transition: all 0.3s;
+        margin-left: 12px;
+      }
+      .gh-btn-outline:hover {
+        background: var(--dark);
+        color: #fff;
+      }
+
+      /* ── NEWSLETTER DIOR-STYLE ── */
+      .gh-newsletter {
+        background: var(--dark);
+        color: #fff;
+        padding: clamp(50px, 7vw, 80px) 40px;
+        text-align: center;
+      }
+      .gh-newsletter h3 {
+        font-family: var(--font-disp);
+        font-weight: 300;
+        font-size: clamp(1.4rem, 3vw, 2.2rem);
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+      }
+      .gh-newsletter p {
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 32px;
+      }
+      .gh-newsletter-form {
+        display: flex;
+        max-width: 440px;
+        margin: 0 auto;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .gh-newsletter-form input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 1px;
+        padding: 10px 0;
+      }
+      .gh-newsletter-form input::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .gh-newsletter-form button {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        cursor: none;
+        padding: 10px 0 10px 16px;
+        transition: color 0.3s;
+      }
+      .gh-newsletter-form button:hover {
+        color: var(--pink);
+      }
+
+      /* ── FEATURE BAR ── */
+      .gh-feature {
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .gh-feature-item {
+        padding: 28px 20px;
+        text-align: center;
+        border-right: 1px solid var(--border);
+      }
+      .gh-feature-item:last-child {
+        border-right: none;
+      }
+      .gh-feature-item i {
+        font-size: 18px;
+        color: var(--dark);
+        display: block;
+        margin-bottom: 10px;
+      }
+      .gh-feature-item h6 {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        color: var(--dark);
+        margin-bottom: 5px;
+      }
+      .gh-feature-item p {
+        font-size: 11px;
+        color: var(--gray);
+      }
+
+      /* ── FOOTER — Dior ── */
+      .gh-footer {
+        background: var(--dark);
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .gh-footer-top {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 40px;
+        padding: 60px 60px 40px;
+      }
+      .gh-footer-logo {
+        font-family: var(--font-disp);
+        color: #fff;
+        font-size: 1.5rem;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        font-weight: 300;
+        display: block;
+        margin-bottom: 20px;
+        text-decoration: none;
+      }
+      .gh-footer-desc {
+        font-size: 12px;
+        line-height: 1.9;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 20px;
+      }
+      .gh-footer-social {
+        display: flex;
+        gap: 16px;
+      }
+      .gh-footer-social a {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 15px;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .gh-footer-social a:hover {
+        color: var(--pink);
+      }
+      .gh-footer-col h5 {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 20px;
+        font-weight: 400;
+      }
+      .gh-footer-col ul {
+        list-style: none;
+      }
+      .gh-footer-col li {
+        margin-bottom: 12px;
+      }
+      .gh-footer-col a {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-decoration: none;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+      }
+      .gh-footer-col a:hover {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .gh-footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 20px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .gh-footer-bottom p {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.25);
+      }
+      .gh-footer-bottom-links {
+        display: flex;
+        gap: 20px;
+      }
+      .gh-footer-bottom-links a {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        color: rgba(255, 255, 255, 0.25);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .gh-footer-bottom-links a:hover {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      @media (max-width: 768px) {
+        .gh-nav-inner {
+          padding: 0 16px;
+          grid-template-columns: auto 1fr auto;
+        }
+        .gh-nav-left {
+          display: none;
+        }
+        .gh-logo {
+          text-align: left;
+        }
+        .gh-hero-content {
+          left: 5%;
+          right: 5%;
+        }
+        .gh-hero-title {
+          font-size: 2.4rem;
+        }
+        .gh-lifestyle {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+        .gh-lifestyle-item {
+          height: 240px;
+        }
+        .gh-strip-card {
+          flex: 0 0 68vw;
+        }
+        .gh-feature {
+          grid-template-columns: 1fr 1fr;
+        }
+        .gh-feature-item:nth-child(2) {
+          border-right: none;
+        }
+        .gh-feature-item:nth-child(3) {
+          border-top: 1px solid var(--border);
+        }
+        .gh-footer-top {
+          grid-template-columns: 1fr;
+          gap: 24px;
+          padding: 40px 20px 24px;
+        }
+        .gh-footer-bottom {
+          flex-direction: column;
+          gap: 12px;
+          padding: 16px 20px;
+          text-align: center;
+        }
+        .gh-split {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── GSAP REVEAL ── */
+      .g-reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        will-change: opacity, transform;
+      }
+      .g-reveal-l {
+        opacity: 0;
+        transform: translateX(-40px);
+        will-change: opacity, transform;
+      }
+      .g-reveal-r {
+        opacity: 0;
+        transform: translateX(40px);
+        will-change: opacity, transform;
+      }
+
+      /* ── ADMIN BAR ── */
+      .gh-admin {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: rgba(17, 17, 17, 0.95);
+        z-index: 9999;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+      }
+      .gh-admin.show {
+        display: flex;
+      }
+      .gh-admin-btn {
+        padding: 4px 14px;
+        background: var(--pink);
+        border: none;
+        color: #fff;
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      .gh-admin-btn:hover {
+        opacity: 0.85;
+      }
+      .gh-admin-link {
+        padding: 4px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-decoration: none;
+        margin-left: 6px;
+        transition: color 0.2s;
+      }
+      .gh-admin-link:hover {
+        color: #fff;
+      }
+
+      @keyframes luxSk {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+      .gh-asym-skel {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 3px;
+        margin: 0 3px;
+      }
+      .gh-asym-skel .s-lg {
+        grid-row: 1/3;
+        min-height: 520px;
+      }
+      .gh-skel-item {
+        background: linear-gradient(
+          90deg,
+          #f0ece6 25%,
+          #e8e3dc 50%,
+          #f0ece6 75%
+        );
+        background-size: 400% 100%;
+        animation: luxSk 1.4s ease infinite;
+      }
+    </style>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "GlowHub",
+        "description": "Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam",
+        "url": "https://glowhub.vn",
+        "telephone": "+84-1800-0000",
+        "currenciesAccepted": "VND",
+        "paymentAccepted": "Cash, Credit Card, MoMo, ZaloPay"
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Cursor -->
+    <div id="lux-cursor-dot"></div>
+    <div id="lux-cursor-ring"></div>
+
+    <!-- Admin bar -->
+    <div class="gh-admin" id="adminBar">
+      <span
+        style="
+          font-family: var(--font-disp);
+          letter-spacing: 4px;
+          color: rgba(255, 255, 255, 0.8);
+        "
+        >GLOWHUB</span
+      >
+      <div>
+        <button class="gh-admin-btn" onclick="savePageChanges()">Lưu</button>
+        <a href="admin.html" class="gh-admin-link">Dashboard</a>
+      </div>
+    </div>
+
+    <!-- TOPBAR -->
+    <div class="gh-topbar">
+      🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="gh-nav" id="mainNav">
+      <div class="gh-nav-inner">
+        <!-- Left links -->
+        <div class="gh-nav-left">
+          <a href="shop.html" class="gh-nav-link">Cửa Hàng</a>
+          <a href="shop.html?section=new" class="gh-nav-link">Mới Về</a>
+          <a href="shop.html?section=sale" class="gh-nav-link">Ưu Đãi</a>
+        </div>
+        <!-- Logo center -->
+        <a href="index.html" class="gh-logo">GlowHub</a>
+        <!-- Right icons -->
+        <div class="gh-nav-right">
+          <!-- User area — filled by renderNavUser() in api.js -->
+          <div id="nav-user-area"></div>
+          <!-- Search -->
+          <a href="shop.html" class="gh-nav-icon" title="Tìm kiếm">
+            <i class="bi bi-search"></i>
+          </a>
+          <!-- Wishlist -->
+          <a
+            href="checkout.html?tab=profile"
+            class="gh-nav-icon"
+            title="Yêu thích"
+          >
+            <i class="bi bi-heart"></i>
+          </a>
+          <!-- Cart -->
+          <a href="cart.html" class="gh-nav-icon" title="Giỏ hàng">
+            <i class="bi bi-bag"></i>
+            <span id="cart-count" class="gh-cart-count">0</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ══════════════════════════════
+     HERO — Full viewport
+══════════════════════════════ -->
+    <section class="gh-hero" id="heroSection">
+      <div class="gh-hero-media">
+        <img
+          id="heroImg"
+          src="images/banner-image-6.jpg"
+          alt="GlowHub Collection"
+          loading="eager"
+          onerror="
+            this.src =
+              'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1800&q=85'
+          "
+        />
+      </div>
+      <div class="gh-hero-gradient"></div>
+      <div class="gh-hero-content">
+        <div class="gh-hero-eyebrow" id="heroEyebrow">
+          Bộ Sưu Tập Mới · 2026
+        </div>
+        <h1 class="gh-hero-title" id="heroTitle">Bộ Sưu Tập<br />Thu Đông</h1>
+        <p class="gh-hero-sub" id="heroSub">
+          Tinh tế · Sang trọng · Thuần Việt
+        </p>
+        <a id="heroCta" href="shop.html?section=new" class="gh-hero-cta">
+          <span id="heroCtaText">Khám Phá Ngay</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="gh-hero-scroll">
+        <div class="gh-hero-scroll-line"></div>
+        <span>Cuộn</span>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     SPLIT PANELS — từ Banner API
+══════════════════════════════ -->
+    <section style="padding: 3px 0">
+      <div class="gh-split" id="splitPanels">
+        <!-- Skeleton -->
+        <div
+          class="gh-split-panel"
+          style="
+            background: var(--cream);
+            min-height: clamp(420px, 65vh, 720px);
+          "
+        >
+          <div
+            style="
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                #f0ece6 25%,
+                #e8e3dc 50%,
+                #f0ece6 75%
+              );
+              background-size: 400% 100%;
+              animation: luxSk 1.4s ease infinite;
+            "
+          ></div>
+        </div>
+        <div
+          class="gh-split-panel"
+          style="
+            background: var(--cream);
+            min-height: clamp(420px, 65vh, 720px);
+          "
+        >
+          <div
+            style="
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                #f0ece6 25%,
+                #e8e3dc 50%,
+                #f0ece6 75%
+              );
+              background-size: 400% 100%;
+              animation: luxSk 1.4s ease infinite;
+            "
+          ></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     HÀNG MỚI VỀ — Asymmetric Grid
+══════════════════════════════ -->
+    <section>
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Bộ Sưu Tập</span>
+        <h2>Hàng Mới Về</h2>
+        <p>Những sản phẩm mới nhất vừa cập nhật</p>
+        <a href="shop.html?section=new" class="gh-view-all">
+          Xem Tất Cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="gh-asym-skel" id="newGridSkel">
+        <div class="gh-skel-item s-lg"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+      </div>
+      <div class="gh-asym" id="newGrid" style="display: none">
+        <!-- FEATURED — large left (2 rows) -->
+        <div
+          class="gh-asym-card featured"
+          onclick="location.href = 'product.html?id=202'"
+        >
+          <span class="gh-asym-badge">Mới</span>
+          <img
+            src="images/banner-image-1.jpg"
+            alt="Đầm Dạo Phố"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Đầm Dạo Phố</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="202"
+              data-name="Đầm Dạo Phố"
+              data-price="890000"
+              data-img="images/banner-image-1.jpg"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Thời Trang Nữ</div>
+            <div class="name">Đầm Dạo Phố</div>
+            <div class="price">890.000 ₫</div>
+          </div>
+        </div>
+        <!-- Top right -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=101'"
+        >
+          <span class="gh-asym-badge">Mới</span>
+          <img
+            src="images/banner-image-6.jpg"
+            alt="Áo Khoác Da Mềm"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Áo Khoác Da Mềm</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="101"
+              data-name="Áo Khoác Da Mềm"
+              data-price="1250000"
+              data-img="images/banner-image-6.jpg"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Thời Trang</div>
+            <div class="name">Áo Khoác Da Mềm</div>
+            <div class="price">1.250.000 ₫</div>
+          </div>
+        </div>
+        <!-- Mid right -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=203'"
+        >
+          <span class="gh-asym-badge sale">-20%</span>
+          <img
+            src="images/banner-image-2.jpg"
+            alt="Túi Xách Thời Trang"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Túi Xách Thời Trang</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="203"
+              data-name="Túi Xách Thời Trang"
+              data-price="760000"
+              data-img="images/banner-image-2.jpg"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Phụ Kiện</div>
+            <div class="name">Túi Xách Thời Trang</div>
+            <div class="price">
+              760.000 ₫ <span class="old">950.000 ₫</span>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom right 1 -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=204'"
+        >
+          <span class="gh-asym-badge">Hot</span>
+          <img
+            src="images/banner-image-3.jpg"
+            alt="Set Áo Trench Coat"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Set Áo Trench Coat</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="204"
+              data-name="Set Áo Trench Coat"
+              data-price="1890000"
+              data-img="images/banner-image-3.jpg"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Thời Trang</div>
+            <div class="name">Set Áo Trench Coat</div>
+            <div class="price">1.890.000 ₫</div>
+          </div>
+        </div>
+        <!-- Bottom right 2 -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=205'"
+        >
+          <img
+            src="images/banner-image-4.jpg"
+            alt="Blazer Công Sở"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Blazer Công Sở</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="205"
+              data-name="Blazer Công Sở"
+              data-price="1050000"
+              data-img="images/banner-image-4.jpg"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Thời Trang</div>
+            <div class="name">Blazer Công Sở</div>
+            <div class="price">1.050.000 ₫</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     LIFESTYLE — Editorial strip
+══════════════════════════════ -->
+    <section style="padding-top: 3px">
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Khám Phá</span>
+        <h2>Danh Mục Nổi Bật</h2>
+        <p>Tìm kiếm phong cách của bạn</p>
+      </div>
+      <div class="gh-lifestyle">
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?cat=1'"
+        >
+          <img
+            src="images/category-1.jpg"
+            alt="Thời Trang"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">Bộ Sưu Tập</div>
+            <div class="title">Thời Trang</div>
+            <a href="shop.html?cat=1" class="link"
+              >Khám Phá <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?cat=2'"
+        >
+          <img
+            src="images/category-2.jpg"
+            alt="Mỹ Phẩm"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">Làm Đẹp</div>
+            <div class="title">Mỹ Phẩm</div>
+            <a href="shop.html?cat=2" class="link"
+              >Khám Phá <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?section=sale'"
+        >
+          <img
+            src="images/category-3.jpg"
+            alt="Ưu Đãi"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">Đặc Biệt</div>
+            <div class="title">Ưu Đãi</div>
+            <a href="shop.html?section=sale" class="link"
+              >Xem Ngay <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     PROMO BAND — Dior text
+══════════════════════════════ -->
+    <section class="gh-promo-band">
+      <div class="g-reveal">
+        <p>Ưu Đãi Đặc Biệt</p>
+        <h2>Giảm 25% Cho Đơn Hàng<br />Đầu Tiên Của Bạn</h2>
+        <p>Đăng ký thành viên ngay hôm nay để nhận ưu đãi độc quyền</p>
+        <div
+          style="
+            margin-top: 36px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+          "
+        >
+          <a href="register.html" class="gh-btn-primary">Đăng Ký Ngay</a>
+          <a href="policy.html#doi-tra" class="gh-btn-outline">Tìm Hiểu Thêm</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     BÁN CHẠY — Từ Product API
+══════════════════════════════ -->
+    <section style="background: #fff">
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Được Yêu Thích</span>
+        <h2>Bán Chạy Nhất</h2>
+        <p>Sản phẩm được khách hàng tin dùng nhất</p>
+        <a href="shop.html?section=best" class="gh-view-all">
+          Xem Tất Cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <!-- Strip từ Product API (best seller) -->
+      <div class="gh-strip" id="bestStrip">
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     NEWSLETTER
+══════════════════════════════ -->
+    <section class="gh-newsletter">
+      <div class="g-reveal">
+        <h3>Nhận Thông Tin Mới Nhất</h3>
+        <p>Đăng ký để được cập nhật bộ sưu tập mới & ưu đãi độc quyền</p>
+        <form class="gh-newsletter-form" onsubmit="subNewsletter(event)">
+          <input type="email" placeholder="Địa chỉ email của bạn" required />
+          <button type="submit">Đăng Ký</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FEATURE BAR -->
+    <div class="gh-feature">
+      <div class="gh-feature-item">
+        <i class="bi bi-truck"></i>
+        <h6>Miễn Phí Vận Chuyển</h6>
+        <p>Đơn hàng từ 500.000₫</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-arrow-return-left"></i>
+        <h6>Đổi Trả Dễ Dàng</h6>
+        <p>Trong vòng 30 ngày</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-shield-check"></i>
+        <h6>Thanh Toán An Toàn</h6>
+        <p>Mã hóa SSL 256-bit</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-headset"></i>
+        <h6>Hỗ Trợ 24/7</h6>
+        <p>Hotline: 1800 0000</p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="gh-footer">
+      <div class="gh-footer-top">
+        <div>
+          <a href="index.html" class="gh-footer-logo">GlowHub</a>
+          <p class="gh-footer-desc">
+            Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam. Mang lại vẻ đẹp và
+            sự tự tin cho hàng triệu phụ nữ.
+          </p>
+          <div class="gh-footer-social">
+            <a href="https://facebook.com" target="_blank" rel="noopener"
+              ><i class="bi bi-facebook"></i
+            ></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener"
+              ><i class="bi bi-instagram"></i
+            ></a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener"
+              ><i class="bi bi-tiktok"></i
+            ></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener"
+              ><i class="bi bi-youtube"></i
+            ></a>
+          </div>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Cửa Hàng</h5>
+          <ul>
+            <li><a href="shop.html?section=new">Hàng Mới Về</a></li>
+            <li><a href="shop.html?cat=1">Thời Trang</a></li>
+            <li><a href="shop.html?cat=2">Mỹ Phẩm</a></li>
+            <li><a href="shop.html?cat=4">Phụ Kiện</a></li>
+            <li><a href="shop.html?section=sale">Khuyến Mãi</a></li>
+          </ul>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Hỗ Trợ</h5>
+          <ul>
+            <li><a href="policy.html#huong-dan">Hướng Dẫn Mua Hàng</a></li>
+            <li><a href="policy.html#doi-tra">Chính Sách Đổi Trả</a></li>
+            <li><a href="policy.html#van-chuyen">Vận Chuyển</a></li>
+            <li><a href="policy.html#faq">Câu Hỏi Thường Gặp</a></li>
+            <li><a href="policy.html#lien-he">Liên Hệ</a></li>
+          </ul>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Tài Khoản</h5>
+          <ul>
+            <li><a href="login.html">Đăng Nhập</a></li>
+            <li><a href="register.html">Đăng Ký</a></li>
+            <li><a href="checkout.html?tab=profile">Hồ Sơ</a></li>
+            <li><a href="checkout.html?tab=orders">Đơn Hàng</a></li>
+            <li><a href="admin.html">Quản Trị</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="gh-footer-bottom">
+        <p>© 2025 GlowHub. Bảo lưu mọi quyền.</p>
+        <div class="gh-footer-bottom-links">
+          <a href="policy.html#dieu-khoan">Điều Khoản</a>
+          <a href="policy.html#bao-mat">Bảo Mật</a>
+          <a href="policy.html#lien-he">Liên Hệ</a>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script>
+      // @ts-nocheck
+      /* eslint-disable */
+
+      var _fmtP = function (n) {
+        return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫";
+      };
+      var PH =
+        "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=500&q=80";
+
+      // ── ADD TO CART ──
+      function addCard(btn) {
+        var id = btn.dataset.id,
+          name = btn.dataset.name || "SP";
+        var price = parseFloat(btn.dataset.price) || 0,
+          img = btn.dataset.img || "";
+        if (typeof Cart !== "undefined")
+          Cart.add({ id: id, name: name, price: price, image: img });
+        if (typeof showGlobalToast !== "undefined")
+          showGlobalToast('✓ Đã thêm "' + name + '"');
+      }
+      function addStrip(btn) {
+        addCard(btn);
+      }
+
+      function subNewsletter(e) {
+        e.preventDefault();
+        var btn = e.target.querySelector("button");
+        btn.textContent = "✓ Đã đăng ký!";
+        btn.style.color = "#4ade80";
+        setTimeout(function () {
+          btn.textContent = "Đăng Ký";
+          btn.style.color = "";
+        }, 3000);
+      }
+      function savePageChanges() {
+        if (typeof SiteSettings !== "undefined")
+          SiteSettings.bulkUpdate(window._pageEdits || {})
+            .then(function () {
+              if (typeof showGlobalToast !== "undefined")
+                showGlobalToast("✓ Đã lưu!");
+            })
+            .catch(function () {});
+      }
+
+      // ── RENDER HELPERS ──
+      function _renderNewGrid(items) {
+        var sk = document.getElementById("newGridSkel");
+        var ng = document.getElementById("newGrid");
+        if (sk) sk.style.display = "none";
+        if (ng) ng.style.display = "grid";
+        if (!ng || !items.length) return;
+        ng.innerHTML = items
+          .slice(0, 5)
+          .map(function (p, i) {
+            var id = p.Id || p.id,
+              name = p.Name || p.name || "SP";
+            var price =
+              p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+            var oldP = p.DiscountPrice ? p.Price || p.price || 0 : 0;
+            var disc = oldP ? Math.round((1 - price / oldP) * 100) : 0;
+            var img = p.ImageUrl || p.imageUrl || PH;
+            var isNew = p.IsNew || p.isNew;
+            var cat =
+              (p.Category && (p.Category.Name || p.Category.name)) || "";
+            var featured = i === 0 ? " featured" : "";
+            var sn = name.replace(/'/g, "&#39;");
+            var badgeHtml = isNew
+              ? '<span class="gh-asym-badge">Mới</span>'
+              : disc > 0
+                ? `<span class="gh-asym-badge sale">-${disc}%</span>`
+                : "";
+            var oldPHtml = oldP
+              ? `<span class="old">${_fmtP(oldP)}</span>`
+              : "";
+            return `<div class="gh-asym-card${featured}" onclick="location.href='product.html?id=${id}'">
+      ${badgeHtml}
+      <img src="${img}" alt="${sn}" loading="lazy" onerror="this.src='${PH}'"/>
+      <div class="gh-asym-ghost">
+        <span class="gh-asym-ghost-name">${name}</span>
+        <button class="gh-asym-ghost-btn"
+          onclick="event.stopPropagation();addCard(this)"
+          data-id="${id}" data-name="${sn}"
+          data-price="${price}" data-img="${img}">+ Giỏ</button>
+      </div>
+      <div class="gh-asym-info">
+        <div class="cat">${cat}</div>
+        <div class="name">${name}</div>
+        <div class="price">${_fmtP(price)}${oldPHtml}</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function _renderBestStrip(items) {
+        var strip = document.getElementById("bestStrip");
+        if (!strip) return;
+        strip.innerHTML = items
+          .slice(0, 6)
+          .map(function (p) {
+            var id = p.Id || p.id,
+              name = p.Name || p.name || "SP";
+            var price =
+              p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+            var oldP = p.DiscountPrice ? p.Price || p.price || 0 : 0;
+            var disc = oldP ? Math.round((1 - price / oldP) * 100) : 0;
+            var img = p.ImageUrl || p.imageUrl || PH;
+            var isNew = p.IsNew || p.isNew;
+            var sn = name.replace(/'/g, "&#39;");
+            var badge2 = isNew
+              ? '<span class="badge-new">Mới</span>'
+              : disc > 0
+                ? `<span class="badge-sale">-${disc}%</span>`
+                : "";
+            var oldP2Html = oldP
+              ? `<span style="text-decoration:line-through;color:var(--gray);font-size:10px;margin-left:6px">${_fmtP(oldP)}</span>`
+              : "";
+            return `<div class="gh-strip-card" onclick="location.href='product.html?id=${id}'">
+      ${badge2}
+      <img src="${img}" alt="${sn}" loading="lazy" onerror="this.src='${PH}'"/>
+      <div class="gh-strip-ghost">
+        <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase">${name}</span>
+        <button style="background:none;border:none;color:var(--pink);font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-body);cursor:none"
+          onclick="event.stopPropagation();addCard(this)"
+          data-id="${id}" data-name="${sn}"
+          data-price="${price}" data-img="${img}">+ Giỏ</button>
+      </div>
+      <div class="gh-strip-info">
+        <a href="product.html?id=${id}" class="name">${name}</a>
+        <div class="stars">★★★★★</div>
+        <div class="price">${_fmtP(price)}${oldP2Html}</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function _renderSplitPanels(banners) {
+        var wrap = document.getElementById("splitPanels");
+        if (!wrap) return;
+        // Lấy 2 banner đầu tiên, fallback nếu không có
+        var b1 = banners[0] || {
+          ImageUrl: "images/banner-image-1.jpg",
+          Title: "Thời Trang",
+          Link: "shop.html?cat=1",
+          SubTitle: "Khám Phá",
+        };
+        var b2 = banners[1] || {
+          ImageUrl: "images/banner-image-2.jpg",
+          Title: "Làm Đẹp",
+          Link: "shop.html?cat=2",
+          SubTitle: "Khám Phá",
+        };
+        [b1, b2].forEach(function (b, i) {
+          var img = b.ImageUrl || b.imageUrl || b.Image || "";
+          var title = b.Title || b.title || "";
+          var sub = b.SubTitle || b.subTitle || "Khám Phá";
+          var link = b.Link || b.link || b.Url || "shop.html";
+          var card = wrap.children[i];
+          if (!card) return;
+          card.onclick = function () {
+            location.href = link;
+          };
+          var fallbackImg =
+            "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80";
+          card.innerHTML = `
+      <img src="${img}" alt="${title}" loading="lazy"
+           onerror="this.src='${fallbackImg}'"/>
+      <div class="gh-split-overlay"></div>
+      <div class="gh-split-content">
+        <div class="gh-split-label">${sub}</div>
+        <div class="gh-split-title">${title}</div>
+        <a href="${link}" class="gh-split-btn">Mua Ngay <i class="bi bi-arrow-right"></i></a>
+      </div>`;
+        });
+      }
+
+      function _renderCategories(cats) {
+        var strip = document.getElementById("lifestyleStrip");
+        if (!strip) return;
+        // Category entity: {Id, Name, Description, ProductCount}
+        // Không có ImageUrl → dùng ảnh local + CDN fallback theo index
+        var localImgs = [
+          "images/category-1.jpg",
+          "images/category-2.jpg",
+          "images/category-3.jpg",
+        ];
+        var cdnImgs = [
+          "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+          "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&q=80",
+          "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600&q=80",
+        ];
+        var items = cats.length ? cats.slice(0, 3) : [];
+        if (!items.length) {
+          strip.innerHTML = "";
+          return;
+        }
+        strip.innerHTML = items
+          .map(function (c, i) {
+            var id = c.Id || c.id || i + 1;
+            var name = c.Name || c.name || "Danh Mục " + (i + 1);
+            var desc = c.Description || c.description || "";
+            var count = c.ProductCount || c.productCount || "";
+            var local = localImgs[i] || localImgs[0];
+            var cdn = cdnImgs[i] || cdnImgs[0];
+            var countStr = count ? `${count} Sản Phẩm` : "Khám Phá";
+            return `<div class="gh-lifestyle-item" onclick="location.href='shop.html?cat=${id}'">
+      <img src="${local}" alt="${name}" loading="lazy" onerror="this.src='${cdn}'"/>
+      <div class="gh-lifestyle-overlay"></div>
+      <div class="gh-lifestyle-label">
+        <div class="cat">${countStr}</div>
+        <div class="title">${name}</div>
+        <a href="shop.html?cat=${id}" class="link">Xem Ngay <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      // ── MAIN INIT ──
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof renderNavUser !== "undefined") renderNavUser();
+        if (typeof Cart !== "undefined") Cart._updateUI();
+
+        // Admin bar
+        if (
+          typeof Auth !== "undefined" &&
+          Auth.isLoggedIn &&
+          Auth.isLoggedIn() &&
+          Auth.isAdmin &&
+          Auth.isAdmin()
+        ) {
+          var ab = document.getElementById("adminBar");
+          if (ab) {
+            ab.classList.add("show");
+            document.body.style.paddingTop = "40px";
+          }
+        }
+
+        // ── 1. SiteSettings → Hero content ──
+        if (typeof SiteSettings !== "undefined") {
+          SiteSettings.getAll("homepage")
+            .then(function (s) {
+              if (!s) return;
+              var m = {
+                heroTitle: "heroTitle",
+                heroSub: "heroSub",
+                heroEyebrow: "heroEyebrow",
+                heroCta: "heroCtaText",
+                heroImg: null,
+              };
+              if (s.hero_title && document.getElementById("heroTitle"))
+                document.getElementById("heroTitle").innerHTML = s.hero_title;
+              if (s.hero_sub && document.getElementById("heroSub"))
+                document.getElementById("heroSub").textContent = s.hero_sub;
+              if (s.hero_eyebrow && document.getElementById("heroEyebrow"))
+                document.getElementById("heroEyebrow").textContent =
+                  s.hero_eyebrow;
+              if (s.hero_cta && document.getElementById("heroCtaText"))
+                document.getElementById("heroCtaText").textContent = s.hero_cta;
+              if (s.hero_img && document.getElementById("heroImg")) {
+                document.getElementById("heroImg").src = s.hero_img;
+                document.querySelector('link[rel="preload"]') &&
+                  (document.querySelector('link[rel="preload"]').href =
+                    s.hero_img);
+              }
+            })
+            .catch(function () {});
+        }
+
+        // ── 2. Banner API → Split Panels ──
+        if (typeof Banner !== "undefined") {
+          Banner.getAll()
+            .then(function (data) {
+              var banners = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              if (banners.length) _renderSplitPanels(banners);
+            })
+            .catch(function () {
+              // Fallback static
+              _renderSplitPanels([]);
+            });
+        } else {
+          _renderSplitPanels([]);
+        }
+
+        // ── 3. Product API → Hàng Mới (newGrid) ──
+        if (typeof Product !== "undefined") {
+          Product.getAll({ isNew: true, limit: 5 })
+            .then(function (data) {
+              var ps = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              if (ps.length) {
+                _renderNewGrid(ps);
+              } else {
+                // Try Featured API fallback
+                return typeof Featured !== "undefined"
+                  ? Featured.getBySection("new_arrivals").then(function (fd) {
+                      var fps = Array.isArray(fd)
+                        ? fd
+                        : fd && fd.items
+                          ? fd.items
+                          : [];
+                      var mapped = fps.map(function (f) {
+                        return f.Product || f.product || f;
+                      });
+                      _renderNewGrid(
+                        mapped.length ? mapped : _demoProducts().slice(0, 5),
+                      );
+                    })
+                  : Promise.resolve(
+                      _renderNewGrid(_demoProducts().slice(0, 5)),
+                    );
+              }
+            })
+            .catch(function () {
+              _renderNewGrid(_demoProducts().slice(0, 5));
+            });
+        } else {
+          _renderNewGrid(_demoProducts().slice(0, 5));
+        }
+
+        // ── 4. Product API → Bán Chạy (bestStrip) ──
+        if (typeof Product !== "undefined") {
+          Product.getAll({ limit: 8 })
+            .then(function (data) {
+              var ps = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderBestStrip(ps.length ? ps : _demoProducts());
+            })
+            .catch(function () {
+              _renderBestStrip(_demoProducts());
+            });
+        } else {
+          _renderBestStrip(_demoProducts());
+        }
+
+        // ── 5. Category API → Lifestyle Strip ──
+        if (typeof Category !== "undefined") {
+          Category.getAll()
+            .then(function (data) {
+              var cats = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderCategories(cats.slice(0, 3));
+            })
+            .catch(function () {
+              _renderCategories([]);
+            });
+        } else {
+          // Category module chưa load - thử gọi trực tiếp
+          apiFetch(PRODUCT_API, "/api/categories", "GET")
+            .then(function (data) {
+              var cats = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderCategories(cats.slice(0, 3));
+            })
+            .catch(function () {
+              _renderCategories([]);
+            });
+        }
+      });
+
+      // ── DEMO FALLBACK ──
+      function _demoProducts() {
+        return [
+          {
+            Id: 101,
+            Name: "Áo Khoác Da Mềm",
+            Price: 1250000,
+            ImageUrl: "images/banner-image-6.jpg",
+            IsNew: true,
+            Category: { Name: "Thời Trang" },
+          },
+          {
+            Id: 202,
+            Name: "Đầm Dạo Phố",
+            Price: 890000,
+            ImageUrl: "images/banner-image-1.jpg",
+            IsNew: true,
+            Category: { Name: "Thời Trang Nữ" },
+          },
+          {
+            Id: 203,
+            Name: "Túi Xách Thời Trang",
+            Price: 760000,
+            DiscountPrice: 608000,
+            ImageUrl: "images/banner-image-2.jpg",
+            Category: { Name: "Phụ Kiện" },
+          },
+          {
+            Id: 204,
+            Name: "Set Áo Trench Coat",
+            Price: 1890000,
+            ImageUrl: "images/banner-image-3.jpg",
+            Category: { Name: "Thời Trang" },
+          },
+          {
+            Id: 205,
+            Name: "Blazer Công Sở",
+            Price: 1050000,
+            ImageUrl: "images/banner-image-4.jpg",
+            Category: { Name: "Thời Trang" },
+          },
+          {
+            Id: 210,
+            Name: "Kem Dưỡng Ẩm Ban Đêm",
+            Price: 550000,
+            ImageUrl: "images/product-5.jpg",
+            Category: { Name: "Mỹ Phẩm" },
+          },
+        ];
+      }
+    </script>
+    <script src="js/gsap.js" defer></script>
+    <script>
+      function toggleUserMenu(btn) {
+        var open = btn.classList.contains("open");
+        document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+          b.classList.remove("open");
+        });
+        if (!open) btn.classList.add("open");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".gh-user-btn"))
+          document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+            b.classList.remove("open");
+          });
+      });
+    </script>
+  </body>
+</html>
