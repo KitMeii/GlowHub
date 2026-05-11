@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta property="og:title" content="Chính Sách & Hỗ Trợ — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <title>Chính Sách & Hỗ Trợ - GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Marcellus&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="css/vendor.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      :root {
+        --pink: #f759ab;
+        --dark: #111;
+        --border: #e8e8e8;
+        --gray: #8f8f8f;
+        --bg: #fffdf9;
+      }
+      body {
+        background: var(--bg);
+        font-family: "Jost", sans-serif;
+        color: var(--dark);
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Marcellus", serif;
+        font-weight: 400;
+      }
+      .brand-name {
+        font-family: "Marcellus", serif;
+        letter-spacing: 4px;
+        color: var(--dark);
+        text-decoration: none;
+      }
+      .nav-link {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--dark) !important;
+        font-weight: 500;
+      }
+      .nav-link:hover {
+        color: var(--pink) !important;
+      }
+
+      /* Sidebar nav */
+      .policy-sidebar {
+        position: sticky;
+        top: 90px;
+      }
+      .policy-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .policy-nav li {
+        border-bottom: 1px solid var(--border);
+      }
+      .policy-nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--gray);
+        text-decoration: none;
+        transition: 0.15s;
+        border-left: 3px solid transparent;
+      }
+      .policy-nav a:hover,
+      .policy-nav a.active {
+        color: var(--dark);
+        border-left-color: var(--pink);
+        background: #fff8ff;
+      }
+      .policy-nav a i {
+        font-size: 15px;
+        width: 18px;
+        flex-shrink: 0;
+      }
+
+      /* Content */
+      .policy-section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .policy-section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .policy-hd {
+        font-family: "Marcellus", serif;
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+      }
+      .policy-sub {
+        font-size: 13px;
+        color: var(--gray);
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .policy-body {
+        font-size: 14px;
+        line-height: 1.9;
+        color: #444;
+      }
+      .policy-body h3 {
+        font-family: "Marcellus", serif;
+        font-size: 1.1rem;
+        color: var(--dark);
+        margin: 24px 0 10px;
+      }
+      .policy-body p {
+        margin-bottom: 14px;
+      }
+      .policy-body ul {
+        padding-left: 20px;
+        margin-bottom: 14px;
+      }
+      .policy-body ul li {
+        margin-bottom: 6px;
+      }
+      .policy-body strong {
+        color: var(--dark);
+      }
+      .policy-body .highlight-box {
+        background: #fff8ff;
+        border-left: 3px solid var(--pink);
+        padding: 14px 18px;
+        margin: 16px 0;
+        font-size: 13px;
+      }
+      .policy-body .info-box {
+        background: #f0f9ff;
+        border-left: 3px solid #38bdf8;
+        padding: 14px 18px;
+        margin: 16px 0;
+        font-size: 13px;
+      }
+      .policy-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 13px;
+      }
+      .policy-body table th {
+        background: var(--dark);
+        color: #fff;
+        padding: 10px 14px;
+        text-align: left;
+        font-weight: 500;
+      }
+      .policy-body table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .policy-body table tr:hover td {
+        background: #fafafa;
+      }
+
+      /* FAQ */
+      .faq-item {
+        border: 1px solid var(--border);
+        margin-bottom: 8px;
+        overflow: hidden;
+      }
+      .faq-q {
+        padding: 14px 18px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+        font-size: 14px;
+        transition: 0.15s;
+      }
+      .faq-q:hover {
+        background: #fafafa;
+      }
+      .faq-q.open {
+        background: #fff8ff;
+        color: var(--pink);
+      }
+      .faq-q i {
+        transition: 0.3s;
+        flex-shrink: 0;
+      }
+      .faq-q.open i {
+        transform: rotate(180deg);
+      }
+      .faq-a {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.3s ease,
+          padding 0.3s;
+      }
+      .faq-a.open {
+        padding: 14px 18px;
+        max-height: 400px;
+        border-top: 1px solid var(--border);
+      }
+      .faq-a p {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.8;
+        margin: 0;
+      }
+
+      /* Contact */
+      .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .contact-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 20px;
+        text-align: center;
+      }
+      .contact-card i {
+        font-size: 2rem;
+        color: var(--pink);
+        display: block;
+        margin-bottom: 10px;
+      }
+      .contact-card h5 {
+        font-family: "Marcellus", serif;
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+      .contact-card p {
+        font-size: 13px;
+        color: var(--gray);
+        margin: 0;
+      }
+      .contact-card a {
+        color: var(--pink);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .contact-form input,
+      .contact-form textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        margin-bottom: 12px;
+        border-radius: 0;
+      }
+      .contact-form input:focus,
+      .contact-form textarea:focus {
+        outline: none;
+        border-color: var(--pink);
+      }
+      .contact-form textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+      .btn-send {
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        padding: 13px 32px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        font-family: "Jost", sans-serif;
+        transition: 0.2s;
+        width: 100%;
+      }
+      .btn-send:hover {
+        background: var(--pink);
+      }
+
+      /* Admin edit */
+      .admin-edit-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 999;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        font-family: "Jost", sans-serif;
+        display: none;
+        gap: 8px;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: 0.2s;
+      }
+      .admin-edit-btn:hover {
+        background: var(--pink);
+      }
+      .admin-edit-btn.active {
+        background: var(--pink);
+      }
+
+      /* Editable sections */
+      [data-editable="true"]:hover {
+        outline: 2px dashed var(--pink);
+        outline-offset: 4px;
+        cursor: text;
+      }
+      [data-editable="true"]:focus {
+        outline: 2px solid var(--pink);
+        outline-offset: 4px;
+      }
+
+      @media (max-width: 768px) {
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+        .policy-sidebar {
+          position: static;
+          margin-bottom: 20px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  </head>
+
+  <div id="lux-cursor-dot"></div>
+  <div id="lux-cursor-ring"></div>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
+      <div class="container">
+        <a class="navbar-brand brand-name fs-3" href="index.html">GLOWHUB</a>
+        <div class="d-flex align-items-center gap-3 d-lg-none">
+          <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul
+              class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4"
+            >
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Trang Chủ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="shop.html">Cửa Hàng</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="policy.html">Hỗ Trợ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="policy.html#lien-he">Liên Hệ</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="d-none d-lg-flex align-items-center gap-4">
+          <div id="nav-user-area"></div>
+          <a href="cart.html" class="nav-link position-relative">
+            <i class="bi bi-bag" style="font-size: 20px"></i>
+            <span
+              id="cart-count"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size: 10px"
+              >0</span
+            >
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div style="background: var(--dark); padding: 40px 0; text-align: center">
+      <h1
+        style="
+          color: #fff;
+          font-family: &quot;Marcellus&quot;, serif;
+          font-size: 1.8rem;
+          letter-spacing: 2px;
+          margin-bottom: 6px;
+        "
+      >
+        Chính Sách & Hỗ Trợ
+      </h1>
+      <p style="color: #aaa; font-size: 13px; margin: 0">
+        GlowHub cam kết mang đến trải nghiệm mua sắm tốt nhất
+      </p>
+    </div>
+
+    <!-- BREADCRUMB -->
+    <div
+      style="
+        background: #f9f9f6;
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+      "
+    >
+      <div class="container">
+        <span
+          style="
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+          "
+        >
+          <a href="index.html" style="color: var(--gray); text-decoration: none"
+            >Trang Chủ</a
+          >
+          <span style="margin: 0 8px">›</span>
+          <span id="bcCurrent" style="color: var(--dark); font-weight: 600"
+            >Chính Sách</span
+          >
+        </span>
+      </div>
+    </div>
+
+    <div class="container py-5">
+      <div class="row g-4">
+        <!-- SIDEBAR -->
+        <div class="col-lg-3">
+          <div class="policy-sidebar">
+            <div style="background: #fff; border: 1px solid var(--border)">
+              <div
+                style="
+                  padding: 14px 16px;
+                  background: var(--dark);
+                  color: #fff;
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  font-weight: 600;
+                "
+              >
+                Danh Mục
+              </div>
+              <ul class="policy-nav">
+                <li>
+                  <a
+                    href="#huong-dan"
+                    onclick="showSection('huong-dan', this)"
+                    id="nav-huong-dan"
+                    class="active"
+                  >
+                    <i class="bi bi-book"></i>Hướng Dẫn Mua Hàng</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#doi-tra"
+                    onclick="showSection('doi-tra', this)"
+                    id="nav-doi-tra"
+                  >
+                    <i class="bi bi-arrow-return-left"></i>Chính Sách Đổi Trả</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#van-chuyen"
+                    onclick="showSection('van-chuyen', this)"
+                    id="nav-van-chuyen"
+                  >
+                    <i class="bi bi-truck"></i>Chính Sách Vận Chuyển</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#bao-mat"
+                    onclick="showSection('bao-mat', this)"
+                    id="nav-bao-mat"
+                  >
+                    <i class="bi bi-shield-check"></i>Chính Sách Bảo Mật</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#dieu-khoan"
+                    onclick="showSection('dieu-khoan', this)"
+                    id="nav-dieu-khoan"
+                  >
+                    <i class="bi bi-file-text"></i>Điều Khoản Sử Dụng</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#faq"
+                    onclick="showSection('faq', this)"
+                    id="nav-faq"
+                  >
+                    <i class="bi bi-question-circle"></i>Câu Hỏi Thường Gặp</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#lien-he"
+                    onclick="showSection('lien-he', this)"
+                    id="nav-lien-he"
+                  >
+                    <i class="bi bi-envelope"></i>Liên Hệ Chúng Tôi</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <!-- Hotline box -->
+            <div
+              style="
+                background: var(--pink);
+                padding: 20px;
+                text-align: center;
+                margin-top: 12px;
+              "
+            >
+              <i
+                class="bi bi-telephone-fill"
+                style="
+                  font-size: 1.5rem;
+                  color: #fff;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+              ></i>
+              <div
+                style="
+                  color: #fff;
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  margin-bottom: 4px;
+                "
+              >
+                Hotline Hỗ Trợ
+              </div>
+              <a
+                href="tel:18000000"
+                style="
+                  color: #fff;
+                  font-family: &quot;Marcellus&quot;, serif;
+                  font-size: 1.3rem;
+                  text-decoration: none;
+                "
+                >1800 0000</a
+              >
+              <div
+                style="
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 11px;
+                  margin-top: 4px;
+                "
+              >
+                Miễn phí · 8:00 – 22:00
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="col-lg-9">
+          <!-- ══ HƯỚNG DẪN MUA HÀNG ══ -->
+          <div class="policy-section active" id="sec-huong-dan">
+            <h2 class="policy-hd">Hướng Dẫn Mua Hàng</h2>
+            <p class="policy-sub">
+              Cập nhật lần cuối: 01/01/2025 · Áp dụng cho tất cả đơn hàng tại
+              GlowHub
+            </p>
+            <div
+              class="policy-body"
+              data-editable="true"
+              contenteditable="false"
+              id="content-huong-dan"
+            >
+              <div class="highlight-box">
+                <strong>Mua sắm tại GlowHub rất đơn giản!</strong> Chỉ cần 4
+                bước: Chọn sản phẩm → Thêm vào giỏ → Điền thông tin → Thanh
+                toán.
+              </div>
+
+              <h3>Bước 1 — Chọn Sản Phẩm</h3>
+              <p>
+                Duyệt qua các danh mục hoặc sử dụng tính năng
+                <strong>tìm kiếm</strong> để tìm sản phẩm mong muốn. Nhấp vào
+                ảnh hoặc tên sản phẩm để xem thông tin chi tiết, đánh giá từ
+                khách hàng khác.
+              </p>
+              <ul>
+                <li>
+                  Kiểm tra kỹ
+                  <strong>mô tả, thành phần và hướng dẫn sử dụng</strong> trước
+                  khi mua
+                </li>
+                <li>
+                  Xem phần <strong>đánh giá của khách hàng</strong> để có thêm
+                  thông tin thực tế
+                </li>
+                <li>
+                  Chú ý <strong>tình trạng hàng</strong> — "Còn hàng" hoặc "Hết
+                  hàng"
+                </li>
+              </ul>
+
+              <h3>Bước 2 — Thêm Vào Giỏ Hàng</h3>
+              <p>
+                Chọn số lượng và nhấn nút <strong>"Thêm Vào Giỏ Hàng"</strong>.
+                Giỏ hàng sẽ được lưu tự động, bạn có thể tiếp tục mua sắm trước
+                khi thanh toán.
+              </p>
+
+              <h3>Bước 3 — Điền Thông Tin Giao Hàng</h3>
+              <p>
+                Tại trang thanh toán, điền đầy đủ thông tin nhận hàng. Nếu đã có
+                tài khoản, bạn có thể chọn từ <strong>địa chỉ đã lưu</strong> để
+                tiết kiệm thời gian.
+              </p>
+              <ul>
+                <li>Họ tên và số điện thoại người nhận</li>
+                <li>
+                  Địa chỉ giao hàng chi tiết (số nhà, tên đường, phường/xã,
+                  quận/huyện, tỉnh/thành)
+                </li>
+                <li>
+                  Ghi chú đặc biệt nếu cần (giao vào buổi sáng, gọi trước khi
+                  đến...)
+                </li>
+              </ul>
+
+              <h3>Bước 4 — Thanh Toán</h3>
+              <p>GlowHub hỗ trợ nhiều hình thức thanh toán:</p>
+              <table>
+                <tr>
+                  <th>Hình Thức</th>
+                  <th>Mô Tả</th>
+                  <th>Thời Gian Xác Nhận</th>
+                </tr>
+                <tr>
+                  <td><strong>COD</strong></td>
+                  <td>Thanh toán khi nhận hàng</td>
+                  <td>Ngay lập tức</td>
+                </tr>
+                <tr>
+                  <td><strong>Chuyển Khoản</strong></td>
+                  <td>Chuyển khoản ngân hàng</td>
+                  <td>1-2 giờ làm việc</td>
+                </tr>
+                <tr>
+                  <td><strong>MoMo</strong></td>
+                  <td>Ví điện tử MoMo</td>
+                  <td>Ngay lập tức</td>
+                </tr>
+                <tr>
+                  <td><strong>ZaloPay</strong></td>
+                  <td>Ví điện tử ZaloPay</td>
+                  <td>Ngay lập tức</td>
+                </tr>
+              </table>
+
+              <h3>Theo Dõi Đơn Hàng</h3>
+              <p>
+                Sau khi đặt hàng thành công, bạn có thể theo dõi tình trạng đơn
+                hàng tại mục <strong>Đơn Hàng Của Tôi</strong> trong tài khoản
+                hoặc nhập mã đơn hàng tại trang <strong>Theo Dõi Đơn</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- ══ ĐỔI TRẢ ══ -->
+          <div class="policy-section" id="sec-doi-tra">
+            <h2 class="policy-hd">Chính Sách Đổi Trả</h2>
+            <p class="policy-sub">
+              Cập nhật lần cuối: 01/01/2025 · Áp dụng trong vòng 30 ngày kể từ
+              ngày nhận hàng
+            </p>
+            <div
+              class="policy-body"
+              data-editable="true"
+              contenteditable="false"
+              id="content-doi-tra"
+            >
+              <div class="highlight-box">
+                <strong>GlowHub cam kết đổi trả miễn phí trong 30 ngày</strong>
+                nếu sản phẩm có lỗi từ nhà sản xuất, giao sai hàng hoặc hàng bị
+                hư hỏng trong quá trình vận chuyển.
+              </div>
+
+              <h3>Điều Kiện Đổi Trả</h3>
+              <p>
+                Sản phẩm được chấp nhận đổi trả khi đáp ứng
+                <strong>tất cả</strong> các điều kiện sau:
+              </p>
+              <ul>
+                <li>
+                  Còn trong thời hạn <strong>30 ngày</strong> kể từ ngày nhận
+                  hàng
+                </li>
+                <li>
+                  Sản phẩm <strong>chưa qua sử dụng</strong>, còn nguyên tem
+                  nhãn, bao bì
+                </li>
+                <li>Có <strong>hóa đơn mua hàng</strong> hoặc mã đơn hàng</li>
+                <li>
+                  Sản phẩm không thuộc
+                  <strong>danh mục không áp dụng đổi trả</strong> (xem bên dưới)
+                </li>
+              </ul>
+
+              <h3>Lý Do Được Chấp Nhận Đổi Trả</h3>
+              <ul>
+                <li>
+                  Sản phẩm bị <strong>lỗi kỹ thuật</strong> từ nhà sản xuất
+                </li>
+                <li>Giao <strong>sai sản phẩm</strong> so với đơn hàng</li>
+                <li>
+                  Sản phẩm bị <strong>hư hỏng, vỡ vụn</strong> trong quá trình
+                  vận chuyển
+                </li>
+                <li>Sản phẩm <strong>hết hạn sử dụng</strong></li>
+                <li>
+                  Sản phẩm không đúng <strong>màu sắc, kích cỡ</strong> như đã
+                  đặt
+                </li>
+              </ul>
+
+              <h3>Sản Phẩm Không Áp Dụng Đổi Trả</h3>
+              <ul>
+                <li>
+                  Sản phẩm thuộc nhóm <strong>chăm sóc cá nhân</strong> đã mở
+                  seal (son, nước hoa, mỹ phẩm dùng thử...)
+                </li>
+                <li>
+                  Sản phẩm đã qua sử dụng hoặc
+                  <strong>bị khách hàng làm hỏng</strong>
+                </li>
+                <li>
+                  Sản phẩm trong <strong>chương trình Flash Sale</strong> (có
+                  ghi rõ trên trang sản phẩm)
+                </li>
+              </ul>
+
+              <h3>Quy Trình Đổi Trả</h3>
+              <p>
+                <strong>Bước 1:</strong> Liên hệ hotline
+                <strong>1800 0000</strong> hoặc email
+                <strong>support@glowhub.vn</strong> trong vòng 30 ngày.
+              </p>
+              <p>
+                <strong>Bước 2:</strong> Cung cấp mã đơn hàng và ảnh chụp sản
+                phẩm bị lỗi.
+              </p>
+              <p>
+                <strong>Bước 3:</strong> Bộ phận CSKH xem xét và phản hồi trong
+                vòng <strong>24 giờ làm việc</strong>.
+              </p>
+              <p>
+                <strong>Bước 4:</strong> Nếu được chấp nhận, GlowHub sẽ gửi sản
+                phẩm mới hoặc hoàn tiền trong vòng
+                <strong>3-7 ngày làm việc</strong>.
+              </p>
+
+              <div class="info-box">
+                <strong>Hoàn tiền:</strong> Tiền sẽ được hoàn về phương thức
+                thanh toán ban đầu (tài khoản ngân hàng, ví điện tử) trong vòng
+                3-7 ngày làm việc sau khi xử lý đổi trả thành công.
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ VẬN CHUYỂN ══ -->
+          <div class="policy-section" id="sec-van-chuyen">
+            <h2 class="policy-hd">Chính Sách Vận Chuyển</h2>
+            <p class="policy-sub">
+              Cập nhật lần cuối: 01/01/2025 · Áp dụng cho tất cả đơn hàng toàn
+              quốc
+            </p>
+            <div
+              class="policy-body"
+              data-editable="true"
+              contenteditable="false"
+              id="content-van-chuyen"
+            >
+              <div class="highlight-box">
+                <strong>Miễn phí vận chuyển</strong> cho đơn hàng từ
+                <strong>500.000₫</strong> đến tất cả 63 tỉnh thành trên cả nước.
+              </div>
+
+              <h3>Phí Vận Chuyển</h3>
+              <table>
+                <tr>
+                  <th>Hình Thức</th>
+                  <th>Thời Gian</th>
+                  <th>Phí Ship</th>
+                  <th>Điều Kiện Miễn Phí</th>
+                </tr>
+                <tr>
+                  <td>Tiêu Chuẩn</td>
+                  <td>3-5 ngày làm việc</td>
+                  <td>25.000₫ – 35.000₫</td>
+                  <td>Đơn từ 500.000₫</td>
+                </tr>
+                <tr>
+                  <td>Giao Nhanh</td>
+                  <td>1-2 ngày làm việc</td>
+                  <td>35.000₫ – 50.000₫</td>
+                  <td>Đơn từ 1.000.000₫</td>
+                </tr>
+                <tr>
+                  <td>Giao Trong Ngày</td>
+                  <td>Trong ngày (trước 22h)</td>
+                  <td>50.000₫ – 70.000₫</td>
+                  <td>Không áp dụng</td>
+                </tr>
+              </table>
+              <p style="font-size: 12px; color: var(--gray)">
+                * Phí ship có thể thay đổi theo khu vực và nhà vận chuyển. Phí
+                chính xác hiển thị khi thanh toán.
+              </p>
+
+              <h3>Đơn Vị Vận Chuyển</h3>
+              <p>
+                GlowHub hợp tác với các đơn vị vận chuyển uy tín tại Việt Nam:
+              </p>
+              <ul>
+                <li>
+                  <strong>GHN (Giao Hàng Nhanh)</strong> — Giao tiêu chuẩn và
+                  nhanh
+                </li>
+                <li>
+                  <strong>GHTK (Giao Hàng Tiết Kiệm)</strong> — Giao tiêu chuẩn
+                </li>
+                <li><strong>J&T Express</strong> — Giao nhanh toàn quốc</li>
+              </ul>
+
+              <h3>Khu Vực Giao Hàng</h3>
+              <p>
+                GlowHub giao hàng toàn quốc đến <strong>63 tỉnh thành</strong>.
+                Một số khu vực vùng sâu, vùng xa, hải đảo có thể phát sinh phụ
+                phí vận chuyển.
+              </p>
+
+              <h3>Xử Lý Đơn Hàng</h3>
+              <ul>
+                <li>
+                  Đơn hàng đặt trước <strong>15:00</strong> được xử lý trong
+                  ngày
+                </li>
+                <li>
+                  Đơn hàng đặt sau 15:00 hoặc ngày lễ/cuối tuần được xử lý vào
+                  ngày làm việc tiếp theo
+                </li>
+                <li>
+                  Thời gian xử lý: <strong>1-2 ngày làm việc</strong> sau khi
+                  xác nhận thanh toán
+                </li>
+              </ul>
+
+              <div class="info-box">
+                <strong>Theo dõi đơn hàng:</strong> Sau khi đơn hàng được bàn
+                giao cho đơn vị vận chuyển, bạn sẽ nhận mã vận đơn để theo dõi.
+                Truy cập mục "Theo Dõi Đơn" trong tài khoản để xem cập nhật mới
+                nhất.
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ BẢO MẬT ══ -->
+          <div class="policy-section" id="sec-bao-mat">
+            <h2 class="policy-hd">Chính Sách Bảo Mật</h2>
+            <p class="policy-sub">
+              Cập nhật lần cuối: 01/01/2025 · GlowHub cam kết bảo vệ thông tin
+              cá nhân của bạn
+            </p>
+            <div
+              class="policy-body"
+              data-editable="true"
+              contenteditable="false"
+              id="content-bao-mat"
+            >
+              <div class="highlight-box">
+                <strong>Tóm tắt:</strong> GlowHub thu thập thông tin cần thiết
+                để xử lý đơn hàng, không bán thông tin cho bên thứ ba, và bảo vệ
+                dữ liệu bằng mã hóa SSL 256-bit.
+              </div>
+
+              <h3>1. Thông Tin Chúng Tôi Thu Thập</h3>
+              <p>GlowHub thu thập các thông tin sau khi bạn sử dụng dịch vụ:</p>
+              <ul>
+                <li>
+                  <strong>Thông tin cá nhân:</strong> Họ tên, email, số điện
+                  thoại, địa chỉ giao hàng
+                </li>
+                <li>
+                  <strong>Thông tin thanh toán:</strong> Phương thức thanh toán
+                  (chúng tôi không lưu số thẻ)
+                </li>
+                <li>
+                  <strong>Lịch sử mua hàng:</strong> Sản phẩm đã mua, đơn hàng,
+                  đánh giá
+                </li>
+                <li>
+                  <strong>Dữ liệu kỹ thuật:</strong> IP, trình duyệt, thiết bị,
+                  cookie phiên làm việc
+                </li>
+              </ul>
+
+              <h3>2. Mục Đích Sử Dụng Thông Tin</h3>
+              <ul>
+                <li>Xử lý và giao đơn hàng</li>
+                <li>Gửi thông báo về trạng thái đơn hàng</li>
+                <li>Cải thiện trải nghiệm mua sắm</li>
+                <li>Gửi thông tin khuyến mãi (nếu bạn đồng ý nhận)</li>
+                <li>Ngăn chặn gian lận và bảo vệ tài khoản</li>
+              </ul>
+
+              <h3>3. Bảo Vệ Thông Tin</h3>
+              <ul>
+                <li>
+                  Mã hóa dữ liệu truyền tải bằng
+                  <strong>SSL/TLS 256-bit</strong>
+                </li>
+                <li>
+                  Mật khẩu được <strong>hash + salt</strong> — không ai có thể
+                  đọc mật khẩu gốc của bạn
+                </li>
+                <li>
+                  Hệ thống xác thực <strong>JWT Token</strong> bảo vệ phiên đăng
+                  nhập
+                </li>
+                <li>
+                  Không chia sẻ thông tin với bên thứ ba, ngoại trừ đơn vị vận
+                  chuyển (tên, SĐT, địa chỉ để giao hàng)
+                </li>
+              </ul>
+
+              <h3>4. Quyền Của Bạn</h3>
+              <ul>
+                <li>
+                  <strong>Truy cập:</strong> Xem thông tin cá nhân trong mục Hồ
+                  Sơ
+                </li>
+                <li>
+                  <strong>Chỉnh sửa:</strong> Cập nhật thông tin bất kỳ lúc nào
+                </li>
+                <li>
+                  <strong>Xóa tài khoản:</strong> Liên hệ support@glowhub.vn để
+                  yêu cầu xóa dữ liệu
+                </li>
+                <li>
+                  <strong>Hủy nhận email:</strong> Nhấn "Hủy đăng ký" ở cuối
+                  email quảng cáo
+                </li>
+              </ul>
+
+              <h3>5. Cookie</h3>
+              <p>
+                GlowHub sử dụng cookie để lưu giỏ hàng, duy trì phiên đăng nhập
+                và cải thiện hiệu suất website. Bạn có thể tắt cookie trong cài
+                đặt trình duyệt, tuy nhiên một số tính năng có thể bị ảnh hưởng.
+              </p>
+
+              <h3>6. Liên Hệ Về Bảo Mật</h3>
+              <p>
+                Nếu bạn phát hiện vấn đề bảo mật hoặc muốn khiếu nại về quyền
+                riêng tư, vui lòng liên hệ: <strong>privacy@glowhub.vn</strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- ══ ĐIỀU KHOẢN ══ -->
+          <div class="policy-section" id="sec-dieu-khoan">
+            <h2 class="policy-hd">Điều Khoản Sử Dụng</h2>
+            <p class="policy-sub">
+              Cập nhật lần cuối: 01/01/2025 · Vui lòng đọc kỹ trước khi sử dụng
+              dịch vụ
+            </p>
+            <div
+              class="policy-body"
+              data-editable="true"
+              contenteditable="false"
+              id="content-dieu-khoan"
+            >
+              <h3>1. Chấp Nhận Điều Khoản</h3>
+              <p>
+                Bằng cách truy cập và sử dụng website GlowHub, bạn đồng ý tuân
+                thủ các điều khoản và điều kiện sử dụng này. Nếu không đồng ý,
+                vui lòng không sử dụng dịch vụ của chúng tôi.
+              </p>
+
+              <h3>2. Tài Khoản Người Dùng</h3>
+              <ul>
+                <li>
+                  Mỗi người chỉ được đăng ký <strong>một tài khoản</strong>
+                </li>
+                <li>Bạn có trách nhiệm bảo mật thông tin đăng nhập của mình</li>
+                <li>Không được chia sẻ tài khoản với người khác</li>
+                <li>GlowHub có quyền khóa tài khoản vi phạm điều khoản</li>
+              </ul>
+
+              <h3>3. Quy Định Mua Hàng</h3>
+              <ul>
+                <li>
+                  Thông tin đặt hàng phải <strong>chính xác và đầy đủ</strong>
+                </li>
+                <li>
+                  GlowHub có quyền từ chối đơn hàng nếu phát hiện gian lận
+                </li>
+                <li>
+                  Giá sản phẩm có thể thay đổi theo thời gian, áp dụng giá tại
+                  thời điểm đặt hàng
+                </li>
+                <li>
+                  Số lượng mua có thể bị giới hạn trong các chương trình khuyến
+                  mãi
+                </li>
+              </ul>
+
+              <h3>4. Sở Hữu Trí Tuệ</h3>
+              <p>
+                Toàn bộ nội dung website GlowHub (hình ảnh, văn bản, thiết kế,
+                logo) là tài sản của GlowHub. Nghiêm cấm sao chép, sử dụng
+                thương mại khi chưa được cấp phép.
+              </p>
+
+              <h3>5. Giới Hạn Trách Nhiệm</h3>
+              <p>
+                GlowHub không chịu trách nhiệm cho các thiệt hại gián tiếp phát
+                sinh từ việc sử dụng dịch vụ. Trách nhiệm tối đa của GlowHub
+                không vượt quá giá trị đơn hàng.
+              </p>
+
+              <h3>6. Thay Đổi Điều Khoản</h3>
+              <p>
+                GlowHub có quyền cập nhật điều khoản bất kỳ lúc nào. Thông báo
+                sẽ được đăng trên website và gửi email đến tài khoản đã đăng ký.
+              </p>
+
+              <h3>7. Luật Áp Dụng</h3>
+              <p>
+                Các điều khoản này được điều chỉnh theo pháp luật Việt Nam. Mọi
+                tranh chấp sẽ được giải quyết tại Tòa án có thẩm quyền tại TP.
+                Hà Nội.
+              </p>
+            </div>
+          </div>
+
+          <!-- ══ FAQ ══ -->
+          <div class="policy-section" id="sec-faq">
+            <h2 class="policy-hd">Câu Hỏi Thường Gặp</h2>
+            <p class="policy-sub">
+              Những câu hỏi phổ biến nhất từ khách hàng GlowHub
+            </p>
+
+            <div class="faq-list">
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Tôi có thể mua hàng mà không cần đăng ký tài khoản không?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Có, bạn có thể mua hàng với tư cách khách (guest). Tuy
+                    nhiên, đăng ký tài khoản giúp bạn theo dõi đơn hàng, lưu địa
+                    chỉ giao hàng và tích lũy điểm thưởng.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Đơn hàng của tôi sẽ được giao trong bao lâu?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Thời gian giao hàng phụ thuộc vào địa chỉ và hình thức vận
+                    chuyển bạn chọn: Tiêu chuẩn 3-5 ngày, Nhanh 1-2 ngày, Trong
+                    ngày (nội thành HN & HCM). Xem chi tiết tại Chính Sách Vận
+                    Chuyển.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Tôi có thể hủy đơn hàng sau khi đặt không?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Bạn có thể hủy đơn hàng khi đơn đang ở trạng thái "Chờ xác
+                    nhận" hoặc "Đang xử lý". Vào mục
+                    <strong>Đơn Hàng Của Tôi</strong> → chọn đơn hàng → nhấn
+                    "Hủy Đơn". Sau khi đơn đã được bàn giao cho vận chuyển,
+                    không thể hủy trực tiếp — vui lòng liên hệ hotline.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Làm thế nào để sử dụng mã giảm giá (voucher)?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Tại trang thanh toán, bạn sẽ thấy ô
+                    <strong>"Mã Giảm Giá"</strong>. Nhập mã vào và nhấn
+                    <strong>"Áp Dụng"</strong>. Hệ thống sẽ tự động kiểm tra và
+                    trừ tiền nếu mã hợp lệ. Mỗi đơn hàng chỉ áp dụng được 1 mã
+                    giảm giá.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Sản phẩm có chính hãng không? Mua ở đâu?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    GlowHub cam kết <strong>100% sản phẩm chính hãng</strong>,
+                    nhập khẩu trực tiếp hoặc phân phối chính thức từ các thương
+                    hiệu uy tín. Mọi sản phẩm đều có đầy đủ tem nhãn, hóa đơn
+                    xuất xứ. Chúng tôi sẵn sàng hoàn tiền nếu phát hiện hàng
+                    giả.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Tôi quên mật khẩu, phải làm gì?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Tại trang đăng nhập, nhấn
+                    <strong>"Quên mật khẩu?"</strong> và nhập email đã đăng ký.
+                    Hệ thống sẽ gửi link đặt lại mật khẩu vào email của bạn
+                    trong vòng 5 phút. Kiểm tra cả hộp thư spam nếu không thấy
+                    email.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  GlowHub có cửa hàng offline không?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Hiện tại GlowHub hoạt động hoàn toàn
+                    <strong>online</strong>. Chúng tôi đang có kế hoạch mở
+                    showroom tại Hà Nội và TP. HCM trong năm 2026. Theo dõi
+                    fanpage để cập nhật thông tin mới nhất.
+                  </p>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                  Điểm tích lũy hoạt động như thế nào?
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-a">
+                  <p>
+                    Mỗi <strong>1.000₫</strong> mua hàng bạn nhận được
+                    <strong>1 điểm</strong>. Tích lũy 1.000 điểm để lên hạng
+                    Vàng, 2.000 điểm lên Kim Cương. Điểm có thể dùng để đổi
+                    voucher giảm giá.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ LIÊN HỆ ══ -->
+          <div class="policy-section" id="sec-lien-he">
+            <h2 class="policy-hd">Liên Hệ Chúng Tôi</h2>
+            <p class="policy-sub">
+              Đội ngũ hỗ trợ GlowHub luôn sẵn sàng giúp bạn 7 ngày/tuần
+            </p>
+
+            <div class="contact-grid">
+              <div class="contact-card">
+                <i class="bi bi-telephone-fill"></i>
+                <h5>Hotline</h5>
+                <p><a href="tel:18000000">1800 0000</a></p>
+                <p style="margin-top: 4px">Miễn phí · 8:00 – 22:00 hàng ngày</p>
+              </div>
+              <div class="contact-card">
+                <i class="bi bi-envelope-fill"></i>
+                <h5>Email Hỗ Trợ</h5>
+                <p>
+                  <a href="mailto:support@glowhub.vn">support@glowhub.vn</a>
+                </p>
+                <p style="margin-top: 4px">Phản hồi trong 24 giờ làm việc</p>
+              </div>
+              <div class="contact-card">
+                <i class="bi bi-chat-dots-fill"></i>
+                <h5>Live Chat</h5>
+                <p>Chat trực tiếp trên website</p>
+                <p style="margin-top: 4px">8:00 – 22:00 hàng ngày</p>
+              </div>
+              <div class="contact-card">
+                <i class="bi bi-geo-alt-fill"></i>
+                <h5>Địa Chỉ</h5>
+                <p>Hà Nội, Việt Nam</p>
+                <p style="margin-top: 4px">Tầng 5, Tòa nhà GlowHub</p>
+              </div>
+            </div>
+
+            <!-- Contact form -->
+            <div
+              style="
+                background: #fff;
+                border: 1px solid var(--border);
+                padding: 24px;
+              "
+            >
+              <h4
+                style="
+                  font-family: &quot;Marcellus&quot;, serif;
+                  font-size: 1.1rem;
+                  margin-bottom: 18px;
+                "
+              >
+                Gửi Tin Nhắn Cho Chúng Tôi
+              </h4>
+              <div class="contact-form">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <input
+                      type="text"
+                      id="contactName"
+                      placeholder="Họ và tên *"
+                    />
+                  </div>
+                  <div class="col-sm-6">
+                    <input
+                      type="email"
+                      id="contactEmail"
+                      placeholder="Email *"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <input
+                      type="text"
+                      id="contactSubject"
+                      placeholder="Chủ đề (VD: Hỏi về đơn hàng GH-2026-001234)"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <textarea
+                      id="contactMessage"
+                      placeholder="Nội dung tin nhắn của bạn..."
+                    ></textarea>
+                  </div>
+                  <div class="col-12">
+                    <button class="btn-send" onclick="sendContactForm()">
+                      <i class="bi bi-send me-2"></i>Gửi Tin Nhắn
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social -->
+            <div
+              style="
+                margin-top: 20px;
+                text-align: center;
+                padding: 20px;
+                background: #f9f9f6;
+                border: 1px solid var(--border);
+              "
+            >
+              <div
+                style="
+                  font-size: 12px;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  color: var(--gray);
+                  margin-bottom: 12px;
+                "
+              >
+                Theo Dõi GlowHub
+              </div>
+              <div style="display: flex; justify-content: center; gap: 16px">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    background: var(--dark);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    text-decoration: none;
+                    transition: 0.2s;
+                  "
+                  onmouseover="this.style.background = 'var(--pink)'"
+                  onmouseout="this.style.background = 'var(--dark)'"
+                  ><i class="bi bi-facebook"></i
+                ></a>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    background: var(--dark);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    text-decoration: none;
+                    transition: 0.2s;
+                  "
+                  onmouseover="this.style.background = 'var(--pink)'"
+                  onmouseout="this.style.background = 'var(--dark)'"
+                  ><i class="bi bi-instagram"></i
+                ></a>
+                <a
+                  href="https://tiktok.com"
+                  target="_blank"
+                  rel="noopener"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    background: var(--dark);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    text-decoration: none;
+                    transition: 0.2s;
+                  "
+                  onmouseover="this.style.background = 'var(--pink)'"
+                  onmouseout="this.style.background = 'var(--dark)'"
+                  ><i class="bi bi-tiktok"></i
+                ></a>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    background: var(--dark);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    text-decoration: none;
+                    transition: 0.2s;
+                  "
+                  onmouseover="this.style.background = 'var(--pink)'"
+                  onmouseout="this.style.background = 'var(--dark)'"
+                  ><i class="bi bi-youtube"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN EDIT BUTTON -->
+    <button
+      class="admin-edit-btn"
+      id="adminEditBtn"
+      onclick="toggleAdminEdit()"
+    >
+      <i class="bi bi-pencil-square"></i>
+      <span id="adminEditLabel">Chỉnh Sửa Nội Dung</span>
+    </button>
+    <button
+      class="admin-edit-btn"
+      id="adminSaveBtn"
+      onclick="saveAdminEdits()"
+      style="bottom: 80px; background: var(--pink); display: none"
+    >
+      <i class="bi bi-check-circle"></i>Lưu Thay Đổi
+    </button>
+
+    <!-- FOOTER -->
+    <footer
+      class="pt-5 pb-3"
+      style="background: #111; color: #ccc; margin-top: 40px"
+    >
+      <div class="container">
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center py-2"
+        >
+          <div class="brand-name" style="color: #fff; font-size: 1.3rem">
+            GLOWHUB
+          </div>
+          <div style="font-size: 12px; display: flex; gap: 20px">
+            <a href="index.html" style="color: #aaa; text-decoration: none"
+              >Trang Chủ</a
+            >
+            <a href="shop.html" style="color: #aaa; text-decoration: none"
+              >Cửa Hàng</a
+            >
+            <a
+              href="policy.html#bao-mat"
+              style="color: #aaa; text-decoration: none"
+              >Bảo Mật</a
+            >
+            <a
+              href="policy.html#dieu-khoan"
+              style="color: #aaa; text-decoration: none"
+              >Điều Khoản</a
+            >
+          </div>
+          <p style="font-size: 12px; color: #666; margin: 0">
+            © 2025 GlowHub. Bảo lưu mọi quyền.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script>
+      var isAdminEditing = false;
+      var currentSection = "huong-dan";
+
+      // ── Section switching ──
+      function showSection(id, el) {
+        if (event) event.preventDefault();
+
+        // Hide all
+        document.querySelectorAll(".policy-section").forEach(function (s) {
+          s.classList.remove("active");
+        });
+        document.querySelectorAll(".policy-nav a").forEach(function (a) {
+          a.classList.remove("active");
+        });
+
+        // Show target
+        var sec = document.getElementById("sec-" + id);
+        if (sec) sec.classList.add("active");
+        if (el) el.classList.add("active");
+
+        currentSection = id;
+        document.getElementById("bcCurrent").textContent = el
+          ? el.textContent.trim()
+          : id;
+
+        // Update URL hash
+        history.pushState(null, "", "#" + id);
+        window.scrollTo({ top: 200, behavior: "smooth" });
+
+        // Exit edit mode when switching
+        if (isAdminEditing) toggleAdminEdit();
+      }
+
+      // ── Auto-show section from URL hash ──
+      document.addEventListener("DOMContentLoaded", function () {
+        renderNavUser();
+        Cart._updateUI();
+
+        var hash = location.hash.replace("#", "");
+        if (hash) {
+          var navEl = document.getElementById("nav-" + hash);
+          if (navEl) showSection(hash, navEl);
+        }
+
+        // Show admin edit button if admin
+        if (
+          typeof Auth !== "undefined" &&
+          Auth.isLoggedIn() &&
+          Auth.isAdmin()
+        ) {
+          document.getElementById("adminEditBtn").style.display = "flex";
+        }
+      });
+
+      // ── FAQ toggle ──
+      function toggleFaq(el) {
+        var answer = el.nextElementSibling;
+        var isOpen = el.classList.contains("open");
+        // Close all
+        document.querySelectorAll(".faq-q").forEach(function (q) {
+          q.classList.remove("open");
+        });
+        document.querySelectorAll(".faq-a").forEach(function (a) {
+          a.classList.remove("open");
+        });
+        // Open this if was closed
+        if (!isOpen) {
+          el.classList.add("open");
+          answer.classList.add("open");
+        }
+      }
+
+      // ── Contact form ──
+      function sendContactForm() {
+        var name = document.getElementById("contactName").value.trim();
+        var email = document.getElementById("contactEmail").value.trim();
+        var subject = document.getElementById("contactSubject").value.trim();
+        var message = document.getElementById("contactMessage").value.trim();
+
+        if (!name || !email || !message) {
+          alert("Vui lòng điền đầy đủ họ tên, email và nội dung!");
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          alert("Email không hợp lệ!");
+          return;
+        }
+
+        // Simulate sending (replace with real API call)
+        var btn = event.currentTarget;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang gửi...';
+
+        setTimeout(function () {
+          btn.innerHTML =
+            '<i class="bi bi-check-circle me-2"></i>Đã gửi thành công!';
+          btn.style.background = "#22c55e";
+          document.getElementById("contactName").value = "";
+          document.getElementById("contactEmail").value = "";
+          document.getElementById("contactSubject").value = "";
+          document.getElementById("contactMessage").value = "";
+          setTimeout(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send me-2"></i>Gửi Tin Nhắn';
+            btn.style.background = "";
+          }, 3000);
+        }, 1500);
+      }
+
+      // ── Admin inline edit ──
+      function toggleAdminEdit() {
+        isAdminEditing = !isAdminEditing;
+        var btn = document.getElementById("adminEditBtn");
+        var saveBtn = document.getElementById("adminSaveBtn");
+        var label = document.getElementById("adminEditLabel");
+
+        document
+          .querySelectorAll('[data-editable="true"]')
+          .forEach(function (el) {
+            el.contentEditable = isAdminEditing ? "true" : "false";
+            el.style.outline = isAdminEditing
+              ? "2px dashed var(--pink)"
+              : "none";
+            el.style.minHeight = isAdminEditing ? "100px" : "";
+            el.style.padding = isAdminEditing ? "8px" : "";
+          });
+
+        btn.classList.toggle("active", isAdminEditing);
+        label.textContent = isAdminEditing
+          ? "Thoát Chỉnh Sửa"
+          : "Chỉnh Sửa Nội Dung";
+        saveBtn.style.display = isAdminEditing ? "flex" : "none";
+
+        if (isAdminEditing) {
+          // Focus current section's content
+          var current = document.getElementById("content-" + currentSection);
+          if (current) current.focus();
+        }
+      }
+
+      function saveAdminEdits() {
+        // Collect all editable content
+        var updates = {};
+        document
+          .querySelectorAll('[data-editable="true"]')
+          .forEach(function (el) {
+            updates[el.id] = el.innerHTML;
+          });
+
+        // Save to SiteSettings API
+        if (typeof SiteSettings !== "undefined" && Auth.isLoggedIn()) {
+          var payload = {};
+          Object.keys(updates).forEach(function (key) {
+            payload["policy_" + key] = updates[key];
+          });
+          SiteSettings.bulkUpdate(payload)
+            .then(function () {
+              // Save to localStorage as cache
+              localStorage.setItem(
+                "gh_policy_content",
+                JSON.stringify(updates),
+              );
+              alert("✓ Đã lưu thay đổi thành công!");
+              toggleAdminEdit();
+            })
+            .catch(function () {
+              // Fallback: save to localStorage only
+              localStorage.setItem(
+                "gh_policy_content",
+                JSON.stringify(updates),
+              );
+              alert(
+                "✓ Đã lưu thay đổi vào bộ nhớ tạm!\n(Kết nối API để lưu vĩnh viễn)",
+              );
+              toggleAdminEdit();
+            });
+        } else {
+          // Not logged in as admin - save to localStorage
+          localStorage.setItem("gh_policy_content", JSON.stringify(updates));
+          alert("✓ Đã lưu thay đổi!");
+          toggleAdminEdit();
+        }
+      }
+
+      // Load saved content on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        var saved = localStorage.getItem("gh_policy_content");
+        if (saved) {
+          try {
+            var updates = JSON.parse(saved);
+            Object.keys(updates).forEach(function (key) {
+              var el = document.getElementById(key);
+              if (el) el.innerHTML = updates[key];
+            });
+          } catch (e) {}
+        }
+
+        // Also try to load from SiteSettings API
+        if (typeof SiteSettings !== "undefined") {
+          SiteSettings.getAll("policy")
+            .then(function (settings) {
+              if (!settings) return;
+              Object.keys(settings).forEach(function (key) {
+                if (key.startsWith("policy_")) {
+                  var elId = key.replace("policy_", "");
+                  var el = document.getElementById(elId);
+                  if (el) el.innerHTML = settings[key];
+                }
+              });
+            })
+            .catch(function () {});
+        }
+      });
+    </script>
+    <script src="js/gsap.js" defer></script>
+  </body>
+</html>

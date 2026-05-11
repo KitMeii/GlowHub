@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <title>Đăng Ký — GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Tạo tài khoản GlowHub để mua sắm dễ dàng hơn"
+    />
+    <meta property="og:title" content="Đăng Ký — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <style>
+      :root {
+        --pink: #f759ab;
+        --dark: #111;
+        --border: #e8e8e8;
+        --gray: #888;
+        --cream: #f8f5f0;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Jost", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        cursor: none;
+      }
+      #lux-cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99999;
+        width: 5px;
+        height: 5px;
+        background: var(--pink);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      #lux-cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99998;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--dark);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.4;
+        transition:
+          width 0.4s,
+          height 0.4s,
+          opacity 0.3s,
+          transform 0.12s linear;
+      }
+      @media (hover: none), (pointer: coarse) {
+        #lux-cursor-dot,
+        #lux-cursor-ring {
+          display: none;
+        }
+        body,
+        body * {
+          cursor: auto !important;
+        }
+      }
+      @media (hover: hover) and (pointer: fine) {
+        body,
+        body * {
+          cursor: none !important;
+        }
+      }
+      .gh-topbar {
+        background: var(--dark);
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        padding: 7px;
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+      .gh-nav {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 0 40px;
+        height: 60px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+      }
+      .gh-logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.4rem;
+        letter-spacing: 7px;
+        text-transform: uppercase;
+        color: var(--dark);
+        text-decoration: none;
+        text-align: center;
+      }
+      .gh-nav-link {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: 0.2s;
+      }
+      .gh-nav-link:hover {
+        color: var(--pink);
+      }
+      .page-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      .auth-card {
+        background: #fff;
+        width: 100%;
+        max-width: 460px;
+        padding: 48px 40px;
+        border: 1px solid var(--border);
+      }
+      .auth-eyebrow {
+        font-size: 9px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 12px;
+      }
+      .auth-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        color: var(--dark);
+        margin-bottom: 8px;
+      }
+      .auth-sub {
+        font-size: 12px;
+        color: var(--gray);
+        letter-spacing: 1px;
+        margin-bottom: 32px;
+      }
+      .auth-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 24px 0;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .form-group {
+        margin-bottom: 18px;
+      }
+      .form-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gray);
+        display: block;
+        margin-bottom: 8px;
+      }
+      .form-input {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        background: #fff;
+        outline: none;
+        transition: 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .form-input:focus {
+        border-color: var(--dark);
+      }
+      .form-input.error {
+        border-color: #ef4444;
+      }
+      .input-wrap {
+        position: relative;
+      }
+      .input-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--gray);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .field-hint {
+        font-size: 10px;
+        color: var(--gray);
+        margin-top: 4px;
+        letter-spacing: 0.5px;
+      }
+      .field-hint.err {
+        color: #ef4444;
+      }
+      .btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: "Jost", sans-serif;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .btn-submit:hover {
+        background: var(--pink);
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .btn-outline {
+        width: 100%;
+        padding: 13px;
+        background: transparent;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-outline:hover {
+        border-color: var(--dark);
+        background: var(--dark);
+        color: #fff;
+      }
+      .alert {
+        padding: 12px 16px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        border-left: 3px solid;
+        display: none;
+      }
+      .alert.show {
+        display: block;
+      }
+      .alert-err {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #991b1b;
+      }
+      .alert-ok {
+        background: #f0fdf4;
+        border-color: #22c55e;
+        color: #166534;
+      }
+      .pwd-strength {
+        height: 3px;
+        border-radius: 2px;
+        margin-top: 6px;
+        transition: 0.3s;
+        background: var(--border);
+      }
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: none;
+      }
+      .btn-submit.loading .spinner {
+        display: block;
+      }
+      .btn-submit.loading .btn-text {
+        display: none;
+      }
+      .terms-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--gray);
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+      .terms-check input {
+        margin-top: 3px;
+        accent-color: var(--pink);
+        flex-shrink: 0;
+      }
+      .terms-check a {
+        color: var(--pink);
+        text-decoration: none;
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+      }
+      footer p {
+        font-size: 11px;
+        color: var(--gray);
+      }
+      footer a {
+        font-size: 11px;
+        color: var(--gray);
+        text-decoration: none;
+        transition: 0.2s;
+      }
+      footer a:hover {
+        color: var(--pink);
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-width: 480px) {
+        .auth-card {
+          padding: 32px 20px;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .gh-nav {
+          padding: 0 16px;
+        }
+      }
+
+      /* ── GH USER DROPDOWN ── */
+      .gh-user-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+      }
+      .gh-user-avatar {
+        width: 30px;
+        height: 30px;
+        background: #f759ab;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .gh-user-name {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #111;
+        max-width: 110px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .gh-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: #fff;
+        min-width: 200px;
+        border: 1px solid #e2ddd8;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        z-index: 9999;
+        padding: 6px 0;
+      }
+      .gh-user-btn.open .gh-dropdown {
+        display: block;
+      }
+      .gh-dropdown a {
+        display: block;
+        padding: 11px 18px;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #111;
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+      .gh-dropdown a:hover {
+        background: #f8f5f0;
+        color: #f759ab;
+      }
+      .gh-dropdown hr {
+        margin: 6px 0;
+        border: none;
+        border-top: 1px solid #e2ddd8;
+      }
+      .gh-dropdown .logout {
+        color: #ef4444 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lux-cursor-dot"></div>
+    <div id="lux-cursor-ring"></div>
+
+    <div class="gh-topbar">
+      🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc
+    </div>
+
+    <nav class="gh-nav">
+      <a href="shop.html" class="gh-nav-link">← Cửa Hàng</a>
+      <a href="index.html" class="gh-logo">GlowHub</a>
+      <div style="text-align: right">
+        <a href="login.html" class="gh-nav-link">Đăng Nhập</a>
+      </div>
+    </nav>
+
+    <div class="page-wrap">
+      <div class="auth-card">
+        <div class="auth-eyebrow">Tham Gia Cùng Chúng Tôi</div>
+        <h1 class="auth-title">Tạo Tài Khoản</h1>
+        <p class="auth-sub">
+          Nhận ưu đãi độc quyền và theo dõi đơn hàng dễ dàng
+        </p>
+
+        <div class="alert alert-err" id="errorAlert"></div>
+        <div class="alert alert-ok" id="successAlert"></div>
+
+        <form id="registerForm" onsubmit="handleRegister(event)" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="firstName">Họ</label>
+              <input
+                type="text"
+                class="form-input"
+                id="firstName"
+                placeholder="Nguyễn"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lastName">Tên</label>
+              <input
+                type="text"
+                class="form-input"
+                id="lastName"
+                placeholder="Thị Lan"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              placeholder="email@example.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="username">Tên Đăng Nhập</label>
+            <input
+              type="text"
+              class="form-input"
+              id="username"
+              placeholder="Tối thiểu 4 ký tự"
+              required
+              autocomplete="username"
+            />
+            <div class="field-hint" id="usernameHint">
+              Chỉ dùng chữ cái, số, dấu gạch dưới
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Số Điện Thoại</label>
+            <input
+              type="tel"
+              class="form-input"
+              id="phone"
+              placeholder="0901 234 567"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Mật Khẩu</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="password"
+                placeholder="Tối thiểu 6 ký tự"
+                required
+                autocomplete="new-password"
+                oninput="checkPwdStrength(this.value)"
+              />
+              <button
+                type="button"
+                class="input-toggle"
+                onclick="togglePwd('password', this)"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="pwd-strength" id="pwdStrength"></div>
+            <div class="field-hint" id="pwdHint">
+              Mật khẩu nên có chữ hoa, chữ thường và số
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirmPwd">Xác Nhận Mật Khẩu</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="confirmPwd"
+                placeholder="Nhập lại mật khẩu"
+                required
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="input-toggle"
+                onclick="togglePwd('confirmPwd', this)"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <label class="terms-check">
+            <input type="checkbox" id="agreeTerms" required />
+            Tôi đồng ý với
+            <a href="policy.html#dieu-khoan">Điều Khoản Sử Dụng</a> và
+            <a href="policy.html#bao-mat">Chính Sách Bảo Mật</a> của GlowHub.
+          </label>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">Tạo Tài Khoản</span>
+            <div class="spinner"></div>
+          </button>
+        </form>
+
+        <div class="auth-divider"></div>
+        <p
+          style="
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 16px;
+          "
+        >
+          Đã có tài khoản?
+        </p>
+        <a href="login.html" class="btn-outline">Đăng Nhập Ngay</a>
+
+        <div
+          style="
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gray);
+          "
+        >
+          <i
+            class="bi bi-shield-check"
+            style="color: #22c55e; margin-right: 4px"
+          ></i>
+          Thông tin được bảo mật với SSL 256-bit
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 GlowHub. Bảo lưu mọi quyền.</p>
+      <div style="display: flex; gap: 20px">
+        <a href="policy.html#bao-mat">Bảo Mật</a>
+        <a href="policy.html#dieu-khoan">Điều Khoản</a>
+        <a href="policy.html#lien-he">Hỗ Trợ</a>
+      </div>
+    </footer>
+
+    <script src="js/api.js" defer></script>
+    <script>
+      // @ts-nocheck
+      /* eslint-disable */
+
+      function handleRegister(e) {
+        e.preventDefault();
+        var firstName = document.getElementById("firstName").value.trim();
+        var lastName = document.getElementById("lastName").value.trim();
+        var email = document.getElementById("email").value.trim();
+        var username = document.getElementById("username").value.trim();
+        var phone = document.getElementById("phone").value.trim();
+        var password = document.getElementById("password").value;
+        var confirmPwd = document.getElementById("confirmPwd").value;
+        var agreed = document.getElementById("agreeTerms").checked;
+
+        // Validate
+        if (!firstName || !lastName || !email || !username || !password) {
+          showAlert("err", "Vui lòng điền đầy đủ các trường bắt buộc!");
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showAlert("err", "Email không hợp lệ!");
+          return;
+        }
+        if (username.length < 4) {
+          showAlert("err", "Tên đăng nhập phải có ít nhất 4 ký tự!");
+          return;
+        }
+        if (password.length < 6) {
+          showAlert("err", "Mật khẩu phải có ít nhất 6 ký tự!");
+          return;
+        }
+        if (password !== confirmPwd) {
+          showAlert("err", "Mật khẩu xác nhận không khớp!");
+          document.getElementById("confirmPwd").classList.add("error");
+          return;
+        }
+        if (!agreed) {
+          showAlert("err", "Vui lòng đồng ý với điều khoản sử dụng!");
+          return;
+        }
+
+        // Loading
+        var btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        hideAlert();
+
+        var payload = {
+          UserName: username,
+          Password: password,
+          Email: email,
+          FullName: firstName + " " + lastName,
+          PhoneNumber: phone,
+          FirstName: firstName,
+          LastName: lastName,
+        };
+
+        var doRegister =
+          typeof Auth !== "undefined"
+            ? Auth.register(payload)
+            : Promise.reject(new Error("API chưa sẵn sàng"));
+
+        doRegister
+          .then(function (result) {
+            showAlert(
+              "ok",
+              "✓ Đăng ký thành công! Đang chuyển đến trang đăng nhập...",
+            );
+            setTimeout(function () {
+              window.location.href = "login.html";
+            }, 1500);
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.classList.remove("loading");
+            var msg = err.message || "Đăng ký thất bại. Vui lòng thử lại!";
+            if (
+              msg.includes("exists") ||
+              msg.includes("duplicate") ||
+              msg.includes("409")
+            )
+              msg = "Tên đăng nhập hoặc email đã tồn tại!";
+            if (msg.includes("Network") || msg.includes("fetch"))
+              msg = "Không thể kết nối máy chủ. Vui lòng thử lại!";
+            showAlert("err", msg);
+          });
+      }
+
+      function checkPwdStrength(pwd) {
+        var bar = document.getElementById("pwdStrength");
+        var hint = document.getElementById("pwdHint");
+        if (!pwd) {
+          bar.style.width = "0";
+          return;
+        }
+        var score = 0;
+        if (pwd.length >= 6) score++;
+        if (pwd.length >= 10) score++;
+        if (/[A-Z]/.test(pwd)) score++;
+        if (/[0-9]/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;
+        var colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"];
+        var labels = ["Quá yếu", "Yếu", "Trung bình", "Mạnh", "Rất mạnh"];
+        bar.style.background = colors[score - 1] || "#e0e0e0";
+        bar.style.width = score * 20 + "%";
+        hint.textContent =
+          score > 0
+            ? labels[score - 1]
+            : "Mật khẩu nên có chữ hoa, chữ thường và số";
+        hint.style.color =
+          score >= 3 ? "#16a34a" : score >= 2 ? "#d97706" : "#ef4444";
+      }
+
+      function togglePwd(id, btn) {
+        var inp = document.getElementById(id);
+        var icon = btn.querySelector("i");
+        inp.type = inp.type === "password" ? "text" : "password";
+        icon.className = inp.type === "text" ? "bi bi-eye-slash" : "bi bi-eye";
+      }
+
+      function showAlert(type, msg) {
+        var errEl = document.getElementById("errorAlert");
+        var okEl = document.getElementById("successAlert");
+        if (type === "err") {
+          errEl.textContent = msg;
+          errEl.classList.add("show");
+          okEl.classList.remove("show");
+        } else {
+          okEl.textContent = msg;
+          okEl.classList.add("show");
+          errEl.classList.remove("show");
+        }
+      }
+      function hideAlert() {
+        document.getElementById("errorAlert").classList.remove("show");
+        document.getElementById("successAlert").classList.remove("show");
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("token")) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        initCursor();
+
+        document.querySelectorAll(".form-input").forEach(function (el) {
+          el.addEventListener("input", function () {
+            this.classList.remove("error");
+            hideAlert();
+          });
+        });
+      });
+
+      function initCursor() {
+        if (!window.matchMedia("(hover:hover) and (pointer:fine)").matches)
+          return;
+        var dot = document.getElementById("lux-cursor-dot");
+        var ring = document.getElementById("lux-cursor-ring");
+        var mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+        document.addEventListener("mousemove", function (e) {
+          mx = e.clientX;
+          my = e.clientY;
+          dot.style.left = mx + "px";
+          dot.style.top = my + "px";
+        });
+        (function loop() {
+          rx += (mx - rx) * 0.1;
+          ry += (my - ry) * 0.1;
+          ring.style.left = rx + "px";
+          ring.style.top = ry + "px";
+          requestAnimationFrame(loop);
+        })();
+        var hover = "a,button,input,.form-input";
+        document.addEventListener("mouseover", function (e) {
+          if (e.target.closest(hover)) {
+            ring.style.width = "48px";
+            ring.style.height = "48px";
+            ring.style.borderColor = "var(--pink)";
+            ring.style.opacity = "0.8";
+          }
+        });
+        document.addEventListener("mouseout", function (e) {
+          if (e.target.closest(hover)) {
+            ring.style.width = "32px";
+            ring.style.height = "32px";
+            ring.style.borderColor = "var(--dark)";
+            ring.style.opacity = "0.4";
+          }
+        });
+      }
+    </script>
+    <script src="js/gsap.js" defer></script>
+    <script>
+      function toggleUserMenu(btn) {
+        var open = btn.classList.contains("open");
+        document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+          b.classList.remove("open");
+        });
+        if (!open) btn.classList.add("open");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".gh-user-btn"))
+          document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+            b.classList.remove("open");
+          });
+      });
+    </script>
+  </body>
+</html>

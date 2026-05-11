@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <title>Đăng Nhập — GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Đăng nhập vào tài khoản GlowHub của bạn"
+    />
+    <meta property="og:title" content="Đăng Nhập — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <style>
+      :root {
+        --pink: #f759ab;
+        --dark: #111;
+        --border: #e8e8e8;
+        --gray: #888;
+        --cream: #f8f5f0;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Jost", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        cursor: none;
+      }
+      #lux-cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99999;
+        width: 5px;
+        height: 5px;
+        background: var(--pink);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      #lux-cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99998;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--dark);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.4;
+        transition:
+          width 0.4s,
+          height 0.4s,
+          opacity 0.3s,
+          transform 0.12s linear;
+      }
+      @media (hover: none), (pointer: coarse) {
+        #lux-cursor-dot,
+        #lux-cursor-ring {
+          display: none;
+        }
+        body,
+        body * {
+          cursor: auto !important;
+        }
+      }
+      @media (hover: hover) and (pointer: fine) {
+        body,
+        body * {
+          cursor: none !important;
+        }
+      }
+
+      /* TOPBAR */
+      .gh-topbar {
+        background: var(--dark);
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        padding: 7px;
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      /* NAV */
+      .gh-nav {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 0 40px;
+        height: 60px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+      }
+      .gh-logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.4rem;
+        letter-spacing: 7px;
+        text-transform: uppercase;
+        color: var(--dark);
+        text-decoration: none;
+        text-align: center;
+      }
+      .gh-nav-link {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: 0.2s;
+      }
+      .gh-nav-link:hover {
+        color: var(--pink);
+      }
+
+      /* PAGE */
+      .page-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      .auth-card {
+        background: #fff;
+        width: 100%;
+        max-width: 420px;
+        padding: 48px 40px;
+        border: 1px solid var(--border);
+      }
+      .auth-eyebrow {
+        font-size: 9px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-bottom: 12px;
+      }
+      .auth-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        color: var(--dark);
+        margin-bottom: 8px;
+      }
+      .auth-sub {
+        font-size: 12px;
+        color: var(--gray);
+        letter-spacing: 1px;
+        margin-bottom: 32px;
+      }
+      .auth-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 24px 0;
+      }
+
+      /* FORM */
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gray);
+        display: block;
+        margin-bottom: 8px;
+      }
+      .form-input {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        background: #fff;
+        outline: none;
+        transition: 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .form-input:focus {
+        border-color: var(--dark);
+      }
+      .form-input.error {
+        border-color: #ef4444;
+      }
+      .input-wrap {
+        position: relative;
+      }
+      .input-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--gray);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      /* BUTTON */
+      .btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: "Jost", sans-serif;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .btn-submit:hover {
+        background: var(--pink);
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .btn-outline {
+        width: 100%;
+        padding: 13px;
+        background: transparent;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        font-family: "Jost", sans-serif;
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-outline:hover {
+        border-color: var(--dark);
+        background: var(--dark);
+        color: #fff;
+      }
+
+      /* ERROR / SUCCESS */
+      .alert {
+        padding: 12px 16px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        border-left: 3px solid;
+        display: none;
+      }
+      .alert.show {
+        display: block;
+      }
+      .alert-err {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #991b1b;
+      }
+      .alert-ok {
+        background: #f0fdf4;
+        border-color: #22c55e;
+        color: #166534;
+      }
+
+      /* FOOTER */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+      }
+      footer p {
+        font-size: 11px;
+        color: var(--gray);
+      }
+      footer a {
+        font-size: 11px;
+        color: var(--gray);
+        text-decoration: none;
+        transition: 0.2s;
+      }
+      footer a:hover {
+        color: var(--pink);
+      }
+
+      /* LOADING SPINNER */
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: none;
+      }
+      .btn-submit.loading .spinner {
+        display: block;
+      }
+      .btn-submit.loading .btn-text {
+        display: none;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-width: 480px) {
+        .auth-card {
+          padding: 32px 24px;
+        }
+        .gh-nav {
+          padding: 0 16px;
+        }
+      }
+
+      /* ── GH USER DROPDOWN ── */
+      .gh-user-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+      }
+      .gh-user-avatar {
+        width: 30px;
+        height: 30px;
+        background: #f759ab;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .gh-user-name {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #111;
+        max-width: 110px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .gh-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: #fff;
+        min-width: 200px;
+        border: 1px solid #e2ddd8;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        z-index: 9999;
+        padding: 6px 0;
+      }
+      .gh-user-btn.open .gh-dropdown {
+        display: block;
+      }
+      .gh-dropdown a {
+        display: block;
+        padding: 11px 18px;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #111;
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+      .gh-dropdown a:hover {
+        background: #f8f5f0;
+        color: #f759ab;
+      }
+      .gh-dropdown hr {
+        margin: 6px 0;
+        border: none;
+        border-top: 1px solid #e2ddd8;
+      }
+      .gh-dropdown .logout {
+        color: #ef4444 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lux-cursor-dot"></div>
+    <div id="lux-cursor-ring"></div>
+
+    <div class="gh-topbar">
+      🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc
+    </div>
+
+    <nav class="gh-nav">
+      <a href="shop.html" class="gh-nav-link">← Cửa Hàng</a>
+      <a href="index.html" class="gh-logo">GlowHub</a>
+      <div style="text-align: right">
+        <a href="register.html" class="gh-nav-link">Đăng Ký</a>
+      </div>
+    </nav>
+
+    <div class="page-wrap">
+      <div class="auth-card">
+        <div class="auth-eyebrow">Chào Mừng Trở Lại</div>
+        <h1 class="auth-title">Đăng Nhập</h1>
+        <p class="auth-sub">Truy cập tài khoản GlowHub của bạn</p>
+
+        <div class="alert alert-err" id="errorAlert"></div>
+        <div class="alert alert-ok" id="successAlert"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="username">Tên Đăng Nhập</label>
+            <input
+              type="text"
+              class="form-input"
+              id="username"
+              placeholder="Nhập tên đăng nhập"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Mật Khẩu</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="password"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="input-toggle"
+                onclick="togglePwd('password', this)"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 24px;
+            "
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                color: var(--gray);
+                cursor: pointer;
+              "
+            >
+              <input
+                type="checkbox"
+                id="rememberMe"
+                style="accent-color: var(--pink)"
+              />
+              Ghi nhớ đăng nhập
+            </label>
+            <a
+              href="policy.html#lien-he"
+              style="
+                font-size: 11px;
+                color: var(--gray);
+                text-decoration: none;
+                letter-spacing: 0.5px;
+              "
+            >
+              Quên mật khẩu?
+            </a>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">Đăng Nhập</span>
+            <div class="spinner"></div>
+          </button>
+        </form>
+
+        <div class="auth-divider"></div>
+        <p
+          style="
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+          "
+        >
+          Chưa có tài khoản?
+        </p>
+        <a href="register.html" class="btn-outline">Tạo Tài Khoản Mới</a>
+
+        <div
+          style="
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gray);
+          "
+        >
+          <i
+            class="bi bi-shield-check"
+            style="color: #22c55e; margin-right: 4px"
+          ></i>
+          Thông tin được bảo mật với SSL 256-bit
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 GlowHub. Bảo lưu mọi quyền.</p>
+      <div style="display: flex; gap: 20px">
+        <a href="policy.html#bao-mat">Bảo Mật</a>
+        <a href="policy.html#dieu-khoan">Điều Khoản</a>
+        <a href="policy.html#lien-he">Hỗ Trợ</a>
+      </div>
+    </footer>
+
+    <script src="js/api.js" defer></script>
+    <script>
+      // @ts-nocheck
+      /* eslint-disable */
+
+      function handleLogin(e) {
+        e.preventDefault();
+        var username = document.getElementById("username").value.trim();
+        var password = document.getElementById("password").value;
+        var remember = document.getElementById("rememberMe").checked;
+
+        // Validate
+        if (!username || !password) {
+          showAlert("err", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!");
+          return;
+        }
+
+        // UI loading state
+        var btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        hideAlert();
+
+        // Call API
+        var doLogin =
+          typeof Auth !== "undefined"
+            ? Auth.login({ Username: username, Password: password })
+            : Promise.reject(new Error("API chưa sẵn sàng"));
+
+        doLogin
+          .then(function (result) {
+            var token = result.token || result.Token;
+            var user = result.user || result.User || result;
+
+            if (!token)
+              throw new Error("Đăng nhập thất bại — không nhận được token");
+
+            // Save to localStorage
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            // Remember me — extend session
+            if (remember) localStorage.setItem("gh_remember", "1");
+
+            showAlert("ok", "✓ Đăng nhập thành công! Đang chuyển hướng...");
+
+            // Redirect based on role
+            setTimeout(function () {
+              var isAdmin = false;
+              try {
+                var u = JSON.parse(localStorage.getItem("user") || "{}");
+                var t = u.userType || u.UserType || u.role || u.Role || 0;
+                isAdmin = t === 1 || t === "Admin" || t === "admin";
+              } catch (e) {}
+
+              if (isAdmin) {
+                window.location.href = "admin.html";
+              } else {
+                // Redirect to previous page or home
+                var prev =
+                  sessionStorage.getItem("gh_redirect") || "index.html";
+                sessionStorage.removeItem("gh_redirect");
+                window.location.href = prev;
+              }
+            }, 900);
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.classList.remove("loading");
+            var msg = err.message || "Tên đăng nhập hoặc mật khẩu không đúng!";
+            if (msg.includes("401") || msg.includes("Unauthorized"))
+              msg = "Sai tên đăng nhập hoặc mật khẩu!";
+            if (msg.includes("Network") || msg.includes("fetch"))
+              msg = "Không thể kết nối máy chủ. Vui lòng thử lại!";
+            showAlert("err", msg);
+            document.getElementById("password").classList.add("error");
+            document.getElementById("password").focus();
+          });
+      }
+
+      function togglePwd(id, btn) {
+        var inp = document.getElementById(id);
+        var icon = btn.querySelector("i");
+        if (inp.type === "password") {
+          inp.type = "text";
+          icon.className = "bi bi-eye-slash";
+        } else {
+          inp.type = "password";
+          icon.className = "bi bi-eye";
+        }
+      }
+
+      function showAlert(type, msg) {
+        var errEl = document.getElementById("errorAlert");
+        var okEl = document.getElementById("successAlert");
+        if (type === "err") {
+          errEl.textContent = msg;
+          errEl.classList.add("show");
+          okEl.classList.remove("show");
+        } else {
+          okEl.textContent = msg;
+          okEl.classList.add("show");
+          errEl.classList.remove("show");
+        }
+      }
+      function hideAlert() {
+        document.getElementById("errorAlert").classList.remove("show");
+        document.getElementById("successAlert").classList.remove("show");
+      }
+
+      // Clear error on input
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-redirect nếu đã đăng nhập
+        if (localStorage.getItem("token") && localStorage.getItem("user")) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Cursor
+        initCursor();
+
+        // Clear error on typing
+        ["username", "password"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el)
+            el.addEventListener("input", function () {
+              this.classList.remove("error");
+              hideAlert();
+            });
+        });
+
+        // Enter key
+        document
+          .getElementById("loginForm")
+          .addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleLogin(e);
+            }
+          });
+      });
+
+      function initCursor() {
+        if (!window.matchMedia("(hover:hover) and (pointer:fine)").matches)
+          return;
+        var dot = document.getElementById("lux-cursor-dot");
+        var ring = document.getElementById("lux-cursor-ring");
+        var mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+        document.addEventListener("mousemove", function (e) {
+          mx = e.clientX;
+          my = e.clientY;
+          dot.style.left = mx + "px";
+          dot.style.top = my + "px";
+        });
+        (function loop() {
+          rx += (mx - rx) * 0.1;
+          ry += (my - ry) * 0.1;
+          ring.style.left = rx + "px";
+          ring.style.top = ry + "px";
+          requestAnimationFrame(loop);
+        })();
+        var hover = "a,button,input,.form-input";
+        document.addEventListener("mouseover", function (e) {
+          if (e.target.closest(hover)) {
+            ring.style.width = "48px";
+            ring.style.height = "48px";
+            ring.style.borderColor = "var(--pink)";
+            ring.style.opacity = "0.8";
+          }
+        });
+        document.addEventListener("mouseout", function (e) {
+          if (e.target.closest(hover)) {
+            ring.style.width = "32px";
+            ring.style.height = "32px";
+            ring.style.borderColor = "var(--dark)";
+            ring.style.opacity = "0.4";
+          }
+        });
+      }
+    </script>
+    <script src="js/gsap.js" defer></script>
+    <script>
+      function toggleUserMenu(btn) {
+        var open = btn.classList.contains("open");
+        document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+          b.classList.remove("open");
+        });
+        if (!open) btn.classList.add("open");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".gh-user-btn"))
+          document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+            b.classList.remove("open");
+          });
+      });
+    </script>
+  </body>
+</html>
