@@ -1,0 +1,84 @@
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+D:\Code\CSharp\RobotVibot_WithoutChange-main\RobotVibot_WithoutChange-main\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+D:\Code\CSharp\RobotVibot_WithoutChange-main\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\pc\Downloads\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\ndngu\SOURCE\BaseCore\BaseCore\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\Admin\Desktop\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+C:\Users\Admin\Desktop\Kỳ 2 2025_2026\CNWEB\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.deps.json
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.dll
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\bin\Debug\net8.0\BaseCore.DTO.pdb
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.AssemblyReference.cache
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.GeneratedMSBuildEditorConfig.editorconfig
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfoInputs.cache
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.AssemblyInfo.cs
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.csproj.CoreCompileInputs.cache
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.dll
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\refint\BaseCore.DTO.dll
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\BaseCore.DTO.pdb
+D:\Nam3_Ki2\web\FW\FW\BaseCore\BaseCore.DTO\obj\Debug\net8.0\ref\BaseCore.DTO.dll

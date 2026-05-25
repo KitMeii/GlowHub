@@ -1,9 +1,6 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta property="og:title" content="Cửa Hàng — GlowHub" />
-    <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#f759ab" />
     <title>Cửa Hàng - GlowHub</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -146,265 +143,6 @@
         color: var(--gray);
       }
 
-      /* ── FILTER SIDEBAR ── */
-      .shop-layout {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        gap: 24px;
-        align-items: start;
-      }
-      .filter-sidebar {
-        position: sticky;
-        top: 80px;
-        background: #fff;
-        border: 1px solid var(--border);
-      }
-      .filter-sidebar-hd {
-        padding: 14px 16px;
-        background: var(--dark);
-        color: #fff;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .filter-sidebar-hd button {
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        font-family: inherit;
-      }
-      .filter-sidebar-hd button:hover {
-        color: var(--pink);
-      }
-      .filter-group {
-        padding: 16px;
-        border-bottom: 1px solid var(--border);
-      }
-      .filter-group:last-child {
-        border-bottom: none;
-      }
-      .filter-group-title {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--dark);
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-      }
-      .filter-group-title i {
-        font-size: 12px;
-        transition: 0.2s;
-        color: var(--gray);
-      }
-      .filter-group.collapsed .filter-group-body {
-        display: none;
-      }
-      .filter-group.collapsed .filter-group-title i {
-        transform: rotate(-90deg);
-      }
-
-      /* Category chips */
-      .cat-chip {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 0;
-        font-size: 13px;
-        cursor: pointer;
-        border-bottom: 1px solid #f5f5f5;
-        transition: 0.15s;
-      }
-      .cat-chip:hover {
-        color: var(--pink);
-      }
-      .cat-chip.active {
-        color: var(--pink);
-        font-weight: 600;
-      }
-      .cat-chip.active::before {
-        content: "✓";
-        font-size: 10px;
-        color: var(--pink);
-      }
-      .cat-count {
-        margin-left: auto;
-        font-size: 11px;
-        color: var(--gray);
-        background: #f5f5f5;
-        padding: 1px 6px;
-        border-radius: 10px;
-      }
-
-      /* Price range */
-      .price-range-wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      .price-input {
-        width: 100%;
-        padding: 8px 10px;
-        border: 1px solid var(--border);
-        font-family: "Jost", sans-serif;
-        font-size: 12px;
-        text-align: center;
-        border-radius: 2px;
-      }
-      .price-input:focus {
-        outline: none;
-        border-color: var(--pink);
-      }
-      .price-presets {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 8px;
-      }
-      .price-preset {
-        padding: 4px 8px;
-        border: 1px solid var(--border);
-        background: #fff;
-        font-size: 10px;
-        cursor: pointer;
-        font-family: inherit;
-        transition: 0.15s;
-        border-radius: 2px;
-      }
-      .price-preset:hover,
-      .price-preset.active {
-        background: var(--pink);
-        color: #fff;
-        border-color: var(--pink);
-      }
-
-      /* Rating */
-      .rating-option {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 0;
-        cursor: pointer;
-        font-size: 12px;
-      }
-      .rating-option input {
-        accent-color: var(--pink);
-      }
-      .stars-display {
-        color: #f59e0b;
-        font-size: 13px;
-      }
-
-      /* Toggle switch */
-      .filter-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 0;
-      }
-      .filter-toggle label {
-        font-size: 12px;
-        cursor: pointer;
-      }
-      .toggle-sw {
-        position: relative;
-        width: 36px;
-        height: 20px;
-      }
-      .toggle-sw input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-      .toggle-sl {
-        position: absolute;
-        inset: 0;
-        background: #ddd;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .toggle-sl::before {
-        content: "";
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        left: 3px;
-        bottom: 3px;
-        background: #fff;
-        border-radius: 50%;
-        transition: 0.2s;
-      }
-      .toggle-sw input:checked + .toggle-sl {
-        background: var(--pink);
-      }
-      .toggle-sw input:checked + .toggle-sl::before {
-        transform: translateX(16px);
-      }
-
-      /* Apply btn */
-      .btn-apply-filter {
-        width: 100%;
-        padding: 12px;
-        background: var(--dark);
-        color: #fff;
-        border: none;
-        font-family: "Jost", sans-serif;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        cursor: pointer;
-        margin: 12px 0 0;
-        transition: 0.2s;
-      }
-      .btn-apply-filter:hover {
-        background: var(--pink);
-      }
-
-      /* Active filter tags */
-      .active-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        background: var(--dark);
-        color: #fff;
-        font-size: 11px;
-        margin: 3px;
-        border-radius: 2px;
-      }
-      .active-tag button {
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.7);
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-        padding: 0;
-      }
-      .active-tag button:hover {
-        color: #fff;
-      }
-
-      @media (max-width: 768px) {
-        .shop-layout {
-          grid-template-columns: 1fr;
-        }
-        .filter-sidebar {
-          position: static;
-        }
-      }
       /* ── FILTER BAR ── */
       .filter-bar {
         background: #fff;
@@ -701,74 +439,9 @@
       .result-meta strong {
         color: var(--dark);
       }
-
-      /* .of-btn đã được định nghĩa trong filter sidebar CSS ở trên */
-
-      /* ── OF-BTN (section filter) ── */
-      .of-btn {
-        padding: 6px 14px;
-        border: 1px solid var(--border, #e8e8e8);
-        background: #fff;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        font-family: "Jost", sans-serif;
-        transition: 0.15s;
-        color: #8f8f8f;
-        border-radius: 2px;
-      }
-      .of-btn:hover,
-      .of-btn.active {
-        background: var(--pink, #f759ab);
-        color: #fff;
-        border-color: var(--pink, #f759ab);
-      }
-
-      /* ── PRICE RANGE SLIDER ── */
-      #sliderMin,
-      #sliderMax {
-        pointer-events: none;
-      }
-      #sliderMin::-webkit-slider-thumb,
-      #sliderMax::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #fff;
-        border: 2px solid var(--pink);
-        cursor: pointer;
-        pointer-events: all;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-        transition: transform 0.15s;
-      }
-      #sliderMin::-webkit-slider-thumb:hover,
-      #sliderMax::-webkit-slider-thumb:hover {
-        transform: scale(1.2);
-      }
-      #sliderMin::-moz-range-thumb,
-      #sliderMax::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #fff;
-        border: 2px solid var(--pink);
-        cursor: pointer;
-        pointer-events: all;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-      }
     </style>
-    <!-- GSAP + Lenis Luxury -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   </head>
   <body>
-    <div id="lux-cursor-dot"></div>
-    <div id="lux-cursor-ring"></div>
-
     <!-- CART OFFCANVAS -->
     <div
       class="offcanvas offcanvas-end"
@@ -864,19 +537,15 @@
               <li class="nav-item">
                 <a class="nav-link active" href="shop.html">Cửa Hàng</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="policy.html">Blog</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="policy.html#lien-he">Liên Hệ</a>
-              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Liên Hệ</a></li>
             </ul>
           </div>
         </div>
         <div class="d-none d-lg-flex align-items-center gap-4">
           <div id="nav-user-area"></div>
           <a
-            href="cart.html"
+            href="#"
             class="nav-link position-relative"
             data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasCart"
@@ -976,357 +645,16 @@
         <span class="bc-cur" id="bcCur">Tất Cả Sản Phẩm</span>
       </div>
 
-      <div class="shop-layout">
-        <!-- ── FILTER SIDEBAR ── -->
-        <div class="filter-sidebar" id="filterSidebar">
-          <div class="filter-sidebar-hd">
-            <span><i class="bi bi-funnel me-2"></i>Bộ Lọc</span>
-            <button onclick="resetAllFilters()">Xóa tất cả</button>
-          </div>
+      <!-- Active filters -->
+      <div class="active-filters" id="activeFilters"></div>
 
-          <!-- 1. DANH MỤC -->
-          <div class="filter-group" id="fg-cat">
-            <div
-              class="filter-group-title"
-              onclick="toggleFilterGroup('fg-cat')"
-            >
-              <span>Danh Mục</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="filter-group-body" id="catList">
-              <div class="cat-chip active" onclick="setCatFilter('', this)">
-                <span>Tất Cả Sản Phẩm</span>
-              </div>
-              <!-- Filled by JS from API -->
-            </div>
-          </div>
+      <!-- Result count -->
+      <div class="result-meta" id="resultMeta"></div>
 
-          <!-- 2. KHOẢNG GIÁ -->
-          <div class="filter-group" id="fg-price">
-            <div
-              class="filter-group-title"
-              onclick="toggleFilterGroup('fg-price')"
-            >
-              <span>Khoảng Giá</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="filter-group-body">
-              <!-- Dual range slider -->
-              <div style="padding: 6px 4px 4px">
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 10px;
-                  "
-                >
-                  <span
-                    style="
-                      font-size: 12px;
-                      color: var(--pink);
-                      font-weight: 600;
-                    "
-                    id="sliderMinLabel"
-                    >0 ₫</span
-                  >
-                  <span
-                    style="
-                      font-size: 12px;
-                      color: var(--pink);
-                      font-weight: 600;
-                    "
-                    id="sliderMaxLabel"
-                    >100.000.000 ₫</span
-                  >
-                </div>
-                <div
-                  style="position: relative; height: 20px; margin-bottom: 12px"
-                  id="priceSliderWrap"
-                >
-                  <div
-                    style="
-                      position: absolute;
-                      top: 8px;
-                      left: 0;
-                      right: 0;
-                      height: 4px;
-                      background: #e8e8e8;
-                      border-radius: 2px;
-                    "
-                  ></div>
-                  <div
-                    id="sliderTrack"
-                    style="
-                      position: absolute;
-                      top: 8px;
-                      height: 4px;
-                      background: var(--pink);
-                      border-radius: 2px;
-                    "
-                  ></div>
-                  <input
-                    type="range"
-                    id="sliderMin"
-                    min="0"
-                    max="100000000"
-                    step="100000"
-                    value="0"
-                    style="
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      width: 100%;
-                      height: 20px;
-                      -webkit-appearance: none;
-                      appearance: none;
-                      background: transparent;
-                      pointer-events: none;
-                    "
-                    oninput="onSliderMin(this.value)"
-                  />
-                  <input
-                    type="range"
-                    id="sliderMax"
-                    min="0"
-                    max="100000000"
-                    step="100000"
-                    value="100000000"
-                    style="
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      width: 100%;
-                      height: 20px;
-                      -webkit-appearance: none;
-                      appearance: none;
-                      background: transparent;
-                      pointer-events: none;
-                    "
-                    oninput="onSliderMax(this.value)"
-                  />
-                </div>
-                <div style="display: flex; gap: 6px; align-items: center">
-                  <input
-                    type="number"
-                    id="minPriceInput"
-                    placeholder="Từ"
-                    min="0"
-                    max="100000000"
-                    step="100000"
-                    class="price-input"
-                    style="flex: 1; text-align: center"
-                    onchange="onPriceInputChange()"
-                  />
-                  <span style="color: #ccc; font-size: 12px">—</span>
-                  <input
-                    type="number"
-                    id="maxPriceInput"
-                    placeholder="Đến"
-                    min="0"
-                    max="100000000"
-                    step="100000"
-                    class="price-input"
-                    style="flex: 1; text-align: center"
-                    onchange="onPriceInputChange()"
-                  />
-                </div>
-              </div>
-              <div class="price-presets" style="margin-top: 10px">
-                <button
-                  class="price-preset"
-                  onclick="applyPricePreset(0, 200000)"
-                >
-                  Dưới 200K
-                </button>
-                <button
-                  class="price-preset"
-                  onclick="applyPricePreset(200000, 500000)"
-                >
-                  200K–500K
-                </button>
-                <button
-                  class="price-preset"
-                  onclick="applyPricePreset(500000, 1000000)"
-                >
-                  500K–1M
-                </button>
-                <button
-                  class="price-preset"
-                  onclick="applyPricePreset(1000000, 0)"
-                >
-                  Trên 1M
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-group" id="fg-rating">
-            <div
-              class="filter-group-title"
-              onclick="toggleFilterGroup('fg-rating')"
-            >
-              <span>Đánh Giá</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="filter-group-body">
-              <label class="rating-option">
-                <input
-                  type="radio"
-                  name="ratingFilter"
-                  value="0"
-                  checked
-                  onchange="setRating(0)"
-                />
-                <span>Tất cả</span>
-              </label>
-              <label class="rating-option">
-                <input
-                  type="radio"
-                  name="ratingFilter"
-                  value="4"
-                  onchange="setRating(4)"
-                />
-                <span class="stars-display">★★★★</span
-                ><span style="font-size: 11px; color: var(--gray)">
-                  trở lên</span
-                >
-              </label>
-              <label class="rating-option">
-                <input
-                  type="radio"
-                  name="ratingFilter"
-                  value="3"
-                  onchange="setRating(3)"
-                />
-                <span class="stars-display">★★★</span
-                ><span style="font-size: 11px; color: var(--gray)">
-                  trở lên</span
-                >
-              </label>
-              <label class="rating-option">
-                <input
-                  type="radio"
-                  name="ratingFilter"
-                  value="5"
-                  onchange="setRating(5)"
-                />
-                <span class="stars-display">★★★★★</span
-                ><span style="font-size: 11px; color: var(--gray)"> 5 sao</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- 4. TRẠNG THÁI -->
-          <div class="filter-group" id="fg-status">
-            <div
-              class="filter-group-title"
-              onclick="toggleFilterGroup('fg-status')"
-            >
-              <span>Trạng Thái</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="filter-group-body">
-              <div class="filter-toggle">
-                <label for="toggleNew">🆕 Hàng Mới</label>
-                <label class="toggle-sw">
-                  <input
-                    type="checkbox"
-                    id="toggleNew"
-                    onchange="setOnlyNew(this.checked)"
-                  />
-                  <span class="toggle-sl"></span>
-                </label>
-              </div>
-              <div class="filter-toggle">
-                <label for="toggleSale">🏷️ Đang Giảm Giá</label>
-                <label class="toggle-sw">
-                  <input
-                    type="checkbox"
-                    id="toggleSale"
-                    onchange="setOnlySale(this.checked)"
-                  />
-                  <span class="toggle-sl"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. SẮP XẾP (trong sidebar mobile) -->
-          <div class="filter-group d-md-none" id="fg-sort">
-            <div class="filter-group-title">
-              <span>Sắp Xếp</span>
-            </div>
-            <div class="filter-group-body">
-              <select
-                class="price-input"
-                onchange="setSort(this.value)"
-                style="width: 100%"
-              >
-                <option value="default">Mặc định</option>
-                <option value="newest">Mới nhất</option>
-                <option value="price_asc">Giá: Thấp → Cao</option>
-                <option value="price_desc">Giá: Cao → Thấp</option>
-                <option value="name">Tên A→Z</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── PRODUCTS COLUMN ── -->
-        <div>
-          <!-- Section tabs -->
-          <div
-            style="
-              display: flex;
-              gap: 6px;
-              flex-wrap: wrap;
-              margin-bottom: 12px;
-            "
-            id="sectionTabs"
-          >
-            <button
-              class="of-btn active"
-              onclick="clearSection(this)"
-              data-section=""
-            >
-              Tất Cả
-            </button>
-            <button
-              class="of-btn"
-              onclick="setSection('new', this)"
-              data-section="new"
-            >
-              🆕 Hàng Mới
-            </button>
-            <button
-              class="of-btn"
-              onclick="setSection('best', this)"
-              data-section="best"
-            >
-              🔥 Bán Chạy
-            </button>
-            <button
-              class="of-btn"
-              onclick="setSection('sale', this)"
-              data-section="sale"
-            >
-              🏷️ Đang Giảm
-            </button>
-          </div>
-
-          <!-- Active filter tags -->
-          <div class="active-filters" id="activeFilters"></div>
-
-          <!-- Result meta -->
-          <div class="result-meta" id="resultMeta"></div>
-
-          <!-- Products grid -->
-          <div id="productsWrap"><!-- Filled by JS --></div>
-        </div>
+      <!-- Products -->
+      <div id="productsWrap">
+        <!-- Filled by JS -->
       </div>
-      <!-- /shop-layout -->
 
       <!-- Pagination -->
       <div class="pagination-wrap" id="paginationWrap"></div>
@@ -1437,8 +765,7 @@
 
       // ── STATE ──
       var state = {
-        section: "", // 'new' | 'best' | 'sale'
-        query: "", // text search
+        query: "",
         cat: "", // category id
         sort: "default",
         view: "grid",
@@ -1450,12 +777,6 @@
         categories: [],
         loading: false,
         searchTimer: null,
-        // ── Tiêu chí lọc nâng cao ──
-        minPrice: 0, // giá từ
-        maxPrice: 0, // giá đến (0 = không giới hạn)
-        onlyNew: false, // chỉ hàng mới (IsNew=true)
-        onlySale: false, // chỉ hàng đang giảm
-        minRating: 0, // đánh giá tối thiểu (1-5)
       };
 
       var fmt = function (n) {
@@ -1469,7 +790,6 @@
         readURLParams();
         loadCategories();
         loadProducts();
-        initPriceSlider();
       });
 
       function readURLParams() {
@@ -1483,18 +803,11 @@
         }
         if (p.get("section")) {
           var sec = p.get("section");
-          state.section = sec; // lưu section để filter dùng
+          state.query = sec === "new" ? "" : "";
           state.sort = sec === "new" ? "newest" : "default";
           document.getElementById("sortSelect").value = state.sort;
-          // Breadcrumb
-          var bcMap = { new: "Hàng Mới Về", best: "Bán Chạy Nhất" };
-          var bcEl = document.getElementById("bcCur");
-          if (bcEl) bcEl.textContent = bcMap[sec] || sec;
-          // Active filter button highlight
-          var filterBtns = document.querySelectorAll("[data-section]");
-          filterBtns.forEach(function (btn) {
-            btn.classList.toggle("active", btn.dataset.section === sec);
-          });
+          document.getElementById("bcCur").textContent =
+            sec === "new" ? "Hàng Mới Về" : "Bán Chạy Nhất";
         }
         if (p.get("page")) {
           state.page = parseInt(p.get("page")) || 1;
@@ -1505,7 +818,6 @@
         var p = new URLSearchParams();
         if (state.query) p.set("q", state.query);
         if (state.cat) p.set("cat", state.cat);
-        if (state.section) p.set("section", state.section);
         if (state.sort && state.sort !== "default") p.set("sort", state.sort);
         if (state.page > 1) p.set("page", state.page);
         var url = location.pathname + (p.toString() ? "?" + p.toString() : "");
@@ -1519,7 +831,6 @@
           .then(function (cats) {
             if (!cats || !cats.length) return;
             state.categories = cats;
-            renderCategoryList();
             var wrap = document.getElementById("categoryChips");
             var existing = wrap.querySelector('[data-cat=""]');
             cats.forEach(function (c) {
@@ -1554,7 +865,6 @@
               { Id: 6, Name: "Chống Nắng" },
             ];
             state.categories = defaults;
-            renderCategoryList();
             var wrap = document.getElementById("categoryChips");
             defaults.forEach(function (c) {
               var btn = document.createElement("button");
@@ -1596,12 +906,10 @@
                   ? result.data
                   : [];
             state.allProducts = items;
-            renderCategoryList();
             applyFilter();
           })
           .catch(function () {
             state.allProducts = getSampleProducts();
-            renderCategoryList();
             applyFilter();
           })
           .finally(function () {
@@ -1609,99 +917,10 @@
           });
       }
 
-      // ── Section filter functions ──
-      function setSection(sec, btn) {
-        state.section = sec;
-        state.page = 1;
-        document.querySelectorAll("[data-section]").forEach(function (b) {
-          b.classList.toggle("active", b.dataset.section === sec);
-        });
-        // Update sort nếu section=new
-        if (sec === "new") {
-          state.sort = "newest";
-          var sortEl = document.getElementById("sortSelect");
-          if (sortEl) sortEl.value = "newest";
-        }
-        applyFilter();
-        // Sync section tab highlight with URL
-        if (state.section) {
-          document.querySelectorAll("[data-section]").forEach(function (b) {
-            b.classList.toggle("active", b.dataset.section === state.section);
-          });
-        }
-      }
-
-      function clearSection(btn) {
-        state.section = "";
-        document.querySelectorAll("[data-section]").forEach(function (b) {
-          b.classList.toggle("active", b.dataset.section === "");
-        });
-        applyFilter();
-      }
-
       function applyFilter() {
         var items = state.allProducts.slice();
 
-        // ── 1. FILTER: Hàng Mới (isNew = true) ──
-        if (state.section === "new") {
-          // Đẩy sản phẩm mới lên đầu, giữ tất cả SP khác phía sau
-          var newItems = items.filter(function (p) {
-            return p.IsNew || p.isNew;
-          });
-          var restItems = items.filter(function (p) {
-            return !(p.IsNew || p.isNew);
-          });
-          // Nếu có sản phẩm mới → chỉ hiện SP mới, không hiện phần còn lại
-          if (newItems.length > 0) {
-            items = newItems;
-          }
-          // Sort: mới nhất lên đầu
-          items.sort(function (a, b) {
-            return (
-              new Date(b.CreatedAt || b.createdAt || 0) -
-              new Date(a.CreatedAt || a.createdAt || 0)
-            );
-          });
-        }
-
-        // ── 2. FILTER: Bán Chạy (section=best) ──
-        if (state.section === "best") {
-          // Sort theo SortOrder (admin set) hoặc theo doanh số
-          items.sort(function (a, b) {
-            var aOrder = a.SortOrder || a.sortOrder || 0;
-            var bOrder = b.SortOrder || b.sortOrder || 0;
-            return bOrder - aOrder;
-          });
-        }
-
-        // ── 3. FILTER: Danh mục (cat) ──
-        if (state.cat) {
-          var searchId = state.cat.toString().trim();
-          items = items.filter(function (p) {
-            var catId = (p.CategoryId || p.categoryId || "").toString().trim();
-            if (catId === searchId) return true;
-            // Fallback: so sánh tên danh mục
-            var catName = (
-              (p.Category && (p.Category.Name || p.Category.name)) ||
-              p.CategoryName ||
-              ""
-            )
-              .toLowerCase()
-              .trim();
-            var matchCat = state.categories.find(function (c) {
-              return (c.Id || c.id).toString() === searchId;
-            });
-            if (matchCat) {
-              return (
-                catName ===
-                (matchCat.Name || matchCat.name || "").toLowerCase().trim()
-              );
-            }
-            return false;
-          });
-        }
-
-        // ── 4. FILTER: Tìm kiếm text ──
+        // Client-side search filter
         if (state.query) {
           var q = state.query.toLowerCase();
           items = items.filter(function (p) {
@@ -1715,75 +934,37 @@
           });
         }
 
-        // ── 5. FILTER: Khoảng giá ──
-        if (state.minPrice || state.maxPrice) {
-          items = items.filter(function (p) {
-            var price = p.Price || p.price || 0;
-            var ok = true;
-            if (state.minPrice) ok = ok && price >= state.minPrice;
-            if (state.maxPrice) ok = ok && price <= state.maxPrice;
-            return ok;
-          });
-        }
-
-        // ── 6. SORT (nếu không phải section đặc biệt) ──
-        if (!state.section) {
-          switch (state.sort) {
-            case "newest":
-              items.sort(function (a, b) {
-                return (
-                  new Date(b.CreatedAt || b.createdAt || 0) -
-                  new Date(a.CreatedAt || a.createdAt || 0)
-                );
-              });
-              break;
-            case "price_asc":
-              items.sort(function (a, b) {
-                return (a.Price || a.price || 0) - (b.Price || b.price || 0);
-              });
-              break;
-            case "price_desc":
-              items.sort(function (a, b) {
-                return (b.Price || b.price || 0) - (a.Price || a.price || 0);
-              });
-              break;
-            case "name":
-              items.sort(function (a, b) {
-                return (a.Name || a.name || "").localeCompare(
-                  b.Name || b.name || "",
-                );
-              });
-              break;
-            case "sale":
-              // Sort theo % giảm giá
-              items.sort(function (a, b) {
-                var aDisc =
-                  a.DiscountPrice || a.discountPrice
-                    ? Math.round(
-                        (1 -
-                          (a.DiscountPrice || a.discountPrice) /
-                            (a.Price || a.price || 1)) *
-                          100,
-                      )
-                    : 0;
-                var bDisc =
-                  b.DiscountPrice || b.discountPrice
-                    ? Math.round(
-                        (1 -
-                          (b.DiscountPrice || b.discountPrice) /
-                            (b.Price || b.price || 1)) *
-                          100,
-                      )
-                    : 0;
-                return bDisc - aDisc;
-              });
-              break;
-          }
+        // Sort
+        switch (state.sort) {
+          case "newest":
+            items.sort(function (a, b) {
+              return (
+                new Date(b.CreatedAt || b.createdAt || 0) -
+                new Date(a.CreatedAt || a.createdAt || 0)
+              );
+            });
+            break;
+          case "price_asc":
+            items.sort(function (a, b) {
+              return (a.Price || a.price || 0) - (b.Price || b.price || 0);
+            });
+            break;
+          case "price_desc":
+            items.sort(function (a, b) {
+              return (b.Price || b.price || 0) - (a.Price || a.price || 0);
+            });
+            break;
+          case "name":
+            items.sort(function (a, b) {
+              return (a.Name || a.name || "").localeCompare(
+                b.Name || b.name || "",
+              );
+            });
+            break;
         }
 
         state.products = items;
         state.total = items.length;
-        state.page = 1; // reset về trang 1 khi filter
         renderProducts();
         renderPagination();
         renderResultMeta();
@@ -2094,7 +1275,7 @@
         // Add "See all results" footer
         box.innerHTML +=
           '<div style="padding:10px 16px;text-align:center;font-size:12px;border-top:1px solid #f5f5f5">' +
-          '<a href="javascript:void(0)" onclick="doSearch();return false" style="color:var(--pink);text-decoration:none;text-transform:uppercase;letter-spacing:1px">' +
+          '<a href="#" onclick="doSearch();return false" style="color:var(--pink);text-decoration:none;text-transform:uppercase;letter-spacing:1px">' +
           'Xem tất cả kết quả cho "' +
           q +
           '"</a></div>';
@@ -2108,18 +1289,14 @@
 
       // ── FILTERS ──
       function setCat(id, btn) {
-        state.cat = id ? id.toString() : "";
+        state.cat = id;
         state.page = 1;
-        var sel = document.getElementById("catSelect");
-        if (sel) sel.value = state.cat;
         document
           .querySelectorAll("#categoryChips .filter-chip")
           .forEach(function (b) {
-            var cid = (b.getAttribute("data-cat") || "").toString();
-            b.classList.toggle("active", cid === state.cat);
+            b.classList.toggle("active", b.getAttribute("data-cat") == id);
           });
-        if (state.allProducts.length > 0) applyFilter();
-        else loadProducts();
+        loadProducts();
       }
 
       function setSort(val) {
@@ -2154,345 +1331,50 @@
         loadProducts();
       }
 
-      // ══════════════════════════════════════════════════════
-      // FILTER FUNCTIONS — 5 tiêu chí
-      // ══════════════════════════════════════════════════════
-
-      // 1. DANH MỤC
-      function setCatFilter(catId, el) {
-        state.cat = catId ? catId.toString() : "";
-        state.page = 1;
-        var sel = document.getElementById("catSelect");
-        if (sel) sel.value = state.cat;
-        document
-          .querySelectorAll("#categoryChips .filter-chip")
-          .forEach(function (b) {
-            var cid = (b.getAttribute("data-cat") || "").toString();
-            b.classList.toggle("active", cid === state.cat);
-          });
-        if (state.allProducts.length > 0) applyFilter();
-        else loadProducts();
-      }
-
-      // Render category list từ API
-      function renderCategoryList() {
-        var sel = document.getElementById("catSelect");
-        if (!sel) return;
-        // Xóa options cũ, giữ "Tất Cả"
-        while (sel.options.length > 1) sel.remove(1);
-        state.categories.forEach(function (cat) {
-          var id = (cat.Id || cat.id || "").toString();
-          var name = cat.Name || cat.name || "";
-          var count = state.allProducts.filter(function (p) {
-            var pid = (p.CategoryId || p.categoryId || "").toString();
-            return pid === id;
-          }).length;
-          var opt = document.createElement("option");
-          opt.value = id;
-          opt.textContent = name + (count ? " (" + count + ")" : "");
-          if (state.cat === id) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        sel.value = state.cat || "";
-      }
-
-      // 2. KHOẢNG GIÁ
-      function setPriceRange() {
-        var min = parseInt(document.getElementById("minPriceInput").value) || 0;
-        var max = parseInt(document.getElementById("maxPriceInput").value) || 0;
-        state.minPrice = min;
-        state.maxPrice = max;
-        state.page = 1;
-        // Clear preset active
-        document.querySelectorAll(".price-preset").forEach(function (b) {
-          b.classList.remove("active");
-        });
-        applyFilter();
-      }
-
-      // ── PRICE RANGE SLIDER ──
-      var PRICE_MAX = 100000000;
-
-      function fmtSlider(n) {
-        if (n >= 1000000)
-          return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + "M";
-        if (n >= 1000) return Math.round(n / 1000) + "K";
-        return n + "";
-      }
-
-      function updateSliderTrack() {
-        var mn = parseInt(document.getElementById("sliderMin").value);
-        var mx = parseInt(document.getElementById("sliderMax").value);
-        var pct_min = (mn / PRICE_MAX) * 100;
-        var pct_max = (mx / PRICE_MAX) * 100;
-        var track = document.getElementById("sliderTrack");
-        if (track) {
-          track.style.left = pct_min + "%";
-          track.style.width = pct_max - pct_min + "%";
-        }
-        var lblMin = document.getElementById("sliderMinLabel");
-        var lblMax = document.getElementById("sliderMaxLabel");
-        if (lblMin) lblMin.textContent = fmtSlider(mn) + " ₫";
-        if (lblMax)
-          lblMax.textContent =
-            mx >= PRICE_MAX ? "Không giới hạn" : fmtSlider(mx) + " ₫";
-      }
-
-      function onSliderMin(val) {
-        val = parseInt(val);
-        var mx = parseInt(document.getElementById("sliderMax").value);
-        if (val > mx - 100000) {
-          val = mx - 100000;
-          document.getElementById("sliderMin").value = val;
-        }
-        document.getElementById("minPriceInput").value = val || "";
-        updateSliderTrack();
-        state.minPrice = val;
-        state.maxPrice = mx >= PRICE_MAX ? 0 : mx;
-        state.page = 1;
-        clearTimeout(state.searchTimer);
-        state.searchTimer = setTimeout(function () {
-          applyFilter();
-        }, 300);
-      }
-
-      function onSliderMax(val) {
-        val = parseInt(val);
-        var mn = parseInt(document.getElementById("sliderMin").value);
-        if (val < mn + 100000) {
-          val = mn + 100000;
-          document.getElementById("sliderMax").value = val;
-        }
-        document.getElementById("maxPriceInput").value =
-          val >= PRICE_MAX ? "" : val;
-        updateSliderTrack();
-        state.minPrice = mn;
-        state.maxPrice = val >= PRICE_MAX ? 0 : val;
-        state.page = 1;
-        clearTimeout(state.searchTimer);
-        state.searchTimer = setTimeout(function () {
-          applyFilter();
-        }, 300);
-      }
-
-      function onPriceInputChange() {
-        var mn = parseInt(document.getElementById("minPriceInput").value) || 0;
-        var mx =
-          parseInt(document.getElementById("maxPriceInput").value) || PRICE_MAX;
-        if (mx > PRICE_MAX) mx = PRICE_MAX;
-        if (mn > mx) mn = mx - 100000;
-        document.getElementById("sliderMin").value = mn;
-        document.getElementById("sliderMax").value = mx;
-        updateSliderTrack();
-        state.minPrice = mn;
-        state.maxPrice = mx >= PRICE_MAX ? 0 : mx;
-        state.page = 1;
-        applyFilter();
-      }
-
-      function initPriceSlider() {
-        updateSliderTrack();
-      }
-
-      function applyPricePreset(min, max) {
-        state.minPrice = min;
-        state.maxPrice = max;
-        state.page = 1;
-        var realMax = max === 0 ? PRICE_MAX : max;
-        document.getElementById("minPriceInput").value = min || "";
-        document.getElementById("maxPriceInput").value = max || "";
-        document.getElementById("sliderMin").value = min;
-        document.getElementById("sliderMax").value = realMax;
-        updateSliderTrack();
-        document.querySelectorAll(".price-preset").forEach(function (b) {
-          var bMin = parseInt(b.getAttribute("onclick").match(/\d+/g)[0]) || 0;
-          var bMax = parseInt(b.getAttribute("onclick").match(/\d+/g)[1]) || 0;
-          b.classList.toggle("active", bMin === min && bMax === max);
-        });
-        applyFilter();
-      }
-
-      // 3. ĐÁNH GIÁ
-      function setRating(stars) {
-        state.minRating = parseInt(stars) || 0;
-        state.page = 1;
-        applyFilter();
-      }
-
-      // 4. TRẠNG THÁI
-      function setOnlyNew(val) {
-        state.onlyNew = val;
-        state.page = 1;
-        applyFilter();
-      }
-
-      function setOnlySale(val) {
-        state.onlySale = val;
-        state.page = 1;
-        applyFilter();
-      }
-
-      // 5. COLLAPSE filter groups
-      function toggleFilterGroup(id) {
-        var el = document.getElementById(id);
-        if (el) el.classList.toggle("collapsed");
-      }
-
-      // RESET ALL
-      function resetAllFilters() {
-        state.cat = "";
-        state.minPrice = 0;
-        state.maxPrice = 0;
-        state.minRating = 0;
-        state.onlyNew = false;
-        state.onlySale = false;
-        state.section = "";
-        state.query = "";
-        state.page = 1;
-        // Reset UI
-        var searchEl = document.getElementById("searchInput");
-        if (searchEl) searchEl.value = "";
-        var minEl = document.getElementById("minPriceInput");
-        var maxEl = document.getElementById("maxPriceInput");
-        if (minEl) minEl.value = "";
-        if (maxEl) maxEl.value = "";
-        var sMin = document.getElementById("sliderMin");
-        var sMax = document.getElementById("sliderMax");
-        if (sMin) sMin.value = 0;
-        if (sMax) sMax.value = PRICE_MAX;
-        updateSliderTrack();
-        document.querySelectorAll(".price-preset").forEach(function (b) {
-          b.classList.remove("active");
-        });
-        var selReset = document.getElementById("catSelect");
-        if (selReset) selReset.value = "";
-        document.querySelectorAll('[name="ratingFilter"]')[0].checked = true;
-        var tnew = document.getElementById("toggleNew");
-        var tsale = document.getElementById("toggleSale");
-        if (tnew) tnew.checked = false;
-        if (tsale) tsale.checked = false;
-        // Reset section tabs
-        document.querySelectorAll("[data-section]").forEach(function (b) {
-          b.classList.toggle("active", b.dataset.section === "");
-        });
-        applyFilter();
-      }
-
-      // RENDER ACTIVE FILTER TAGS
       function renderActiveFilters() {
-        var el = document.getElementById("activeFilters");
-        if (!el) return;
+        var wrap = document.getElementById("activeFilters");
         var tags = [];
-
-        if (state.section) {
-          var sMap = {
-            new: "🆕 Hàng Mới",
-            best: "🔥 Bán Chạy",
-            sale: "🏷️ Đang Giảm",
-          };
+        if (state.query)
           tags.push({
-            label: sMap[state.section] || state.section,
-            clear: function () {
-              state.section = "";
-              applyFilter();
-            },
-          });
-        }
-        if (state.cat) {
-          var catName = "";
-          state.categories.forEach(function (c) {
-            if ((c.Id || c.id).toString() === state.cat)
-              catName = c.Name || c.name;
-          });
-          tags.push({
-            label: "📂 " + (catName || state.cat),
-            clear: function () {
-              state.cat = "";
-              applyFilter();
-            },
-          });
-        }
-        if (state.minPrice || state.maxPrice) {
-          var priceLabel = "";
-          if (state.minPrice && state.maxPrice)
-            priceLabel = fmt(state.minPrice) + " – " + fmt(state.maxPrice);
-          else if (state.minPrice) priceLabel = "Từ " + fmt(state.minPrice);
-          else priceLabel = "Đến " + fmt(state.maxPrice);
-          tags.push({
-            label: "💰 " + priceLabel,
-            clear: function () {
-              state.minPrice = 0;
-              state.maxPrice = 0;
-              applyFilter();
-            },
-          });
-        }
-        if (state.minRating) {
-          tags.push({
-            label: "⭐ " + state.minRating + "★ trở lên",
-            clear: function () {
-              state.minRating = 0;
-              applyFilter();
-            },
-          });
-        }
-        if (state.onlyNew) {
-          tags.push({
-            label: "🆕 Chỉ hàng mới",
-            clear: function () {
-              state.onlyNew = false;
-              document.getElementById("toggleNew").checked = false;
-              applyFilter();
-            },
-          });
-        }
-        if (state.onlySale) {
-          tags.push({
-            label: "🏷️ Chỉ đang giảm",
-            clear: function () {
-              state.onlySale = false;
-              document.getElementById("toggleSale").checked = false;
-              applyFilter();
-            },
-          });
-        }
-        if (state.query) {
-          tags.push({
-            label: '🔍 "' + state.query + '"',
+            label: '"' + state.query + '"',
             clear: function () {
               state.query = "";
               document.getElementById("searchInput").value = "";
               applyFilter();
             },
           });
+        if (state.cat) {
+          var catName = "";
+          state.categories.forEach(function (c) {
+            if (c.Id == state.cat) catName = c.Name || c.name;
+          });
+          if (catName)
+            tags.push({
+              label: catName,
+              clear: function () {
+                setCat("", document.querySelector('[data-cat=""]'));
+              },
+            });
         }
-
         if (!tags.length) {
-          el.innerHTML = "";
+          wrap.innerHTML = "";
           return;
         }
-        el.innerHTML =
-          `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">` +
+        wrap.innerHTML =
+          '<span style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-right:4px">Đang lọc:</span>' +
           tags
             .map(function (t, i) {
-              return `<span class="active-tag">${t.label}<button onclick="removeTag(${i})">×</button></span>`;
+              return (
+                '<span class="af-tag">' +
+                t.label +
+                '<button class="af-remove" onclick="clearTag(' +
+                i +
+                ')">×</button></span>'
+              );
             })
             .join("") +
-          `</div>`;
-
-        // Store clearers
-        window._tagClearers = tags.map(function (t) {
-          return t.clear;
-        });
-      }
-
-      function removeTag(i) {
-        if (window._tagClearers && window._tagClearers[i])
-          window._tagClearers[i]();
-      }
-
-      function fmt(n) {
-        return new Intl.NumberFormat("vi-VN").format(n) + "₫";
+          '<button onclick="clearAllFilters()" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--gray);text-decoration:underline;font-family:\'Jost\',sans-serif;text-transform:uppercase;letter-spacing:1px">Xóa tất cả</button>';
+        wrap._tags = tags;
       }
 
       function clearTag(i) {
@@ -2744,6 +1626,5 @@
         ];
       }
     </script>
-    <script src="js/gsap.js" defer></script>
   </body>
 </html>
