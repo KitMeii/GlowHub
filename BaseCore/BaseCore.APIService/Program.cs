@@ -5,26 +5,24 @@ using Microsoft.OpenApi.Models;
 using BaseCore.Repository;
 using BaseCore.Repository.EFCore;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllers();
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 // Add services to the container
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Fix 1: Tránh circular reference (Order→OrderDetails→Product→Category→...)
-        options.JsonSerializerOptions.ReferenceHandler =
-            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-
-        // Fix 2: Giữ PascalCase → frontend đọc Id, OrderDetails, Status đúng
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-
-        // Fix 3: Không cần CaseInsensitive vì đã dùng PascalCase nhất quán
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-
-        // Fix 4: Bỏ qua null để response gọn hơn
-        options.JsonSerializerOptions.DefaultIgnoreCondition =
-            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -62,11 +60,11 @@ builder.Services.AddSwaggerGen(c =>
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
+
+//app.UseCors("AllowAll");
 
 //MySQL Configuration with EF Core
 //var connectionString = builder.Configuration.GetConnectionString("MySQL")
@@ -123,8 +121,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors("AllowAll");
+app.UseRouting();
+app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

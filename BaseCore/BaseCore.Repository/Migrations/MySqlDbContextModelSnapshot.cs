@@ -336,7 +336,7 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(2996),
+                            CreatedAt = new DateTime(2026, 4, 28, 8, 48, 14, 568, DateTimeKind.Utc).AddTicks(2676),
                             Description = "High-performance laptop",
                             ImageUrl = "",
                             IsActive = true,
@@ -350,7 +350,7 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 2,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3018),
+                            CreatedAt = new DateTime(2026, 4, 28, 8, 48, 14, 568, DateTimeKind.Utc).AddTicks(2709),
                             Description = "Latest Apple smartphone",
                             ImageUrl = "",
                             IsActive = true,
@@ -364,7 +364,7 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 3,
                             CategoryId = 2,
-                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3019),
+                            CreatedAt = new DateTime(2026, 4, 28, 8, 48, 14, 568, DateTimeKind.Utc).AddTicks(2710),
                             Description = "Comfortable cotton t-shirt",
                             ImageUrl = "",
                             IsActive = true,
@@ -378,7 +378,7 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 4,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3020),
+                            CreatedAt = new DateTime(2026, 4, 28, 8, 48, 14, 568, DateTimeKind.Utc).AddTicks(2711),
                             Description = "Learn programming basics",
                             ImageUrl = "",
                             IsActive = true,
@@ -392,7 +392,7 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 5,
                             CategoryId = 4,
-                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3020),
+                            CreatedAt = new DateTime(2026, 4, 28, 8, 48, 14, 568, DateTimeKind.Utc).AddTicks(2711),
                             Description = "Complete gardening toolkit",
                             ImageUrl = "",
                             IsActive = true,
@@ -521,6 +521,7 @@ namespace BaseCore.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Salt")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("UserName")
@@ -537,90 +538,6 @@ namespace BaseCore.Repository.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("BaseCore.Entities.UserAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Detail")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("District")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("DistrictCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<string>("MapAddress")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Province")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ProvinceCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("ReceiverName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Ward")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("WardCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("BaseCore.Entities.Voucher", b =>
@@ -818,17 +735,6 @@ namespace BaseCore.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BaseCore.Entities.UserAddress", b =>
-                {
-                    b.HasOne("BaseCore.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("User");
                 });
