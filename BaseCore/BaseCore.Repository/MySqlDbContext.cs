@@ -25,7 +25,6 @@ namespace BaseCore.Repository
         public DbSet<FeaturedProduct> FeaturedProducts { get; set; }
         public DbSet<SiteSetting> SiteSettings { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
-        public DbSet<UserAddress> UserAddresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -173,13 +172,6 @@ namespace BaseCore.Repository
             modelBuilder.Entity<Voucher>()
                 .HasIndex(v => v.Code)
                 .IsUnique();
-
-            // Configure UserAddress entity
-            modelBuilder.Entity<UserAddress>()
-                .HasOne(a => a.User)
-                .WithMany()
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed initial data
             SeedData(modelBuilder);

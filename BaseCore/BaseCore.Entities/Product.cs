@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;   // Thêm dòng này
 
 namespace BaseCore.Entities
 {
@@ -24,20 +24,23 @@ namespace BaseCore.Entities
 
         public bool IsActive { get; set; } = true;
 
-        /// <summary>Optimistic Concurrency — SQL Server tự cập nhật, EF tự kiểm tra khi UPDATE</summary>
         [Timestamp]
         public byte[] RowVersion { get; set; }
 
         [BsonIgnore]
         public Category Category { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        // 👇 Thêm [NotMapped] cho các thuộc tính không có trong DB
+        [NotMapped]
         public decimal? DiscountPrice { get; set; }
 
+        [NotMapped]
         public bool IsNew { get; set; } = false;
 
+        [NotMapped]
         public int SortOrder { get; set; } = 0;
 
+        [NotMapped]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

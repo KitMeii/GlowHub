@@ -70,13 +70,15 @@ namespace BaseCore.APIService.Controllers
                 return BadRequest(new { message = "Category not found" });
 
             var product = new Product
+
             {
                 Name = dto.Name,
                 Price = dto.Price,
                 Stock = dto.Stock,
                 CategoryId = dto.CategoryId,
                 Description = dto.Description,
-                ImageUrl = dto.ImageUrl ?? ""
+                ImageUrl = dto.ImageUrl ?? "",
+                IsActive = dto.IsActive
             };
 
             await _productRepository.AddAsync(product);
@@ -90,10 +92,11 @@ namespace BaseCore.APIService.Controllers
         [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] ProductUpdateDto dto)
         {
+
             var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
                 return NotFound(new { message = "Product not found" });
-
+            if (dto.IsActive.HasValue) product.IsActive = dto.IsActive.Value;
             product.Name = dto.Name ?? product.Name;
             product.Price = dto.Price ?? product.Price;
             product.Stock = dto.Stock ?? product.Stock;
@@ -129,26 +132,75 @@ namespace BaseCore.APIService.Controllers
             var products = await _productRepository.GetByCategoryAsync(categoryId);
             return Ok(products);
         }
-    }
+        [HttpPost("upload-image")]
+        [Authorize]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest(new { message = "Chưa chọn file" });
 
-    // DTOs
-    public class ProductCreateDto
-    {
-        public string Name { get; set; } = "";
-        public decimal Price { get; set; }
-        public int Stock { get; set; }
-        public int CategoryId { get; set; }
-        public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
-    }
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(ext))
+                    return BadRequest(new { message = "Chỉ chấp nhận file ảnh (jpg, png, gif, webp)" });
 
-    public class ProductUpdateDto
-    {
-        public string? Name { get; set; }
-        public decimal? Price { get; set; }
-        public int? Stock { get; set; }
-        public int? CategoryId { get; set; }
-        public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
+                // Đảm bảo thư mục tồn tại
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var url = $"{Request.Scheme}://{Request.Host}/images/products/{fileName}";
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                // Log ra console backend
+                Console.WriteLine($"[UPLOAD ERROR] {ex.Message}");
+                return StatusCode(500, new { message = "Lỗi upload ảnh: " + ex.Message });
+            }
+        }
+        [HttpGet("images")]
+        [Authorize]
+        public IActionResult GetImages()
+        {
+            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+            if (!Directory.Exists(uploadPath)) return Ok(new List<string>());
+            var files = Directory.GetFiles(uploadPath)
+                .Select(f => $"{Request.Scheme}://{Request.Host}/images/products/{Path.GetFileName(f)}")
+                .ToList();
+            return Ok(files);
+        }
+        // DTOs
+        public class ProductCreateDto
+        {
+            public string Name { get; set; } = "";
+            public decimal Price { get; set; }
+            public int Stock { get; set; }
+            public int CategoryId { get; set; }
+            public string? Description { get; set; }
+            public string? ImageUrl { get; set; }
+            public bool IsActive { get; set; }
+        }
+
+        public class ProductUpdateDto
+        {
+            public string? Name { get; set; }
+            public decimal? Price { get; set; }
+            public int? Stock { get; set; }
+            public int? CategoryId { get; set; }
+            public string? Description { get; set; }
+            public string? ImageUrl { get; set; }
+
+            public bool? IsActive { get; set; }
+        }
     }
 }

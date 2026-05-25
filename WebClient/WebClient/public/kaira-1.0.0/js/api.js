@@ -1,6 +1,3 @@
-// @ts-nocheck
-// @ts-ignore
-/* eslint-disable */
 /**
  * ============================================================
  *  GlowHub — api.js  (v2.0 — full rewrite)
@@ -21,8 +18,8 @@
 //  CONFIG
 // ============================================================
 const API_BASE = "http://localhost:5002"; // ← AuthService port (từ ảnh debug)
-const PRODUCT_API = "http://localhost:5001"; // APIService
-const ORDER_API = "http://localhost:5001"; // APIService
+const PRODUCT_API = "http://localhost:5001"; // APIService — Products, Orders, Cart
+const ORDER_API = "http://localhost:5001"; // APIService — Products, Orders, Cart
 
 // ============================================================
 //  HTTP HELPER
@@ -141,29 +138,7 @@ const Auth = {
 // ============================================================
 const Product = {
   async getAll(params = {}) {
-    // Chỉ gửi params mà backend hiểu
-    var allowed = [
-      "isActive",
-      "isNew",
-      "categoryId",
-      "cat",
-      "limit",
-      "page",
-      "search",
-      "section",
-      "sort",
-    ];
-    var clean = {};
-    Object.keys(params).forEach(function (k) {
-      if (
-        allowed.indexOf(k) > -1 &&
-        params[k] !== undefined &&
-        params[k] !== null &&
-        params[k] !== ""
-      )
-        clean[k] = params[k];
-    });
-    const qs = new URLSearchParams(clean).toString();
+    const qs = new URLSearchParams(params).toString();
     const path = "/api/products" + (qs ? "?" + qs : "");
     return apiFetch(PRODUCT_API, path, "GET");
   },
@@ -190,7 +165,7 @@ const Product = {
 // ============================================================
 const Order = {
   async getAll() {
-    return apiFetch(ORDER_API, "/api/orders/all", "GET"); // Admin only
+    return apiFetch(ORDER_API, "/api/orders", "GET");
   },
 
   async getById(id) {
@@ -198,12 +173,11 @@ const Order = {
   },
 
   async getMyOrders() {
-    return apiFetch(ORDER_API, "/api/orders", "GET"); // [HttpGet] = GET /api/orders
+    return apiFetch(ORDER_API, "/api/orders/my", "GET");
   },
 
-  // Checkout — backend lấy cart từ DB, tính giá server-side
   async create(data) {
-    return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data);
+    return apiFetch(ORDER_API, "/api/orders", "POST", data);
   },
 
   async updateStatus(id, status) {
@@ -315,33 +289,31 @@ const Cart = {
         listEl.innerHTML =
           '<li class="list-group-item text-center text-muted py-5">Giỏ hàng trống</li>';
       } else {
-        var ph = "https://placehold.co/52x52/f5f0ea/888?text=IMG";
         listEl.innerHTML = items
-          .map(function (item) {
-            var qty = item.qty || 1;
-            var img = item.image || ph;
-            var decQty = qty - 1;
-            var incQty = qty + 1;
-            return `<li class="list-group-item px-0 py-2">
+          .map(
+            (item) => `
+          <li class="list-group-item px-0 py-2">
             <div class="d-flex gap-3 align-items-start">
-              <img src="${img}" style="width:52px;height:52px;object-fit:cover;border-radius:4px"
-                   onerror="this.src='${ph}'"/>
+              <img src="${item.image || "https://via.placeholder.com/52x52/f5f0ea/aaa?text=IMG"}"
+                   style="width:52px;height:52px;object-fit:cover;border-radius:4px;"
+                   onerror="this.src='https://via.placeholder.com/52x52/f5f0ea/aaa?text=IMG'" />
               <div class="flex-grow-1 min-width-0">
-                <div style="font-size:13px;font-weight:500;line-height:1.3">${item.name || ""}</div>
+                <div style="font-size:13px;font-weight:500;line-height:1.3" class="text-truncate">${item.name}</div>
                 <div style="font-size:12px;color:#f759ab;margin-top:2px">${_fmtMoney(item.price)}</div>
                 <div class="d-flex align-items-center gap-2 mt-1">
-                  <button onclick="Cart.setQty(${item.id},${decQty})"
-                    style="width:22px;height:22px;border:1px solid #ddd;background:none;cursor:pointer;border-radius:3px">−</button>
-                  <span style="font-size:13px;min-width:20px;text-align:center">${qty}</span>
-                  <button onclick="Cart.setQty(${item.id},${incQty})"
-                    style="width:22px;height:22px;border:1px solid #ddd;background:none;cursor:pointer;border-radius:3px">+</button>
+                  <button onclick="Cart.setQty(${item.id}, ${(item.qty || 1) - 1})"
+                    style="width:22px;height:22px;border:1px solid #ddd;background:none;cursor:pointer;border-radius:3px;line-height:1">−</button>
+                  <span style="font-size:13px;min-width:20px;text-align:center">${item.qty || 1}</span>
+                  <button onclick="Cart.setQty(${item.id}, ${(item.qty || 1) + 1})"
+                    style="width:22px;height:22px;border:1px solid #ddd;background:none;cursor:pointer;border-radius:3px;line-height:1">+</button>
                   <button onclick="Cart.remove(${item.id})"
-                    style="margin-left:auto;background:none;border:none;color:#999;cursor:pointer;font-size:16px">×</button>
+                    style="margin-left:auto;background:none;border:none;color:#999;cursor:pointer;font-size:16px;line-height:1">✕</button>
                 </div>
               </div>
             </div>
-          </li>`;
-          })
+          </li>
+        `,
+          )
           .join("");
       }
     }
@@ -382,8 +354,7 @@ function _fmtMoney(n) {
 // ============================================================
 //  TOAST HELPER  (toàn cục, hoạt động trên mọi trang)
 // ============================================================
-function showGlobalToast(msg, type) {
-  if (type === undefined) type = "success";
+function showGlobalToast(msg, type = "success") {
   let container = document.getElementById("_globalToastContainer");
   if (!container) {
     container = document.createElement("div");
@@ -393,12 +364,18 @@ function showGlobalToast(msg, type) {
     document.body.appendChild(container);
   }
   const t = document.createElement("div");
-  t.style.cssText =
-    "padding:12px 20px;background:" +
-    (type === "success" ? "#111" : "#dc2626") +
-    ";color:#fff;border-radius:4px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);border-left:3px solid " +
-    (type === "success" ? "#f759ab" : "#ff6b6b") +
-    ";transform:translateX(120%);transition:transform 0.3s ease";
+  t.style.cssText = `
+    padding: 12px 20px;
+    background: ${type === "success" ? "#111" : "#dc2626"};
+    color: #fff;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border-left: 3px solid ${type === "success" ? "#f759ab" : "#ff6b6b"};
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+  `;
   t.textContent = (type === "success" ? "✓  " : "✕  ") + msg;
   container.appendChild(t);
   requestAnimationFrame(() => {
@@ -413,120 +390,59 @@ function showGlobalToast(msg, type) {
 // ============================================================
 //  NAVBAR — render user area (index.html)
 // ============================================================
-
-// ============================================================
-//  CART DB — Sync localStorage → DB (khớp CartController.cs)
-// ============================================================
-var CartDB = {
-  getAll: function () {
-    return apiFetch(PRODUCT_API, "/api/Cart", "GET");
-  },
-  addItem: function (pid, qty) {
-    return apiFetch(PRODUCT_API, "/api/Cart/add", "POST", {
-      ProductId: pid,
-      Quantity: qty,
-    });
-  },
-  removeItem: function (cid) {
-    return apiFetch(PRODUCT_API, "/api/Cart/" + cid, "DELETE");
-  },
-  clear: function () {
-    return apiFetch(PRODUCT_API, "/api/Cart/clear", "DELETE");
-  },
-  syncToDB: async function () {
-    if (typeof Auth === "undefined" || !Auth.isLoggedIn()) return;
-    var items = Cart.getItems();
-    if (!items || !items.length) return;
-    try {
-      await CartDB.clear();
-    } catch (e) {}
-    for (var i = 0; i < items.length; i++) {
-      var it = items[i];
-      var pid = parseInt(it.id || it.Id) || 0;
-      var qty = it.qty || it.Qty || 1;
-      if (pid > 0)
-        try {
-          await CartDB.addItem(pid, qty);
-        } catch (e) {
-          console.warn("[CartDB]", pid, e.message);
-        }
-    }
-    console.log("[GlowHub] Cart synced:", items.length, "items");
-  },
-};
-
 function renderNavUser() {
-  var user = Auth.getCurrentUser();
-  var areas = ["nav-user-area", "nav-user-mobile"];
-
-  areas.forEach(function (areaId) {
-    var el = document.getElementById(areaId);
+  const user = Auth.getCurrentUser();
+  const areas = ["nav-user-area", "nav-user-mobile"];
+  areas.forEach((id) => {
+    const el = document.getElementById(id);
     if (!el) return;
-
     if (user) {
-      var name =
+      const name =
         user.name || user.Name || user.userName || user.UserName || "Tài khoản";
-      var initial = name.charAt(0).toUpperCase();
-      var adminLi = Auth.isAdmin()
-        ? '<a href="admin.html">⚙️ Quản Trị</a>'
-        : "";
-
       el.innerHTML = `
-        <button class="gh-user-btn" id="userBtn_${areaId}" onclick="toggleUserMenu(this)" type="button">
-          <span class="gh-user-avatar">${initial}</span>
-          <span class="gh-user-name">${name}</span>
-          <div class="gh-dropdown">
-            <a href="checkout.html?tab=profile">👤 Hồ Sơ</a>
-            <a href="checkout.html?tab=orders">📦 Đơn Hàng</a>
-            ${adminLi}
-            <hr/>
-            <a href="#" class="logout" onclick="event.preventDefault();Auth.logout()">🚪 Đăng Xuất</a>
-          </div>
-        </button>`;
+        <div class="dropdown">
+          <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-1"
+             data-bs-toggle="dropdown" style="font-size:13px">
+            <span style="width:28px;height:28px;background:#f759ab;border-radius:50%;
+                         display:inline-flex;align-items:center;justify-content:center;
+                         color:#fff;font-size:11px;font-weight:600">
+              ${name.charAt(0).toUpperCase()}
+            </span>
+            ${name}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width:180px">
+            <li><a class="dropdown-item" href="checkout.html">👤 Hồ sơ / Đơn hàng</a></li>
+            ${Auth.isAdmin() ? '<li><a class="dropdown-item" href="admin.html">⚙️ Quản trị</a></li>' : ""}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" onclick="Auth.logout();return false"
+                   style="color:#dc2626">🚪 Đăng xuất</a></li>
+          </ul>
+        </div>
+      `;
     } else {
       el.innerHTML = `
-        <div style="display:flex;align-items:center;gap:16px">
-          <a href="login.html" class="gh-nav-link">Đăng Nhập</a>
-          <a href="register.html"
-             style="padding:7px 16px;background:var(--dark);color:#fff;
-                    font-size:10px;letter-spacing:2px;text-transform:uppercase;
-                    text-decoration:none;font-family:var(--font-body);
-                    transition:background .2s"
-             onmouseover="this.style.background='#f759ab'"
-             onmouseout="this.style.background='#111'">Đăng Ký</a>
-        </div>`;
+        <div class="d-flex gap-2 align-items-center">
+          <a href="login.html" class="nav-link" style="font-size:13px">Đăng nhập</a>
+          <a href="register.html" class="btn btn-sm"
+             style="background:#111;color:#fff;border-radius:0;font-size:12px;
+                    letter-spacing:1px;padding:7px 14px;text-transform:uppercase">Đăng ký</a>
+        </div>
+      `;
     }
   });
-
-  // Đóng dropdown khi click ra ngoài
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest(".gh-user-btn")) {
-      document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
-        b.classList.remove("open");
-      });
-    }
-  });
-}
-
-function toggleUserMenu(btn) {
-  var isOpen = btn.classList.contains("open");
-  // Đóng tất cả dropdowns khác
-  document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
-    b.classList.remove("open");
-  });
-  if (!isOpen) btn.classList.add("open");
 }
 
 // ============================================================
 //  INDEX PAGE — render sản phẩm từ API vào grid
 // ============================================================
 async function renderProductsOnIndex() {
-  var grid = document.getElementById("new-products-grid");
+  const grid = document.getElementById("new-products-grid");
   if (!grid) return;
 
-  var products = [];
+  let products = [];
   try {
-    var result = await Product.getAll({ isActive: true });
+    const result = await Product.getAll({ isActive: true });
+    // API có thể trả array thẳng hoặc { data: [...] } hoặc { items: [...] }
     products = Array.isArray(result)
       ? result
       : result.data
@@ -537,54 +453,45 @@ async function renderProductsOnIndex() {
             ? result.products
             : [];
   } catch (_) {
+    // API chưa sẵn sàng → giữ nguyên HTML tĩnh hiện tại
     _attachStaticCartButtons();
     return;
   }
 
-  if (!products || !products.length) {
+  if (!products || products.length === 0) {
     _attachStaticCartButtons();
     return;
   }
-
-  var PH =
-    "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80";
 
   grid.innerHTML = products
-    .map(function (p) {
-      var id = p.Id || p.id;
-      var name = p.Name || p.name || "Sản phẩm";
-      var price = p.Price || p.price || 0;
-      var img = p.ImageUrl || p.imageUrl || p.Image || p.image || PH;
-      var isNew = p.IsNew || p.isNew;
-      var sale = p.SalePercent || p.salePercent || p.discount || 0;
-      var sn = name.replace(/'/g, "&#39;");
+    .map((p) => {
+      const id = p.Id || p.id;
+      const name = p.Name || p.name || "Sản phẩm";
+      const price = p.Price || p.price || 0;
+      const img = p.Image || p.image || "";
+      const cat = p.Category || p.category || "";
+      const isNew = p.IsNew || p.isNew;
+      const sale = p.SalePercent || p.salePercent || p.discount;
 
-      var badgeHtml = isNew
-        ? '<span class="badge-new">Mới</span>'
-        : sale
-          ? `<span class="badge-sale">-${sale}%</span>`
-          : "";
-
-      return `<div class="col-6 col-md-3">
-      <div class="product-card bg-white" data-product-id="${id}"
-           onclick="location.href='product.html?id=${id}'">
-        ${badgeHtml}
-        <a href="product.html?id=${id}">
-          <img src="${img}" alt="${sn}" loading="lazy"
-               onerror="this.src='${PH}'"/>
-        </a>
-        <div class="p-3">
-          <a href="product.html?id=${id}" class="product-title d-block mb-1">${name}</a>
-          <div class="stars" style="font-size:12px">★★★★★</div>
-          <span class="product-price">${_fmtMoney(price)}</span>
+      return `
+      <div class="col-6 col-md-3">
+        <div class="product-card bg-white" data-product-id="${id}">
+          ${isNew ? '<span class="badge-new">Mới</span>' : ""}
+          ${sale ? `<span class="badge-sale">-${sale}%</span>` : ""}
+          <img src="${img}" alt="${name}"
+               onerror="this.src='https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80'" />
+          <div class="p-3">
+            <a href="#" class="product-title d-block mb-1">${name}</a>
+            <div class="stars" style="font-size:12px">★★★★★</div>
+            <span class="product-price">${_fmtMoney(price)}</span>
+          </div>
+          <button class="btn-add-cart"
+            onclick="Cart.add(${JSON.stringify(p).replace(/"/g, "'")});showGlobalToast('Đã thêm vào giỏ hàng')">
+            Thêm Vào Giỏ
+          </button>
         </div>
-        <button class="btn-add-cart"
-          data-id="${id}" data-name="${sn}" data-price="${price}" data-img="${img}"
-          onclick="event.stopPropagation();addToCartFromCard(this)">
-          Thêm Vào Giỏ
-        </button>
       </div>
-    </div>`;
+    `;
     })
     .join("");
 }
@@ -599,26 +506,90 @@ function _attachStaticCartButtons() {
       const card =
         this.closest(".product-card") || this.closest(".swiper-slide");
       const name =
-        (card && card.querySelector(".product-title")
-          ? card.querySelector(".product-title").textContent.trim()
-          : "") || "Sản phẩm";
+        card?.querySelector(".product-title")?.textContent?.trim() ||
+        "Sản phẩm";
       const priceText =
-        card && card.querySelector(".product-price")
-          ? card.querySelector(".product-price").textContent
-          : "0";
+        card?.querySelector(".product-price")?.textContent || "0";
       const price = parseInt(priceText.replace(/[^0-9]/g, "")) || 0;
-      const img =
-        card && card.querySelector("img") ? card.querySelector("img").src : "";
-      const id =
-        (card && card.dataset && card.dataset.productId
-          ? card.dataset.productId
-          : null) || Date.now();
+      const img = card?.querySelector("img")?.src || "";
+      const id = card?.dataset.productId || Date.now();
 
       Cart.add({ id, name, price, image: img });
       showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
     });
   });
 }
+
+// ============================================================
+//  BANNER MODULE
+// ============================================================
+const Banner = {
+  async getAll() {
+    return apiFetch(PRODUCT_API, "/api/Banners", "GET");
+  },
+  async create(data) {
+    return apiFetch(PRODUCT_API, "/api/Banners", "POST", data);
+  },
+  async update(id, data) {
+    return apiFetch(PRODUCT_API, "/api/Banners/" + id, "PUT", data);
+  },
+  async delete(id) {
+    return apiFetch(PRODUCT_API, "/api/Banners/" + id, "DELETE");
+  },
+};
+
+// ============================================================
+//  SITE SETTINGS MODULE
+// ============================================================
+const SiteSettings = {
+  async getAll(group) {
+    const qs = group ? "?group=" + group : "";
+    return apiFetch(PRODUCT_API, "/api/SiteSettings" + qs, "GET");
+  },
+  async update(key, value) {
+    return apiFetch(PRODUCT_API, "/api/SiteSettings/" + key, "PUT", { value });
+  },
+  async bulkUpdate(updates) {
+    return apiFetch(PRODUCT_API, "/api/SiteSettings/bulk", "PUT", updates);
+  },
+};
+
+// ============================================================
+//  FEATURED PRODUCTS MODULE
+// ============================================================
+const Featured = {
+  async getBySection(section) {
+    return apiFetch(
+      PRODUCT_API,
+      "/api/FeaturedProducts?section=" + section,
+      "GET",
+    );
+  },
+  async add(productId, section) {
+    return apiFetch(PRODUCT_API, "/api/FeaturedProducts", "POST", {
+      productId,
+      section,
+    });
+  },
+  async remove(id) {
+    return apiFetch(PRODUCT_API, "/api/FeaturedProducts/" + id, "DELETE");
+  },
+};
+
+// ============================================================
+//  VOUCHER MODULE
+// ============================================================
+const Voucher = {
+  async validate(code, orderAmount) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/validate", "POST", {
+      code,
+      orderAmount,
+    });
+  },
+  async getAll() {
+    return apiFetch(PRODUCT_API, "/api/Vouchers", "GET");
+  },
+};
 
 // ============================================================
 //  ADMIN GUARD
@@ -765,145 +736,3 @@ document.addEventListener("DOMContentLoaded", function () {
     _attachStaticCartButtons();
   }
 });
-
-// ============================================================
-//  BANNER MODULE
-// ============================================================
-var Banner = {
-  getAll: function () {
-    return apiFetch(PRODUCT_API, "/api/Banners", "GET");
-  },
-  create: function (d) {
-    return apiFetch(PRODUCT_API, "/api/Banners", "POST", d);
-  },
-  update: function (id, d) {
-    return apiFetch(PRODUCT_API, "/api/Banners/" + id, "PUT", d);
-  },
-  delete: function (id) {
-    return apiFetch(PRODUCT_API, "/api/Banners/" + id, "DELETE");
-  },
-};
-
-// ============================================================
-//  SITE SETTINGS MODULE
-// ============================================================
-var SiteSettings = {
-  getAll: function (group) {
-    var qs = group ? "?group=" + group : "";
-    return apiFetch(PRODUCT_API, "/api/SiteSettings" + qs, "GET");
-  },
-  update: function (key, value) {
-    return apiFetch(PRODUCT_API, "/api/SiteSettings/" + key, "PUT", {
-      value: value,
-    });
-  },
-  bulkUpdate: function (updates) {
-    return apiFetch(PRODUCT_API, "/api/SiteSettings/bulk", "PUT", updates);
-  },
-};
-
-// ============================================================
-//  FEATURED PRODUCTS MODULE
-// ============================================================
-var Featured = {
-  getBySection: function (section) {
-    return apiFetch(
-      PRODUCT_API,
-      "/api/FeaturedProducts?section=" + section,
-      "GET",
-    );
-  },
-  add: function (productId, section) {
-    return apiFetch(PRODUCT_API, "/api/FeaturedProducts", "POST", {
-      productId: productId,
-      section: section,
-    });
-  },
-  remove: function (id) {
-    return apiFetch(PRODUCT_API, "/api/FeaturedProducts/" + id, "DELETE");
-  },
-};
-
-// ============================================================
-//  ADDRESS MODULE — kết nối /api/UserAddresses
-// ============================================================
-var Address = {
-  // Lấy tất cả địa chỉ của user
-  getAll: function () {
-    return apiFetch(PRODUCT_API, "/api/UserAddresses", "GET");
-  },
-  // Thêm địa chỉ mới
-  create: function (data) {
-    return apiFetch(PRODUCT_API, "/api/UserAddresses", "POST", data);
-  },
-  // Cập nhật địa chỉ
-  update: function (id, data) {
-    return apiFetch(PRODUCT_API, "/api/UserAddresses/" + id, "PUT", data);
-  },
-  // Đặt làm mặc định
-  setDefault: function (id) {
-    return apiFetch(
-      PRODUCT_API,
-      "/api/UserAddresses/" + id + "/set-default",
-      "PUT",
-    );
-  },
-  // Xóa địa chỉ
-  delete: function (id) {
-    return apiFetch(PRODUCT_API, "/api/UserAddresses/" + id, "DELETE");
-  },
-};
-
-// ============================================================
-//  VOUCHER MODULE
-// ============================================================
-var Voucher = {
-  validate: function (code, orderAmount) {
-    return apiFetch(PRODUCT_API, "/api/Vouchers/validate", "POST", {
-      code: code,
-      orderAmount: orderAmount,
-    });
-  },
-  getAll: function () {
-    return apiFetch(PRODUCT_API, "/api/Vouchers", "GET");
-  },
-};
-
-// ============================================================
-//  CATEGORY MODULE — SQL Server (Id, Name, Description)
-// ============================================================
-const Category = {
-  async getAll() {
-    return apiFetch(PRODUCT_API, "/api/categories", "GET");
-  },
-  async getById(id) {
-    return apiFetch(PRODUCT_API, "/api/categories/" + id, "GET");
-  },
-};
-
-// ============================================================
-//  REVIEW MODULE (thêm vào Product)
-// ============================================================
-// Gắn thêm vào Product object
-if (typeof Product !== "undefined") {
-  Product.getReviews = function (productId) {
-    return apiFetch(
-      PRODUCT_API,
-      "/api/products/" + productId + "/reviews",
-      "GET",
-    );
-  };
-  Product.addReview = function (productId, data) {
-    // DTO chỉ nhận Rating và Comment (UserId lấy từ JWT token phía backend)
-    var payload = {
-      Rating: data.Rating || data.rating || 5,
-      Comment: data.Comment || data.comment || "",
-    };
-    return apiFetch(
-      PRODUCT_API,
-      "/api/products/" + productId + "/reviews",
-      "POST",
-      payload,
-    );
-  };
-}
