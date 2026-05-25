@@ -58,12 +58,35 @@ namespace BaseCore.APIService.Controllers
         /// <summary>Tất cả đơn hàng — chỉ Admin</summary>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] string? status = null)
+        public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _orderRepository.GetAllWithDetailsAsync(status);
+            var orders = await _db.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .Select(o => new
+                {
+                    Id = o.Id,
+                    UserId = o.UserId,
+                    UserName = o.User.Name,
+                    OrderDate = o.OrderDate,
+                    UpdatedAt = o.UpdatedAt,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    ShippingAddress = o.ShippingAddress,
+                    Note = o.Note,
+                    OrderDetails = o.OrderDetails.Select(od => new
+                    {
+                        od.Id,
+                        od.ProductId,
+                        ProductName = od.Product.Name,
+                        od.Quantity,
+                        od.UnitPrice
+                    })
+                })
+                .ToListAsync();
             return Ok(orders);
         }
-
         /// <summary>
         /// ★ CHECKOUT — Sacred Checkout với Transaction ACID
         /// Toàn bộ: kiểm kho → trừ kho (RowVersion) → tạo đơn → xóa giỏ
