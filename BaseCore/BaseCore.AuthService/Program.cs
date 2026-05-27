@@ -95,7 +95,7 @@ builder.Services.AddAuthentication(x =>
 
 var app = builder.Build();
 
-// Seed data
+// Seed data — initialize database if not exists
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MySqlDbContext>();

@@ -41,15 +41,24 @@ namespace BaseCore.Services.Authen
             // verify password using hash or plain text
             bool isValidPassword = false;
 
-            if (user.Salt != null && user.Salt.Length > 0)
+            // BCrypt hashes bắt đầu bằng "$2a$" / "$2b$" / "$2y$" — phát hiện
+            // các pass cũ admin đã reset bằng BCrypt để login vẫn hoạt động.
+            bool looksLikeBCrypt = !string.IsNullOrEmpty(user.Password)
+                && user.Password.StartsWith("$2");
+
+            if (looksLikeBCrypt)
             {
-                // Hashed password
+                try { isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.Password); }
+                catch { isValidPassword = false; }
+            }
+            else if (user.Salt != null && user.Salt.Length > 0)
+            {
+                // Hashed password (PBKDF2 + Salt) — chuẩn của hệ thống
                 isValidPassword = TokenHelper.IsValidPassword(password, user.Salt, user.Password);
             }
             else
             {
-                // Nếu không có Salt, chúng ta vẫn băm MD5 mật khẩu nhập vào để so sánh với DB
-                // Bạn cần một hàm băm MD5 đơn giản ở đây
+                // Legacy MD5
                 string hashedInput = MD5Helper.GenerateMD5(password);
                 isValidPassword = (user.Password == hashedInput);
             }

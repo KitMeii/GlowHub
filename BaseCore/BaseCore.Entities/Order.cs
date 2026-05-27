@@ -26,6 +26,18 @@ namespace BaseCore.Entities
 
         public string Note { get; set; }
 
+        // Snapshot thông tin người nhận tại thời điểm đặt — tách rời User để
+        // sau này User đổi tên/sđt thì đơn cũ vẫn giữ data lúc đặt.
+        public string? CustomerName  { get; set; }
+        public string? CustomerEmail { get; set; }
+        public string? CustomerPhone { get; set; }
+
+        // Phương thức vận chuyển + thanh toán + voucher áp dụng.
+        public decimal ShippingFee    { get; set; }
+        public string  PaymentMethod  { get; set; } = "COD";   // "COD" | "BANK" | "MOMO" | "VNPAY" | "CARD"
+        public string? VoucherCode    { get; set; }
+        public decimal DiscountAmount { get; set; }
+
         [BsonIgnore]
         public User User { get; set; }
 

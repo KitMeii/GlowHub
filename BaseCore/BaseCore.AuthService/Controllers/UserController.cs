@@ -1,3 +1,4 @@
+using BaseCore.Common;
 using BaseCore.Entities;
 using BaseCore.Repository;
 using BaseCore.Services.Authen;
@@ -63,6 +64,106 @@ namespace BaseCore.AuthService.Controllers
                 pageSize,
                 totalPages = (int)Math.Ceiling((double)totalCount / pageSize)
             });
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // Self-service endpoints — /api/users/me
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>Lấy profile của user đang login.</summary>
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var user = await _userService.GetById(userId);
+            if (user == null) return NotFound(new { message = "Không tìm thấy tài khoản" });
+
+            return Ok(new UserResponse
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
+                Position = user.Position,
+                IsActive = user.IsActive,
+                UserType = user.UserType,
+                Created = user.Created
+            });
+        }
+
+        /// <summary>User cập nhật profile (Name/Email/Phone). Không cho đổi UserType/IsActive/Password ở đây.</summary>
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateMe([FromBody] SelfUpdateDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound(new { message = "Không tìm thấy tài khoản" });
+
+            if (!string.IsNullOrWhiteSpace(dto.Name)) user.Name = dto.Name.Trim();
+            if (!string.IsNullOrWhiteSpace(dto.Email)) user.Email = dto.Email.Trim();
+            if (!string.IsNullOrWhiteSpace(dto.Phone)) user.Phone = dto.Phone.Trim();
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new UserResponse
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
+                Position = user.Position,
+                IsActive = user.IsActive,
+                UserType = user.UserType,
+                Created = user.Created
+            });
+        }
+
+        /// <summary>User đổi mật khẩu của chính mình. Verify OldPassword trước khi set NewPassword.</summary>
+        [HttpPost("me/change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(dto.OldPassword) || string.IsNullOrWhiteSpace(dto.NewPassword))
+                return BadRequest(new { message = "Vui lòng nhập đầy đủ mật khẩu cũ và mới." });
+            if (dto.NewPassword.Length < 6)
+                return BadRequest(new { message = "Mật khẩu mới phải có ít nhất 6 ký tự." });
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound(new { message = "Không tìm thấy tài khoản" });
+
+            // Verify old password: cho phép cả PBKDF2-Salt và BCrypt (legacy admin reset)
+            bool isOldValid;
+            if (!string.IsNullOrEmpty(user.Password) && user.Password.StartsWith("$2"))
+            {
+                try { isOldValid = BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.Password); }
+                catch { isOldValid = false; }
+            }
+            else if (user.Salt != null && user.Salt.Length > 0)
+            {
+                isOldValid = BaseCore.Common.TokenHelper.IsValidPassword(dto.OldPassword, user.Salt, user.Password);
+            }
+            else
+            {
+                var md5 = BaseCore.Common.MD5Helper.GenerateMD5(dto.OldPassword);
+                isOldValid = (user.Password == md5);
+            }
+
+            if (!isOldValid)
+                return BadRequest(new { message = "Mật khẩu cũ không đúng." });
+
+            user.Password = BaseCore.Common.TokenHelper.HashPassword(dto.NewPassword, out byte[] newSalt);
+            user.Salt = newSalt;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Đổi mật khẩu thành công." });
         }
 
         // GET: api/users/{id}
@@ -147,13 +248,12 @@ namespace BaseCore.AuthService.Controllers
             if (dto.UserType.HasValue) user.UserType = dto.UserType.Value;
             if (dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;
 
-            // Xử lý đổi mật khẩu (nếu có)
+            // Xử lý đổi mật khẩu (nếu có) — phải dùng cùng thuật toán PBKDF2 + Salt
+            // như lúc đăng ký (TokenHelper.HashPassword), nếu không Authenticate sẽ fail.
             if (!string.IsNullOrEmpty(dto.Password))
             {
-                // Dùng BCrypt để mã hóa (đã cài package BCrypt.Net-Next)
-                user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-                // Nếu bạn dùng Salt riêng, cần tạo salt mới và gán vào user.Salt
-                // user.Salt = GenerateSalt(); user.Password = HashPassword(dto.Password, user.Salt);
+                user.Password = TokenHelper.HashPassword(dto.Password, out byte[] newSalt);
+                user.Salt = newSalt;
             }
 
             await _context.SaveChangesAsync();
@@ -251,6 +351,19 @@ namespace BaseCore.AuthService.Controllers
             public int? UserType { get; set; }
             public bool? IsActive { get; set; }
             public string? Password { get; set; }
+        }
+
+        public class SelfUpdateDto
+        {
+            public string? Name { get; set; }
+            public string? Email { get; set; }
+            public string? Phone { get; set; }
+        }
+
+        public class ChangePasswordDto
+        {
+            public string OldPassword { get; set; } = "";
+            public string NewPassword { get; set; } = "";
         }
     }
 }

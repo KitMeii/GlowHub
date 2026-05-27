@@ -25,6 +25,7 @@ namespace BaseCore.Repository
         public DbSet<FeaturedProduct> FeaturedProducts { get; set; }
         public DbSet<SiteSetting> SiteSettings { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<OrderStatusLog> OrderStatusLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,6 +84,14 @@ namespace BaseCore.Repository
                 entity.Property(e => e.ShippingAddress).HasMaxLength(500);
                 entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
                 entity.Property(e => e.Note).HasMaxLength(500);
+
+                entity.Property(e => e.CustomerName).HasMaxLength(200);
+                entity.Property(e => e.CustomerEmail).HasMaxLength(200);
+                entity.Property(e => e.CustomerPhone).HasMaxLength(50);
+                entity.Property(e => e.ShippingFee).HasPrecision(18, 2);
+                entity.Property(e => e.PaymentMethod).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.VoucherCode).HasMaxLength(50);
+                entity.Property(e => e.DiscountAmount).HasPrecision(18, 2);
 
                 entity.HasOne(e => e.User)
                     .WithMany()
@@ -172,6 +181,14 @@ namespace BaseCore.Repository
             modelBuilder.Entity<Voucher>()
                 .HasIndex(v => v.Code)
                 .IsUnique();
+
+            // OrderStatusLog — index OrderId để query nhanh
+            modelBuilder.Entity<OrderStatusLog>(e =>
+            {
+                e.ToTable("OrderStatusLogs");
+                e.HasKey(x => x.Id);
+                e.HasIndex(x => x.OrderId);
+            });
 
             // Seed initial data
             SeedData(modelBuilder);
