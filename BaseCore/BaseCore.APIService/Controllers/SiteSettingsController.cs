@@ -80,35 +80,68 @@ namespace BaseCore.APIService.Controllers
 
         /// <summary>
         /// PUT /api/SiteSettings/bulk — Cập nhật nhiều settings cùng lúc (admin only)
-        /// Body: { "topbar_text": "...", "hero_title": "..." }
+        /// Body: mảng SettingItemDto [{ key, value, type?, group?, label? }, ...]
+        /// Tự động UPSERT: setting chưa có trong DB sẽ được tạo mới.
         /// </summary>
         [HttpPut("bulk")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> BulkUpdate([FromBody] Dictionary<string, string> updates)
+        public async Task<IActionResult> BulkUpdate([FromBody] List<SettingItemDto> updates)
         {
+            if (updates == null || updates.Count == 0)
+                return BadRequest(new { message = "Danh sách cấu hình trống." });
+
             var updatedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var now = DateTime.UtcNow;
             var updated = new List<string>();
+            var created = new List<string>();
 
-            foreach (var kv in updates)
+            foreach (var item in updates)
             {
-                var setting = await _db.SiteSettings.FindAsync(kv.Key);
+                if (string.IsNullOrWhiteSpace(item.Key)) continue;
+
+                var setting = await _db.SiteSettings.FindAsync(item.Key);
                 if (setting != null)
                 {
-                    setting.Value = kv.Value;
+                    setting.Value = item.Value;
+                    if (!string.IsNullOrEmpty(item.Type))  setting.Type  = item.Type;
+                    if (!string.IsNullOrEmpty(item.Group)) setting.Group = item.Group;
+                    if (!string.IsNullOrEmpty(item.Label)) setting.Label = item.Label;
                     setting.UpdatedAt = now;
                     setting.UpdatedBy = updatedBy;
-                    updated.Add(kv.Key);
+                    updated.Add(item.Key);
+                }
+                else
+                {
+                    _db.SiteSettings.Add(new SiteSetting
+                    {
+                        Key       = item.Key,
+                        Value     = item.Value,
+                        Type      = item.Type  ?? "text",
+                        Group     = item.Group ?? "other",
+                        Label     = item.Label ?? item.Key,
+                        UpdatedAt = now,
+                        UpdatedBy = updatedBy
+                    });
+                    created.Add(item.Key);
                 }
             }
 
             await _db.SaveChangesAsync();
-            return Ok(new { updated = updated.Count, keys = updated });
+            return Ok(new { updated = updated.Count, created = created.Count, updatedKeys = updated, createdKeys = created });
         }
     }
 
     public class SettingUpdateDto
     {
         public string? Value { get; set; }
+    }
+
+    public class SettingItemDto
+    {
+        public string Key { get; set; } = "";
+        public string? Value { get; set; }
+        public string? Type { get; set; }
+        public string? Group { get; set; }
+        public string? Label { get; set; }
     }
 }
