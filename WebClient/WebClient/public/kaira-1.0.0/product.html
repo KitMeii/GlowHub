@@ -1393,24 +1393,28 @@
       }
 
       // ── ADD TO CART ──
-      function addToCartMain() {
+      async function addToCartMain() {
         if (!currentProduct) return;
         const qty = parseInt(document.getElementById("qtyInput").value) || 1;
         const p = currentProduct;
-        Cart.add(
-          {
-            Id: p.Id || p.id,
-            id: p.Id || p.id,
-            Name: p.Name || p.name,
-            name: p.Name || p.name,
-            Price: p.Price || p.price,
-            price: p.Price || p.price,
-            Image: p.ImageUrl || p.imageUrl || p.Image || p.image,
-            image: p.ImageUrl || p.imageUrl || p.Image || p.image,
-          },
-          qty,
-        );
-        showGlobalToast(`✓ Đã thêm ${qty}x "${p.Name || p.name}" vào giỏ hàng`);
+        try {
+          await Cart.add(
+            {
+              Id: p.Id || p.id,
+              id: p.Id || p.id,
+              Name: p.Name || p.name,
+              name: p.Name || p.name,
+              Price: p.Price || p.price,
+              price: p.Price || p.price,
+              Image: p.ImageUrl || p.imageUrl || p.Image || p.image,
+              image: p.ImageUrl || p.imageUrl || p.Image || p.image,
+            },
+            qty,
+          );
+          showGlobalToast(`✓ Đã thêm ${qty}x "${p.Name || p.name}" vào giỏ hàng`);
+        } catch (err) {
+          // Cart.add đã hiển thị toast lỗi từ server — không double toast ở đây
+        }
       }
 
       // ── RELATED PRODUCTS ──
@@ -1467,26 +1471,22 @@
       // ── REVIEWS ──
       async function loadReviews(productId) {
         try {
-          const result = await apiFetch(
-            PRODUCT_API,
-            `/api/products/${productId}/reviews`,
-            "GET",
-          );
+          const result = await Review.getByProduct(productId);
           const reviews = Array.isArray(result) ? result : result?.items || [];
+          const totalCount = result?.totalCount ?? reviews.length;
+          const avgRating = result?.avgRating
+            ?? (reviews.length > 0
+                ? +(reviews.reduce((s, r) => s + (r.Rating || r.rating || 5), 0) / reviews.length).toFixed(1)
+                : 0);
 
-          document.getElementById("reviewTabCount").textContent =
-            reviews.length;
-          document.getElementById("totalReviews").textContent =
-            reviews.length + " đánh giá";
+          document.getElementById("reviewTabCount").textContent = totalCount;
+          document.getElementById("totalReviews").textContent = totalCount + " đánh giá";
 
           if (reviews.length > 0) {
-            const avg = (
-              reviews.reduce((s, r) => s + (r.Rating || r.rating || 5), 0) /
-              reviews.length
-            ).toFixed(1);
-            document.getElementById("avgRating").textContent = avg;
+            document.getElementById("avgRating").textContent = avgRating;
+            const rounded = Math.round(avgRating);
             document.getElementById("avgStars").textContent =
-              "★".repeat(Math.round(avg)) + "☆".repeat(5 - Math.round(avg));
+              "★".repeat(rounded) + "☆".repeat(5 - rounded);
           }
 
           document.getElementById("reviewList").innerHTML = reviews.length
@@ -1562,15 +1562,13 @@
         }
 
         try {
-          await apiFetch(PRODUCT_API, `/api/products/${id}/reviews`, "POST", {
-            rating,
-            comment,
-          });
+          await Review.submit(id, { Rating: rating, Comment: comment });
           showGlobalToast("Cảm ơn bạn đã đánh giá!");
           document.getElementById("reviewComment").value = "";
           await loadReviews(id);
         } catch (e) {
-          showGlobalToast("Lỗi: " + e.message, "error");
+          // Backend trả 403 nếu chưa mua / nhận sản phẩm
+          showGlobalToast(e.message || "Lỗi gửi đánh giá", "error");
         }
       }
 

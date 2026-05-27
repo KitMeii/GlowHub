@@ -1055,7 +1055,7 @@
                 `,
                 ).join("")}
               </div>
-              <a href="checkout.html" class="btn-checkout" onclick="saveCartToSession()">
+              <a href="checkout.html" class="btn-checkout" onclick="return goCheckout(event)">
                 Tiến Hành Thanh Toán →
               </a>
               <div class="secure-note">🔒 Thanh toán an toàn & bảo mật</div>
@@ -1130,11 +1130,16 @@
         let discountAmt = 0;
 
         if (appliedCoupon) {
-          if (appliedCoupon.type === "percent")
+          // Voucher.validate trả về discountAmount chính xác (đã cap MaxDiscount)
+          if (typeof appliedCoupon.discountAmount === "number") {
+            discountAmt = appliedCoupon.discountAmount;
+          } else if (appliedCoupon.type === "percent") {
             discountAmt = Math.round((subtotal * appliedCoupon.value) / 100);
-          else if (appliedCoupon.type === "fixed")
+          } else if (appliedCoupon.type === "fixed") {
             discountAmt = appliedCoupon.value;
-          else if (appliedCoupon.type === "ship") discountAmt = shipFee; // ship discount handled separately
+          } else if (appliedCoupon.type === "ship") {
+            discountAmt = shipFee;
+          }
         }
 
         const total = Math.max(
@@ -1257,7 +1262,7 @@
         toast("Đã xóa toàn bộ giỏ hàng", "error");
       }
 
-      function applyCoupon() {
+      async function applyCoupon() {
         const input = document.getElementById("coupon-input");
         const msg = document.getElementById("coupon-msg");
         if (!input || !msg) return;
@@ -1266,22 +1271,51 @@
         if (!code) {
           msg.textContent = "Vui lòng nhập mã giảm giá";
           msg.className = "coupon-msg error";
+          appliedCoupon = null;
+          renderSummaryOnly();
           return;
         }
 
-        if (COUPONS[code]) {
-          appliedCoupon = { ...COUPONS[code], code };
-          msg.textContent = "✓ " + COUPONS[code].label + " đã được áp dụng!";
-          msg.className = "coupon-msg ok";
-          input.disabled = true;
-          toast("Áp dụng mã " + code + " thành công!");
-          renderSummaryOnly();
-        } else {
-          appliedCoupon = null;
-          msg.textContent = "✕ Mã giảm giá không hợp lệ hoặc đã hết hạn";
+        if (!Auth.isLoggedIn()) {
+          msg.textContent = "Vui lòng đăng nhập để dùng mã giảm giá";
           msg.className = "coupon-msg error";
-          toast("Mã giảm giá không hợp lệ", "error");
+          toast("Vui lòng đăng nhập", "error");
+          return;
         }
+
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const subtotal = items.reduce(
+          (s, i) => s + (i.price || 0) * (i.qty || 1),
+          0,
+        );
+
+        try {
+          const res = await Voucher.validate(code, subtotal);
+          if (res && res.valid) {
+            appliedCoupon = {
+              code,
+              type: res.discountType, // "percent" | "fixed"
+              value: res.discountValue,
+              discountAmount: res.discountAmount,
+              label: res.message || "Đã áp dụng mã " + code,
+            };
+            msg.textContent = "✓ " + (res.message || ("Đã áp dụng " + code));
+            msg.className = "coupon-msg ok";
+            input.disabled = true;
+            toast("Áp dụng mã " + code + " thành công!");
+          } else {
+            appliedCoupon = null;
+            msg.textContent = "✕ " + (res?.message || "Mã giảm giá không hợp lệ");
+            msg.className = "coupon-msg error";
+            toast(res?.message || "Mã giảm giá không hợp lệ", "error");
+          }
+        } catch (err) {
+          appliedCoupon = null;
+          msg.textContent = "✕ " + err.message;
+          msg.className = "coupon-msg error";
+          toast(err.message, "error");
+        }
+        renderSummaryOnly();
       }
 
       function selectShipping(id) {
@@ -1317,7 +1351,7 @@
       }
 
       function saveCartToSession() {
-        // Pass selected shipping to checkout page
+        // Pass selected shipping + voucher code to checkout page
         const items =
           typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const subtotal = items.reduce(
@@ -1332,7 +1366,29 @@
             subtotal,
           }),
         );
+        // checkout.html đọc voucher từ key này
+        if (appliedCoupon && appliedCoupon.code) {
+          sessionStorage.setItem(
+            "glowhub_voucher",
+            JSON.stringify({ code: appliedCoupon.code }),
+          );
+        } else {
+          sessionStorage.removeItem("glowhub_voucher");
+        }
       }
+
+      /** Click nút "Tiến hành thanh toán" — chặn login nếu cần */
+      function goCheckout(ev) {
+        saveCartToSession();
+        if (!Auth.isLoggedIn()) {
+          if (ev) ev.preventDefault();
+          window.location.href = "login.html?redirect=checkout.html";
+          return false;
+        }
+        // Để link href="checkout.html" xử lý tiếp
+        return true;
+      }
+      window.goCheckout = goCheckout;
 
       function quickAdd(p) {
         const prod =
