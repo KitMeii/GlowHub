@@ -31,6 +31,7 @@ namespace BaseCore.Repository
         public DbSet<QnA> QnAs { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -96,14 +97,35 @@ namespace BaseCore.Repository
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
                 entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+                entity.Property(e => e.ShippingFee).HasPrecision(18, 2);
+                entity.Property(e => e.Discount).HasPrecision(18, 2);
+                entity.Property(e => e.FinalAmount).HasPrecision(18, 2);
                 entity.Property(e => e.ShippingAddress).HasMaxLength(500);
                 entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
                 entity.Property(e => e.Note).HasMaxLength(500);
+                entity.Property(e => e.OrderCode).HasMaxLength(20);
+                entity.Property(e => e.ReceiverName).HasMaxLength(100);
+                entity.Property(e => e.ReceiverPhone).HasMaxLength(20);
 
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure OrderStatusHistory entity
+            modelBuilder.Entity<OrderStatusHistory>(entity =>
+            {
+                entity.ToTable("OrderStatusHistories");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.Note).HasMaxLength(500);
+                entity.Property(e => e.ChangedBy).HasMaxLength(450);
+
+                entity.HasOne(e => e.Order)
+                      .WithMany(o => o.StatusHistory)
+                      .HasForeignKey(e => e.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure OrderDetail entity

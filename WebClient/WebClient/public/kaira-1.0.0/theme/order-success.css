@@ -1,0 +1,310 @@
+/* ═══════════════════════════════════════════════════════
+   GlowHub — order-success.css
+   Trang xác nhận đặt hàng thành công
+   Màu sắc qua tokens.css / var(--pink) etc.
+   ════════════════════════════════════════════════════════ */
+
+body {
+  background: #fffdf9;
+  font-family: "Jost", sans-serif;
+  color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+footer { margin-top: auto; }
+
+h1, h2, h3, h4 {
+  font-family: "Marcellus", serif;
+  font-weight: 400;
+}
+
+.brand-name {
+  font-family: "Marcellus", serif;
+  letter-spacing: 4px;
+  color: var(--dark);
+  text-decoration: none;
+}
+
+.nav-link {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dark) !important;
+  font-weight: 500;
+}
+
+.nav-link:hover { color: var(--pink) !important; }
+
+/* ── SUCCESS WRAP ── */
+.success-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.success-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  padding: 48px 40px 40px;
+  box-shadow: var(--shadow);
+  animation: cardIn 0.5s var(--ease-exp, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SUCCESS ICON ── */
+.success-icon-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 28px;
+}
+
+.success-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.25);
+  animation: ringPulse 2s ease-in-out infinite;
+}
+
+.success-ring-2 {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.15);
+  animation: ringPulse 2s ease-in-out 0.4s infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.08); opacity: 0.6; }
+}
+
+.success-icon {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: iconPop 0.4s 0.2s var(--ease-exp, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+@keyframes iconPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.success-icon i {
+  font-size: 2rem;
+  color: #22c55e;
+}
+
+/* ── HEADLINE ── */
+.success-headline {
+  font-family: "Marcellus", serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  letter-spacing: 2px;
+  margin: 0 0 10px;
+  color: var(--dark);
+}
+
+.success-sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* ── ORDER CODE BOX ── */
+.order-code-box {
+  background: var(--cream, #f8f5f0);
+  border: 1px dashed var(--border);
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.oc-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+
+.oc-value {
+  font-family: "Marcellus", serif;
+  font-size: 1.4rem;
+  letter-spacing: 3px;
+  color: var(--dark);
+}
+
+.oc-copy {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: "Jost", sans-serif;
+  color: var(--gray);
+  transition: 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.oc-copy:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+/* ── ORDER META (payment, shipping) ── */
+.order-meta {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.om-item {
+  text-align: center;
+}
+
+.om-icon {
+  font-size: 1.2rem;
+  color: var(--pink);
+  margin-bottom: 4px;
+}
+
+.om-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+  margin-bottom: 2px;
+}
+
+.om-value {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── DIVIDER ── */
+.success-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 28px;
+}
+
+/* ── CTA BUTTONS ── */
+.cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-cta-primary {
+  width: 100%;
+  padding: 16px;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.btn-cta-primary:hover { background: var(--pink); color: #fff; }
+
+.btn-cta-secondary {
+  width: 100%;
+  padding: 14px;
+  background: #fff;
+  color: var(--dark);
+  border: 1px solid var(--border);
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-cta-secondary:hover { border-color: var(--dark); background: #f9f9f9; color: var(--dark); }
+
+/* ── PROGRESS NOTE ── */
+.progress-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--gray-light, #aaa);
+  text-align: center;
+}
+
+.progress-note i { color: var(--pink); margin-right: 4px; }
+
+/* ── CONFETTI (CSS-only pseudo) ── */
+.confetti-bar {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--pink) 0%,
+    #a78bfa 25%,
+    #34d399 50%,
+    #fbbf24 75%,
+    var(--pink) 100%
+  );
+  background-size: 200% 100%;
+  animation: confettiScroll 2s linear infinite;
+}
+
+@keyframes confettiScroll {
+  0%   { background-position: 0 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--dark);
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+footer a:hover { color: var(--pink); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 576px) {
+  .success-card { padding: 32px 20px 28px; }
+  .order-code-box { flex-direction: column; align-items: flex-start; }
+  .oc-copy { align-self: stretch; text-align: center; }
+  .order-meta { gap: 16px; }
+}

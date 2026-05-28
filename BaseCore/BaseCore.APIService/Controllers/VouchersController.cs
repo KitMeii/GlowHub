@@ -19,15 +19,16 @@ namespace BaseCore.APIService.Controllers
 
         /// <summary>
         /// POST /api/Vouchers/validate — Kiểm tra mã giảm giá (user)
-        /// Body: { "code": "GLOW10", "orderAmount": 500000 }
+        /// Body: { "code": "GLOW10", "orderAmount": 500000, "shopId": "..." }
         /// Response: { valid, discountAmount, message }
         /// </summary>
         [HttpPost("validate")]
         [Authorize]
         public async Task<IActionResult> Validate([FromBody] ValidateVoucherDto dto)
         {
-            var voucher = await _db.Vouchers
-                .FirstOrDefaultAsync(v => v.Code == dto.Code.ToUpper() && v.IsActive);
+            var voucher = await _db.Vouchers.FirstOrDefaultAsync(v =>
+                v.Code == dto.Code.ToUpper() && v.IsActive &&
+                (v.ShopId == null || v.ShopId == dto.ShopId));
 
             if (voucher == null)
                 return Ok(new { valid = false, message = "Mã giảm giá không tồn tại hoặc đã hết hạn" });
@@ -67,6 +68,40 @@ namespace BaseCore.APIService.Controllers
                 discountValue = voucher.DiscountValue,
                 message = $"Áp dụng thành công! Giảm {discount:N0}₫"
             });
+        }
+
+        /// <summary>
+        /// GET /api/Vouchers/available?shopId=&amp;orderAmount= — lấy voucher áp dụng được cho đơn hàng
+        /// </summary>
+        [HttpGet("available")]
+        [Authorize]
+        public async Task<IActionResult> GetAvailable(
+            [FromQuery] string? shopId = null,
+            [FromQuery] decimal orderAmount = 0)
+        {
+            var now = DateTime.UtcNow;
+            var vouchers = await _db.Vouchers
+                .Where(v => v.IsActive &&
+                    (v.ShopId == null || v.ShopId == shopId) &&
+                    (!v.ExpiryDate.HasValue || v.ExpiryDate >= now) &&
+                    (!v.StartDate.HasValue  || v.StartDate  <= now) &&
+                    (!v.UsageLimit.HasValue || v.UsedCount < v.UsageLimit) &&
+                    v.MinOrderAmount <= orderAmount)
+                .OrderByDescending(v => v.DiscountValue)
+                .Select(v => new {
+                    v.Id,
+                    v.Code,
+                    v.Description,
+                    v.DiscountType,
+                    v.DiscountValue,
+                    v.MaxDiscount,
+                    v.MinOrderAmount,
+                    v.ExpiryDate,
+                    v.ShopId
+                })
+                .ToListAsync();
+
+            return Ok(vouchers);
         }
 
         // ── Admin endpoints ──
@@ -129,5 +164,6 @@ namespace BaseCore.APIService.Controllers
     {
         public string Code { get; set; } = "";
         public decimal OrderAmount { get; set; }
+        public string? ShopId { get; set; }
     }
 }

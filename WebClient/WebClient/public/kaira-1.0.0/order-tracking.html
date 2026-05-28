@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theo Dõi Đơn Hàng — GlowHub</title>
+    <meta name="robots" content="noindex" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/order-tracking.css" />
+  </head>
+  <body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
+      <div class="container">
+        <a class="navbar-brand brand-name fs-3" href="index.html">GLOWHUB</a>
+        <div class="d-flex align-items-center gap-3 d-lg-none">
+          <a href="cart.html" class="position-relative nav-link">
+            <i class="bi bi-bag" style="font-size:22px"></i>
+          </a>
+          <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="offcanvas" data-bs-target="#offcanvasNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNav">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4">
+              <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+              <li class="nav-item"><a class="nav-link" href="shop.html">Cửa Hàng</a></li>
+              <li class="nav-item"><a class="nav-link" href="checkout.html">Đơn Hàng</a></li>
+              <li class="nav-item"><a class="nav-link" href="policy.html#lien-he">Liên Hệ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="d-none d-lg-flex align-items-center gap-4">
+          <div id="nav-user-area"></div>
+          <a href="cart.html" class="nav-link position-relative">
+            <i class="bi bi-bag" style="font-size:20px"></i>
+            <span id="cart-count"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size:10px">0</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE HERO -->
+    <div class="page-hero">
+      <div class="container">
+        <h1>Theo Dõi Đơn Hàng</h1>
+        <p>Nhập mã đơn hàng để xem trạng thái và lịch sử giao hàng</p>
+      </div>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="track-search">
+      <div class="track-search-inner">
+        <input type="text" id="search-input" placeholder="Nhập mã đơn hàng (VD: 123 hoặc ORD-000001)"
+               maxlength="20" />
+        <button id="search-btn" onclick="doSearch()">
+          <i class="bi bi-search me-1"></i> Tra Cứu
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="tracking-wrap">
+
+      <!-- Loading skeleton -->
+      <div id="loading-state" style="display:none">
+        <div style="background:#fff;border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div class="sk-line skeleton sk-short mb-2"></div>
+          <div class="sk-line skeleton sk-med"></div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div class="sk-line skeleton sk-full mb-3"></div>
+          <div class="sk-line skeleton sk-full mb-3"></div>
+          <div class="sk-line skeleton sk-med"></div>
+        </div>
+      </div>
+
+      <!-- Empty / error state -->
+      <div id="empty-state" class="empty-state" style="display:none">
+        <i class="bi bi-truck"></i>
+        <h3 id="empty-title">Nhập mã đơn hàng để tra cứu</h3>
+        <p id="empty-msg">Mã đơn hàng có dạng: 123 (ID) hoặc ORD-000001</p>
+        <a href="checkout.html" class="btn-back mt-3" style="display:inline-flex">
+          <i class="bi bi-receipt"></i> Xem Đơn Hàng Của Tôi
+        </a>
+      </div>
+
+      <!-- Tracking result -->
+      <div id="tracking-result" style="display:none">
+
+        <!-- Back link -->
+        <div class="mb-3">
+          <a href="checkout.html" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Đơn Hàng Của Tôi
+          </a>
+        </div>
+
+        <!-- Order Info Card -->
+        <div class="order-info-card">
+          <div class="order-info-hd">
+            <div>
+              <div class="order-code" id="res-code"></div>
+              <div class="order-date" id="res-date"></div>
+            </div>
+            <span class="status-badge" id="res-badge"></span>
+          </div>
+          <div id="cancel-alert" class="cancel-alert" style="display:none">
+            <i class="bi bi-x-circle-fill mt-1"></i>
+            <div>
+              <strong>Đơn hàng đã bị hủy</strong>
+              <div id="cancel-reason" style="margin-top:2px"></div>
+            </div>
+          </div>
+          <div class="order-info-body">
+            <div class="info-row">
+              <span class="info-label">Người nhận</span>
+              <span class="info-value" id="res-receiver">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số điện thoại</span>
+              <span class="info-value" id="res-phone">—</span>
+            </div>
+            <div class="info-row" style="grid-column: 1 / -1">
+              <span class="info-label">Địa chỉ giao hàng</span>
+              <span class="info-value" id="res-address">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phương thức thanh toán</span>
+              <span class="info-value" id="res-payment">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Tổng thanh toán</span>
+              <span class="info-value" id="res-total" style="color:var(--pink);font-weight:700">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking code bar (shown only if trackingCode exists) -->
+        <div class="tracking-code-bar" id="tracking-code-bar" style="display:none">
+          <div>
+            <div class="tc-label">Mã vận đơn</div>
+            <div class="tc-value" id="res-tracking-code">—</div>
+          </div>
+          <div class="tc-estimated" id="estimated-wrap" style="display:none">
+            <div class="tc-label">Dự kiến nhận hàng</div>
+            <div class="tc-value" id="res-estimated" style="font-size:13px;letter-spacing:1px">—</div>
+          </div>
+        </div>
+
+        <!-- Action buttons (conditional) -->
+        <div class="action-bar" id="action-bar" style="display:none">
+          <button class="btn-action btn-confirm-received" id="btn-received" style="display:none"
+                  onclick="confirmReceived()">
+            <i class="bi bi-check2-circle"></i> Đã Nhận Hàng
+          </button>
+          <button class="btn-action btn-cancel-order" id="btn-cancel" style="display:none"
+                  onclick="openCancelModal()">
+            <i class="bi bi-x-circle"></i> Hủy Đơn Hàng
+          </button>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-section">
+          <h3>Lịch trình đơn hàng</h3>
+          <div class="vtimeline" id="vtimeline">
+            <div class="vtl-track"><div class="vtl-progress" id="vtl-progress" style="height:0"></div></div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="items-section" id="items-section" style="display:none">
+          <div class="items-section-hd">Sản phẩm đặt mua</div>
+          <div id="items-list"></div>
+        </div>
+
+      </div>
+      <!-- /tracking-result -->
+
+    </div>
+    <!-- /tracking-wrap -->
+
+    <!-- CANCEL MODAL -->
+    <div class="modal-overlay" id="cancel-modal">
+      <div class="modal-box">
+        <div class="modal-hd">
+          <h4>Hủy đơn hàng</h4>
+          <button class="modal-close" onclick="closeCancelModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label for="cancel-reason-input">Lý do hủy đơn *</label>
+          <textarea id="cancel-reason-input" placeholder="Vui lòng nhập lý do hủy đơn hàng..."></textarea>
+        </div>
+        <div class="modal-ft">
+          <button class="btn-modal-cancel" onclick="closeCancelModal()">Không, giữ đơn</button>
+          <button class="btn-modal-confirm" id="btn-confirm-cancel" onclick="submitCancel()">
+            Xác nhận hủy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="gh-toast" id="toast"></div>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>&copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> · <a href="policy.html#lien-he">Liên hệ</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    // ─────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────
+    const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+    const fmtDate = iso => iso ? new Date(iso).toLocaleDateString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric" }) : "—";
+    const fmtDateTime = iso => iso ? new Date(iso).toLocaleString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }) : null;
+
+    const PAYMENT_LABEL = { 0: "Tiền mặt (COD)", 1: "Chuyển khoản", 2: "MoMo", 3: "ZaloPay" };
+
+    const STATUS_META = {
+      PENDING:   { label: "Chờ Xác Nhận", cls: "badge-pending"   },
+      CONFIRMED: { label: "Đã Xác Nhận",  cls: "badge-confirmed" },
+      SHIPPING:  { label: "Đang Giao",    cls: "badge-shipping"  },
+      DELIVERED: { label: "Đã Giao",      cls: "badge-delivered" },
+      COMPLETED: { label: "Hoàn Thành",   cls: "badge-completed" },
+      CANCELLED: { label: "Đã Hủy",       cls: "badge-cancelled" },
+    };
+
+    function showToast(msg, type = "") {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "gh-toast show" + (type ? " " + type : "");
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => (t.className = "gh-toast"), 3000);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // State
+    // ─────────────────────────────────────────────────────────
+    let currentOrderId = null;
+    let currentStatus  = null;
+
+    // ─────────────────────────────────────────────────────────
+    // Init
+    // ─────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Nav cart count
+      try {
+        const cart = CartDB ? CartDB.getAll() : [];
+        const cnt = cart.reduce((s, i) => s + (i.quantity || 1), 0);
+        const el = document.getElementById("cart-count");
+        if (el) el.textContent = cnt;
+      } catch (_) {}
+
+      // Nav user area
+      try {
+        const user = await Auth.getProfile().catch(() => null);
+        const area = document.getElementById("nav-user-area");
+        if (area && user) {
+          area.innerHTML = `<a href="profile.html" class="nav-link">${user.fullName || user.email}</a>`;
+        }
+      } catch (_) {}
+
+      // Auto-load from URL params
+      const params = new URLSearchParams(location.search);
+      const orderId = params.get("orderId");
+      if (orderId) {
+        document.getElementById("search-input").value = orderId;
+        loadTracking(parseInt(orderId, 10));
+      } else {
+        showEmpty("Nhập mã đơn hàng để tra cứu", "Mã đơn hàng có dạng: 123 (ID) hoặc ORD-000001");
+      }
+
+      // Enter key on search input
+      document.getElementById("search-input").addEventListener("keydown", e => {
+        if (e.key === "Enter") doSearch();
+      });
+    });
+
+    // ─────────────────────────────────────────────────────────
+    // Search
+    // ─────────────────────────────────────────────────────────
+    function doSearch() {
+      const raw = document.getElementById("search-input").value.trim();
+      if (!raw) return;
+
+      // Accept "ORD-000012" → 12, or plain "12"
+      let id = parseInt(raw.replace(/^ORD-0*/i, ""), 10);
+      if (isNaN(id) || id <= 0) {
+        showToast("Mã đơn hàng không hợp lệ", "error");
+        return;
+      }
+
+      // Update URL without reload
+      const url = new URL(location.href);
+      url.searchParams.set("orderId", id);
+      history.replaceState(null, "", url);
+
+      loadTracking(id);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Load tracking data
+    // ─────────────────────────────────────────────────────────
+    async function loadTracking(orderId) {
+      showLoading();
+
+      try {
+        const data = await Order.getTracking(orderId);
+        currentOrderId = data.orderId;
+        currentStatus  = data.currentStatus;
+        renderTracking(data);
+      } catch (err) {
+        const msg = err?.message || "Không tìm thấy đơn hàng";
+        if (msg.includes("401") || msg.toLowerCase().includes("unauthorized")) {
+          showEmpty("Bạn chưa đăng nhập", "Vui lòng đăng nhập để theo dõi đơn hàng");
+        } else {
+          showEmpty("Không tìm thấy đơn hàng", "Kiểm tra lại mã đơn hàng hoặc đăng nhập để tra cứu");
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Render
+    // ─────────────────────────────────────────────────────────
+    function renderTracking(data) {
+      hide("loading-state");
+      hide("empty-state");
+      show("tracking-result");
+
+      const meta = STATUS_META[data.currentStatus] || { label: data.currentStatus, cls: "" };
+
+      // Header
+      document.getElementById("res-code").textContent = data.orderCode;
+      document.getElementById("res-date").textContent = "Đặt lúc " + (fmtDateTime(data.timeline?.[0]?.timestamp) || "—");
+
+      const badge = document.getElementById("res-badge");
+      badge.textContent = meta.label;
+      badge.className = "status-badge " + meta.cls;
+
+      // Cancel alert
+      if (data.isCancelled) {
+        show("cancel-alert");
+        document.getElementById("cancel-reason").textContent = data.cancelReason || "";
+      } else {
+        hide("cancel-alert");
+      }
+
+      // Need full order detail for receiver/address/payment — use getDetail fallback
+      // For now, show what tracking provides, then enhance with detail call
+      document.getElementById("res-receiver").textContent = "—";
+      document.getElementById("res-phone").textContent = "—";
+      document.getElementById("res-address").textContent = "—";
+      document.getElementById("res-payment").textContent = "—";
+      document.getElementById("res-total").textContent = "—";
+
+      // Fetch full detail for extra fields
+      Order.getDetail(data.orderId).then(detail => {
+        document.getElementById("res-receiver").textContent = detail.receiverName || "—";
+        document.getElementById("res-phone").textContent    = detail.receiverPhone || "—";
+        document.getElementById("res-address").textContent  = detail.shippingAddress || "—";
+        document.getElementById("res-payment").textContent  = PAYMENT_LABEL[detail.paymentMethod] || "COD";
+        document.getElementById("res-total").textContent    = fmt(detail.finalAmount || detail.totalAmount || 0);
+      }).catch(() => {});
+
+      // Tracking code
+      if (data.trackingCode) {
+        show("tracking-code-bar");
+        document.getElementById("res-tracking-code").textContent = data.trackingCode;
+        if (data.estimatedDelivery) {
+          show("estimated-wrap");
+          document.getElementById("res-estimated").textContent = fmtDate(data.estimatedDelivery);
+        }
+      } else {
+        hide("tracking-code-bar");
+      }
+
+      // Action buttons
+      const actionBar = document.getElementById("action-bar");
+      const btnReceived = document.getElementById("btn-received");
+      const btnCancel   = document.getElementById("btn-cancel");
+
+      btnReceived.style.display = "none";
+      btnCancel.style.display   = "none";
+
+      if (data.currentStatus === "SHIPPING") {
+        btnReceived.style.display = "";
+        actionBar.style.display = "";
+      } else if (data.currentStatus === "PENDING") {
+        btnCancel.style.display = "";
+        actionBar.style.display = "";
+      } else {
+        actionBar.style.display = "none";
+      }
+
+      // Timeline
+      renderTimeline(data.timeline, data.isCancelled, data.cancelReason);
+
+      // Items
+      if (data.items && data.items.length > 0) {
+        show("items-section");
+        renderItems(data.items);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Timeline
+    // ─────────────────────────────────────────────────────────
+    function renderTimeline(steps, isCancelled, cancelReason) {
+      const container = document.getElementById("vtimeline");
+      // Keep the track element, clear step nodes
+      container.querySelectorAll(".vtl-step, .cancelled-timeline").forEach(el => el.remove());
+
+      if (!steps || steps.length === 0) return;
+
+      // Calculate progress bar height
+      const completedCount = steps.filter(s => s.isCompleted).length;
+      const pct = steps.length > 1 ? ((completedCount - 1) / (steps.length - 1)) * 100 : 0;
+      const progress = document.getElementById("vtl-progress");
+      if (progress) {
+        requestAnimationFrame(() => progress.style.height = Math.max(0, pct) + "%");
+      }
+
+      steps.forEach(step => {
+        let cls = "vtl-step";
+        let dotIcon = "";
+
+        if (step.isCurrent && !isCancelled) {
+          cls += " current";
+          dotIcon = '<i class="bi bi-arrow-right-circle-fill"></i>';
+        } else if (step.isCompleted) {
+          cls += " done";
+          dotIcon = '<i class="bi bi-check-lg"></i>';
+        } else {
+          cls += " pending-step";
+          dotIcon = step.step;
+        }
+
+        const timeStr = step.timestamp ? fmtDateTime(step.timestamp) : null;
+
+        container.insertAdjacentHTML("beforeend", `
+          <div class="${cls}">
+            <div class="vtl-dot-wrap">
+              <div class="vtl-dot">${dotIcon}</div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-label">${step.label}</div>
+              <div class="vtl-desc">${step.description}</div>
+              ${timeStr ? `<div class="vtl-time"><i class="bi bi-clock me-1"></i>${timeStr}</div>` : ""}
+            </div>
+          </div>
+        `);
+      });
+
+      // Add cancelled node at bottom
+      if (isCancelled) {
+        container.insertAdjacentHTML("beforeend", `
+          <div class="cancelled-timeline">
+            <div class="cancelled-dot">
+              <i class="bi bi-x-circle-fill" style="font-size:20px;color:#dc2626"></i>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-label" style="color:#dc2626">Đơn hàng đã bị hủy</div>
+              ${cancelReason ? `<div class="vtl-note">Lý do: ${cancelReason}</div>` : ""}
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Items
+    // ─────────────────────────────────────────────────────────
+    function renderItems(items) {
+      const list = document.getElementById("items-list");
+      list.innerHTML = items.map(item => `
+        <div class="order-item-row">
+          <img class="oi-img" src="${item.imageUrl || 'https://via.placeholder.com/52x62'}"
+               alt="${item.productName}" loading="lazy"
+               onerror="this.src='https://via.placeholder.com/52x62'" />
+          <div class="oi-info">
+            <div class="oi-name">${item.productName}</div>
+            <div class="oi-qty">x${item.qty}</div>
+          </div>
+          <div class="oi-price">${fmt(item.unitPrice * item.qty)}</div>
+        </div>
+      `).join("");
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Confirm Received
+    // ─────────────────────────────────────────────────────────
+    async function confirmReceived() {
+      if (!currentOrderId) return;
+      const btn = document.getElementById("btn-received");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
+
+      try {
+        const res = await Order.confirmReceived(currentOrderId);
+        showToast(res.message || "Xác nhận thành công!", "success");
+        setTimeout(() => loadTracking(currentOrderId), 800);
+      } catch (err) {
+        showToast(err?.message || "Có lỗi xảy ra", "error");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng';
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Cancel
+    // ─────────────────────────────────────────────────────────
+    function openCancelModal() {
+      document.getElementById("cancel-reason-input").value = "";
+      document.getElementById("cancel-modal").classList.add("show");
+    }
+
+    function closeCancelModal() {
+      document.getElementById("cancel-modal").classList.remove("show");
+    }
+
+    document.getElementById("cancel-modal").addEventListener("click", e => {
+      if (e.target === document.getElementById("cancel-modal")) closeCancelModal();
+    });
+
+    async function submitCancel() {
+      const reason = document.getElementById("cancel-reason-input").value.trim();
+      if (!reason) {
+        showToast("Vui lòng nhập lý do hủy đơn", "error");
+        document.getElementById("cancel-reason-input").focus();
+        return;
+      }
+
+      const btn = document.getElementById("btn-confirm-cancel");
+      btn.disabled = true;
+      btn.textContent = "Đang xử lý...";
+
+      try {
+        const res = await Order.cancel(currentOrderId, reason);
+        closeCancelModal();
+        showToast(res.message || "Đã hủy đơn hàng thành công", "success");
+        setTimeout(() => loadTracking(currentOrderId), 800);
+      } catch (err) {
+        showToast(err?.message || "Có lỗi xảy ra", "error");
+        btn.disabled = false;
+        btn.textContent = "Xác nhận hủy";
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // UI helpers
+    // ─────────────────────────────────────────────────────────
+    function showLoading() {
+      show("loading-state");
+      hide("empty-state");
+      hide("tracking-result");
+    }
+
+    function showEmpty(title, msg) {
+      hide("loading-state");
+      hide("tracking-result");
+      show("empty-state");
+      document.getElementById("empty-title").textContent = title || "Không tìm thấy đơn hàng";
+      document.getElementById("empty-msg").textContent = msg || "";
+    }
+
+    function show(id) { document.getElementById(id).style.display = ""; }
+    function hide(id) { document.getElementById(id).style.display = "none"; }
+    </script>
+  </body>
+</html>
