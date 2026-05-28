@@ -1,17 +1,15 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaseCore.Entities
 {
     public class Order
     {
-        [BsonId]
+        [Key]
         public int Id { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
-        public string UserId { get; set; } //Trước đó của thầy là Guid
+        public string UserId { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
@@ -26,7 +24,10 @@ namespace BaseCore.Entities
 
         public string Note { get; set; }
 
-        [BsonIgnore]
+        public string? CancelReason { get; set; }
+
+        public string? TrackingCode { get; set; }
+
         public User User { get; set; }
 
         public List<OrderDetail> OrderDetails { get; set; } = new();

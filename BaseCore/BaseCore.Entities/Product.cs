@@ -1,13 +1,11 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseCore.Entities
 {
     public class Product
     {
-        [BsonId]
+        [Key]
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -28,7 +26,6 @@ namespace BaseCore.Entities
         [Timestamp]
         public byte[] RowVersion { get; set; }
 
-        [BsonIgnore]
         public Category Category { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -39,5 +36,10 @@ namespace BaseCore.Entities
         public int SortOrder { get; set; } = 0;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>Shop owning this product — null if seeded or admin-created</summary>
+        public string? ShopId { get; set; }
+
+        public Shop? Shop { get; set; }
     }
 }

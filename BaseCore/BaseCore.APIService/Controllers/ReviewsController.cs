@@ -1,5 +1,8 @@
-﻿using BaseCore.Entities;
+using BaseCore.Common;
+using BaseCore.Entities;
 using BaseCore.Repository;
+using BaseCore.Repository.EFCore;
+using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,12 +10,19 @@ using System.Security.Claims;
 
 namespace BaseCore.APIService.Controllers
 {
+    // ─── Customer: GET + POST per product ───────────────────────────────────────
     [ApiController]
     [Route("api/products/{productId}/reviews")]
     public class ReviewsController : ControllerBase
     {
         private readonly MySqlDbContext _db;
-        public ReviewsController(MySqlDbContext db) => _db = db;
+        private readonly NotificationService _notificationService;
+
+        public ReviewsController(MySqlDbContext db, NotificationService notificationService)
+        {
+            _db                  = db;
+            _notificationService = notificationService;
+        }
 
         // GET /api/products/{productId}/reviews
         [HttpGet]
@@ -22,13 +32,12 @@ namespace BaseCore.APIService.Controllers
                 .Where(r => r.ProductId == productId)
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new {
-                    r.Id,
-                    r.ProductId,
-                    r.UserId,
-                    UserName = r.UserId,   // frontend hiển thị UserId tạm
-                    r.Rating,
-                    r.Comment,
-                    r.CreatedAt
+                    r.Id, r.ProductId, r.UserId,
+                    UserName  = r.UserId,
+                    r.Rating, r.Comment,
+                    r.Images, r.IsVerifiedPurchase,
+                    r.CreatedAt,
+                    r.SellerReply, r.ReplyAt
                 })
                 .ToListAsync();
 
@@ -44,43 +53,184 @@ namespace BaseCore.APIService.Controllers
             if (product == null)
                 return NotFound(new { message = "Không tìm thấy sản phẩm" });
 
-            // Lấy UserId từ JWT Claims
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
                       ?? User.FindFirstValue("sub")
                       ?? "guest";
 
-            // Nếu đã review rồi → cập nhật
             var existing = await _db.Reviews
                 .FirstOrDefaultAsync(r => r.ProductId == productId && r.UserId == userId);
 
             if (existing != null)
             {
-                existing.Rating = Math.Clamp(dto.Rating, 1, 5);
-                existing.Comment = dto.Comment ?? existing.Comment;
+                existing.Rating    = Math.Clamp(dto.Rating, 1, 5);
+                existing.Comment   = dto.Comment ?? existing.Comment;
                 existing.CreatedAt = DateTime.Now;
                 await _db.SaveChangesAsync();
                 return Ok(existing);
             }
 
-            // Tạo review mới
             var review = new Review
             {
                 ProductId = productId,
-                UserId = userId,
-                Rating = Math.Clamp(dto.Rating, 1, 5),
-                Comment = dto.Comment ?? "",
+                UserId    = userId,
+                Rating    = Math.Clamp(dto.Rating, 1, 5),
+                Comment   = dto.Comment ?? "",
                 CreatedAt = DateTime.Now,
             };
             _db.Reviews.Add(review);
             await _db.SaveChangesAsync();
 
+            // Notify seller when their product gets a new review
+            if (product.ShopId != null)
+            {
+                var shop = await _db.Shops.FindAsync(product.ShopId);
+                if (shop != null)
+                {
+                    await _notificationService.CreateAsync(
+                        shop.SellerId,
+                        NotificationType.NewReview,
+                        "Đánh giá mới",
+                        $"Sản phẩm \"{product.Name}\" nhận đánh giá {review.Rating} sao",
+                        "seller-dashboard.html#reviews"
+                    );
+                }
+            }
+
             return Ok(review);
         }
     }
 
-    public class ReviewDto
+    // ─── Seller: Xem + Phản hồi review ──────────────────────────────────────────
+    [Route("api/reviews")]
+    [ApiController]
+    [Authorize(Roles = RoleConstant.Seller)]
+    public class SellerReviewsController : ControllerBase
     {
-        public int Rating { get; set; }
-        public string? Comment { get; set; }
+        private readonly IShopRepositoryEF _shopRepository;
+        private readonly MySqlDbContext _db;
+
+        public SellerReviewsController(IShopRepositoryEF shopRepository, MySqlDbContext db)
+        {
+            _shopRepository = shopRepository;
+            _db             = db;
+        }
+
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        private async Task<(Shop? shop, IActionResult? error)> GetActiveShopAsync()
+        {
+            var shop = await _shopRepository.GetBySellerIdAsync(GetUserId()!);
+            if (shop == null) return (null, NotFound(new { message = "Bạn chưa có shop" }));
+            if (shop.Status != ShopStatus.Active) return (null, BadRequest(new { message = "Shop chưa được duyệt" }));
+            return (shop, null);
+        }
+
+        private async Task<List<int>> GetShopProductIdsAsync(string shopId)
+            => await _db.Products.Where(p => p.ShopId == shopId).Select(p => p.Id).ToListAsync();
+
+        // GET /api/reviews/shop?page=1&limit=10&rating=5&replied=false
+        [HttpGet("shop")]
+        public async Task<IActionResult> GetShopReviews(
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 10,
+            [FromQuery] int? rating = null,
+            [FromQuery] bool? replied = null)
+        {
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var productIds = await GetShopProductIdsAsync(shop!.Id);
+
+            var query = _db.Reviews.Include(r => r.Product)
+                .Where(r => productIds.Contains(r.ProductId));
+
+            if (rating.HasValue)  query = query.Where(r => r.Rating == rating.Value);
+            if (replied == true)  query = query.Where(r => r.SellerReply != null);
+            if (replied == false) query = query.Where(r => r.SellerReply == null);
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(r => new {
+                    reviewId     = r.Id,
+                    productName  = r.Product != null ? r.Product.Name     : "",
+                    productImage = r.Product != null ? r.Product.ImageUrl : "",
+                    customerId   = r.UserId,
+                    customerName = r.UserId,
+                    r.Rating,
+                    r.Comment,
+                    images              = r.Images,
+                    createdAt           = r.CreatedAt,
+                    sellerReply         = r.SellerReply,
+                    replyAt             = r.ReplyAt,
+                    isVerifiedPurchase  = r.IsVerifiedPurchase
+                })
+                .ToListAsync();
+
+            return Ok(new {
+                total,
+                page,
+                totalPages = (int)Math.Ceiling((double)total / limit),
+                items
+            });
+        }
+
+        // POST /api/reviews/{reviewId}/reply
+        [HttpPost("{reviewId:int}/reply")]
+        public async Task<IActionResult> Reply(int reviewId, [FromBody] ReplyReviewDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Reply))
+                return BadRequest(new { message = "Nội dung phản hồi không được rỗng" });
+            if (dto.Reply.Length > 500)
+                return BadRequest(new { message = "Phản hồi tối đa 500 ký tự" });
+
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var productIds = await GetShopProductIdsAsync(shop!.Id);
+
+            var review = await _db.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId && productIds.Contains(r.ProductId));
+            if (review == null) return NotFound(new { message = "Đánh giá không tồn tại hoặc không thuộc shop của bạn" });
+            if (review.SellerReply != null) return BadRequest(new { message = "Bạn đã phản hồi đánh giá này rồi" });
+
+            review.SellerReply = dto.Reply.Trim();
+            review.ReplyAt     = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Phản hồi đã được gửi" });
+        }
+
+        // GET /api/reviews/shop/stats
+        [HttpGet("shop/stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var productIds = await GetShopProductIdsAsync(shop!.Id);
+
+            var reviews = await _db.Reviews
+                .Where(r => productIds.Contains(r.ProductId))
+                .ToListAsync();
+
+            var total = reviews.Count;
+            var avg   = total > 0 ? reviews.Average(r => r.Rating) : 0.0;
+
+            return Ok(new {
+                totalReviews  = total,
+                avgRating     = Math.Round(avg, 1),
+                rating5Count  = reviews.Count(r => r.Rating == 5),
+                rating4Count  = reviews.Count(r => r.Rating == 4),
+                rating3Count  = reviews.Count(r => r.Rating == 3),
+                rating2Count  = reviews.Count(r => r.Rating == 2),
+                rating1Count  = reviews.Count(r => r.Rating == 1),
+                pendingReply  = reviews.Count(r => r.SellerReply == null)
+            });
+        }
     }
+
+    public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; } }
+    public class ReplyReviewDto { public string Reply { get; set; } = ""; }
 }

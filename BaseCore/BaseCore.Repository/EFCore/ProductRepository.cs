@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using BaseCore.Entities;
 
 namespace BaseCore.Repository.EFCore

@@ -1,114 +1,1080 @@
-<section
-  class="padding-large"
-  style="background-color: #fafafa; min-height: 80vh"
->
-  <div class="container">
-    <div class="row g-5">
-      <div class="col-lg-3">
-        <div class="bg-white p-4 shadow-sm rounded-3 border">
-          <div class="text-center mb-4">
-            <div
-              id="p-avatar"
-              class="rounded-circle mx-auto d-flex align-items-center justify-content-center text-white fw-bold mb-2"
-              style="
-                width: 70px;
-                height: 70px;
-                background-color: #f759ab;
-                font-size: 24px;
-              "
-            >
-              K
-            </div>
-            <h5 id="p-name" class="brand-name fw-bold m-0">Tuan Kiet</h5>
-            <p id="p-email" class="text-muted small">kiet.mta@gmail.com</p>
-          </div>
+<!doctype html>
+<html lang="vi">
+  <head>
+    <title>Hồ Sơ Của Tôi — GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
 
-          <div
-            class="nav flex-column nav-pills custom-profile-nav"
-            id="v-pills-tab"
-            role="tablist"
-          >
-            <button
-              class="nav-link active py-3 text-start mb-2 border-0"
-              data-bs-toggle="pill"
-              data-bs-target="#tab-cart"
-            >
-              <svg width="20" height="20" class="me-2">
-                <use xlink:href="#cart"></use>
-              </svg>
-              Giỏ hàng của tôi
-            </button>
-            <button
-              class="nav-link py-3 text-start mb-2 border-0"
-              data-bs-toggle="pill"
-              data-bs-target="#tab-orders"
-            >
-              <svg width="20" height="20" class="me-2">
-                <use xlink:href="#bag"></use>
-              </svg>
-              Đơn hàng đã đặt
-            </button>
-            <button
-              class="nav-link py-3 text-start text-danger border-0"
-              onclick="Auth.logout()"
-            >
-              <svg width="20" height="20" class="me-2" style="fill: red">
-                <use xlink:href="#user"></use>
-              </svg>
-              Đăng xuất
-            </button>
-          </div>
-        </div>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/profile.css" />
+  </head>
+
+  <body>
+    <!-- ══════════════════════════════════
+         NAVBAR (include từ index.html)
+    ══════════════════════════════════ -->
+    <nav
+      class="gh-nav"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid #e2ddd8;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        justify-content: space-between;
+      "
+    >
+      <a
+        href="index.html"
+        style="
+          font-family: &quot;Cormorant Garamond&quot;, serif;
+          font-size: 22px;
+          font-weight: 500;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: #111;
+          text-decoration: none;
+        "
+        >GlowHub</a
+      >
+      <div style="display: flex; align-items: center; gap: 16px">
+        <a
+          href="index.html"
+          style="font-size: 13px; color: #555; text-decoration: none"
+          >Trang Chủ</a
+        >
+        <a
+          href="shop.html"
+          style="font-size: 13px; color: #555; text-decoration: none"
+          >Cửa Hàng</a
+        >
+        <a
+          href="index.html"
+          style="
+            font-size: 13px;
+            color: var(--pink);
+            text-decoration: none;
+            font-weight: 500;
+          "
+          >Hồ Sơ</a
+        >
       </div>
+    </nav>
 
-      <div class="col-lg-9">
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="tab-cart">
-            <div class="bg-white p-4 shadow-sm rounded-3 border">
-              <h4 class="brand-name mb-4">Giỏ hàng hiện tại</h4>
-              <div id="cart-page-list"></div>
-
-              <div
-                id="cart-footer-area"
-                class="mt-4 pt-4 border-top d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <p class="text-muted m-0">Tổng tiền thanh toán:</p>
-                  <h3
-                    id="cart-page-total"
-                    class="text-primary fw-bold m-0"
-                    style="color: #f759ab !important"
-                  >
-                    0₫
-                  </h3>
+    <!-- ══════════════════════════════════
+         MAIN PROFILE SHELL
+    ══════════════════════════════════ -->
+    <div class="profile-shell" style="margin-top: 64px">
+      <div class="container">
+        <div class="row g-4">
+          <!-- ── LEFT SIDEBAR ── -->
+          <div class="col-lg-3 col-md-4">
+            <div class="profile-sidebar">
+              <!-- Banner + Avatar -->
+              <div class="profile-banner">
+                <div class="profile-avatar-wrap">
+                  <div class="profile-avatar" id="pAvatar">?</div>
                 </div>
-                <a
-                  href="checkout.html"
-                  class="btn btn-dark btn-lg px-5 py-3 text-uppercase fs-6 shadow-sm"
-                  style="
-                    background-color: #111;
-                    border: none;
-                    letter-spacing: 1px;
-                  "
+              </div>
+
+              <!-- Info -->
+              <div class="profile-sidebar-body">
+                <div class="profile-name" id="pSbName">Đang tải...</div>
+                <div class="profile-username" id="pSbUsername">@username</div>
+                <div class="profile-email" id="pSbEmail">email@domain.com</div>
+                <div class="profile-badge customer" id="pSbBadge">
+                  <i class="bi bi-person-fill"></i>
+                  <span id="pSbBadgeText">Khách Hàng</span>
+                </div>
+
+                <!-- Stats -->
+                <div class="profile-stats-row">
+                  <div class="pstat-item">
+                    <div class="pstat-num" id="pStatOrders">—</div>
+                    <div class="pstat-label">Đơn</div>
+                  </div>
+                  <div class="pstat-item">
+                    <div class="pstat-num" id="pStatSpend">—</div>
+                    <div class="pstat-label">Đã Chi</div>
+                  </div>
+                  <div class="pstat-item">
+                    <div class="pstat-num" id="pStatSince">—</div>
+                    <div class="pstat-label">Ngày GC</div>
+                  </div>
+                </div>
+
+                <!-- Nav -->
+                <button
+                  class="profile-nav-btn active"
+                  onclick="showSec('info', this)"
                 >
-                  Thanh toán ngay
-                </a>
+                  <i class="bi bi-person-lines-fill"></i> Thông Tin Cá Nhân
+                </button>
+                <button
+                  class="profile-nav-btn"
+                  onclick="showSec('orders', this)"
+                >
+                  <i class="bi bi-bag-check"></i> Đơn Hàng Của Tôi
+                </button>
+                <button
+                  class="profile-nav-btn"
+                  onclick="showSec('password', this)"
+                >
+                  <i class="bi bi-shield-lock"></i> Đổi Mật Khẩu
+                </button>
+                <button class="profile-nav-btn" onclick="showSec('cart', this)">
+                  <i class="bi bi-cart3"></i> Giỏ Hàng
+                </button>
+                <hr style="border-color: var(--border); margin: 8px 0" />
+                <button
+                  class="profile-nav-btn danger"
+                  onclick="Auth && Auth.logout()"
+                >
+                  <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                </button>
               </div>
             </div>
           </div>
 
-          <div class="tab-pane fade" id="tab-orders">
-            <div class="bg-white p-4 shadow-sm rounded-3 border">
-              <h4 class="brand-name mb-4">Lịch sử mua hàng</h4>
-              <div id="order-list-content">
-                <p class="text-muted text-center py-5">
-                  Bạn chưa có đơn hàng nào.
-                </p>
+          <!-- ── RIGHT CONTENT ── -->
+          <div class="col-lg-9 col-md-8">
+            <!-- ════ SECTION: THÔNG TIN CÁ NHÂN ════ -->
+            <div class="psec active" id="psec-info">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Thông Tin Cá Nhân</div>
+                  <div style="display: flex; gap: 8px">
+                    <button
+                      class="gh-btn-outline"
+                      id="editInfoBtn"
+                      onclick="toggleEdit()"
+                    >
+                      <i class="bi bi-pencil"></i> Chỉnh Sửa
+                    </button>
+                  </div>
+                </div>
+                <div class="pcard-body">
+                  <!-- VIEW MODE -->
+                  <div id="viewInfoMode">
+                    <div class="info-grid" id="infoGrid">
+                      <div class="info-field">
+                        <div class="info-label">Họ và Tên</div>
+                        <div class="info-value" id="vName">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Tên Đăng Nhập</div>
+                        <div class="info-value" id="vUserName">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="vEmail">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Số Điện Thoại</div>
+                        <div class="info-value" id="vPhone">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Địa Chỉ Liên Hệ</div>
+                        <div class="info-value" id="vContact">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Chức Vụ / Ghi Chú</div>
+                        <div class="info-value" id="vPosition">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Loại Tài Khoản</div>
+                        <div class="info-value" id="vUserType">—</div>
+                      </div>
+                      <div class="info-field">
+                        <div class="info-label">Trạng Thái</div>
+                        <div class="info-value" id="vIsActive">—</div>
+                      </div>
+                      <div class="info-field full">
+                        <div class="info-label">Ngày Tham Gia</div>
+                        <div class="info-value" id="vCreated">—</div>
+                      </div>
+                      <div class="info-field full">
+                        <div class="info-label">ID Tài Khoản</div>
+                        <div
+                          class="info-value"
+                          id="vId"
+                          style="font-size: 11px; color: var(--gray)"
+                        >
+                          —
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- EDIT MODE -->
+                  <div id="editInfoMode" style="display: none">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="gh-label">Họ và Tên *</label>
+                        <input
+                          type="text"
+                          id="eName"
+                          class="gh-input"
+                          placeholder="Tên đầy đủ"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <label class="gh-label">Tên Đăng Nhập</label>
+                        <input
+                          type="text"
+                          id="eUserName"
+                          class="gh-input"
+                          readonly
+                          placeholder="Không thể thay đổi"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <label class="gh-label">Email *</label>
+                        <input
+                          type="email"
+                          id="eEmail"
+                          class="gh-input"
+                          placeholder="email@domain.com"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <label class="gh-label">Số Điện Thoại *</label>
+                        <input
+                          type="tel"
+                          id="ePhone"
+                          class="gh-input"
+                          placeholder="0901234567"
+                        />
+                      </div>
+                      <div class="col-12">
+                        <label class="gh-label">Địa Chỉ Liên Hệ</label>
+                        <input
+                          type="text"
+                          id="eContact"
+                          class="gh-input"
+                          placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                        />
+                      </div>
+                      <div class="col-12">
+                        <label class="gh-label">Ghi Chú / Chức Vụ</label>
+                        <input
+                          type="text"
+                          id="ePosition"
+                          class="gh-input"
+                          placeholder="VD: Khách hàng VIP, Đại lý, v.v."
+                        />
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px">
+                      <button
+                        class="gh-btn-primary"
+                        onclick="saveInfo()"
+                        id="saveInfoBtn"
+                      >
+                        <i class="bi bi-check-lg"></i> Lưu Thay Đổi
+                      </button>
+                      <button class="gh-btn-outline" onclick="cancelEdit()">
+                        Hủy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ════ SECTION: ĐƠN HÀNG ════ -->
+            <div class="psec" id="psec-orders">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Đơn Hàng Của Tôi</div>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                    <button
+                      class="gh-btn-outline"
+                      style="padding: 6px 14px; font-size: 11px"
+                      onclick="filterOrders('all', this)"
+                      id="ofa-all"
+                    >
+                      Tất Cả
+                    </button>
+                    <button
+                      class="gh-btn-outline"
+                      style="padding: 6px 14px; font-size: 11px"
+                      onclick="filterOrders('PENDING', this)"
+                    >
+                      Chờ
+                    </button>
+                    <button
+                      class="gh-btn-outline"
+                      style="padding: 6px 14px; font-size: 11px"
+                      onclick="filterOrders('SHIPPING', this)"
+                    >
+                      Giao
+                    </button>
+                    <button
+                      class="gh-btn-outline"
+                      style="padding: 6px 14px; font-size: 11px"
+                      onclick="filterOrders('COMPLETED', this)"
+                    >
+                      Hoàn Thành
+                    </button>
+                  </div>
+                </div>
+                <div class="pcard-body">
+                  <div id="orderListWrap">
+                    <div class="empty-state">
+                      <i class="bi bi-bag-x"></i>
+                      <p>Đang tải đơn hàng...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ════ SECTION: ĐỔI MẬT KHẨU ════ -->
+            <div class="psec" id="psec-password">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Đổi Mật Khẩu</div>
+                </div>
+                <div class="pcard-body">
+                  <div style="max-width: 420px">
+                    <div class="gh-form-group">
+                      <label class="gh-label">Mật Khẩu Hiện Tại *</label>
+                      <input
+                        type="password"
+                        id="pwdOld"
+                        class="gh-input"
+                        placeholder="Nhập mật khẩu hiện tại"
+                      />
+                    </div>
+                    <div class="gh-form-group">
+                      <label class="gh-label">Mật Khẩu Mới *</label>
+                      <input
+                        type="password"
+                        id="pwdNew"
+                        class="gh-input"
+                        placeholder="Tối thiểu 8 ký tự"
+                        oninput="checkPwdStrength(this.value)"
+                      />
+                      <div class="pwd-strength">
+                        <div class="pwd-strength-bar" id="pwdBar"></div>
+                      </div>
+                      <div
+                        id="pwdHint"
+                        style="
+                          font-size: 11px;
+                          color: var(--gray);
+                          margin-top: 4px;
+                        "
+                      ></div>
+                    </div>
+                    <div class="gh-form-group">
+                      <label class="gh-label">Xác Nhận Mật Khẩu Mới *</label>
+                      <input
+                        type="password"
+                        id="pwdConfirm"
+                        class="gh-input"
+                        placeholder="Nhập lại mật khẩu mới"
+                      />
+                    </div>
+                    <button
+                      class="gh-btn-primary"
+                      onclick="changePassword()"
+                      id="pwdBtn"
+                    >
+                      <i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ════ SECTION: GIỎ HÀNG ════ -->
+            <div class="psec" id="psec-cart">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Giỏ Hàng Của Tôi</div>
+                  <a
+                    href="checkout.html"
+                    class="gh-btn-primary"
+                    style="text-decoration: none"
+                  >
+                    <i class="bi bi-bag-check"></i> Thanh Toán
+                  </a>
+                </div>
+                <div class="pcard-body">
+                  <div id="cartPageWrap">
+                    <div class="empty-state">
+                      <i class="bi bi-cart-x"></i>
+                      <p>Giỏ hàng trống</p>
+                    </div>
+                  </div>
+                  <div id="cartPageFooter" style="display: none">
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding-top: 16px;
+                        border-top: 1px solid var(--border);
+                        margin-top: 16px;
+                      "
+                    >
+                      <div>
+                        <div
+                          style="
+                            font-size: 12px;
+                            color: var(--gray);
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                          "
+                        >
+                          Tổng Thanh Toán
+                        </div>
+                        <div
+                          id="cartPageTotal"
+                          style="
+                            font-family: var(--font-disp);
+                            font-size: 24px;
+                            font-weight: 500;
+                            color: var(--pink);
+                          "
+                        >
+                          0 ₫
+                        </div>
+                      </div>
+                      <a
+                        href="checkout.html"
+                        class="gh-btn-primary"
+                        style="text-decoration: none; font-size: 13px"
+                      >
+                        Đặt Hàng Ngay →
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          <!-- /col -->
         </div>
+        <!-- /row -->
       </div>
+      <!-- /container -->
     </div>
-  </div>
-</section>
+
+    <!-- Toast container -->
+    <div id="profileToast"></div>
+
+    <!-- ══ SCRIPTS ══ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+      /* ══════════════════════════════════════════
+         GlowHub — profile.html  (standalone page)
+         Hiển thị đầy đủ dữ liệu từ DB:
+         Users: Id, Name, UserName, Email, Phone,
+                Contact, Position, Image, IsActive,
+                UserType, Created
+      ══════════════════════════════════════════ */
+
+      var allOrders = [];
+      var currentFilter = "all";
+
+      /* ── Toast ── */
+      function toast(msg, type) {
+        if (!type) type = "ok";
+        var c = document.getElementById("profileToast");
+        var el = document.createElement("div");
+        el.className = "toast-msg" + (type === "err" ? " err" : "");
+        el.textContent = (type === "ok" ? "✓  " : "✕  ") + msg;
+        c.appendChild(el);
+        requestAnimationFrame(function () {
+          el.style.transform = "translateX(0)";
+        });
+        setTimeout(function () {
+          el.style.transform = "translateX(120%)";
+          setTimeout(function () {
+            el.remove();
+          }, 350);
+        }, 3200);
+      }
+
+      /* ── Format ── */
+      function fmtMoney(n) {
+        if (!n && n !== 0) return "—";
+        return new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+      }
+
+      function fmtDate(d) {
+        if (!d) return "—";
+        var dt = new Date(d);
+        return dt.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function fmtDateShort(d) {
+        if (!d) return "—";
+        var dt = new Date(d);
+        return dt.toLocaleDateString("vi-VN", {
+          month: "short",
+          year: "numeric",
+        });
+      }
+
+      /* ── Section switcher ── */
+      function showSec(sec, btn) {
+        document.querySelectorAll(".psec").forEach(function (s) {
+          s.classList.remove("active");
+        });
+        document.querySelectorAll(".profile-nav-btn").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        var el = document.getElementById("psec-" + sec);
+        if (el) el.classList.add("active");
+        if (btn) btn.classList.add("active");
+
+        if (sec === "orders") loadOrders();
+        if (sec === "cart") renderCart();
+      }
+
+      /* ══════════════════════════════
+         INIT — load user from localStorage
+         và map đúng field theo DB schema:
+         Id, Name, UserName, Email, Phone,
+         Contact, Position, Image, IsActive,
+         UserType, Created
+      ══════════════════════════════ */
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof Auth === "undefined" || !Auth.isLoggedIn()) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        var u = Auth.getCurrentUser();
+        if (!u) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        populateProfile(u);
+        loadOrderStats();
+        renderCart();
+      });
+
+      function populateProfile(u) {
+        /* ── Field mapping: chuẩn hóa cả PascalCase lẫn camelCase ── */
+        var id = u.id || u.Id || "";
+        var name = u.name || u.Name || u.username || u.UserName || "Người dùng";
+        var username = u.username || u.UserName || u.userName || "";
+        var email = u.email || u.Email || "";
+        var phone = u.phone || u.Phone || "";
+        var contact = u.contact || u.Contact || "";
+        var position = u.position || u.Position || "";
+        var image = u.image || u.Image || "";
+        var isActive =
+          u.isActive !== undefined
+            ? u.isActive
+            : u.IsActive !== undefined
+              ? u.IsActive
+              : true;
+        var userType =
+          u.userType !== undefined
+            ? u.userType
+            : u.UserType !== undefined
+              ? u.UserType
+              : 0;
+        var created = u.created || u.Created || "";
+
+        /* ── Avatar ── */
+        var avatarEl = document.getElementById("pAvatar");
+        if (image) {
+          avatarEl.innerHTML =
+            '<img src="' +
+            image +
+            '" onerror="this.parentElement.textContent=\'' +
+            name.charAt(0).toUpperCase() +
+            "'\" />";
+        } else {
+          avatarEl.textContent = name
+            .trim()
+            .split(" ")
+            .pop()
+            .charAt(0)
+            .toUpperCase();
+        }
+
+        /* ── Sidebar ── */
+        document.getElementById("pSbName").textContent = name;
+        document.getElementById("pSbUsername").textContent = username
+          ? "@" + username
+          : "";
+        document.getElementById("pSbEmail").textContent = email;
+
+        var badgeEl = document.getElementById("pSbBadge");
+        var badgeTextEl = document.getElementById("pSbBadgeText");
+        if (userType === 1 || userType === "Admin" || userType === "admin") {
+          badgeEl.className = "profile-badge admin";
+          badgeTextEl.textContent = "Quản Trị Viên";
+        } else {
+          badgeEl.className = "profile-badge customer";
+          badgeTextEl.textContent = "Khách Hàng";
+        }
+
+        if (created) {
+          document.getElementById("pStatSince").textContent =
+            fmtDateShort(created);
+        }
+
+        /* ── Info fields (view mode) ── */
+        document.getElementById("vName").textContent = name || "—";
+        document.getElementById("vUserName").textContent = username || "—";
+        document.getElementById("vEmail").textContent = email || "—";
+        document.getElementById("vPhone").textContent = phone || "—";
+        document.getElementById("vContact").textContent = contact || "—";
+        document.getElementById("vPosition").textContent = position || "—";
+        document.getElementById("vUserType").textContent =
+          userType === 1 || userType === "Admin"
+            ? "👑 Quản Trị Viên"
+            : "🛍️ Khách Hàng";
+        document.getElementById("vIsActive").innerHTML = isActive
+          ? '<span style="color:#065f46">● Đang Hoạt Động</span>'
+          : '<span style="color:#991b1b">● Bị Khóa</span>';
+        document.getElementById("vCreated").textContent = fmtDate(created);
+        document.getElementById("vId").textContent = id
+          ? "ID: " + id
+          : "Chưa có ID";
+
+        /* ── Pre-fill edit form ── */
+        document.getElementById("eName").value = name;
+        document.getElementById("eUserName").value = username;
+        document.getElementById("eEmail").value = email;
+        document.getElementById("ePhone").value = phone;
+        document.getElementById("eContact").value = contact;
+        document.getElementById("ePosition").value = position;
+      }
+
+      /* ── Load order stats for sidebar ── */
+      function loadOrderStats() {
+        if (typeof Order === "undefined") return;
+        Order.getMyOrders()
+          .then(function (res) {
+            var orders = Array.isArray(res)
+              ? res
+              : (res && res.items) || (res && res.data) || [];
+            allOrders = orders;
+
+            document.getElementById("pStatOrders").textContent = orders.length;
+
+            var total = orders.reduce(function (s, o) {
+              return s + (o.TotalAmount || o.totalAmount || 0);
+            }, 0);
+            document.getElementById("pStatSpend").textContent =
+              total >= 1000000
+                ? (total / 1000000).toFixed(1) + "M"
+                : Math.round(total / 1000) + "K";
+          })
+          .catch(function () {
+            document.getElementById("pStatOrders").textContent = "—";
+            document.getElementById("pStatSpend").textContent = "—";
+          });
+      }
+
+      /* ══════════════════════════════
+         EDIT PROFILE
+      ══════════════════════════════ */
+      function toggleEdit() {
+        document.getElementById("viewInfoMode").style.display = "none";
+        document.getElementById("editInfoMode").style.display = "block";
+        document.getElementById("editInfoBtn").style.display = "none";
+      }
+
+      function cancelEdit() {
+        document.getElementById("viewInfoMode").style.display = "block";
+        document.getElementById("editInfoMode").style.display = "none";
+        document.getElementById("editInfoBtn").style.display = "";
+      }
+
+      function saveInfo() {
+        var name = document.getElementById("eName").value.trim();
+        var email = document.getElementById("eEmail").value.trim();
+        var phone = document.getElementById("ePhone").value.trim();
+        var contact = document.getElementById("eContact").value.trim();
+        var position = document.getElementById("ePosition").value.trim();
+
+        if (!name || !email || !phone) {
+          toast("Vui lòng điền đầy đủ các trường bắt buộc!", "err");
+          return;
+        }
+
+        var btn = document.getElementById("saveInfoBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang lưu...';
+
+        var payload = {
+          Name: name,
+          Email: email,
+          Phone: phone,
+          Contact: contact,
+          Position: position,
+        };
+
+        var doSave =
+          typeof Auth !== "undefined" && Auth.updateProfile
+            ? Auth.updateProfile(payload)
+            : Promise.resolve();
+
+        doSave
+          .then(function () {
+            /* Cập nhật localStorage ── giữ nguyên các field khác */
+            try {
+              var u = Auth.getCurrentUser() || {};
+              u.Name = name;
+              u.name = name;
+              u.Email = email;
+              u.email = email;
+              u.Phone = phone;
+              u.phone = phone;
+              u.Contact = contact;
+              u.contact = contact;
+              u.Position = position;
+              u.position = position;
+              localStorage.setItem("user", JSON.stringify(u));
+            } catch (_) {}
+
+            populateProfile(Auth.getCurrentUser() || payload);
+            cancelEdit();
+            toast("Đã lưu thông tin thành công!");
+          })
+          .catch(function (err) {
+            toast("Lỗi: " + (err.message || "Không thể lưu"), "err");
+          })
+          .finally(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Lưu Thay Đổi';
+          });
+      }
+
+      /* ══════════════════════════════
+         ĐỔI MẬT KHẨU
+      ══════════════════════════════ */
+      function checkPwdStrength(val) {
+        var bar = document.getElementById("pwdBar");
+        var hint = document.getElementById("pwdHint");
+        var score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        var colors = ["#ef4444", "#f97316", "#eab308", "#22c55e"];
+        var labels = ["Rất yếu", "Yếu", "Trung bình", "Mạnh"];
+        bar.style.width = (score / 4) * 100 + "%";
+        bar.style.background = colors[score - 1] || "#e5e7eb";
+        hint.textContent = score > 0 ? labels[score - 1] : "";
+      }
+
+      function changePassword() {
+        var old = document.getElementById("pwdOld").value;
+        var nw = document.getElementById("pwdNew").value;
+        var cf = document.getElementById("pwdConfirm").value;
+
+        if (!old || !nw || !cf) {
+          toast("Vui lòng điền đầy đủ!", "err");
+          return;
+        }
+        if (nw.length < 8) {
+          toast("Mật khẩu mới tối thiểu 8 ký tự!", "err");
+          return;
+        }
+        if (nw !== cf) {
+          toast("Mật khẩu xác nhận không khớp!", "err");
+          return;
+        }
+
+        var btn = document.getElementById("pwdBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang cập nhật...';
+
+        var doChange =
+          typeof Auth !== "undefined" && Auth.changePassword
+            ? Auth.changePassword({ OldPassword: old, NewPassword: nw })
+            : Promise.resolve();
+
+        doChange
+          .then(function () {
+            toast("Đã đổi mật khẩu thành công!");
+            document.getElementById("pwdOld").value = "";
+            document.getElementById("pwdNew").value = "";
+            document.getElementById("pwdConfirm").value = "";
+            document.getElementById("pwdBar").style.width = "0";
+            document.getElementById("pwdHint").textContent = "";
+          })
+          .catch(function (err) {
+            toast("Lỗi: " + (err.message || "Không thể đổi mật khẩu"), "err");
+          })
+          .finally(function () {
+            btn.disabled = false;
+            btn.innerHTML =
+              '<i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu';
+          });
+      }
+
+      /* ══════════════════════════════
+         ĐƠN HÀNG
+      ══════════════════════════════ */
+      var orderLoaded = false;
+
+      function loadOrders() {
+        var wrap = document.getElementById("orderListWrap");
+        wrap.innerHTML =
+          '<div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Đang tải đơn hàng...</p></div>';
+
+        if (typeof Order === "undefined") {
+          wrap.innerHTML =
+            '<div class="empty-state"><i class="bi bi-wifi-off"></i><p>Không thể kết nối API</p></div>';
+          return;
+        }
+
+        Order.getMyOrders()
+          .then(function (res) {
+            allOrders = Array.isArray(res)
+              ? res
+              : (res && res.items) || (res && res.data) || [];
+            renderOrders("all");
+            orderLoaded = true;
+          })
+          .catch(function () {
+            wrap.innerHTML =
+              '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không tải được đơn hàng</p><small>Vui lòng thử lại sau</small></div>';
+          });
+      }
+
+      function filterOrders(status, btn) {
+        currentFilter = status;
+        document
+          .querySelectorAll("#psec-orders .gh-btn-outline")
+          .forEach(function (b) {
+            b.style.borderColor = "";
+            b.style.color = "";
+            b.style.background = "";
+          });
+        if (btn) {
+          btn.style.borderColor = "var(--pink)";
+          btn.style.color = "var(--pink)";
+        }
+        renderOrders(status);
+      }
+
+      var statusMap = {
+        PENDING: ["status-PENDING", "⏳ Chờ Xử Lý"],
+        CONFIRMED: ["status-CONFIRMED", "✅ Đã Xác Nhận"],
+        SHIPPING: ["status-SHIPPING", "🚚 Đang Giao"],
+        COMPLETED: ["status-COMPLETED", "🎉 Hoàn Thành"],
+        CANCELLED: ["status-CANCELLED", "❌ Đã Hủy"],
+      };
+
+      function getStatusBadge(s) {
+        var key = (s || "PENDING").toString().toUpperCase();
+        var info = statusMap[key] || ["status-PENDING", s || "Chờ"];
+        return (
+          '<span class="status-badge ' + info[0] + '">' + info[1] + "</span>"
+        );
+      }
+
+      function renderOrders(filter) {
+        if (!filter) filter = currentFilter;
+        var wrap = document.getElementById("orderListWrap");
+        var list =
+          filter === "all"
+            ? allOrders
+            : allOrders.filter(function (o) {
+                return (
+                  (o.Status || o.status || "").toString().toUpperCase() ===
+                  filter.toUpperCase()
+                );
+              });
+
+        if (!list.length) {
+          wrap.innerHTML =
+            '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không có đơn hàng nào</p></div>';
+          return;
+        }
+
+        var ph = "https://placehold.co/44x44/f5f0ea/888?text=IMG";
+
+        wrap.innerHTML = list
+          .map(function (o) {
+            var oid = o.Id || o.id || o.orderId || "—";
+            var status = o.Status || o.status || "PENDING";
+            var date = o.OrderDate || o.orderDate || o.CreatedAt || o.createdAt;
+            var total = o.TotalAmount || o.totalAmount || 0;
+            var addr = o.ShippingAddress || o.shippingAddress || "—";
+            var items =
+              o.Items || o.items || o.OrderDetails || o.orderDetails || [];
+
+            var itemsHtml = "";
+            if (items && items.length) {
+              itemsHtml = items
+                .slice(0, 3)
+                .map(function (it) {
+                  var iname =
+                    it.ProductName ||
+                    it.productName ||
+                    it.Name ||
+                    it.name ||
+                    "Sản phẩm";
+                  var iimg =
+                    it.ImageUrl || it.imageUrl || it.Image || it.image || ph;
+                  var iprice =
+                    it.UnitPrice || it.unitPrice || it.Price || it.price || 0;
+                  var iqty = it.Quantity || it.quantity || 1;
+                  return (
+                    '<div class="order-item-row">' +
+                    '<img class="order-item-img" src="' +
+                    iimg +
+                    '" onerror="this.src=\'' +
+                    ph +
+                    "'\" />" +
+                    '<div class="order-item-name">' +
+                    iname +
+                    ' <span style="color:var(--gray);font-weight:400">×' +
+                    iqty +
+                    "</span></div>" +
+                    '<div class="order-item-price">' +
+                    fmtMoney(iprice * iqty) +
+                    "</div>" +
+                    "</div>"
+                  );
+                })
+                .join("");
+              if (items.length > 3) {
+                itemsHtml +=
+                  '<div style="font-size:12px;color:var(--gray);padding:4px 0">... và ' +
+                  (items.length - 3) +
+                  " sản phẩm khác</div>";
+              }
+            } else {
+              itemsHtml =
+                '<div style="font-size:13px;color:var(--gray);padding:6px 0">Chi tiết đơn hàng</div>';
+            }
+
+            return (
+              '<div class="order-card">' +
+              '<div class="order-header">' +
+              '<div><div class="order-id">#' +
+              oid +
+              "</div>" +
+              '<div class="order-date">' +
+              fmtDate(date) +
+              "</div></div>" +
+              getStatusBadge(status) +
+              "</div>" +
+              '<div class="order-body">' +
+              itemsHtml +
+              "</div>" +
+              '<div class="order-footer">' +
+              '<div style="font-size:12px;color:var(--gray);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+              "📍 " +
+              addr +
+              "</div>" +
+              '<div class="order-total">Tổng: <span>' +
+              fmtMoney(total) +
+              "</span></div>" +
+              "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+      }
+
+      /* ══════════════════════════════
+         GIỎ HÀNG
+      ══════════════════════════════ */
+      function renderCart() {
+        var items = typeof Cart !== "undefined" ? Cart.getItems() : [];
+        var wrap = document.getElementById("cartPageWrap");
+        var footer = document.getElementById("cartPageFooter");
+
+        if (!items || !items.length) {
+          wrap.innerHTML =
+            '<div class="empty-state"><i class="bi bi-cart-x"></i><p>Giỏ hàng trống</p><a href="shop.html" class="gh-btn-primary" style="text-decoration:none;display:inline-flex;margin-top:12px">Mua Sắm Ngay</a></div>';
+          if (footer) footer.style.display = "none";
+          return;
+        }
+
+        var ph = "https://placehold.co/52x52/f5f0ea/888?text=IMG";
+        wrap.innerHTML = items
+          .map(function (item) {
+            var qty = item.qty || 1;
+            return (
+              '<div class="order-item-row" style="padding:10px 0">' +
+              '<img class="order-item-img" src="' +
+              (item.image || ph) +
+              '" onerror="this.src=\'' +
+              ph +
+              "'\"/>" +
+              '<div class="order-item-name">' +
+              (item.name || "Sản phẩm") +
+              "</div>" +
+              '<div style="display:flex;align-items:center;gap:8px;white-space:nowrap">' +
+              '<span style="font-size:12px;color:var(--gray)">×' +
+              qty +
+              "</span>" +
+              '<span class="order-item-price">' +
+              fmtMoney((item.price || 0) * qty) +
+              "</span>" +
+              '<button onclick="Cart.remove(' +
+              item.id +
+              ');renderCart()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0 4px" title="Xóa">×</button>' +
+              "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        if (footer) {
+          footer.style.display = "";
+          var total = typeof Cart !== "undefined" ? Cart.totalPrice() : 0;
+          document.getElementById("cartPageTotal").textContent =
+            fmtMoney(total);
+        }
+      }
+    </script>
+  </body>
+</html>

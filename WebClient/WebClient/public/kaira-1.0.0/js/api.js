@@ -36,7 +36,17 @@ async function apiFetch(base, path, method = "GET", body = null) {
   if (token) opts.headers["Authorization"] = "Bearer " + token;
   if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(base + path, opts);
+  let res;
+  try {
+    res = await fetch(base + path, opts);
+  } catch (netErr) {
+    console.error(
+      "[GlowHub API] Không kết nối được:",
+      base + path,
+      netErr.message,
+    );
+    throw netErr;
+  }
 
   if (res.status === 401) {
     // Token hết hạn → logout
@@ -54,6 +64,7 @@ async function apiFetch(base, path, method = "GET", body = null) {
       const d = await res.json();
       msg = d.message || d.Message || msg;
     } catch (_) {}
+    console.error("[GlowHub API]", method, base + path, "→", res.status, msg);
     throw new Error(msg);
   }
 
@@ -78,7 +89,50 @@ const Auth = {
     // Backend có thể trả token ở nhiều dạng khác nhau
     const token =
       data.token || data.Token || data.accessToken || data.AccessToken;
-    const user = data.user || data.User || data;
+
+    // Nếu backend trả user object lồng → dùng trực tiếp
+    // Nếu trả flat (token + user fields cùng cấp) → tách ra, loại bỏ các field token
+    let user = data.user || data.User;
+    if (!user) {
+      // Flat response: clone data rồi xóa các field token
+      user = Object.assign({}, data);
+      delete user.token;
+      delete user.Token;
+      delete user.accessToken;
+      delete user.AccessToken;
+      delete user.refreshToken;
+      delete user.RefreshToken;
+    }
+
+    // Normalize: đảm bảo cả camelCase và PascalCase đều có
+    // DB fields: Id, Name, UserName, Email, Phone, Contact, Position, Image, AvatarUrl, IsActive, UserType, Created, Address
+    if (user) {
+      user.id = user.id || user.Id || "";
+      user.name =
+        user.name || user.Name || user.fullName || user.FullName || "";
+      user.userName = user.userName || user.UserName || user.username || "";
+      user.email = user.email || user.Email || "";
+      user.phone = user.phone || user.Phone || "";
+      user.contact = user.contact || user.Contact || "";
+      user.position = user.position || user.Position || "";
+      user.image = user.image || user.Image || "";
+      user.avatarUrl = user.avatarUrl || user.AvatarUrl || user.image || "";
+      user.isActive =
+        user.isActive !== undefined
+          ? user.isActive
+          : user.IsActive !== undefined
+            ? user.IsActive
+            : true;
+      user.userType =
+        user.userType !== undefined
+          ? user.userType
+          : user.UserType !== undefined
+            ? user.UserType
+            : 0;
+      user.created = user.created || user.Created || "";
+      user.address = user.address || user.Address || "";
+    }
+
     if (token) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
@@ -124,8 +178,23 @@ const Auth = {
   isAdmin() {
     const u = this.getCurrentUser();
     if (!u) return false;
-    const t = u.userType ?? u.UserType ?? u.role ?? u.Role ?? 0;
-    return t === 1 || t === "Admin" || t === "admin";
+    const t = u.userType ?? u.UserType ?? 0;
+    const r = u.role ?? u.Role ?? "";
+    return t === 1 || r === "Admin" || r === "admin";
+  },
+
+  /** Kiểm tra seller */
+  isSeller() {
+    const u = this.getCurrentUser();
+    if (!u) return false;
+    const t = u.userType ?? u.UserType ?? 0;
+    const r = u.role ?? u.Role ?? "";
+    return t === 2 || r === "Seller" || r === "seller";
+  },
+
+  /** Kiểm tra có quyền quản lý (admin hoặc seller) */
+  canManage() {
+    return this.isAdmin() || this.isSeller();
   },
 
   /** Đăng xuất */
@@ -141,17 +210,25 @@ const Auth = {
 // ============================================================
 const Product = {
   async getAll(params = {}) {
-    // Chỉ gửi params mà backend hiểu
+    // Tất cả params mà backend hỗ trợ
     var allowed = [
       "isActive",
       "isNew",
+      "onlyNew",
+      "onlySale",
       "categoryId",
       "cat",
       "limit",
       "page",
+      "pageSize",
       "search",
+      "keyword",
       "section",
       "sort",
+      "minPrice",
+      "maxPrice",
+      "minRating",
+      "brand",
     ];
     var clean = {};
     Object.keys(params).forEach(function (k) {
@@ -213,7 +290,227 @@ const Order = {
   },
 
   async cancel(id) {
+    // POST /api/orders/{id}/cancel — endpoint user tự hủy đơn
     return apiFetch(ORDER_API, "/api/orders/" + id + "/cancel", "POST");
+  },
+};
+
+// ============================================================
+//  SHOP MODULE
+// ============================================================
+const Shop = {
+  async getMy() {
+    return apiFetch(PRODUCT_API, "/api/shops/my", "GET");
+  },
+
+  async getById(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id, "GET");
+  },
+
+  async register(data) {
+    // data: { ShopName, Description, Logo, Address, Phone }
+    return apiFetch(PRODUCT_API, "/api/shops/register", "POST", data);
+  },
+
+  async update(id, data) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id, "PUT", data);
+  },
+
+  // Admin endpoints
+  async adminGetAll(page = 1, pageSize = 20) {
+    return apiFetch(PRODUCT_API, `/api/shops/admin/all?page=${page}&pageSize=${pageSize}`, "GET");
+  },
+
+  async adminApprove(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/approve", "PUT");
+  },
+
+  async adminBan(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
+  },
+};
+
+// ============================================================
+//  SELLER SHOP MODULE
+// ============================================================
+const SellerShop = {
+  getDashboard() {
+    return apiFetch(PRODUCT_API, "/api/shops/my/dashboard", "GET");
+  },
+  getStats(from, to) {
+    const qs = new URLSearchParams();
+    if (from) qs.set("from", from);
+    if (to)   qs.set("to", to);
+    return apiFetch(PRODUCT_API, "/api/shops/my/stats?" + qs.toString(), "GET");
+  },
+  getInfo() {
+    return apiFetch(PRODUCT_API, "/api/shops/my", "GET");
+  },
+  update(shopId, data) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + shopId, "PUT", data);
+  },
+  register(data) {
+    return apiFetch(PRODUCT_API, "/api/shops/register", "POST", data);
+  },
+};
+
+// ============================================================
+//  SELLER PRODUCT MODULE
+// ============================================================
+const SellerProduct = {
+  getAll(page = 1, search = "", status = "all", limit = 10) {
+    const qs = new URLSearchParams({ page, limit });
+    if (search) qs.set("search", search);
+    if (status) qs.set("status", status);
+    return apiFetch(PRODUCT_API, "/api/products/my?" + qs.toString(), "GET");
+  },
+  create(data)      { return apiFetch(PRODUCT_API, "/api/products", "POST", data); },
+  update(id, data)  { return apiFetch(PRODUCT_API, "/api/products/" + id, "PUT", data); },
+  delete(id)        { return apiFetch(PRODUCT_API, "/api/products/" + id, "DELETE"); },
+  toggle(id)        { return apiFetch(PRODUCT_API, "/api/products/" + id + "/toggle", "PATCH"); },
+  getStats(id)      { return apiFetch(PRODUCT_API, "/api/products/" + id + "/stats", "GET"); },
+};
+
+// ============================================================
+//  SELLER ORDER MODULE
+// ============================================================
+const SellerOrder = {
+  getAll(status = "", page = 1, limit = 10) {
+    const qs = new URLSearchParams({ page, limit });
+    if (status) qs.set("status", status);
+    return apiFetch(PRODUCT_API, "/api/orders/shop?" + qs.toString(), "GET");
+  },
+  getDetail(id)  { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id, "GET"); },
+  confirm(id)    { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/confirm", "PUT"); },
+  ship(id, trackingCode) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/ship", "PUT", { TrackingCode: trackingCode || null });
+  },
+  cancel(id, reason) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/cancel", "PUT", { Reason: reason });
+  },
+};
+
+// ============================================================
+//  INVENTORY MODULE
+// ============================================================
+const Inventory = {
+  getAll()              { return apiFetch(PRODUCT_API, "/api/inventory/my", "GET"); },
+  getLowStock()         { return apiFetch(PRODUCT_API, "/api/inventory/low-stock", "GET"); },
+  update(productId, stock) {
+    return apiFetch(PRODUCT_API, "/api/inventory/" + productId, "PUT", { Stock: stock });
+  },
+};
+
+// ============================================================
+//  SELLER VOUCHER MODULE
+// ============================================================
+const SellerVoucher = {
+  getAll()         { return apiFetch(PRODUCT_API, "/api/seller/vouchers", "GET"); },
+  create(data)     { return apiFetch(PRODUCT_API, "/api/seller/vouchers", "POST", data); },
+  update(id, data) { return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "PUT", data); },
+  delete(id)       { return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "DELETE"); },
+};
+
+// ============================================================
+//  SELLER REVIEW MODULE
+// ============================================================
+const SellerReview = {
+  getAll(page = 1, rating = null, replied = null) {
+    const qs = new URLSearchParams({ page, limit: 10 });
+    if (rating  != null) qs.set("rating",  rating);
+    if (replied != null) qs.set("replied", replied);
+    return apiFetch(PRODUCT_API, "/api/reviews/shop?" + qs.toString(), "GET");
+  },
+  reply(reviewId, replyText) {
+    return apiFetch(PRODUCT_API, "/api/reviews/" + reviewId + "/reply", "POST", { Reply: replyText });
+  },
+  getStats() {
+    return apiFetch(PRODUCT_API, "/api/reviews/shop/stats", "GET");
+  },
+};
+
+// ============================================================
+//  Q&A MODULE
+// ============================================================
+const QnA = {
+  // Seller
+  getShopQuestions(page = 1, answered = null) {
+    const qs = new URLSearchParams({ page, limit: 10 });
+    if (answered != null) qs.set("answered", answered);
+    return apiFetch(PRODUCT_API, "/api/qna/shop?" + qs.toString(), "GET");
+  },
+  answer(questionId, answerText) {
+    return apiFetch(PRODUCT_API, "/api/qna/" + questionId + "/answer", "POST", { Answer: answerText });
+  },
+  getStats() {
+    return apiFetch(PRODUCT_API, "/api/qna/shop/stats", "GET");
+  },
+  // Customer
+  getProductQnA(productId) {
+    return apiFetch(PRODUCT_API, "/api/qna/customer/" + productId, "GET");
+  },
+  ask(productId, question) {
+    return apiFetch(PRODUCT_API, "/api/qna/customer/ask", "POST", { ProductId: productId, Question: question });
+  },
+};
+
+// ============================================================
+//  NOTIFICATION MODULE
+// ============================================================
+const Notification = {
+  getAll(page = 1, isRead = null) {
+    const qs = new URLSearchParams({ page, limit: 20 });
+    if (isRead != null) qs.set("isRead", isRead);
+    return apiFetch(PRODUCT_API, "/api/notifications/my?" + qs.toString(), "GET");
+  },
+  getUnreadCount() {
+    return apiFetch(PRODUCT_API, "/api/notifications/unread-count", "GET");
+  },
+  markRead(id) {
+    return apiFetch(PRODUCT_API, "/api/notifications/" + id + "/read", "PUT");
+  },
+  markAllRead() {
+    return apiFetch(PRODUCT_API, "/api/notifications/read-all", "PUT");
+  },
+  delete(id) {
+    return apiFetch(PRODUCT_API, "/api/notifications/" + id, "DELETE");
+  },
+};
+
+// ============================================================
+//  SELLER REPORT MODULE
+// ============================================================
+const SellerReport = {
+  getRevenue(from, to) {
+    const qs = new URLSearchParams();
+    if (from) qs.set("from", from);
+    if (to)   qs.set("to",   to);
+    return apiFetch(PRODUCT_API, "/api/reports/seller/revenue?" + qs.toString(), "GET");
+  },
+  getTopProducts(limit = 10, from = null, to = null) {
+    const qs = new URLSearchParams({ limit });
+    if (from) qs.set("from", from);
+    if (to)   qs.set("to",   to);
+    return apiFetch(PRODUCT_API, "/api/reports/seller/products?" + qs.toString(), "GET");
+  },
+  getSummary() {
+    return apiFetch(PRODUCT_API, "/api/reports/seller/summary", "GET");
+  },
+  exportCSV(from, to) {
+    const rows = [...document.querySelectorAll('#statsTable tr')];
+    if (!rows.length) { showGlobalToast('Không có dữ liệu để xuất', 'error'); return; }
+    const headers = ['Ngày', 'Số Đơn', 'Doanh Thu', 'Hoa Hồng', 'Thực Nhận'];
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => [...row.cells].map(c => '"' + c.textContent.trim().replace(/"/g, '""') + '"').join(','))
+    ].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `bao_cao_${from || 'all'}_${to || 'all'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   },
 };
 
@@ -250,8 +547,20 @@ const Cart = {
         id: id,
         name: product.Name || product.name,
         price: product.Price || product.price,
-        image: product.Image || product.image || "",
-        category: product.Category || product.category || "",
+        // DB Products dùng ImageUrl, không phải Image
+        image:
+          product.ImageUrl ||
+          product.imageUrl ||
+          product.Image ||
+          product.image ||
+          "",
+        category:
+          (product.Category &&
+            (product.Category.Name || product.Category.name)) ||
+          product.CategoryName ||
+          product.Category ||
+          product.category ||
+          "",
         qty: qty,
       });
     }
@@ -466,17 +775,29 @@ function renderNavUser() {
     if (user) {
       var name =
         user.name || user.Name || user.userName || user.UserName || "Tài khoản";
-      var initial = name.charAt(0).toUpperCase();
+      // DB: AvatarUrl hoặc Image
+      var avatarUrl =
+        user.avatarUrl || user.AvatarUrl || user.image || user.Image || "";
+      var initial = name.trim().split(" ").pop().charAt(0).toUpperCase();
+      var avatarHtml = avatarUrl
+        ? '<img src="' +
+          avatarUrl +
+          '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' +
+          initial +
+          "'\">"
+        : initial;
       var adminLi = Auth.isAdmin()
         ? '<a href="admin.html">⚙️ Quản Trị</a>'
-        : "";
+        : Auth.isSeller()
+          ? '<a href="admin.html">🏪 Quản Lý Shop</a>'
+          : "";
 
       el.innerHTML = `
         <button class="gh-user-btn" id="userBtn_${areaId}" onclick="toggleUserMenu(this)" type="button">
-          <span class="gh-user-avatar">${initial}</span>
+          <span class="gh-user-avatar">${avatarHtml}</span>
           <span class="gh-user-name">${name}</span>
           <div class="gh-dropdown">
-            <a href="checkout.html?tab=profile">👤 Hồ Sơ</a>
+            <a href="profile.html">👤 Hồ Sơ</a>
             <a href="checkout.html?tab=orders">📦 Đơn Hàng</a>
             ${adminLi}
             <hr/>
@@ -526,22 +847,20 @@ async function renderProductsOnIndex() {
 
   var products = [];
   try {
-    var result = await Product.getAll({ isActive: true });
-    products = Array.isArray(result)
-      ? result
-      : result.data
-        ? result.data
-        : result.items
-          ? result.items
-          : result.products
-            ? result.products
-            : [];
-  } catch (_) {
+    var result = await Product.getAll({});
+    products =
+      result?.items || result?.data || result?.products || result || [];
+    if (!Array.isArray(products)) products = [];
+  } catch (err) {
+    console.warn("[GlowHub] renderProductsOnIndex lỗi:", err && err.message);
     _attachStaticCartButtons();
     return;
   }
 
   if (!products || !products.length) {
+    console.warn(
+      "[GlowHub] API trả về mảng rỗng — kiểm tra backend /api/products",
+    );
     _attachStaticCartButtons();
     return;
   }
@@ -629,7 +948,7 @@ function adminGuard() {
     window.location.href = "login.html";
     return false;
   }
-  if (!Auth.isAdmin()) {
+  if (!Auth.canManage()) {
     alert("Bạn không có quyền truy cập khu vực này!");
     window.location.href = "index.html";
     return false;
@@ -681,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (res && res.user) {
             showGlobalToast("Đăng nhập thành công!");
             setTimeout(() => {
-              if (Auth.isAdmin()) {
+              if (Auth.canManage()) {
                 window.location.href = "admin.html";
               } else {
                 window.location.href = "index.html";

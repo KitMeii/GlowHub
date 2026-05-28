@@ -33,13 +33,20 @@ namespace BaseCore.AuthService.Controllers
                 return Unauthorized(new { message = "Invalid username or password" });
             }
 
+            var role = user.UserType switch
+            {
+                1 => RoleConstant.Admin,
+                2 => RoleConstant.Seller,
+                _ => RoleConstant.User
+            };
+
             // Generate JWT token
             var token = TokenHelper.GenerateToken(
                 SecretKey,
                 TokenExpirationMinutes,
                 user.Id.ToString(),
                 user.UserName,
-                user.UserType == 1 ? "Admin" : "User"
+                role
             );
 
             return Ok(new LoginResponse
@@ -49,7 +56,7 @@ namespace BaseCore.AuthService.Controllers
                 Username = user.UserName,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.UserType == 1 ? "Admin" : "User",
+                Role = role,
                 ExpiresIn = TokenExpirationMinutes * 60
             });
         }
@@ -78,9 +85,9 @@ namespace BaseCore.AuthService.Controllers
                 {
                     UserName = request.Username,
                     Name = request.Name ?? request.Username,
-                    Email = request.Email,
-                    Phone = request.Phone,
-                    UserType = 0 // Default to regular user
+                    Email = request.Email ?? "",
+                    Phone = request.Phone ?? "",
+                    UserType = 0
                 };
 
                 var createdUser = await _userService.Create(user, request.Password);

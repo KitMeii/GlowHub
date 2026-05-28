@@ -1,0 +1,1733 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Seller Dashboard — GlowHub</title>
+  <meta name="theme-color" content="#f759ab"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="theme/seller-dashboard.css" />
+</head>
+<body>
+
+<!-- Mobile toggle -->
+<button class="sd-toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+
+<!-- SIDEBAR -->
+<aside class="sd-sidebar" id="sidebar">
+  <div class="sd-brand">
+    <div class="sd-brand-logo">GLOWHUB</div>
+    <div class="sd-brand-sub" id="shopNameSub">Seller Dashboard</div>
+  </div>
+  <div class="sd-user">
+    <div class="sd-avatar" id="sellerAvatar">S</div>
+    <div>
+      <div class="sd-user-name" id="sellerName">Đang tải...</div>
+      <div class="sd-shop-status" id="shopStatusBadge"></div>
+    </div>
+  </div>
+  <nav class="sd-nav">
+    <a class="sd-nav-item active" data-page="overview"><i class="bi bi-grid-1x2"></i> Tổng Quan</a>
+    <a class="sd-nav-item" data-page="products"><i class="bi bi-box-seam"></i> Sản Phẩm</a>
+    <a class="sd-nav-item" data-page="orders"><i class="bi bi-bag-check"></i> Đơn Hàng</a>
+    <a class="sd-nav-item" data-page="shop"><i class="bi bi-shop"></i> Thông Tin Shop</a>
+    <a class="sd-nav-item" data-page="vouchers"><i class="bi bi-ticket-perforated"></i> Voucher</a>
+    <a class="sd-nav-item" data-page="reviews"><i class="bi bi-star-half"></i> Đánh Giá</a>
+    <a class="sd-nav-item" data-page="qna"><i class="bi bi-chat-dots"></i> Hỏi Đáp</a>
+    <a class="sd-nav-item" data-page="stats"><i class="bi bi-bar-chart-line"></i> Thống Kê</a>
+    <div class="sd-nav-sep"></div>
+    <a class="sd-nav-item" href="index.html"><i class="bi bi-house"></i> Trang Chủ</a>
+    <a class="sd-nav-item" href="#" onclick="event.preventDefault();Auth.logout()"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="sd-main">
+  <div class="sd-topbar">
+    <div class="sd-topbar-title" id="pageTitle">Tổng Quan</div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="font-size:12px;color:#aaa" id="shopNameTop"></div>
+      <div class="notif-bell" id="notifBell" onclick="toggleNotifDropdown(event)">
+        <i class="bi bi-bell" style="font-size:20px;color:#666"></i>
+        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+        <div class="notif-dropdown" id="notifDropdown" onclick="event.stopPropagation()">
+          <div style="padding:12px 16px;border-bottom:1px solid #f0ebe4;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:13px;font-weight:500">Thông Báo</span>
+            <button onclick="markAllNotifRead()" style="background:none;border:none;font-size:11px;color:var(--pink);cursor:pointer">Đánh dấu tất cả đã đọc</button>
+          </div>
+          <div id="notifList" style="max-height:300px;overflow-y:auto">
+            <div class="empty-state" style="padding:24px 16px">Không có thông báo</div>
+          </div>
+          <div style="padding:10px 16px;border-top:1px solid #f0ebe4;text-align:center">
+            <button onclick="loadAllNotifications()" style="background:none;border:none;font-size:12px;color:var(--pink);cursor:pointer;text-decoration:underline">Xem tất cả thông báo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sd-content">
+
+    <!-- ═══════════════════════════ OVERVIEW ═══════════════════════════ -->
+    <section class="sd-section active" id="page-overview">
+      <div class="row g-3 mb-4" id="statCards">
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Doanh Thu Hôm Nay</div><div class="value" id="st-today">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Doanh Thu Tháng</div><div class="value" id="st-month">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Tổng Đơn Hàng</div><div class="value" id="st-orders">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Đơn Chờ Xử Lý</div><div class="value" id="st-pending" style="color:#f59e0b">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">⭐ Đánh Giá Trung Bình</div><div class="value" id="st-avg-rating" style="color:#f59e0b">—</div><div class="sub" id="st-total-reviews"></div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">❓ Câu Hỏi Chờ Trả Lời</div><div class="value" id="st-pending-qna" style="color:#ef4444">—</div><div class="sub" id="st-total-qna"></div></div></div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+          <div class="sd-card">
+            <div class="sd-card-header"><span class="sd-card-title">Doanh Thu 7 Ngày</span></div>
+            <div class="chart-wrap"><canvas id="revenueChart" height="80"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="sd-card h-100">
+            <div class="sd-card-header"><span class="sd-card-title">Sản Phẩm Sắp Hết</span></div>
+            <div id="lowStockList" style="padding:16px;font-size:13px">
+              <div class="d-flex justify-content-center py-3"><div class="spinner-sm"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sd-card mb-3">
+        <div class="sd-card-header"><span class="sd-card-title">Đơn Hàng Mới Nhất</span></div>
+        <div style="overflow-x:auto">
+          <table class="sd-table">
+            <thead><tr><th>Mã Đơn</th><th>Khách Hàng</th><th>Tổng Tiền</th><th>Trạng Thái</th><th></th></tr></thead>
+            <tbody id="recentOrdersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sd-card">
+        <div class="sd-card-header">
+          <span class="sd-card-title">Đánh Giá Mới Nhất</span>
+          <button class="btn-outline btn-sm" onclick="switchPage('reviews')">Xem tất cả</button>
+        </div>
+        <div id="recentReviewsList" style="padding:0 4px">
+          <div class="d-flex justify-content-center py-3"><div class="spinner-sm"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ PRODUCTS ═══════════════════════════ -->
+    <section class="sd-section" id="page-products">
+      <div class="sd-card-header mb-3" style="background:#fff;border:1px solid #ede8e2;border-radius:2px">
+        <span class="sd-card-title">Sản Phẩm (<span id="productTotal">0</span>)</span>
+        <button class="btn-pink btn-sm" onclick="openProductModal()">＋ Thêm Sản Phẩm</button>
+      </div>
+      <div class="d-flex gap-2 mb-3 flex-wrap">
+        <input type="text" id="productSearch" class="form-control" style="max-width:260px" placeholder="🔍 Tìm sản phẩm..."/>
+        <select id="productStatusFilter" class="form-control" style="width:auto">
+          <option value="all">Tất cả</option>
+          <option value="active">Đang bán</option>
+          <option value="inactive">Đã ẩn</option>
+        </select>
+      </div>
+      <div class="sd-card" style="overflow-x:auto">
+        <table class="sd-table">
+          <thead><tr><th>Ảnh</th><th>Tên SP</th><th>Danh Mục</th><th>Giá</th><th>Giá KM</th><th>Tồn Kho</th><th>Bật/Tắt</th><th>Đã Bán</th><th>Hành Động</th></tr></thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="productPager"></div>
+    </section>
+
+    <!-- ═══════════════════════════ ORDERS ═══════════════════════════ -->
+    <section class="sd-section" id="page-orders">
+      <div class="order-tabs" id="orderTabs">
+        <button class="order-tab active" data-status="">Tất Cả<span class="count" id="cnt-all">0</span></button>
+        <button class="order-tab" data-status="PENDING">Chờ Xác Nhận<span class="count" id="cnt-pending">0</span></button>
+        <button class="order-tab" data-status="CONFIRMED">Đã Xác Nhận<span class="count" id="cnt-confirmed">0</span></button>
+        <button class="order-tab" data-status="SHIPPING">Đang Giao<span class="count" id="cnt-shipping">0</span></button>
+        <button class="order-tab" data-status="COMPLETED">Hoàn Thành<span class="count" id="cnt-completed">0</span></button>
+        <button class="order-tab" data-status="CANCELLED">Đã Hủy<span class="count" id="cnt-cancelled">0</span></button>
+      </div>
+      <div class="sd-card" style="overflow-x:auto">
+        <table class="sd-table">
+          <thead><tr><th>Mã Đơn</th><th>Khách Hàng</th><th>Sản Phẩm</th><th>Tổng Tiền</th><th>Trạng Thái</th><th>Ngày Đặt</th><th>Hành Động</th></tr></thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="orderPager"></div>
+    </section>
+
+    <!-- ═══════════════════════════ SHOP INFO ═══════════════════════════ -->
+    <section class="sd-section" id="page-shop">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="sd-card">
+            <div class="sd-card-header"><span class="sd-card-title">Chỉnh Sửa Thông Tin</span></div>
+            <div class="modal-body">
+              <div id="shopAlertBox" class="alert-box"></div>
+              <div class="form-group">
+                <label class="form-label">Tên Shop *</label>
+                <input type="text" id="shopName" class="form-control" maxlength="100"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mô tả</label>
+                <textarea id="shopDesc" class="form-control" rows="3" maxlength="500"></textarea>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Địa chỉ</label>
+                    <input type="text" id="shopAddress" class="form-control" maxlength="300"/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" id="shopPhone" class="form-control" maxlength="20"/>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL Logo</label>
+                <input type="url" id="shopLogo" class="form-control" oninput="previewLogo()"/>
+                <img id="logoPreview" class="preview-img" src="" alt="" style="display:none"/>
+              </div>
+              <button class="btn-dark" onclick="saveShopInfo()">Lưu Thay Đổi</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="sd-card">
+            <div class="sd-card-header"><span class="sd-card-title">Thông Tin Chỉ Đọc</span></div>
+            <div class="modal-body" style="font-size:13px">
+              <div class="mb-3"><b>Trạng thái:</b><br><span id="shopReadStatus">—</span></div>
+              <div class="mb-3"><b>Ngày tạo:</b><br><span id="shopReadCreated">—</span></div>
+              <div class="mb-3"><b>Hoa hồng hệ thống:</b><br><span id="shopReadCommission">—</span></div>
+              <hr/>
+              <div class="mb-2"><b>Doanh thu tháng:</b> <span id="shopReadRevenue">—</span></div>
+              <div class="mb-2"><b>Hoa hồng phải trả:</b> <span id="shopReadCommissionAmt" style="color:#ef4444">—</span></div>
+              <div><b>Thực nhận:</b> <span id="shopReadNet" style="color:#0f5132;font-weight:600">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ VOUCHERS ═══════════════════════════ -->
+    <section class="sd-section" id="page-vouchers">
+      <div class="sd-card-header mb-3" style="background:#fff;border:1px solid #ede8e2;border-radius:2px">
+        <span class="sd-card-title">Voucher Shop</span>
+        <button class="btn-pink btn-sm" onclick="openVoucherModal()">＋ Tạo Voucher</button>
+      </div>
+      <div class="sd-card" style="overflow-x:auto">
+        <table class="sd-table">
+          <thead><tr><th>Code</th><th>Loại</th><th>Giá Trị</th><th>Đơn Tối Thiểu</th><th>Đã Dùng/Tối Đa</th><th>Hạn Dùng</th><th>Trạng Thái</th><th>Hành Động</th></tr></thead>
+          <tbody id="voucherTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ REVIEWS ═══════════════════════════ -->
+    <section class="sd-section" id="page-reviews">
+      <!-- Stats bar -->
+      <div class="row g-3 mb-4" id="reviewStatsBar">
+        <div class="col-4"><div class="stat-card"><div class="label">Tổng Đánh Giá</div><div class="value" id="rv-total">—</div></div></div>
+        <div class="col-4"><div class="stat-card"><div class="label">Điểm Trung Bình</div><div class="value" id="rv-avg" style="color:#f59e0b">—</div></div></div>
+        <div class="col-4"><div class="stat-card"><div class="label">Chưa Phản Hồi</div><div class="value" id="rv-pending" style="color:#ef4444">—</div></div></div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+          <div class="sd-card" style="padding:16px 20px" id="ratingDistribution">
+            <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:12px">Phân Bố Đánh Giá</div>
+            <div id="ratingBars"></div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="sd-card" style="padding:16px 20px">
+            <div class="filter-tabs" id="reviewFilterTabs">
+              <button class="filter-tab active" data-filter="">Tất cả</button>
+              <button class="filter-tab" data-filter="unreplied">Chưa phản hồi</button>
+              <button class="filter-tab" data-filter="replied">Đã phản hồi</button>
+              <button class="filter-tab" data-filter="5">⭐⭐⭐⭐⭐</button>
+              <button class="filter-tab" data-filter="4">⭐⭐⭐⭐</button>
+              <button class="filter-tab" data-filter="3">⭐⭐⭐</button>
+              <button class="filter-tab" data-filter="2">⭐⭐</button>
+              <button class="filter-tab" data-filter="1">⭐</button>
+            </div>
+            <div id="reviewList">
+              <div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>
+            </div>
+            <div class="pager" id="reviewPager"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ Q&A ═══════════════════════════ -->
+    <section class="sd-section" id="page-qna">
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-4"><div class="stat-card"><div class="label">Tổng Câu Hỏi</div><div class="value" id="qna-total">—</div></div></div>
+        <div class="col-4"><div class="stat-card"><div class="label">Đã Trả Lời</div><div class="value" id="qna-answered" style="color:#0f5132">—</div></div></div>
+        <div class="col-4"><div class="stat-card"><div class="label">Chờ Trả Lời</div><div class="value" id="qna-pending" style="color:#ef4444">—</div></div></div>
+      </div>
+
+      <div class="sd-card" style="padding:16px 20px">
+        <div class="filter-tabs" id="qnaFilterTabs">
+          <button class="filter-tab active" data-filter="">Tất cả</button>
+          <button class="filter-tab" data-filter="false">Chờ trả lời</button>
+          <button class="filter-tab" data-filter="true">Đã trả lời</button>
+        </div>
+        <div id="qnaList">
+          <div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>
+        </div>
+        <div class="pager" id="qnaPager"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ STATS ═══════════════════════════ -->
+    <section class="sd-section" id="page-stats">
+      <div class="sd-card mb-4">
+        <div class="modal-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Từ ngày</label>
+              <input type="date" id="statsFrom" class="form-control"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Đến ngày</label>
+              <input type="date" id="statsTo" class="form-control"/>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex gap-2">
+                <button class="btn-dark flex-grow-1" onclick="loadStats()">Xem Thống Kê</button>
+                <button class="btn-outline" onclick="exportStatsCSV()" title="Xuất CSV" style="padding:7px 12px">📥</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Tổng Đơn</div><div class="value" id="stats-orders">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Doanh Thu</div><div class="value" id="stats-revenue">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Hoa Hồng</div><div class="value" id="stats-commission" style="color:#ef4444">—</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><div class="label">Thực Nhận</div><div class="value" id="stats-net" style="color:#0f5132">—</div></div></div>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+          <div class="sd-card">
+            <div class="sd-card-header"><span class="sd-card-title">Doanh Thu Theo Ngày</span></div>
+            <div class="chart-wrap"><canvas id="statsLineChart" height="80"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="sd-card mb-3">
+            <div class="sd-card-header"><span class="sd-card-title">Top SP Bán Chạy</span></div>
+            <div id="topProductsChart" class="chart-wrap" style="height:200px;display:flex;align-items:center;justify-content:center">
+              <canvas id="statsBarChart"></canvas>
+            </div>
+          </div>
+          <div class="sd-card">
+            <div class="sd-card-header"><span class="sd-card-title">Doanh Thu Theo Danh Mục</span></div>
+            <div class="chart-wrap" style="height:200px;display:flex;align-items:center;justify-content:center">
+              <canvas id="statsPieChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sd-card" style="overflow-x:auto">
+        <div class="sd-card-header"><span class="sd-card-title">Chi Tiết Theo Ngày</span></div>
+        <table class="sd-table">
+          <thead><tr><th>Ngày</th><th>Số Đơn</th><th>Doanh Thu</th><th>Hoa Hồng</th><th>Thực Nhận</th></tr></thead>
+          <tbody id="statsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- .sd-content -->
+</div><!-- .sd-main -->
+
+<!-- ═══════════════ MODAL: PRODUCT ═══════════════ -->
+<div class="modal-backdrop" id="productModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Thêm Sản Phẩm</div>
+      <button class="btn-close-modal" onclick="closeModal('productModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="productAlertBox" class="alert-box"></div>
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Tên sản phẩm *</label>
+            <input type="text" id="p-name" class="form-control" maxlength="200"/>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Mô tả</label>
+            <textarea id="p-desc" class="form-control" rows="3" maxlength="1000"></textarea>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Danh mục *</label>
+            <select id="p-category" class="form-control"></select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            <select id="p-active" class="form-control">
+              <option value="true">Đang bán</option>
+              <option value="false">Ẩn</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Giá gốc (đ) *</label>
+            <input type="number" id="p-price" class="form-control" min="0"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Giá khuyến mãi (đ)</label>
+            <input type="number" id="p-discount" class="form-control" min="0"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Tồn kho *</label>
+            <input type="number" id="p-stock" class="form-control" min="0"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">URL Ảnh chính</label>
+            <input type="url" id="p-image" class="form-control" oninput="previewProductImg()"/>
+            <img id="p-image-preview" class="preview-img" src="" alt="" style="display:none"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('productModal')">Hủy</button>
+      <button class="btn-pink" onclick="saveProduct()">Lưu Sản Phẩm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: ORDER DETAIL ═══════════════ -->
+<div class="modal-backdrop" id="orderDetailModal">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <div class="modal-title">Chi Tiết Đơn <span id="odm-id" style="color:var(--pink)"></span></div>
+      <button class="btn-close-modal" onclick="closeModal('orderDetailModal')">×</button>
+    </div>
+    <div class="modal-body" id="orderDetailBody">
+      <div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>
+    </div>
+    <div class="modal-footer" id="orderDetailActions"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: CANCEL ORDER ═══════════════ -->
+<div class="modal-backdrop" id="cancelOrderModal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Hủy Đơn Hàng</div>
+      <button class="btn-close-modal" onclick="closeModal('cancelOrderModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#666;margin-bottom:16px">Vui lòng nhập lý do hủy đơn. Thông tin này sẽ được gửi đến khách hàng.</p>
+      <div class="form-group">
+        <label class="form-label">Lý do hủy *</label>
+        <textarea id="cancelReason" class="form-control" rows="3" maxlength="500" placeholder="VD: Sản phẩm tạm hết hàng..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('cancelOrderModal')">Đóng</button>
+      <button class="btn-danger" onclick="submitCancelOrder()">Xác Nhận Hủy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: VOUCHER ═══════════════ -->
+<div class="modal-backdrop" id="voucherModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="voucherModalTitle">Tạo Voucher</div>
+      <button class="btn-close-modal" onclick="closeModal('voucherModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="voucherAlertBox" class="alert-box"></div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Mã voucher *</label>
+            <div class="d-flex gap-2">
+              <input type="text" id="v-code" class="form-control" maxlength="50" style="text-transform:uppercase"/>
+              <button class="btn-outline" onclick="genVoucherCode()" style="white-space:nowrap;padding:6px 10px;font-size:11px">Tạo Tự Động</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Loại giảm</label>
+            <select id="v-type" class="form-control">
+              <option value="percent">% Phần trăm</option>
+              <option value="fixed">Số tiền cố định</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Giá trị giảm *</label>
+            <input type="number" id="v-value" class="form-control" min="0"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Đơn tối thiểu (đ)</label>
+            <input type="number" id="v-min" class="form-control" min="0" value="0"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Số lần dùng tối đa</label>
+            <input type="number" id="v-max-usage" class="form-control" min="1" placeholder="Không giới hạn"/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Ngày bắt đầu</label>
+            <input type="date" id="v-start" class="form-control"/>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Ngày kết thúc</label>
+            <input type="date" id="v-end" class="form-control"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('voucherModal')">Hủy</button>
+      <button class="btn-pink" onclick="saveVoucher()">Lưu Voucher</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: CONFIRM DELETE ═══════════════ -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-header"><div class="modal-title">Xác Nhận</div></div>
+    <div class="modal-body"><p id="confirmMsg" style="font-size:13px;color:#555"></p></div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('confirmModal')">Hủy</button>
+      <button class="btn-danger" onclick="_confirmFn && _confirmFn()">Xóa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: ALL NOTIFICATIONS ═══════════════ -->
+<div class="modal-backdrop" id="allNotifModal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">Tất Cả Thông Báo</div>
+      <button class="btn-close-modal" onclick="closeModal('allNotifModal')">×</button>
+    </div>
+    <div class="modal-body" id="allNotifBody" style="padding:0">
+      <div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('allNotifModal')">Đóng</button>
+      <button class="btn-pink" onclick="markAllNotifRead()">Đánh Dấu Tất Cả Đã Đọc</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px"></div>
+
+<script src="js/api.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+//  BOOTSTRAP
+// ═══════════════════════════════════════════════════════════
+let _shopInfo = null;
+let _editingProductId = null;
+let _editingVoucherId = null;
+let _cancelOrderId   = null;
+let _confirmFn       = null;
+let _charts          = {};
+let _productPage     = 1;
+let _orderPage       = 1;
+let _orderStatus     = "";
+let _categories      = [];
+let _reviewPage      = 1;
+let _reviewFilter    = { rating: null, replied: null };
+let _qnaPage         = 1;
+let _qnaFilter       = null;
+let _notifInterval   = null;
+
+function fmtMoney(n) {
+  if (n == null || n === '') return '—';
+  return new Intl.NumberFormat('vi-VN').format(n) + ' ₫';
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('vi-VN');
+}
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.style.cssText = `padding:12px 18px;background:${type==='success'?'#111':'#dc2626'};color:#fff;border-radius:2px;font-size:12px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);border-left:3px solid ${type==='success'?'#f759ab':'#ff6b6b'};transform:translateX(120%);transition:transform .3s`;
+  t.textContent = (type==='success'?'✓  ':'✕  ') + msg;
+  c.appendChild(t);
+  requestAnimationFrame(() => t.style.transform = 'translateX(0)');
+  setTimeout(() => { t.style.transform = 'translateX(120%)'; setTimeout(() => t.remove(), 350); }, 3200);
+}
+function showAlert(boxId, msg, type = 'danger') {
+  const el = document.getElementById(boxId);
+  if (!el) return;
+  el.className = 'alert-box alert-' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideAlert(boxId) {
+  const el = document.getElementById(boxId);
+  if (el) el.style.display = 'none';
+}
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!Auth.isLoggedIn() || !Auth.isSeller()) {
+    alert('Bạn cần đăng nhập với tài khoản Seller.');
+    window.location.href = Auth.isLoggedIn() ? 'index.html' : 'login.html';
+    return;
+  }
+
+  // Navigation
+  document.querySelectorAll('.sd-nav-item[data-page]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      switchPage(a.dataset.page);
+    });
+  });
+
+  // Load user info
+  const user = Auth.getCurrentUser();
+  if (user) {
+    const name = user.name || user.Name || user.userName || 'Seller';
+    document.getElementById('sellerName').textContent = name;
+    document.getElementById('sellerAvatar').textContent = name.trim().split(' ').pop()[0].toUpperCase();
+  }
+
+  // Load shop info & default tab
+  try {
+    _shopInfo = await SellerShop.getInfo();
+    applyShopInfo(_shopInfo);
+    // Redirect to register-shop if no shop
+  } catch(e) {
+    if (e.message.includes('404') || e.message.toLowerCase().includes('chưa có')) {
+      if (confirm('Bạn chưa có shop. Đăng ký ngay?')) {
+        window.location.href = 'register-shop.html';
+      }
+      return;
+    }
+  }
+
+  await loadCategories();
+  await loadOverview();
+
+  // Notification polling every 30s
+  loadNotificationCount();
+  _notifInterval = setInterval(loadNotificationCount, 30000);
+
+  // Setup review filter tabs
+  document.getElementById('reviewFilterTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('#reviewFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const f = tab.dataset.filter;
+    if (f === 'unreplied') { _reviewFilter = { rating: null, replied: false }; }
+    else if (f === 'replied') { _reviewFilter = { rating: null, replied: true }; }
+    else if (['1','2','3','4','5'].includes(f)) { _reviewFilter = { rating: parseInt(f), replied: null }; }
+    else { _reviewFilter = { rating: null, replied: null }; }
+    _reviewPage = 1;
+    loadReviews();
+  });
+
+  // Setup Q&A filter tabs
+  document.getElementById('qnaFilterTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('#qnaFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const f = tab.dataset.filter;
+    _qnaFilter = f === '' ? null : f;
+    _qnaPage = 1;
+    loadQnA();
+  });
+
+  // Close notification dropdown on outside click
+  document.addEventListener('click', () => {
+    document.getElementById('notifDropdown').classList.remove('open');
+  });
+
+  // Set default dates for stats (last 30 days)
+  const today = new Date().toISOString().slice(0,10);
+  const monthAgo = new Date(Date.now() - 29*864e5).toISOString().slice(0,10);
+  document.getElementById('statsFrom').value = monthAgo;
+  document.getElementById('statsTo').value   = today;
+
+  // Product search debounce
+  let searchTimer;
+  document.getElementById('productSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { _productPage = 1; loadProducts(); }, 300);
+  });
+  document.getElementById('productStatusFilter').addEventListener('change', () => {
+    _productPage = 1; loadProducts();
+  });
+
+  // Order tabs
+  document.getElementById('orderTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.order-tab');
+    if (!tab) return;
+    document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    _orderStatus = tab.dataset.status;
+    _orderPage = 1;
+    loadOrders();
+  });
+});
+
+function applyShopInfo(shop) {
+  if (!shop) return;
+  _shopInfo = shop;
+  const statusMap = { 0: ['Chờ duyệt','pending'], 1: ['Hoạt động','active'], 2: ['Bị khóa','banned'] };
+  const status = shop.Status ?? shop.status ?? 0;
+  const [label, cls] = statusMap[status] || ['?','pending'];
+  document.getElementById('shopNameSub').textContent = shop.ShopName || shop.shopName || 'GlowHub';
+  document.getElementById('shopNameTop').textContent = shop.ShopName || shop.shopName || '';
+  document.getElementById('shopStatusBadge').innerHTML = `<span class="badge-${cls}">${label}</span>`;
+  // Fill shop form
+  document.getElementById('shopName').value    = shop.ShopName    || shop.shopName    || '';
+  document.getElementById('shopDesc').value    = shop.Description || shop.description || '';
+  document.getElementById('shopAddress').value = shop.Address     || shop.address     || '';
+  document.getElementById('shopPhone').value   = shop.Phone       || shop.phone       || '';
+  document.getElementById('shopLogo').value    = shop.Logo        || shop.logo        || '';
+  previewLogo();
+  // Read-only info
+  document.getElementById('shopReadStatus').innerHTML   = `<span class="badge-${cls}">${label}</span>`;
+  document.getElementById('shopReadCreated').textContent = fmtDate(shop.CreatedAt || shop.createdAt);
+  const rate = shop.CommissionRate ?? shop.commissionRate ?? 10;
+  document.getElementById('shopReadCommission').textContent = rate + '%';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PAGE SWITCHING
+// ═══════════════════════════════════════════════════════════
+const pageTitles = {
+  overview:'Tổng Quan', products:'Sản Phẩm', orders:'Đơn Hàng',
+  shop:'Thông Tin Shop', vouchers:'Voucher',
+  reviews:'Đánh Giá', qna:'Hỏi Đáp', stats:'Thống Kê'
+};
+function switchPage(page) {
+  document.querySelectorAll('.sd-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sd-nav-item[data-page]').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  document.getElementById('sidebar').classList.remove('open');
+  // Lazy load
+  if (page === 'products') loadProducts();
+  if (page === 'orders')   loadOrders();
+  if (page === 'vouchers') loadVouchers();
+  if (page === 'shop')     loadShopStats();
+  if (page === 'reviews')  { loadReviewStats(); loadReviews(); }
+  if (page === 'qna')      { loadQnAStats();    loadQnA(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  OVERVIEW / DASHBOARD
+// ═══════════════════════════════════════════════════════════
+async function loadOverview() {
+  if (!_shopInfo || (_shopInfo.Status ?? _shopInfo.status) !== 1) {
+    document.getElementById('st-today').textContent =
+    document.getElementById('st-month').textContent =
+    document.getElementById('st-orders').textContent =
+    document.getElementById('st-pending').textContent = 'N/A';
+    document.getElementById('lowStockList').innerHTML = '<div class="empty-state">Shop chưa được duyệt</div>';
+    return;
+  }
+  try {
+    const d = await SellerShop.getDashboard();
+    document.getElementById('st-today').textContent  = fmtMoney(d.todayRevenue);
+    document.getElementById('st-month').textContent  = fmtMoney(d.monthRevenue);
+    document.getElementById('st-orders').textContent = d.totalOrders;
+    const pendEl = document.getElementById('st-pending');
+    pendEl.textContent = d.pendingOrders;
+    pendEl.style.color = d.pendingOrders > 0 ? '#ef4444' : '#111';
+
+    renderRevenueChart(d.revenueChart);
+    renderRecentOrders(d.recentOrders);
+    renderLowStock(d.lowStockCount, d.recentOrders);
+
+    // Update low stock list from overview
+    const ls = await Inventory.getLowStock();
+    renderLowStockList(ls);
+
+    // Review + Q&A summary for overview cards
+    try {
+      const rv = await SellerReview.getStats();
+      document.getElementById('st-avg-rating').textContent = rv.avgRating ? rv.avgRating.toFixed(1) + ' ⭐' : '—';
+      document.getElementById('st-total-reviews').textContent = rv.totalReviews + ' đánh giá';
+    } catch(_) {}
+    try {
+      const qst = await QnA.getStats();
+      const pend = qst.pendingCount;
+      document.getElementById('st-pending-qna').textContent = pend;
+      document.getElementById('st-pending-qna').style.color = pend > 0 ? '#ef4444' : '#111';
+      document.getElementById('st-total-qna').textContent = qst.totalQuestions + ' câu hỏi';
+    } catch(_) {}
+
+    // Recent reviews (3 latest)
+    try {
+      const rv3 = await SellerReview.getAll(1, null, null);
+      renderRecentReviews((rv3.items || []).slice(0, 3));
+    } catch(_) {
+      document.getElementById('recentReviewsList').innerHTML = '<div class="empty-state">Chưa có đánh giá</div>';
+    }
+  } catch(e) {
+    showToast('Lỗi tải dashboard: ' + e.message, 'error');
+  }
+}
+
+function renderRevenueChart(chartData) {
+  const labels = chartData.map(x => x.date.slice(5));
+  const data   = chartData.map(x => x.revenue);
+  const ctx    = document.getElementById('revenueChart').getContext('2d');
+  if (_charts.revenue) _charts.revenue.destroy();
+  _charts.revenue = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Doanh thu (₫)',
+        data,
+        borderColor: '#f759ab',
+        backgroundColor: 'rgba(247,89,171,.1)',
+        tension: .4,
+        fill: true,
+        pointBackgroundColor: '#f759ab'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => new Intl.NumberFormat('vi-VN', { notation:'compact' }).format(v) } } }
+    }
+  });
+}
+
+function renderRecentOrders(orders) {
+  const tbody = document.getElementById('recentOrdersTable');
+  if (!orders || !orders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Chưa có đơn hàng nào</td></tr>';
+    return;
+  }
+  const statusHtml = s => {
+    const m = { PENDING:'s-pending', CONFIRMED:'s-confirmed', SHIPPING:'s-shipping', COMPLETED:'s-completed', CANCELLED:'s-cancelled' };
+    const l = { PENDING:'Chờ XN', CONFIRMED:'Đã XN', SHIPPING:'Đang giao', COMPLETED:'Hoàn thành', CANCELLED:'Đã hủy' };
+    return `<span class="status-badge ${m[s]||''}">${l[s]||s}</span>`;
+  };
+  tbody.innerHTML = orders.map(o => `
+    <tr>
+      <td>#${o.orderId}</td>
+      <td>${o.customer}</td>
+      <td>${fmtMoney(o.totalAmount)}</td>
+      <td>${statusHtml(o.status)}</td>
+      <td><button class="btn-outline btn-sm" onclick="viewOrder(${o.orderId})">Xem</button></td>
+    </tr>`).join('');
+}
+
+function renderLowStockList(items) {
+  const el = document.getElementById('lowStockList');
+  if (!items || !items.length) {
+    el.innerHTML = '<div style="text-align:center;color:#bbb;font-size:12px;padding:20px">Không có SP sắp hết</div>';
+    return;
+  }
+  el.innerHTML = items.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f4f2">
+      <span style="font-size:12px">${p.Name||p.name}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:600;color:#ef4444">${p.Stock??p.stock}</span>
+        <button class="btn-outline btn-sm" onclick="quickStock(${p.Id||p.id})">Cập Nhật</button>
+      </div>
+    </div>`).join('');
+}
+
+async function quickStock(productId) {
+  const newStock = prompt('Nhập tồn kho mới:');
+  if (newStock === null) return;
+  const n = parseInt(newStock);
+  if (isNaN(n) || n < 0) { showToast('Tồn kho không hợp lệ', 'error'); return; }
+  try {
+    await Inventory.update(productId, n);
+    showToast('Tồn kho đã cập nhật');
+    loadOverview();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PRODUCTS
+// ═══════════════════════════════════════════════════════════
+async function loadCategories() {
+  try {
+    const res = await apiFetch(PRODUCT_API, '/api/categories', 'GET');
+    _categories = res?.items || res?.data || res || [];
+    const sel = document.getElementById('p-category');
+    sel.innerHTML = '<option value="">Chọn danh mục</option>' +
+      _categories.map(c => `<option value="${c.Id||c.id}">${c.Name||c.name}</option>`).join('');
+  } catch(e) { /* ignore */ }
+}
+
+async function loadProducts() {
+  const search = document.getElementById('productSearch').value;
+  const status = document.getElementById('productStatusFilter').value;
+  const tbody  = document.getElementById('productTable');
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px"><div class="spinner-sm" style="margin:auto"></div></td></tr>';
+  try {
+    const res = await SellerProduct.getAll(_productPage, search, status);
+    document.getElementById('productTotal').textContent = res.total;
+    renderProducts(res.items || []);
+    renderPager('productPager', res.page, res.totalPages, p => { _productPage = p; loadProducts(); });
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Lỗi: ${e.message}</td></tr>`;
+  }
+}
+
+function renderProducts(items) {
+  const tbody = document.getElementById('productTable');
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Chưa có sản phẩm nào</td></tr>'; return; }
+  const ph = 'https://placehold.co/40x50/f5f0ea/888?text=IMG';
+  tbody.innerHTML = items.map(p => `
+    <tr>
+      <td><img src="${p.imageUrl||p.ImageUrl||ph}" class="img-thumb" onerror="this.src='${ph}'"/></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.name||p.Name}">${p.name||p.Name}</td>
+      <td style="font-size:12px;color:#888">${p.category||p.Category||'—'}</td>
+      <td>${fmtMoney(p.price||p.Price)}</td>
+      <td style="color:var(--pink)">${p.discountPrice||p.DiscountPrice ? fmtMoney(p.discountPrice||p.DiscountPrice) : '—'}</td>
+      <td><span style="font-weight:600;color:${(p.stock??p.Stock)<10?'#ef4444':'#111'}">${p.stock??p.Stock}</span></td>
+      <td>
+        <label class="toggle-switch">
+          <input type="checkbox" ${(p.isActive??p.IsActive)?'checked':''} onchange="toggleProduct(${p.id||p.Id},this)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td style="font-size:12px">${p.soldCount}</td>
+      <td>
+        <button class="btn-outline btn-sm" onclick="editProduct(${p.id||p.Id})" title="Sửa">✏️</button>
+        <button class="btn-danger btn-sm" onclick="deleteProduct(${p.id||p.Id},'${(p.name||p.Name||'').replace(/'/g,'')}')" title="Xóa" style="margin-left:4px">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleProduct(id, checkbox) {
+  try {
+    const res = await SellerProduct.toggle(id);
+    showToast(res.isActive ? 'Sản phẩm đã bật' : 'Sản phẩm đã ẩn');
+  } catch(e) {
+    checkbox.checked = !checkbox.checked;
+    showToast(e.message, 'error');
+  }
+}
+
+function openProductModal(product = null) {
+  _editingProductId = product ? (product.id || product.Id) : null;
+  document.getElementById('productModalTitle').textContent = product ? 'Sửa Sản Phẩm' : 'Thêm Sản Phẩm';
+  document.getElementById('p-name').value     = product?.name || product?.Name || '';
+  document.getElementById('p-desc').value     = product?.description || product?.Description || '';
+  document.getElementById('p-price').value    = product?.price || product?.Price || '';
+  document.getElementById('p-discount').value = product?.discountPrice || product?.DiscountPrice || '';
+  document.getElementById('p-stock').value    = product?.stock ?? product?.Stock ?? '';
+  document.getElementById('p-image').value    = product?.imageUrl || product?.ImageUrl || '';
+  document.getElementById('p-active').value   = String(product?.isActive ?? product?.IsActive ?? true);
+  const catId = product?.categoryId || product?.CategoryId || '';
+  document.getElementById('p-category').value = catId;
+  previewProductImg();
+  hideAlert('productAlertBox');
+  openModal('productModal');
+}
+
+async function editProduct(id) {
+  try {
+    const p = await apiFetch(PRODUCT_API, '/api/products/' + id, 'GET');
+    openProductModal(p);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function saveProduct() {
+  const name     = document.getElementById('p-name').value.trim();
+  const price    = parseFloat(document.getElementById('p-price').value);
+  const stock    = parseInt(document.getElementById('p-stock').value);
+  const catId    = parseInt(document.getElementById('p-category').value);
+  const discount = document.getElementById('p-discount').value ? parseFloat(document.getElementById('p-discount').value) : null;
+  const image    = document.getElementById('p-image').value.trim();
+  const desc     = document.getElementById('p-desc').value.trim();
+  const isActive = document.getElementById('p-active').value === 'true';
+
+  if (!name)            { showAlert('productAlertBox','Tên sản phẩm là bắt buộc'); return; }
+  if (isNaN(price)||price<=0){ showAlert('productAlertBox','Giá gốc phải lớn hơn 0'); return; }
+  if (isNaN(stock)||stock<0) { showAlert('productAlertBox','Tồn kho không hợp lệ'); return; }
+  if (!catId)           { showAlert('productAlertBox','Vui lòng chọn danh mục'); return; }
+  if (discount !== null && discount >= price) { showAlert('productAlertBox','Giá KM phải nhỏ hơn giá gốc'); return; }
+
+  const data = { Name:name, Price:price, Stock:stock, CategoryId:catId, Description:desc, ImageUrl:image, IsActive:isActive };
+  if (discount !== null) data.DiscountPrice = discount;
+
+  try {
+    if (_editingProductId) {
+      await SellerProduct.update(_editingProductId, data);
+      showToast('Sản phẩm đã được cập nhật');
+    } else {
+      await SellerProduct.create(data);
+      showToast('Sản phẩm đã được thêm');
+    }
+    closeModal('productModal');
+    loadProducts();
+  } catch(e) { showAlert('productAlertBox', e.message); }
+}
+
+function deleteProduct(id, name) {
+  _confirmFn = async () => {
+    closeModal('confirmModal');
+    try {
+      await SellerProduct.delete(id);
+      showToast(`"${name}" đã được ẩn`);
+      loadProducts();
+    } catch(e) { showToast(e.message,'error'); }
+  };
+  document.getElementById('confirmMsg').textContent = `Ẩn sản phẩm "${name}"? Sản phẩm sẽ không hiển thị với khách hàng.`;
+  openModal('confirmModal');
+}
+
+function previewProductImg() {
+  const url = document.getElementById('p-image').value;
+  const img = document.getElementById('p-image-preview');
+  if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ORDERS
+// ═══════════════════════════════════════════════════════════
+async function loadOrders() {
+  const tbody = document.getElementById('orderTable');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px"><div class="spinner-sm" style="margin:auto"></div></td></tr>';
+  try {
+    const res = await SellerOrder.getAll(_orderStatus, _orderPage);
+    renderOrders(res.items || []);
+    renderPager('orderPager', res.page, Math.ceil(res.total / 10), p => { _orderPage = p; loadOrders(); });
+    // Update tab counts by loading all
+    updateOrderCounts(res.items || []);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">Lỗi: ${e.message}</td></tr>`;
+  }
+}
+
+function updateOrderCounts(items) {
+  const counts = { '':items.length, PENDING:0, CONFIRMED:0, SHIPPING:0, COMPLETED:0, CANCELLED:0 };
+  items.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+  document.getElementById('cnt-all').textContent       = counts[''];
+  document.getElementById('cnt-pending').textContent   = counts['PENDING'];
+  document.getElementById('cnt-confirmed').textContent = counts['CONFIRMED'];
+  document.getElementById('cnt-shipping').textContent  = counts['SHIPPING'];
+  document.getElementById('cnt-completed').textContent = counts['COMPLETED'];
+  document.getElementById('cnt-cancelled').textContent = counts['CANCELLED'];
+}
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('orderTable');
+  if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Chưa có đơn hàng</td></tr>'; return; }
+  const statusMap = {
+    PENDING:   ['Chờ xác nhận','s-pending'],
+    CONFIRMED: ['Đã xác nhận','s-confirmed'],
+    SHIPPING:  ['Đang giao','s-shipping'],
+    COMPLETED: ['Hoàn thành','s-completed'],
+    CANCELLED: ['Đã hủy','s-cancelled']
+  };
+  tbody.innerHTML = orders.map(o => {
+    const [slabel, scls] = statusMap[o.status] || [o.status,''];
+    const itemsSummary = o.items?.map(i => `${i.productName} x${i.Quantity||i.quantity}`).slice(0,2).join(', ') + (o.items?.length > 2 ? '...' : '');
+    let actions = '';
+    if (o.status === 'PENDING')    actions = `<button class="btn-dark btn-sm" onclick="confirmOrder(${o.orderId})">✅ Xác Nhận</button> <button class="btn-danger btn-sm" onclick="openCancelModal(${o.orderId})">❌ Hủy</button>`;
+    if (o.status === 'CONFIRMED')  actions = `<button class="btn-dark btn-sm" onclick="shipOrder(${o.orderId})">🚚 Giao Hàng</button>`;
+    return `<tr>
+      <td style="font-weight:500">#${o.orderId}</td>
+      <td>${o.customerName}</td>
+      <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${itemsSummary}">${itemsSummary}</td>
+      <td>${fmtMoney(o.totalAmount)}</td>
+      <td><span class="status-badge ${scls}">${slabel}</span></td>
+      <td style="font-size:11px">${fmtDate(o.createdAt)}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">
+        ${actions}
+        <button class="btn-outline btn-sm" onclick="viewOrder(${o.orderId})">Chi Tiết</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function viewOrder(orderId) {
+  document.getElementById('odm-id').textContent = '#' + orderId;
+  document.getElementById('orderDetailBody').innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+  document.getElementById('orderDetailActions').innerHTML = '';
+  openModal('orderDetailModal');
+  try {
+    const o = await SellerOrder.getDetail(orderId);
+    renderOrderDetail(o);
+  } catch(e) {
+    document.getElementById('orderDetailBody').innerHTML = `<p style="color:#ef4444">Lỗi: ${e.message}</p>`;
+  }
+}
+
+function renderOrderDetail(o) {
+  const statusLabels = { PENDING:'Chờ xác nhận', CONFIRMED:'Đã xác nhận', SHIPPING:'Đang giao', COMPLETED:'Hoàn thành', CANCELLED:'Đã hủy' };
+  const statusCls    = { PENDING:'s-pending', CONFIRMED:'s-confirmed', SHIPPING:'s-shipping', COMPLETED:'s-completed', CANCELLED:'s-cancelled' };
+  const subtotal = o.items?.reduce((s, i) => s + (i.unitPrice||0)*(i.Quantity||i.quantity||0), 0) || o.totalAmount;
+
+  document.getElementById('orderDetailBody').innerHTML = `
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Khách Hàng</h6>
+        <div style="font-size:13px">
+          <div class="mb-1"><b>${o.customer?.name||'—'}</b></div>
+          <div class="mb-1">📞 ${o.customer?.phone||'—'}</div>
+          <div>✉️ ${o.customer?.email||'—'}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Giao Hàng</h6>
+        <div style="font-size:13px">
+          <div class="mb-1">📍 ${o.shippingAddress||'—'}</div>
+          ${o.trackingCode ? `<div class="mb-1">🚚 Mã VĐ: <b>${o.trackingCode}</b></div>` : ''}
+          ${o.cancelReason ? `<div class="mb-1">❌ Lý do hủy: ${o.cancelReason}</div>` : ''}
+          ${o.note ? `<div>📝 Ghi chú: ${o.note}</div>` : ''}
+        </div>
+      </div>
+    </div>
+    <hr/>
+    <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Sản Phẩm</h6>
+    <div style="overflow-x:auto">
+      <table class="sd-table">
+        <thead><tr><th>Sản Phẩm</th><th>SL</th><th>Đơn Giá</th><th>Thành Tiền</th></tr></thead>
+        <tbody>
+          ${(o.items||[]).map(i => `
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px">
+                <img src="${i.imageUrl||''}" style="width:36px;height:44px;object-fit:cover;background:#f5f0ea" onerror="this.style.display='none'"/>
+                <span>${i.productName}</span>
+              </div></td>
+              <td>${i.Quantity||i.quantity}</td>
+              <td>${fmtMoney(i.unitPrice||i.UnitPrice)}</td>
+              <td>${fmtMoney(i.subtotal)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <hr/>
+    <div style="text-align:right;font-size:13px">
+      <div class="mb-1">Tạm tính: ${fmtMoney(subtotal)}</div>
+      <div style="font-size:16px;font-weight:600;color:var(--pink)">Tổng cộng: ${fmtMoney(o.totalAmount)}</div>
+    </div>
+    <hr/>
+    <div>Trạng thái: <span class="status-badge ${statusCls[o.status]||''}">${statusLabels[o.status]||o.status}</span></div>
+  `;
+
+  // Action buttons
+  const actDiv = document.getElementById('orderDetailActions');
+  actDiv.innerHTML = `<button class="btn-outline" onclick="closeModal('orderDetailModal')">Đóng</button>`;
+  if (o.status === 'PENDING') {
+    actDiv.innerHTML += `
+      <button class="btn-dark" onclick="confirmOrder(${o.orderId};closeModal('orderDetailModal'))">✅ Xác Nhận</button>
+      <button class="btn-danger" onclick="closeModal('orderDetailModal');openCancelModal(${o.orderId})">❌ Hủy Đơn</button>`;
+  } else if (o.status === 'CONFIRMED') {
+    actDiv.innerHTML += `<button class="btn-dark" onclick="shipOrder(${o.orderId})">🚚 Giao Hàng</button>`;
+  }
+}
+
+async function confirmOrder(orderId) {
+  try {
+    await SellerOrder.confirm(orderId);
+    showToast('Đơn hàng đã được xác nhận');
+    closeModal('orderDetailModal');
+    loadOrders();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function shipOrder(orderId) {
+  const tracking = prompt('Mã vận đơn (để trống nếu không có):') ?? '';
+  try {
+    await SellerOrder.ship(orderId, tracking || null);
+    showToast('Đơn hàng đang được giao');
+    closeModal('orderDetailModal');
+    loadOrders();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function openCancelModal(orderId) {
+  _cancelOrderId = orderId;
+  document.getElementById('cancelReason').value = '';
+  openModal('cancelOrderModal');
+}
+
+async function submitCancelOrder() {
+  const reason = document.getElementById('cancelReason').value.trim();
+  if (!reason) { showToast('Vui lòng nhập lý do hủy', 'error'); return; }
+  try {
+    await SellerOrder.cancel(_cancelOrderId, reason);
+    showToast('Đơn hàng đã bị hủy');
+    closeModal('cancelOrderModal');
+    loadOrders();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SHOP INFO
+// ═══════════════════════════════════════════════════════════
+async function loadShopStats() {
+  if (!_shopInfo || (_shopInfo.Status ?? _shopInfo.status) !== 1) return;
+  try {
+    const res = await SellerShop.getStats();
+    const rate = _shopInfo.CommissionRate ?? _shopInfo.commissionRate ?? 10;
+    document.getElementById('shopReadRevenue').textContent    = fmtMoney(res.totalRevenue);
+    document.getElementById('shopReadCommissionAmt').textContent = fmtMoney(res.totalCommission);
+    document.getElementById('shopReadNet').textContent        = fmtMoney(res.totalNet);
+  } catch(e) { /* ignore */ }
+}
+
+function previewLogo() {
+  const url = document.getElementById('shopLogo').value;
+  const img = document.getElementById('logoPreview');
+  if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+}
+
+async function saveShopInfo() {
+  if (!_shopInfo) return;
+  const name    = document.getElementById('shopName').value.trim();
+  if (!name) { showAlert('shopAlertBox', 'Tên shop là bắt buộc'); return; }
+  const data = {
+    ShopName:    name,
+    Description: document.getElementById('shopDesc').value.trim(),
+    Address:     document.getElementById('shopAddress').value.trim(),
+    Phone:       document.getElementById('shopPhone').value.trim(),
+    Logo:        document.getElementById('shopLogo').value.trim(),
+  };
+  try {
+    const shopId = _shopInfo.Id || _shopInfo.id;
+    await SellerShop.update(shopId, data);
+    _shopInfo = Object.assign(_shopInfo, { ShopName: data.ShopName, Description: data.Description, Address: data.Address, Phone: data.Phone, Logo: data.Logo });
+    applyShopInfo(_shopInfo);
+    showAlert('shopAlertBox', 'Thông tin shop đã được cập nhật!', 'success');
+  } catch(e) { showAlert('shopAlertBox', e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VOUCHERS
+// ═══════════════════════════════════════════════════════════
+async function loadVouchers() {
+  const tbody = document.getElementById('voucherTable');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px"><div class="spinner-sm" style="margin:auto"></div></td></tr>';
+  try {
+    const items = await SellerVoucher.getAll();
+    renderVouchers(items);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Lỗi: ${e.message}</td></tr>`;
+  }
+}
+
+function renderVouchers(items) {
+  const tbody = document.getElementById('voucherTable');
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Chưa có voucher</td></tr>'; return; }
+  const statusHtml = s => {
+    const m = { active:['🟢 Còn hiệu lực','s-completed'], expired:['🔴 Hết hạn','s-cancelled'], exhausted:['⚫ Đã dùng hết','s-cancelled'], inactive:['⚫ Đã tắt','s-cancelled'] };
+    const [label, cls] = m[s] || [s,''];
+    return `<span class="status-badge ${cls}" style="font-size:10px">${label}</span>`;
+  };
+  tbody.innerHTML = items.map(v => `
+    <tr>
+      <td>
+        <code style="background:#f5f0ea;padding:2px 6px;border-radius:2px;font-size:12px">${v.code}</code>
+        <button onclick="navigator.clipboard.writeText('${v.code}').then(()=>showToast('Đã copy'))" style="background:none;border:none;cursor:pointer;font-size:12px" title="Copy">📋</button>
+      </td>
+      <td>${v.discountType === 'percent' ? 'Phần trăm' : 'Cố định'}</td>
+      <td>${v.discountType === 'percent' ? v.discountValue + '%' : fmtMoney(v.discountValue)}</td>
+      <td>${fmtMoney(v.minOrderAmount)}</td>
+      <td>${v.usedCount} / ${v.maxUsage || '∞'}</td>
+      <td style="font-size:11px">${v.expiryDate ? fmtDate(v.expiryDate) : '—'}</td>
+      <td>${statusHtml(v.statusLabel)}</td>
+      <td>
+        <button class="btn-outline btn-sm" onclick="editVoucher(${JSON.stringify(v).replace(/"/g,'&quot;')})">✏️</button>
+        <button class="btn-danger btn-sm" onclick="deleteVoucher(${v.id},'${v.code}')" style="margin-left:4px">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openVoucherModal(v = null) {
+  _editingVoucherId = v ? v.id : null;
+  document.getElementById('voucherModalTitle').textContent = v ? 'Sửa Voucher' : 'Tạo Voucher';
+  document.getElementById('v-code').value       = v?.code || '';
+  document.getElementById('v-type').value       = v?.discountType || 'percent';
+  document.getElementById('v-value').value      = v?.discountValue || '';
+  document.getElementById('v-min').value        = v?.minOrderAmount || 0;
+  document.getElementById('v-max-usage').value  = v?.maxUsage || '';
+  document.getElementById('v-start').value      = v?.startDate ? v.startDate.slice(0,10) : '';
+  document.getElementById('v-end').value        = v?.expiryDate ? v.expiryDate.slice(0,10) : '';
+  hideAlert('voucherAlertBox');
+  openModal('voucherModal');
+}
+
+function editVoucher(v) {
+  if (typeof v === 'string') v = JSON.parse(v);
+  openVoucherModal(v);
+}
+
+function genVoucherCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'GLOW';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('v-code').value = code;
+}
+
+async function saveVoucher() {
+  const code  = document.getElementById('v-code').value.trim().toUpperCase();
+  const type  = document.getElementById('v-type').value;
+  const val   = parseFloat(document.getElementById('v-value').value);
+  const min   = parseFloat(document.getElementById('v-min').value) || 0;
+  const maxUse= document.getElementById('v-max-usage').value ? parseInt(document.getElementById('v-max-usage').value) : null;
+  const start = document.getElementById('v-start').value || null;
+  const end   = document.getElementById('v-end').value || null;
+
+  if (!code)         { showAlert('voucherAlertBox', 'Mã voucher là bắt buộc'); return; }
+  if (isNaN(val)||val<=0) { showAlert('voucherAlertBox', 'Giá trị giảm phải lớn hơn 0'); return; }
+  if (type === 'percent' && val > 100) { showAlert('voucherAlertBox', 'Giảm % không được vượt 100'); return; }
+  if (start && end && new Date(end) <= new Date(start)) { showAlert('voucherAlertBox', 'Ngày kết thúc phải sau ngày bắt đầu'); return; }
+
+  const data = { Code:code, DiscountType:type, DiscountValue:val, MinOrderValue:min, MaxUsage:maxUse, StartDate:start, EndDate:end };
+  try {
+    if (_editingVoucherId) {
+      await SellerVoucher.update(_editingVoucherId, data);
+      showToast('Voucher đã được cập nhật');
+    } else {
+      await SellerVoucher.create(data);
+      showToast('Voucher đã được tạo');
+    }
+    closeModal('voucherModal');
+    loadVouchers();
+  } catch(e) { showAlert('voucherAlertBox', e.message); }
+}
+
+async function deleteVoucher(id, code) {
+  _confirmFn = async () => {
+    closeModal('confirmModal');
+    try {
+      await SellerVoucher.delete(id);
+      showToast(`Voucher "${code}" đã bị xóa`);
+      loadVouchers();
+    } catch(e) { showToast(e.message,'error'); }
+  };
+  document.getElementById('confirmMsg').textContent = `Xóa voucher "${code}"?`;
+  openModal('confirmModal');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════════
+async function loadStats() {
+  const from = document.getElementById('statsFrom').value;
+  const to   = document.getElementById('statsTo').value;
+  if (!from || !to) { showToast('Vui lòng chọn khoảng thời gian', 'error'); return; }
+
+  try {
+    const res = await SellerShop.getStats(from, to);
+    document.getElementById('stats-orders').textContent    = res.totalOrders;
+    document.getElementById('stats-revenue').textContent   = fmtMoney(res.totalRevenue);
+    document.getElementById('stats-commission').textContent= fmtMoney(res.totalCommission);
+    document.getElementById('stats-net').textContent       = fmtMoney(res.totalNet);
+
+    // Line chart
+    const chart = res.chart || [];
+    const labels = chart.map(x => x.date.slice(5));
+    const revenues = chart.map(x => x.revenue);
+    const ctx = document.getElementById('statsLineChart').getContext('2d');
+    if (_charts.statsLine) _charts.statsLine.destroy();
+    _charts.statsLine = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Doanh thu', data: revenues, borderColor:'#f759ab',
+          backgroundColor:'rgba(247,89,171,.08)', tension:.4, fill:true, pointRadius:2
+        }]
+      },
+      options: {
+        plugins: { legend: { display:false } },
+        scales: { y: { ticks: { callback: v => new Intl.NumberFormat('vi-VN',{notation:'compact'}).format(v) } } }
+      }
+    });
+
+    // Stats table
+    const tbody = document.getElementById('statsTable');
+    tbody.innerHTML = chart.map(x => `
+      <tr>
+        <td>${x.date}</td>
+        <td>${x.orderCount}</td>
+        <td>${fmtMoney(x.revenue)}</td>
+        <td style="color:#ef4444">${fmtMoney(x.commission)}</td>
+        <td style="color:#0f5132;font-weight:600">${fmtMoney(x.net)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="empty-state">Không có dữ liệu</td></tr>';
+
+    // Top products bar + pie charts from report API
+    try {
+      const topItems = await SellerReport.getTopProducts(5, from, to);
+
+      // Bar chart: top 5 bán chạy
+      const bCtx = document.getElementById('statsBarChart').getContext('2d');
+      if (_charts.statsBar) _charts.statsBar.destroy();
+      _charts.statsBar = new Chart(bCtx, {
+        type: 'bar',
+        data: {
+          labels: topItems.map(p => (p.name||'').slice(0,20)),
+          datasets: [{ label:'Đã bán', data: topItems.map(p => p.soldCount||0), backgroundColor:'#f759ab' }]
+        },
+        options: { indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{ stepSize:1 } } } }
+      });
+
+      // Pie chart: doanh thu theo danh mục
+      const allTop = await SellerReport.getTopProducts(50, from, to);
+      const catMap = {};
+      (allTop||[]).forEach(p => { const c=p.category||'Khác'; catMap[c]=(catMap[c]||0)+(p.revenue||0); });
+      const catLabels = Object.keys(catMap);
+      const catData   = catLabels.map(k => catMap[k]);
+      const pCtx = document.getElementById('statsPieChart').getContext('2d');
+      if (_charts.statsPie) _charts.statsPie.destroy();
+      if (catLabels.length) {
+        _charts.statsPie = new Chart(pCtx, {
+          type: 'doughnut',
+          data: {
+            labels: catLabels,
+            datasets: [{ data: catData, backgroundColor: ['#f759ab','#845ef7','#339af0','#20c997','#fcc419','#ff6b6b','#a9e34b'] }]
+          },
+          options: { plugins:{ legend:{ position:'bottom', labels:{ font:{size:10} } } }, cutout:'55%' }
+        });
+      }
+    } catch(_) {}
+
+  } catch(e) { showToast('Lỗi: ' + e.message, 'error'); }
+}
+
+function exportStatsCSV() {
+  SellerReport.exportCSV(
+    document.getElementById('statsFrom').value,
+    document.getElementById('statsTo').value
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+async function loadNotificationCount() {
+  if (!Auth.isLoggedIn()) return;
+  try {
+    const res = await Notification.getUnreadCount();
+    const cnt = res.count || 0;
+    const badge = document.getElementById('notifBadge');
+    if (cnt > 0) { badge.textContent = cnt > 99 ? '99+' : cnt; badge.style.display = 'flex'; }
+    else badge.style.display = 'none';
+  } catch(_) {}
+}
+
+function toggleNotifDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('notifDropdown');
+  const isOpen = dd.classList.contains('open');
+  if (!isOpen) { loadNotifDropdown(); }
+  dd.classList.toggle('open');
+}
+
+async function loadNotifDropdown() {
+  const list = document.getElementById('notifList');
+  list.innerHTML = '<div class="d-flex justify-content-center py-3"><div class="spinner-sm"></div></div>';
+  try {
+    const res = await Notification.getAll(1, null);
+    const items = (res.items || []).slice(0, 5);
+    if (!items.length) { list.innerHTML = '<div class="empty-state" style="padding:24px 16px">Không có thông báo</div>'; return; }
+    const typeIcons = { 0:'🛒', 1:'📦', 2:'⭐', 3:'❓', 4:'❌', 5:'🔔' };
+    list.innerHTML = items.map(n => `
+      <div class="notif-item ${n.IsRead?'':'unread'}" onclick="markOneNotifRead(${n.Id||n.id}, '${n.Link||''}')">
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <span style="font-size:16px">${typeIcons[n.Type??n.type]||'🔔'}</span>
+          <div style="flex:1">
+            <div class="notif-title">${n.Title||n.title||''}</div>
+            <div class="notif-msg">${n.Message||n.message||''}</div>
+            <div class="notif-time">${timeAgo(n.CreatedAt||n.createdAt)}</div>
+          </div>
+        </div>
+      </div>`).join('');
+    await loadNotificationCount();
+  } catch(_) {
+    list.innerHTML = '<div class="empty-state" style="padding:24px">Lỗi tải thông báo</div>';
+  }
+}
+
+async function markOneNotifRead(id, link) {
+  try { await Notification.markRead(id); loadNotificationCount(); } catch(_) {}
+  document.getElementById('notifDropdown').classList.remove('open');
+}
+
+async function markAllNotifRead() {
+  try {
+    await Notification.markAllRead();
+    showToast('Đã đánh dấu tất cả thông báo đã đọc');
+    loadNotificationCount();
+    loadNotifDropdown();
+    const body = document.getElementById('allNotifBody');
+    if (body) loadAllNotifications();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadAllNotifications() {
+  openModal('allNotifModal');
+  const body = document.getElementById('allNotifBody');
+  body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+  try {
+    const res   = await Notification.getAll(1, null);
+    const items = res.items || [];
+    if (!items.length) { body.innerHTML = '<div class="empty-state" style="padding:32px">Không có thông báo</div>'; return; }
+    const typeIcons = { 0:'🛒', 1:'📦', 2:'⭐', 3:'❓', 4:'❌', 5:'🔔' };
+    body.innerHTML = items.map(n => `
+      <div class="notif-item ${n.IsRead||n.isRead?'':'unread'}" style="display:flex;gap:8px;align-items:flex-start">
+        <span style="font-size:16px">${typeIcons[n.Type??n.type]||'🔔'}</span>
+        <div style="flex:1">
+          <div class="notif-title">${n.Title||n.title||''}</div>
+          <div class="notif-msg">${n.Message||n.message||''}</div>
+          <div class="notif-time">${timeAgo(n.CreatedAt||n.createdAt)}</div>
+        </div>
+        <button onclick="deleteNotif(${n.Id||n.id},this)" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:16px" title="Xóa">×</button>
+      </div>`).join('');
+    loadNotificationCount();
+  } catch(e) { body.innerHTML = `<div class="empty-state" style="padding:32px">Lỗi: ${e.message}</div>`; }
+}
+
+async function deleteNotif(id, btn) {
+  try {
+    await Notification.delete(id);
+    btn.closest('.notif-item').remove();
+    loadNotificationCount();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return 'Vừa xong';
+  if (diff < 3600) return Math.floor(diff/60) + ' phút trước';
+  if (diff < 86400) return Math.floor(diff/3600) + ' giờ trước';
+  return Math.floor(diff/86400) + ' ngày trước';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  REVIEWS
+// ═══════════════════════════════════════════════════════════
+async function loadReviewStats() {
+  try {
+    const s = await SellerReview.getStats();
+    document.getElementById('rv-total').textContent   = s.totalReviews;
+    document.getElementById('rv-avg').textContent     = s.avgRating ? s.avgRating.toFixed(1) + ' ⭐' : '—';
+    document.getElementById('rv-pending').textContent = s.pendingReply;
+    // Rating distribution bars
+    const bars = document.getElementById('ratingBars');
+    const total = s.totalReviews || 1;
+    const counts = { 5: s.rating5Count, 4: s.rating4Count, 3: s.rating3Count, 2: s.rating2Count, 1: s.rating1Count };
+    bars.innerHTML = [5,4,3,2,1].map(star => {
+      const cnt = counts[star] || 0;
+      const pct = Math.round((cnt/total)*100);
+      return `<div class="rating-row">
+        <span class="rating-row-label">${'⭐'.repeat(star)}</span>
+        <div class="rating-bar-wrap"><div class="rating-bar-inner" style="width:${pct}%"></div></div>
+        <span class="rating-row-count">${cnt}</span>
+      </div>`;
+    }).join('');
+  } catch(_) {}
+}
+
+async function loadReviews() {
+  const el = document.getElementById('reviewList');
+  el.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+  try {
+    const res = await SellerReview.getAll(_reviewPage, _reviewFilter.rating, _reviewFilter.replied);
+    renderReviews(res.items || []);
+    renderPager('reviewPager', res.page, res.totalPages, p => { _reviewPage = p; loadReviews(); });
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state">Lỗi: ${e.message}</div>`;
+  }
+}
+
+function renderReviews(items) {
+  const el = document.getElementById('reviewList');
+  if (!items.length) { el.innerHTML = '<div class="empty-state">Chưa có đánh giá nào</div>'; return; }
+  el.innerHTML = items.map(r => {
+    const stars = '⭐'.repeat(r.rating||r.Rating||0);
+    const replyHtml = r.sellerReply
+      ? `<div class="review-reply-box"><div class="review-reply-label">Phản Hồi Của Shop</div>${r.sellerReply}</div>`
+      : `<div class="mt-2">
+          <textarea id="reply-ta-${r.reviewId}" class="form-control" rows="2" maxlength="500" placeholder="Nhập phản hồi (tối đa 500 ký tự)..."></textarea>
+          <button class="btn-pink btn-sm mt-1" onclick="submitReply(${r.reviewId})">Gửi Phản Hồi</button>
+        </div>`;
+    const verifiedHtml = r.isVerifiedPurchase ? '<span class="badge-verified ms-1">✓ Đã mua</span>' : '';
+    return `<div class="review-card" id="review-${r.reviewId}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:500">${r.customerName||r.customerId||'Khách hàng'} ${verifiedHtml}</div>
+          <div style="font-size:11px;color:#aaa">${fmtDate(r.createdAt)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="stars-display" style="font-size:16px">${stars}</div>
+          <div style="font-size:11px;color:#888">${r.productName||''}</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#333;line-height:1.6">${r.comment||r.Comment||'(Không có nội dung)'}</div>
+      ${replyHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderRecentReviews(items) {
+  const el = document.getElementById('recentReviewsList');
+  if (!items.length) { el.innerHTML = '<div class="empty-state" style="padding:24px">Chưa có đánh giá nào</div>'; return; }
+  el.innerHTML = items.map(r => {
+    const stars = '⭐'.repeat(r.rating||r.Rating||0);
+    return `<div style="padding:12px 16px;border-bottom:1px solid #f5f4f2;display:flex;align-items:flex-start;gap:12px">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500">${r.customerName||'Khách hàng'}</span>
+          <span style="font-size:11px;color:#aaa">${fmtDate(r.createdAt)}</span>
+        </div>
+        <div style="font-size:13px;color:#f59e0b;margin-bottom:4px">${stars}</div>
+        <div style="font-size:12px;color:#666">${(r.comment||'').slice(0,80)}${r.comment?.length>80?'...':''}</div>
+        <div style="font-size:11px;color:#aaa;margin-top:2px">${r.productName||''}</div>
+      </div>
+      ${!r.sellerReply ? `<button class="btn-outline btn-sm" onclick="switchPage('reviews')">Phản Hồi</button>` : `<span style="font-size:10px;color:var(--pink)">✓ Đã phản hồi</span>`}
+    </div>`;
+  }).join('');
+}
+
+async function submitReply(reviewId) {
+  const ta = document.getElementById('reply-ta-' + reviewId);
+  if (!ta) return;
+  const text = ta.value.trim();
+  if (!text) { showToast('Vui lòng nhập nội dung phản hồi', 'error'); return; }
+  try {
+    await SellerReview.reply(reviewId, text);
+    showToast('Phản hồi đã được gửi');
+    loadReviews();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Q&A
+// ═══════════════════════════════════════════════════════════
+async function loadQnAStats() {
+  try {
+    const s = await QnA.getStats();
+    document.getElementById('qna-total').textContent    = s.totalQuestions;
+    document.getElementById('qna-answered').textContent = s.answeredCount;
+    document.getElementById('qna-pending').textContent  = s.pendingCount;
+  } catch(_) {}
+}
+
+async function loadQnA() {
+  const el = document.getElementById('qnaList');
+  el.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+  try {
+    const answered = _qnaFilter === 'true' ? true : _qnaFilter === 'false' ? false : null;
+    const res = await QnA.getShopQuestions(_qnaPage, answered);
+    renderQnA(res.items || []);
+    renderPager('qnaPager', res.page, res.totalPages, p => { _qnaPage = p; loadQnA(); });
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state">Lỗi: ${e.message}</div>`;
+  }
+}
+
+function renderQnA(items) {
+  const el = document.getElementById('qnaList');
+  if (!items.length) { el.innerHTML = '<div class="empty-state">Chưa có câu hỏi nào</div>'; return; }
+  el.innerHTML = items.map(q => {
+    const answerHtml = q.Answer || q.answer
+      ? `<div class="mt-2" style="text-align:right">
+          <div class="qna-a-label">Phản Hồi Của Shop — ${fmtDate(q.AnsweredAt||q.answeredAt)}</div>
+          <div class="qna-a-bubble">${q.Answer||q.answer}</div>
+        </div>`
+      : `<div class="mt-2">
+          <textarea id="qna-ta-${q.questionId}" class="form-control" rows="2" placeholder="Nhập câu trả lời..."></textarea>
+          <button class="btn-pink btn-sm mt-1" onclick="submitAnswer(${q.questionId})">Gửi Câu Trả Lời</button>
+        </div>`;
+    return `<div class="qna-card" id="qna-${q.questionId}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <span style="font-size:12px;font-weight:500">${q.customerName||'Khách hàng'}</span>
+          <span style="font-size:11px;color:#aaa;margin-left:8px">${timeAgo(q.askedAt)}</span>
+        </div>
+        <div style="font-size:11px;color:#888">${q.productName||''}</div>
+      </div>
+      <div class="qna-q-bubble">${q.Question||q.question}</div>
+      ${answerHtml}
+    </div>`;
+  }).join('');
+}
+
+async function submitAnswer(questionId) {
+  const ta = document.getElementById('qna-ta-' + questionId);
+  if (!ta) return;
+  const text = ta.value.trim();
+  if (!text) { showToast('Vui lòng nhập câu trả lời', 'error'); return; }
+  try {
+    await QnA.answer(questionId, text);
+    showToast('Câu trả lời đã được gửi');
+    loadQnA();
+    loadQnAStats();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PAGINATION HELPER
+// ═══════════════════════════════════════════════════════════
+function renderPager(containerId, current, total, onClick) {
+  const el = document.getElementById(containerId);
+  if (!el || total <= 1) { if(el) el.innerHTML=''; return; }
+  let html = `<button ${current<=1?'disabled':''} onclick="(${onClick.toString()})(${current-1})">‹</button>`;
+  const start = Math.max(1, current-2);
+  const end   = Math.min(total, current+2);
+  for (let i = start; i <= end; i++)
+    html += `<button class="${i===current?'active':''}" onclick="(${onClick.toString()})(${i})">${i}</button>`;
+  html += `<button ${current>=total?'disabled':''} onclick="(${onClick.toString()})(${current+1})">›</button>`;
+  el.innerHTML = html;
+}
+</script>
+</body>
+</html>
