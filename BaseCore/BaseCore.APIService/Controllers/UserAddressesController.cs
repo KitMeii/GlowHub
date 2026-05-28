@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace BaseCore.APIService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/addresses")]
     [Authorize]
     public class UserAddressesController : ControllerBase
     {

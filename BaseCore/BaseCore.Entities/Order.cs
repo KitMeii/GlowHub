@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseCore.Entities
 {
@@ -9,7 +10,7 @@ namespace BaseCore.Entities
         [Key]
         public int Id { get; set; }
 
-        public string UserId { get; set; }
+        public string UserId { get; set; } = "";
 
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
@@ -17,29 +18,65 @@ namespace BaseCore.Entities
 
         public decimal TotalAmount { get; set; }
 
-        //Dùng hằng số từ OrderStatus thay vì string tùy ý
-        public string Status { get; set; } = OrderStatus.Pending; // Pending, Completed, Cancelled
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ShippingFee { get; set; } = 30000m;
 
-        public string ShippingAddress { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Discount { get; set; } = 0m;
 
-        public string Note { get; set; }
+        /// <summary>TotalAmount + ShippingFee - Discount</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FinalAmount { get; set; } = 0m;
+
+        /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
+        public int PaymentMethod { get; set; } = 0;
+
+        /// <summary>0=Unpaid, 1=Paid, 2=Refunded</summary>
+        public int PaymentStatus { get; set; } = 0;
+
+        [MaxLength(20)]
+        public string? OrderCode { get; set; }
+
+        public string Status { get; set; } = OrderStatus.Pending;
+
+        public string ShippingAddress { get; set; } = "";
+
+        public string? Note { get; set; }
 
         public string? CancelReason { get; set; }
 
         public string? TrackingCode { get; set; }
 
-        public User User { get; set; }
+        [MaxLength(100)]
+        public string? ReceiverName { get; set; }
+
+        [MaxLength(20)]
+        public string? ReceiverPhone { get; set; }
+
+        public DateTime? EstimatedDelivery { get; set; }
+
+        public User User { get; set; } = null!;
 
         public List<OrderDetail> OrderDetails { get; set; } = new();
+
+        public List<OrderStatusHistory> StatusHistory { get; set; } = new();
     }
 
     ///<summary>Hằng số trạng thái đơn hàng - dùng chung toàn bộ hệ thống </summary>
     public static class OrderStatus {
-        public const string Pending = "PENDING";
+        public const string Pending   = "PENDING";
         public const string Confirmed = "CONFIRMED";
-        public const string Shipping = "SHIPPING";
+        public const string Shipping  = "SHIPPING";
+        public const string Delivered = "DELIVERED";
         public const string Completed = "COMPLETED";
         public const string Cancelled = "CANCELLED";
     }
 
+    /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
+    public static class PaymentMethod {
+        public const int COD     = 0;
+        public const int Bank    = 1;
+        public const int MoMo    = 2;
+        public const int ZaloPay = 3;
+    }
 }

@@ -263,36 +263,65 @@ const Product = {
 };
 
 // ============================================================
-//  ORDER MODULE
+//  ORDER MODULE  (Sprint 6 upgrade)
 // ============================================================
 const Order = {
-  async getAll() {
-    return apiFetch(ORDER_API, "/api/orders/all", "GET"); // Admin only
+  // ── Admin ──
+  getAll()        { return apiFetch(ORDER_API, "/api/orders/all", "GET"); },
+  getById(id)     { return apiFetch(ORDER_API, "/api/orders/" + id, "GET"); },
+  updateStatus(id, status) { return apiFetch(ORDER_API, "/api/orders/" + id + "/status", "PUT", { status }); },
+
+  // ── Customer — new /my routes ──
+  getMy(status, page = 1, limit = 10) {
+    const qs = new URLSearchParams({ page, limit });
+    if (status) qs.set("status", status);
+    return apiFetch(ORDER_API, "/api/orders/my?" + qs.toString(), "GET");
   },
 
-  async getById(id) {
-    return apiFetch(ORDER_API, "/api/orders/" + id, "GET");
+  getMyOrders() { return this.getMy(); }, // backwards-compat alias
+
+  getDetail(id)  { return apiFetch(ORDER_API, "/api/orders/my/" + id, "GET"); },
+
+  getTracking(id) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/track", "GET"); },
+
+  cancel(id, reason) {
+    return apiFetch(ORDER_API, "/api/orders/my/" + id + "/cancel", "POST", { Reason: reason || "" });
   },
 
-  async getMyOrders() {
-    return apiFetch(ORDER_API, "/api/orders", "GET"); // [HttpGet] = GET /api/orders
-  },
+  confirmReceived(id) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/received", "POST"); },
 
-  // Checkout — backend lấy cart từ DB, tính giá server-side
-  async create(data) {
-    return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data);
-  },
+  // Checkout v2 — gửi đủ ReceiverName, ReceiverPhone, PaymentMethod, VoucherCode, ShippingMethod
+  checkout(data) { return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data); },
+  create(data)   { return this.checkout(data); }, // backwards-compat alias
+};
 
-  async updateStatus(id, status) {
-    return apiFetch(ORDER_API, "/api/orders/" + id + "/status", "PUT", {
-      status,
+// ============================================================
+//  VOUCHER MODULE  (Customer-facing)
+// ============================================================
+const Voucher = {
+  validate(code, orderAmount, shopId) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/validate", "POST", {
+      Code: code,
+      OrderAmount: orderAmount,
+      ShopId: shopId || null,
     });
   },
-
-  async cancel(id) {
-    // POST /api/orders/{id}/cancel — endpoint user tự hủy đơn
-    return apiFetch(ORDER_API, "/api/orders/" + id + "/cancel", "POST");
+  getAvailable(shopId, orderAmount) {
+    const qs = new URLSearchParams({ orderAmount: orderAmount || 0 });
+    if (shopId) qs.set("shopId", shopId);
+    return apiFetch(PRODUCT_API, "/api/Vouchers/available?" + qs.toString(), "GET");
   },
+};
+
+// ============================================================
+//  ADDRESS MODULE  (Customer saved addresses)
+// ============================================================
+const Address = {
+  getAll()           { return apiFetch(PRODUCT_API, "/api/addresses", "GET"); },
+  create(data)       { return apiFetch(PRODUCT_API, "/api/addresses", "POST", data); },
+  update(id, data)   { return apiFetch(PRODUCT_API, "/api/addresses/" + id, "PUT", data); },
+  delete(id)         { return apiFetch(PRODUCT_API, "/api/addresses/" + id, "DELETE"); },
+  setDefault(id)     { return apiFetch(PRODUCT_API, "/api/addresses/" + id + "/set-default", "PUT"); },
 };
 
 // ============================================================
