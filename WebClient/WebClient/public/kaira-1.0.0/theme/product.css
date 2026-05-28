@@ -1909,3 +1909,120 @@
           flex: 0 0 65vw;
         }
       }
+
+      /* ── SHOP INFO BOX ── */
+      .prd-shop-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid var(--border);
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        background: #fafaf8;
+      }
+      .prd-shop-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--dark);
+        flex: 1;
+        min-width: 0;
+      }
+      .prd-shop-name {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .prd-shop-rating {
+        font-size: 10px;
+        color: var(--gray);
+        margin-top: 2px;
+      }
+      .prd-shop-visit {
+        flex-shrink: 0;
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--pink);
+        text-decoration: none;
+        border: 1px solid var(--pink);
+        padding: 5px 12px;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .prd-shop-visit:hover { background: var(--pink); color: #fff; }
+
+      /* ── REVIEW FILTERS + PAGER ── */
+      .rv-filter-btn {
+        padding: 5px 12px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-family: var(--font-body);
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 99px;
+        transition: all 0.15s;
+        color: var(--gray);
+      }
+      .rv-filter-btn.active { border-color: var(--pink); color: var(--pink); background: #fff0f8; }
+      .rv-pg-btn {
+        border: 1px solid var(--border);
+        background: #fff;
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.15s;
+      }
+      .rv-pg-btn:hover, .rv-pg-btn.active { border-color: var(--pink); color: var(--pink); }
+
+      /* ── Q&A SECTION ── */
+      .qna-item {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .qna-item:last-child { border-bottom: none; }
+      .qna-question {
+        font-size: 13px;
+        color: var(--dark);
+        line-height: 1.6;
+        margin-bottom: 8px;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .qna-question i { color: var(--pink); flex-shrink: 0; margin-top: 2px; }
+      .qna-date {
+        font-size: 10px;
+        color: var(--gray);
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .qna-answer {
+        font-size: 12px;
+        color: #555;
+        border-left: 3px solid var(--pink);
+        padding: 8px 12px;
+        background: #fff0f8;
+        margin-left: 20px;
+        line-height: 1.6;
+        display: flex;
+        gap: 8px;
+      }
+      .qna-answer i { color: var(--pink); flex-shrink: 0; margin-top: 1px; }
+      .qna-pending {
+        font-size: 11px;
+        color: var(--gray);
+        font-style: italic;
+        margin-left: 20px;
+        letter-spacing: 0.5px;
+      }
+      }

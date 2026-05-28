@@ -68,9 +68,97 @@ namespace BaseCore.APIService.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            var product = await _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null) return NotFound(new { message = "Product not found" });
-            return Ok(product);
+
+            // avgRating + totalReviews
+            var reviews = await _db.Reviews.Where(r => r.ProductId == id).ToListAsync();
+            var avgRating = reviews.Count > 0 ? Math.Round(reviews.Average(r => r.Rating), 1) : 0.0;
+
+            // soldCount
+            var soldCount = product.SoldCount > 0
+                ? product.SoldCount
+                : await _db.OrderDetails.Where(od => od.ProductId == id).SumAsync(od => (int?)od.Quantity) ?? 0;
+
+            // shopInfo
+            object? shopInfo = null;
+            if (product.Shop != null)
+            {
+                var shopProductIds = await _db.Products
+                    .Where(p => p.ShopId == product.ShopId && p.IsActive)
+                    .Select(p => p.Id).ToListAsync();
+                var shopReviews = await _db.Reviews
+                    .Where(r => shopProductIds.Contains(r.ProductId)).ToListAsync();
+                var shopAvgRating = shopReviews.Count > 0
+                    ? Math.Round(shopReviews.Average(r => r.Rating), 1) : 0.0;
+                shopInfo = new {
+                    shopId    = product.Shop.Id,
+                    shopName  = product.Shop.ShopName,
+                    logo      = product.Shop.Logo,
+                    avgRating = shopAvgRating
+                };
+            }
+
+            // images — merge ImageUrl + JSON Images field
+            var imagesList = new List<string>();
+            if (!string.IsNullOrEmpty(product.ImageUrl)) imagesList.Add(product.ImageUrl);
+            if (!string.IsNullOrEmpty(product.Images))
+            {
+                try
+                {
+                    var extra = System.Text.Json.JsonSerializer.Deserialize<List<string>>(product.Images);
+                    if (extra != null) imagesList.AddRange(extra.Take(5 - imagesList.Count));
+                }
+                catch { }
+            }
+
+            // specifications
+            Dictionary<string, string>? specs = null;
+            if (!string.IsNullOrEmpty(product.Specifications))
+            {
+                try { specs = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(product.Specifications); }
+                catch { }
+            }
+
+            // relatedProducts (4 cùng danh mục)
+            var related = await _db.Products
+                .Include(p => p.Category)
+                .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.IsActive)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(4)
+                .Select(p => new {
+                    p.Id, p.Name, p.Price, p.DiscountPrice,
+                    image = p.ImageUrl, p.IsNew, p.SoldCount
+                })
+                .ToListAsync();
+
+            // isInWishlist
+            var isInWishlist = false;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+                isInWishlist = await _db.Wishlists.AnyAsync(w => w.CustomerId == userId && w.ProductId == id);
+
+            return Ok(new {
+                product.Id, product.Name, product.Price, product.DiscountPrice,
+                product.Stock, product.IsActive, product.IsNew, product.SoldCount,
+                imageUrl      = product.ImageUrl,
+                images        = imagesList,
+                description   = product.Description,
+                categoryId    = product.CategoryId,
+                categoryName  = product.Category?.Name,
+                specifications = specs,
+                avgRating,
+                totalReviews  = reviews.Count,
+                soldCount,
+                shopInfo,
+                relatedProducts = related,
+                isInWishlist,
+                createdAt     = product.CreatedAt
+            });
         }
 
         [HttpGet("category/{categoryId}")]

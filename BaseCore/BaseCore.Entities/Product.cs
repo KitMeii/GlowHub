@@ -41,5 +41,14 @@ namespace BaseCore.Entities
         public string? ShopId { get; set; }
 
         public Shop? Shop { get; set; }
+
+        /// <summary>JSON array of additional image URLs (max 5)</summary>
+        public string? Images { get; set; }
+
+        /// <summary>JSON key-value specifications</summary>
+        public string? Specifications { get; set; }
+
+        /// <summary>Cached sold count — incremented when order completes</summary>
+        public int SoldCount { get; set; } = 0;
     }
 }

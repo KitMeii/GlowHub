@@ -1201,6 +1201,52 @@ const Category = {
 };
 
 // ============================================================
+//  SHOP PUBLIC MODULE — Customer-facing shop profile
+// ============================================================
+const ShopPublic = {
+  getProfile(shopId) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/profile", "GET");
+  },
+  getProducts(shopId, params) {
+    params = params || {};
+    const qs = new URLSearchParams();
+    qs.set("page",  params.page  || 1);
+    qs.set("limit", params.limit || 12);
+    if (params.categoryId != null && params.categoryId !== "") qs.set("categoryId", params.categoryId);
+    if (params.minPrice   != null) qs.set("minPrice",   params.minPrice);
+    if (params.maxPrice   != null) qs.set("maxPrice",   params.maxPrice);
+    if (params.sort)               qs.set("sort",        params.sort);
+    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/products?" + qs.toString(), "GET");
+  },
+  getReviews(shopId, page, rating, limit) {
+    const qs = new URLSearchParams({ page: page || 1, limit: limit || 10 });
+    if (rating) qs.set("rating", rating);
+    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/reviews?" + qs.toString(), "GET");
+  },
+  getStats(shopId) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/stats", "GET");
+  },
+};
+
+// ============================================================
+//  WISHLIST MODULE
+// ============================================================
+const Wishlist = {
+  getAll() {
+    return apiFetch(PRODUCT_API, "/api/wishlist", "GET");
+  },
+  add(productId) {
+    return apiFetch(PRODUCT_API, "/api/wishlist/" + productId, "POST");
+  },
+  remove(productId) {
+    return apiFetch(PRODUCT_API, "/api/wishlist/" + productId, "DELETE");
+  },
+  check(productId) {
+    return apiFetch(PRODUCT_API, "/api/wishlist/check/" + productId, "GET");
+  },
+};
+
+// ============================================================
 //  REVIEW MODULE (thêm vào Product)
 // ============================================================
 // Gắn thêm vào Product object

@@ -231,6 +231,165 @@ namespace BaseCore.APIService.Controllers
         }
     }
 
+    // ─── Customer: GET with distribution + POST with verified purchase ─────────
+    [Route("api/reviews")]
+    [ApiController]
+    public class CustomerReviewsController : ControllerBase
+    {
+        private readonly MySqlDbContext _db;
+        private readonly NotificationService _notificationService;
+
+        public CustomerReviewsController(MySqlDbContext db, NotificationService notificationService)
+        {
+            _db = db;
+            _notificationService = notificationService;
+        }
+
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                    ?? User.FindFirstValue("sub");
+
+        // GET /api/reviews/product/{productId}?page=1&limit=5&rating=&hasImage=
+        [HttpGet("product/{productId:int}")]
+        public async Task<IActionResult> GetByProduct(
+            int productId,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 5,
+            [FromQuery] int? rating = null,
+            [FromQuery] bool? hasImage = null)
+        {
+            var query = _db.Reviews
+                .Include(r => r.User)
+                .Where(r => r.ProductId == productId)
+                .AsQueryable();
+
+            if (rating.HasValue)    query = query.Where(r => r.Rating == rating.Value);
+            if (hasImage == true)   query = query.Where(r => r.Images != null && r.Images != "");
+
+            var total = await query.CountAsync();
+            var allForDist = await _db.Reviews.Where(r => r.ProductId == productId).ToListAsync();
+            var avgRating  = allForDist.Count > 0 ? Math.Round(allForDist.Average(r => r.Rating), 1) : 0.0;
+
+            var dist = new Dictionary<int, int> { {5,0},{4,0},{3,0},{2,0},{1,0} };
+            foreach (var rv in allForDist)
+                dist[Math.Clamp(rv.Rating, 1, 5)]++;
+
+            var items = await query
+                .OrderByDescending(r => r.IsVerifiedPurchase)
+                .ThenByDescending(r => r.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(r => new {
+                    r.Id, r.ProductId,
+                    customerName    = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
+                    r.Rating, r.Comment,
+                    r.Images,
+                    r.IsVerifiedPurchase,
+                    r.CreatedAt,
+                    sellerReply     = r.SellerReply,
+                    replyAt         = r.ReplyAt
+                })
+                .ToListAsync();
+
+            return Ok(new {
+                totalReviews = allForDist.Count,
+                avgRating,
+                ratingDistribution = dist,
+                total,
+                page,
+                totalPages = (int)Math.Ceiling((double)total / limit),
+                reviews = items
+            });
+        }
+
+        // POST /api/reviews  — Requires login + đã mua và đã nhận hàng
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateReview([FromBody] CreateReviewDto dto)
+        {
+            if (dto.Rating < 1 || dto.Rating > 5)
+                return BadRequest(new { message = "Rating phải từ 1 đến 5" });
+            if (dto.ProductId <= 0)
+                return BadRequest(new { message = "ProductId không hợp lệ" });
+
+            var userId = GetUserId()!;
+
+            var product = await _db.Products.FindAsync(dto.ProductId);
+            if (product == null) return NotFound(new { message = "Sản phẩm không tồn tại" });
+
+            // Kiểm tra đã mua và đã nhận hàng (COMPLETED)
+            var hasCompletedOrder = await _db.OrderDetails
+                .Include(od => od.Order)
+                .AnyAsync(od => od.ProductId == dto.ProductId
+                    && od.Order.UserId == userId
+                    && od.Order.Status == OrderStatus.Completed);
+
+            if (!hasCompletedOrder)
+                return BadRequest(new { message = "Bạn chỉ có thể đánh giá sản phẩm đã mua và đã nhận hàng" });
+
+            // 1 đơn hàng cụ thể chỉ review 1 lần (nếu có orderId)
+            if (dto.OrderId.HasValue)
+            {
+                var orderReviewed = await _db.Reviews
+                    .AnyAsync(r => r.ProductId == dto.ProductId && r.UserId == userId);
+                if (orderReviewed)
+                    return BadRequest(new { message = "Bạn đã đánh giá sản phẩm này rồi" });
+            }
+
+            var existing = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.ProductId == dto.ProductId && r.UserId == userId);
+
+            if (existing != null)
+            {
+                existing.Rating    = dto.Rating;
+                existing.Comment   = dto.Comment ?? existing.Comment;
+                existing.Images    = dto.Images != null ? string.Join(",", dto.Images.Take(3)) : existing.Images;
+                existing.CreatedAt = DateTime.Now;
+                existing.IsVerifiedPurchase = true;
+                await _db.SaveChangesAsync();
+                return Ok(existing);
+            }
+
+            var review = new Review
+            {
+                ProductId           = dto.ProductId,
+                UserId              = userId,
+                Rating              = dto.Rating,
+                Comment             = dto.Comment ?? "",
+                Images              = dto.Images != null ? string.Join(",", dto.Images.Take(3)) : null,
+                CreatedAt           = DateTime.Now,
+                IsVerifiedPurchase  = true
+            };
+            _db.Reviews.Add(review);
+            await _db.SaveChangesAsync();
+
+            // Notify seller
+            if (product.ShopId != null)
+            {
+                var shop = await _db.Shops.FindAsync(product.ShopId);
+                if (shop != null)
+                {
+                    await _notificationService.CreateAsync(
+                        shop.SellerId,
+                        NotificationType.NewReview,
+                        "Đánh giá mới",
+                        $"Sản phẩm \"{product.Name}\" nhận đánh giá {review.Rating} sao",
+                        "seller-dashboard.html#reviews"
+                    );
+                }
+            }
+
+            return Ok(review);
+        }
+    }
+
     public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; } }
     public class ReplyReviewDto { public string Reply { get; set; } = ""; }
+    public class CreateReviewDto
+    {
+        public int ProductId { get; set; }
+        public int? OrderId { get; set; }
+        public int Rating { get; set; }
+        public string? Comment { get; set; }
+        public List<string>? Images { get; set; }
+    }
 }
