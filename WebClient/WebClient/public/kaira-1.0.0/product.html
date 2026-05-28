@@ -58,7 +58,6 @@
   <body>
     <div id="lux-cursor-dot"></div>
     <div id="lux-cursor-ring"></div>
-    </div>
 
     <!-- TOPBAR -->
     <div class="gh-topbar">
@@ -341,39 +340,27 @@
     <script src="js/api.js" defer></script>
     <script>
       // @ts-nocheck
-      /* eslint-disable */
       var _productId = null;
-      var _product = null;
-      var _qty = 1;
-      var _rating = 5;
-      var _wished = false;
+      var _product   = null;
+      var _qty       = 1;
+      var _rating    = 5;
+      var _wished    = false;
+      var _rvPage    = 1;
+      var _rvRating  = null;
+      var _rvHasImg  = false;
+      var _rvTotal   = 0;
+      var _rvPages   = 1;
+      var _qnaPage   = 1;
+      var _qnaTotal  = 0;
+      var _qnaPages  = 1;
 
       document.addEventListener("DOMContentLoaded", function () {
         if (typeof renderNavUser !== "undefined") renderNavUser();
         if (typeof Cart !== "undefined") Cart._updateUI();
 
-        // Admin bar
-        if (
-          typeof Auth !== "undefined" &&
-          Auth.isLoggedIn &&
-          Auth.isLoggedIn() &&
-          Auth.isAdmin &&
-          Auth.isAdmin()
-        ) {
-          var ab = document.getElementById("adminBar");
-          if (ab) {
-            ab.classList.add("show");
-            document.body.style.paddingTop = "40px";
-          }
-        }
-
-        // Get product ID from URL
         var params = new URLSearchParams(location.search);
         _productId = params.get("id");
-        if (!_productId) {
-          location.href = "shop.html";
-          return;
-        }
+        if (!_productId) { location.href = "shop.html"; return; }
 
         loadProduct();
         initStickyBar();
@@ -381,57 +368,46 @@
 
       // ── LOAD PRODUCT ──
       function loadProduct() {
-        var doLoad =
-          typeof Product !== "undefined"
-            ? Product.getById(_productId)
-            : Promise.reject("no api");
+        var doLoad = typeof Product !== "undefined"
+          ? Product.getById(_productId)
+          : Promise.reject("no api");
 
-        doLoad
-          .then(function (p) {
-            if (!p) {
-              location.href = "shop.html";
-              return;
-            }
-            _product = p;
-            renderProduct(p);
-            loadRelated(p.CategoryId || p.categoryId || 1);
-            loadReviews();
-            _initWishState();
-          })
-          .catch(function () {
-            _product = _demoProduct();
-            renderProduct(_product);
-            loadRelated(2);
-            loadReviews();
-            _initWishState();
-          });
+        doLoad.then(function(p) {
+          if (!p) { location.href = "shop.html"; return; }
+          _product = p;
+          renderProduct(p);
+          loadReviews();
+          loadQnA();
+          _initWishState();
+        }).catch(function() {
+          showToast("Không thể tải sản phẩm", "error");
+        });
       }
 
       // ── RENDER PRODUCT ──
       function renderProduct(p) {
-        var id = p.Id || p.id;
-        var name = p.Name || p.name || "Sản phẩm";
-        var price = p.Price || p.price || 0;
-        var discP = p.DiscountPrice || p.discountPrice || 0;
-        var desc = p.Description || p.description || "";
-        var cat =
-          (p.Category && (p.Category.Name || p.Category.name)) ||
-          p.CategoryName ||
-          "Sản Phẩm";
-        var catId = p.CategoryId || p.categoryId || 1;
-        var isNew = p.IsNew || p.isNew;
-        var stock = parseInt(p.Stock || p.stock || 99);
-        var rating = parseFloat(p.Rating || p.rating || 4.5);
-        var rvCount = parseInt(p.ReviewCount || p.reviewCount || 0);
+        var id      = p.id || p.Id;
+        var name    = p.name    || p.Name    || "Sản phẩm";
+        var price   = p.price   || p.Price   || 0;
+        var discP   = p.discountPrice || p.DiscountPrice || 0;
+        var desc    = p.description   || p.Description   || "";
+        var catName = p.categoryName  || p.CategoryName  || (p.Category && (p.Category.Name || p.Category.name)) || "Sản Phẩm";
+        var catId   = p.categoryId    || p.CategoryId    || 1;
+        var isNew   = p.isNew   || p.IsNew;
+        var stock   = parseInt(p.stock  || p.Stock  || 99);
+        var avgRat  = parseFloat(p.avgRating || p.rating || p.Rating || 0);
+        var rvCount = parseInt(p.totalReviews || p.reviewCount || 0);
+        var soldCnt = p.soldCount || p.SoldCount || 0;
 
+        // images — API returns merged array already
         var imgs = [];
-        if (p.ImageUrl || p.imageUrl) imgs.push(p.ImageUrl || p.imageUrl);
-        if (p.Images)
-          imgs = imgs.concat(Array.isArray(p.Images) ? p.Images : []);
-        if (!imgs.length)
-          imgs = [
-            "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=700&q=80",
-          ];
+        if (Array.isArray(p.images) && p.images.length) {
+          imgs = p.images;
+        } else {
+          if (p.imageUrl || p.ImageUrl) imgs.push(p.imageUrl || p.ImageUrl);
+          if (Array.isArray(p.Images)) imgs = imgs.concat(p.Images);
+        }
+        if (!imgs.length) imgs = ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=700&q=80"];
 
         var finalP = discP || price;
         var oldP = discP ? price : 0;
@@ -485,128 +461,125 @@
         // Stars HTML
         var starsHtml = "";
         for (var s = 1; s <= 5; s++)
-          starsHtml +=
-            s <= Math.floor(rating) ? "★" : s - 0.5 <= rating ? "⭑" : "☆";
+          starsHtml += s <= Math.floor(avgRat) ? "★" : s - 0.5 <= avgRat ? "⭑" : "☆";
 
         // Stock display
-        var stockHtml =
-          stock === 0
-            ? '<div class="prd-stock-out"><i class="bi bi-x-circle"></i> Tạm hết hàng</div>'
-            : stock <= 5
-              ? '<div class="prd-stock-low"><i class="bi bi-exclamation-triangle"></i> Chỉ còn ' +
-                stock +
-                " sản phẩm</div>"
-              : '<div class="prd-stock-ok"><i class="bi bi-check-circle"></i> Còn hàng</div>';
+        var stockHtml = stock === 0
+          ? '<div class="prd-stock-out"><i class="bi bi-x-circle"></i> Tạm hết hàng</div>'
+          : stock <= 5
+            ? '<div class="prd-stock-low"><i class="bi bi-exclamation-triangle"></i> Chỉ còn ' + stock + " sản phẩm</div>"
+            : '<div class="prd-stock-ok"><i class="bi bi-check-circle"></i> Còn hàng</div>';
 
-        // Ingredients mock
-        var ingredients =
-          "Aqua, Glycerin, Niacinamide, Panthenol, Hyaluronic Acid, Vitamin C, Tocopheryl Acetate, Allantoin, Sodium Hyaluronate. Không chứa Paraben, không thử nghiệm trên động vật.";
+        // Shop info HTML
+        var shopHtml = "";
+        var si = p.shopInfo;
+        if (si && si.shopId) {
+          var shopLogo = si.logo
+            ? '<img src="' + si.logo + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0f0f0" onerror="this.style.display=\'none\'">'
+            : '<div style="width:36px;height:36px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">' + (si.shopName || "S")[0].toUpperCase() + "</div>";
+          shopHtml = '<div class="prd-shop-box">' +
+            '<a href="shop-profile.html?id=' + si.shopId + '" class="prd-shop-link">' +
+            shopLogo +
+            '<div>' +
+            '<div class="prd-shop-name">' + (si.shopName || "Shop") + '</div>' +
+            (si.avgRating ? '<div class="prd-shop-rating">⭐ ' + Number(si.avgRating).toFixed(1) + '</div>' : '') +
+            '</div>' +
+            '</a>' +
+            '<a href="shop-profile.html?id=' + si.shopId + '" class="prd-shop-visit">Xem Shop <i class="bi bi-arrow-right"></i></a>' +
+            '</div>';
+        }
+
+        // Sold count badge
+        var soldHtml = soldCnt > 0
+          ? '<span style="font-size:10px;letter-spacing:1px;color:var(--gray);margin-left:10px">· Đã bán ' + (soldCnt >= 1000 ? (soldCnt/1000).toFixed(1).replace('.0','') + 'k' : soldCnt) + '</span>'
+          : '';
+
+        // Specifications
+        var specsHtml = "";
+        if (p.specifications && typeof p.specifications === "object") {
+          var specRows = Object.keys(p.specifications).map(function(k) {
+            return '<tr><td style="width:40%;font-size:11px;letter-spacing:1px;color:var(--gray);padding:8px 0;border-bottom:1px solid var(--border)">' + k + '</td><td style="font-size:12px;padding:8px 0;border-bottom:1px solid var(--border)">' + p.specifications[k] + '</td></tr>';
+          }).join("");
+          if (specRows) specsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:12px">' + specRows + '</table>';
+        }
+
+        // Ingredients
+        var ingredients = "Aqua, Glycerin, Niacinamide, Panthenol, Hyaluronic Acid, Vitamin C, Tocopheryl Acetate, Allantoin, Sodium Hyaluronate. Không chứa Paraben, không thử nghiệm trên động vật.";
 
         // Render info
         document.getElementById("prdInfo").innerHTML =
           (isNew
             ? '<span class="prd-badge prd-badge-new">Hàng Mới</span>'
-            : disc > 0
-              ? '<span class="prd-badge prd-badge-sale">Giảm ' +
-                disc +
-                "%</span>"
-              : "") +
-          '<div class="prd-cat">' +
-          cat +
-          "</div>" +
-          '<h1 class="prd-name">' +
-          name +
-          "</h1>" +
+            : disc > 0 ? '<span class="prd-badge prd-badge-sale">Giảm ' + disc + "%</span>" : "") +
+          '<div class="prd-cat">' + catName + "</div>" +
+          '<h1 class="prd-name">' + name + "</h1>" +
           '<div class="prd-rating">' +
-          '<span class="prd-stars">' +
-          starsHtml +
-          "</span>" +
-          '<span class="prd-rating-count">(' +
-          rvCount +
-          " đánh giá)</span>" +
+          '<span class="prd-stars">' + starsHtml + "</span>" +
+          '<span class="prd-rating-count">(' + rvCount + " đánh giá)</span>" +
+          soldHtml +
           "</div>" +
           '<div class="prd-divider"></div>' +
-          '<div class="prd-price">' +
-          fmtP(finalP) +
-          "</div>" +
-          (oldP
-            ? '<div><span class="prd-price-old">' +
-              fmtP(oldP) +
-              '</span><span class="prd-saving">Tiết kiệm ' +
-              disc +
-              "%</span></div>"
-            : "") +
+          '<div class="prd-price">' + fmtP(finalP) + "</div>" +
+          (oldP ? '<div><span class="prd-price-old">' + fmtP(oldP) + '</span><span class="prd-saving">Tiết kiệm ' + disc + "%</span></div>" : "") +
           '<div class="prd-divider"></div>' +
+          shopHtml +
           stockHtml +
           '<div style="margin-bottom:16px">' +
           '<div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:10px">Số Lượng</div>' +
           '<div class="prd-qty">' +
           '<button class="prd-qty-btn" onclick="changeQty(-1)">−</button>' +
-          '<input type="number" class="prd-qty-input" id="qtyInput" value="1" min="1" max="' +
-          (stock || 99) +
-          '"/>' +
+          '<input type="number" class="prd-qty-input" id="qtyInput" value="1" min="1" max="' + (stock || 99) + '"/>' +
           '<button class="prd-qty-btn" onclick="changeQty(1)">+</button>' +
-          "</div>" +
-          "</div>" +
-          '<button class="prd-btn-add" onclick="addToCart()"' +
-          (stock === 0 ? " disabled" : "") +
-          ">" +
-          '<i class="bi bi-bag-plus"></i> Thêm Vào Giỏ Hàng' +
-          "</button>" +
+          "</div></div>" +
+          '<button class="prd-btn-add" onclick="addToCart()"' + (stock === 0 ? " disabled" : "") + '>' +
+          '<i class="bi bi-bag-plus"></i> Thêm Vào Giỏ Hàng</button>' +
           '<button class="prd-btn-wish" id="wishBtn" onclick="toggleWish()">' +
-          '<i class="bi bi-heart"></i> <span id="wishText">Yêu Thích</span>' +
-          "</button>" +
+          '<i class="bi bi-heart"></i> <span id="wishText">Yêu Thích</span></button>' +
           '<div class="prd-divider"></div>' +
           // TABS
           '<div class="prd-tabs">' +
           '<button class="prd-tab active" onclick="switchTab(\'desc\',this)">Mô Tả</button>' +
           '<button class="prd-tab" onclick="switchTab(\'ing\',this)">Thành Phần</button>' +
-          '<button class="prd-tab" onclick="switchTab(\'rv\',this)">Đánh Giá (' +
-          rvCount +
-          ")</button>" +
+          '<button class="prd-tab" id="rvTabBtn" onclick="switchTab(\'rv\',this)">Đánh Giá (' + rvCount + ")</button>" +
+          '<button class="prd-tab" id="qnaTabBtn" onclick="switchTab(\'qna\',this)">Hỏi Đáp</button>' +
           "</div>" +
+          // Tab: Mô Tả
           '<div class="prd-tab-pane active" id="tab-desc">' +
-          '<p style="margin-bottom:12px">' +
-          (desc ||
-            "Sản phẩm chất lượng cao từ GlowHub, mang lại trải nghiệm tốt nhất cho bạn.") +
-          "</p>" +
+          '<p style="margin-bottom:12px">' + (desc || "Sản phẩm chất lượng cao từ GlowHub.") + "</p>" +
           '<ul style="padding-left:18px;line-height:2.2">' +
           "<li>Chất liệu cao cấp, an toàn cho mọi loại da</li>" +
           "<li>Kiểm nghiệm da liễu, không gây kích ứng</li>" +
           "<li>Bảo hành chất lượng 100% chính hãng</li>" +
           "<li>Đóng gói cẩn thận, giao hàng nhanh toàn quốc</li>" +
           "</ul>" +
+          specsHtml +
           "</div>" +
+          // Tab: Thành Phần
           '<div class="prd-tab-pane" id="tab-ing">' +
           '<p style="margin-bottom:12px;color:var(--gray);font-size:11px;letter-spacing:1px">THÀNH PHẦN ĐẦY ĐỦ</p>' +
-          "<p>" +
-          ingredients +
-          "</p>" +
+          "<p>" + ingredients + "</p>" +
           '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">' +
           '<span style="font-size:10px;padding:4px 12px;border:1px solid var(--border);letter-spacing:1px">Không Paraben</span>' +
           '<span style="font-size:10px;padding:4px 12px;border:1px solid var(--border);letter-spacing:1px">Cruelty Free</span>' +
           '<span style="font-size:10px;padding:4px 12px;border:1px solid var(--border);letter-spacing:1px">Dermatology Tested</span>' +
-          "</div>" +
-          "</div>" +
+          "</div></div>" +
+          // Tab: Đánh Giá
           '<div class="prd-tab-pane" id="tab-rv">' +
           '<div id="rvContent"><div class="prd-skeleton" style="height:100px;margin-bottom:16px"></div></div>' +
           "</div>" +
+          // Tab: Hỏi Đáp
+          '<div class="prd-tab-pane" id="tab-qna">' +
+          '<div id="qnaContent"><div class="prd-skeleton" style="height:80px;margin-bottom:12px"></div></div>' +
+          "</div>" +
           // Share + Meta
           '<div class="prd-share">' +
-          '<a href="https://www.facebook.com/sharer/sharer.php?u=' +
-          encodeURIComponent(location.href) +
+          '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(location.href) +
           '" class="prd-share-btn" target="_blank" rel="noopener"><i class="bi bi-facebook"></i> Facebook</a>' +
           '<button class="prd-share-btn" onclick="copyLink()"><i class="bi bi-link-45deg"></i> Sao Chép Link</button>' +
           "</div>" +
           '<div class="prd-meta">' +
-          '<div>SKU: <span style="color:var(--dark)">GH-' +
-          id +
-          "</span></div>" +
-          '<div>Danh mục: <a href="shop.html?cat=' +
-          catId +
-          '">' +
-          cat +
-          "</a></div>" +
+          '<div>SKU: <span style="color:var(--dark)">GH-' + id + "</span></div>" +
+          '<div>Danh mục: <a href="shop.html?cat=' + catId + '">' + catName + "</a></div>" +
           '<div><i class="bi bi-shield-check" style="color:#16a34a"></i> Cam kết 100% chính hãng</div>' +
           '<div><i class="bi bi-arrow-return-left" style="color:var(--pink)"></i> Đổi trả miễn phí 30 ngày</div>' +
           '<div><i class="bi bi-truck" style="color:var(--dark)"></i> Miễn phí vận chuyển đơn từ 500.000₫</div>' +
@@ -615,6 +588,11 @@
         // Update sticky bar
         document.getElementById("stickyName").textContent = name;
         document.getElementById("stickyPrice").textContent = fmtP(finalP);
+
+        // Render related products from the product response (no extra API call)
+        if (Array.isArray(p.relatedProducts) && p.relatedProducts.length) {
+          renderRelated(p.relatedProducts);
+        }
 
         // Structured data
         var ld = {
@@ -715,35 +693,29 @@
 
       function toggleWish() {
         if (!_product) return;
-        var id   = _product.Id || _product.id;
-        var items = _getWishlist();
-        var idx  = items.findIndex(function(p){ return p.id == id; });
-        var btn  = document.getElementById("wishBtn");
-        var txt  = document.getElementById("wishText");
+        var id    = _product.id    || _product.Id;
+        var name  = _product.name  || _product.Name  || "Sản phẩm";
+        var price = _product.price || _product.Price  || 0;
+        var image = _product.imageUrl || _product.ImageUrl || _product.image || "";
+        var btn   = document.getElementById("wishBtn");
+        var txt   = document.getElementById("wishText");
 
-        if (idx === -1) {
-          // Thêm vào wishlist
-          items.push({
-            id:    id,
-            name:  _product.Name  || _product.name  || "Sản phẩm",
-            price: _product.Price || _product.price || 0,
-            image: _product.ImageUrl || _product.imageUrl || _product.Image || _product.image || ""
-          });
-          _saveWishlist(items);
+        var wItems = _getWishlist();
+        if (!_wished) {
+          wItems.push({ id: id, name: name, price: price, image: image });
+          _saveWishlist(wItems);
           _wished = true;
-          if (btn) btn.classList.add("wished");
-          if (btn) btn.querySelector("i").className = "bi bi-heart-fill";
+          if (btn) { btn.classList.add("wished"); btn.querySelector("i").className = "bi bi-heart-fill"; }
           if (txt) txt.textContent = "Đã Yêu Thích";
-          showToast("♥ Đã thêm vào danh sách yêu thích");
+          showToast("♥ Đã thêm vào yêu thích");
+          if (typeof Wishlist !== "undefined") Wishlist.add(id).catch(function(){});
         } else {
-          // Bỏ khỏi wishlist
-          items.splice(idx, 1);
-          _saveWishlist(items);
+          _saveWishlist(wItems.filter(function(p) { return p.id != id; }));
           _wished = false;
-          if (btn) btn.classList.remove("wished");
-          if (btn) btn.querySelector("i").className = "bi bi-heart";
+          if (btn) { btn.classList.remove("wished"); btn.querySelector("i").className = "bi bi-heart"; }
           if (txt) txt.textContent = "Yêu Thích";
-          showToast("Đã xóa khỏi danh sách yêu thích");
+          showToast("Đã xóa khỏi yêu thích");
+          if (typeof Wishlist !== "undefined") Wishlist.remove(id).catch(function(){});
         }
         _updateNavWishBadge();
       }
@@ -751,9 +723,11 @@
       // Khởi tạo trạng thái tim khi trang load
       function _initWishState() {
         if (!_product) return;
-        var id = _product.Id || _product.id;
-        var items = _getWishlist();
-        _wished = items.some(function(p){ return p.id == id; });
+        var id = _product.id || _product.Id;
+        // Use API flag if available (product includes isInWishlist for logged-in users)
+        var fromApi = _product.isInWishlist;
+        var items   = _getWishlist();
+        _wished = (fromApi === true) || items.some(function(p) { return p.id == id; });
         var btn = document.getElementById("wishBtn");
         var txt = document.getElementById("wishText");
         if (_wished) {
@@ -778,186 +752,249 @@
 
       // ── REVIEWS ──
       function loadReviews() {
-        var doLoad =
-          typeof Product !== "undefined" && Product.getReviews
-            ? Product.getReviews(_productId)
-            : Promise.reject();
-        doLoad
-          .then(function (data) {
-            var rvs = Array.isArray(data)
-              ? data
-              : data && data.items
-                ? data.items
-                : [];
-            renderReviews(rvs);
-          })
-          .catch(function () {
-            renderReviews([
-              {
-                UserName: "Nguyễn Thị Lan",
-                Rating: 5,
-                Comment: "Sản phẩm tuyệt vời, đúng mô tả, giao hàng nhanh!",
-                CreatedAt: "2026-04-01",
-              },
-              {
-                UserName: "Trần Minh Thu",
-                Rating: 4,
-                Comment: "Chất lượng tốt, sẽ mua thêm lần sau.",
-                CreatedAt: "2026-03-15",
-              },
-              {
-                UserName: "Lê Hoài An",
-                Rating: 5,
-                Comment: "Đẹp lắm, đóng gói cẩn thận, shop uy tín!",
-                CreatedAt: "2026-02-28",
-              },
-            ]);
+        var qs = "?page=" + _rvPage + "&limit=10";
+        if (_rvRating) qs += "&rating=" + _rvRating;
+        if (_rvHasImg) qs += "&hasImage=true";
+        fetch((typeof PRODUCT_API !== "undefined" ? PRODUCT_API : "") + "/api/reviews/product/" + _productId + qs, {
+          headers: { "Content-Type": "application/json" }
+        }).then(function(r) { return r.json(); })
+          .then(function(data) { renderReviews(data); })
+          .catch(function() {
+            var el = document.getElementById("rvContent");
+            if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray)">Chưa có đánh giá nào</div>';
           });
       }
 
-      function renderReviews(rvs) {
+      function renderReviews(data) {
         var el = document.getElementById("rvContent");
         if (!el) return;
+        var rvs      = data.reviews || [];
+        var avg      = data.avgRating    || 0;
+        var total    = data.totalReviews || 0;
+        var dist     = data.ratingDistribution || {};
+        _rvTotal     = data.total    || 0;
+        _rvPages     = data.totalPages || 1;
 
-        var avg = rvs.length
-          ? (
-              rvs.reduce(function (s, r) {
-                return s + (r.Rating || r.rating || 5);
-              }, 0) / rvs.length
-            ).toFixed(1)
-          : 0;
-        var dist = [5, 4, 3, 2, 1].map(function (s) {
-          return rvs.filter(function (r) {
-            return (r.Rating || r.rating || 5) === s;
-          }).length;
-        });
+        // Update tab label
+        var tabBtn = document.getElementById("rvTabBtn");
+        if (tabBtn) tabBtn.textContent = "Đánh Giá (" + total + ")";
 
-        // Build summary HTML — tách biến để tránh nested template literal
-        var barsHtml = [5, 4, 3, 2, 1]
-          .map(function (s, idx2) {
-            var w = rvs.length
-              ? Math.round((dist[idx2] / rvs.length) * 100)
-              : 0;
-            return (
-              '<div class="rv-bar-row">' +
-              `<span>${s}★</span>` +
-              `<div class="rv-bar-bg"><div class="rv-bar-fill" style="width:${w}%"></div></div>` +
-              `<span>${dist[idx2]}</span>` +
-              "</div>"
-            );
-          })
-          .join("");
+        // Summary
+        var starsAvg = "";
+        for (var s2 = 1; s2 <= 5; s2++) starsAvg += s2 <= Math.round(avg) ? "★" : "☆";
+        var barsHtml = [5,4,3,2,1].map(function(s) {
+          var cnt = dist[s] || dist[String(s)] || 0;
+          var w   = total > 0 ? Math.round((cnt / total) * 100) : 0;
+          return '<div class="rv-bar-row"><span>' + s + '★</span><div class="rv-bar-bg"><div class="rv-bar-fill" style="width:' + w + '%"></div></div><span>' + cnt + '</span></div>';
+        }).join("");
 
-        var summaryHtml = rvs.length
-          ? `
-      <div class="rv-summary">
-        <div>
-          <div class="rv-big">${avg}</div>
-          <div class="rv-stars-big">★★★★★</div>
-          <div style="font-size:10px;letter-spacing:1px;color:var(--gray)">${rvs.length} đánh giá</div>
-        </div>
-        <div class="rv-bars">${barsHtml}</div>
-      </div>`
+        var summaryHtml = total > 0
+          ? '<div class="rv-summary"><div><div class="rv-big">' + Number(avg).toFixed(1) + '</div><div class="rv-stars-big" style="color:#d4a847">' + starsAvg + '</div><div style="font-size:10px;letter-spacing:1px;color:var(--gray)">' + total + ' đánh giá</div></div><div class="rv-bars">' + barsHtml + '</div></div>'
           : "";
-        var listHtml = rvs
-          .map(function (r) {
-            var rStars = "";
-            for (var i = 1; i <= 5; i++)
-              rStars += i <= (r.Rating || r.rating || 5) ? "★" : "☆";
-            var d =
-              r.CreatedAt || r.createdAt
-                ? new Date(r.CreatedAt || r.createdAt).toLocaleDateString(
-                    "vi-VN",
-                  )
-                : "";
-            return `<div class="rv-item">
-      <div class="rv-meta">
-        <div class="rv-author">${r.UserName || r.userName || "Khách hàng"}</div>
-        <div class="rv-date">${d}</div>
-      </div>
-      <div style="color:#d4a847;font-size:12px;letter-spacing:2px;margin-bottom:5px">${rStars}</div>
-      <div class="rv-text">${r.Comment || r.comment || ""}</div>
-    </div>`;
-          })
-          .join("");
 
-        var isLogged =
-          typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn();
-        var loginNote = !isLogged
-          ? `<div style="padding:10px;background:#fef3c7;border-left:3px solid #f59e0b;font-size:12px;color:#92400e">
-        <i class="bi bi-info-circle me-2"></i>
-        <a href="login.html" style="color:#92400e;font-weight:600">Đăng nhập</a> để gửi đánh giá
-       </div>`
-          : `<div class="star-picker" id="starPicker" style="margin-bottom:14px">
-        ${[1, 2, 3, 4, 5]
-          .map(function (s) {
-            return `<span data-v="${s}" onclick="setRating(${s})" class="${s <= _rating ? "lit" : ""}">★</span>`;
-          })
-          .join("")}
-       </div>
-       <input type="text" id="rvName" class="rv-form-input" placeholder="Họ và tên *"/>
-       <textarea id="rvText" class="rv-form-textarea" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-       <button class="rv-submit" onclick="submitReview()">Gửi Đánh Giá</button>`;
+        // Filter bar
+        var filterHtml = '<div class="rv-filter-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' +
+          '<button class="rv-filter-btn' + (!_rvRating ? ' active' : '') + '" onclick="setRvFilter(null,this)">Tất Cả</button>' +
+          [5,4,3,2,1].map(function(s) {
+            return '<button class="rv-filter-btn' + (_rvRating == s ? ' active' : '') + '" onclick="setRvFilter(' + s + ',this)">' + s + '★</button>';
+          }).join("") +
+          '<button class="rv-filter-btn' + (_rvHasImg ? ' active' : '') + '" onclick="toggleHasImg(this)"><i class="bi bi-image"></i> Có ảnh</button>' +
+          '</div>';
 
-        el.innerHTML =
-          summaryHtml +
-          listHtml +
-          `<div style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">
-        <h4 style="font-family:var(--font-disp);font-size:1rem;font-weight:300;letter-spacing:2px;margin-bottom:14px">Viết Đánh Giá</h4>
-        ${loginNote}
-       </div>`;
+        // Review list
+        var fmtD = function(dt) { return dt ? new Date(dt).toLocaleDateString("vi-VN") : ""; };
+        var listHtml = rvs.length ? rvs.map(function(r) {
+          var rating = r.rating || r.Rating || 5;
+          var rStars = "";
+          for (var i = 1; i <= 5; i++) rStars += i <= rating ? "★" : "☆";
+          var imgsHtml = "";
+          if (r.images) {
+            var imgArr = r.images.split(",").filter(Boolean);
+            imgsHtml = imgArr.map(function(u) {
+              return '<img src="' + u + '" style="width:56px;height:56px;object-fit:cover;cursor:pointer;border:1px solid var(--border)" onclick="window.open(\'' + u + '\')" loading="lazy">';
+            }).join("");
+            if (imgsHtml) imgsHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + imgsHtml + '</div>';
+          }
+          var replyHtml = r.sellerReply
+            ? '<div style="border-left:3px solid var(--pink);padding:8px 12px;background:#fff0f8;margin-top:8px;font-size:12px;line-height:1.6"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--pink);margin-bottom:4px">Phản Hồi Shop</div>' + r.sellerReply + '</div>'
+            : '';
+          return '<div class="rv-item">' +
+            '<div class="rv-meta"><div class="rv-author">' + (r.customerName || "Khách hàng") + (r.isVerifiedPurchase ? ' <span style="font-size:9px;padding:2px 7px;border-radius:99px;background:#d1e7dd;color:#16a34a;letter-spacing:1px">✓ Đã mua</span>' : '') + '</div><div class="rv-date">' + fmtD(r.createdAt) + '</div></div>' +
+            '<div style="color:#d4a847;font-size:12px;letter-spacing:2px;margin-bottom:5px">' + rStars + '</div>' +
+            '<div class="rv-text">' + (r.comment || r.Comment || "") + '</div>' +
+            imgsHtml + replyHtml + '</div>';
+        }).join("") : '<div style="text-align:center;padding:40px;color:var(--gray)"><i class="bi bi-star" style="font-size:32px;display:block;margin-bottom:10px;opacity:.4"></i>Chưa có đánh giá nào</div>';
+
+        // Pager
+        var pagerHtml = "";
+        if (_rvPages > 1) {
+          if (_rvPage > 1) pagerHtml += '<button class="rv-pg-btn" onclick="goRvPage(' + (_rvPage-1) + ')">‹</button>';
+          for (var pg = 1; pg <= _rvPages; pg++) pagerHtml += '<button class="rv-pg-btn' + (pg === _rvPage ? " active" : "") + '" onclick="goRvPage(' + pg + ')">' + pg + '</button>';
+          if (_rvPage < _rvPages) pagerHtml += '<button class="rv-pg-btn" onclick="goRvPage(' + (_rvPage+1) + ')">›</button>';
+          pagerHtml = '<div style="display:flex;gap:6px;justify-content:center;padding:20px 0">' + pagerHtml + '</div>';
+        }
+
+        // Review form
+        var isLogged = typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn();
+        var formHtml = !isLogged
+          ? '<div style="padding:12px 16px;background:#fef3c7;border-left:3px solid #f59e0b;font-size:12px;color:#92400e"><a href="login.html" style="color:#92400e;font-weight:600">Đăng nhập</a> để viết đánh giá</div>'
+          : '<div class="star-picker" id="starPicker">' +
+            [1,2,3,4,5].map(function(s) { return '<span data-v="' + s + '" onclick="setRating(' + s + ')" class="' + (s <= _rating ? "lit" : "") + '">★</span>'; }).join("") +
+            '</div>' +
+            '<textarea id="rvText" class="rv-form-textarea" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>' +
+            '<button class="rv-submit" onclick="submitReview()">Gửi Đánh Giá</button>';
+
+        el.innerHTML = summaryHtml + filterHtml + listHtml + pagerHtml +
+          '<div style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">' +
+          '<h4 style="font-family:var(--font-disp);font-size:1rem;font-weight:300;letter-spacing:2px;margin-bottom:14px">Viết Đánh Giá</h4>' +
+          formHtml + '</div>';
+      }
+
+      function setRating(n) {
+        _rating = n;
+        document.querySelectorAll("#starPicker span").forEach(function(s, i) {
+          s.className = i < n ? "lit" : "";
+        });
+      }
+
+      function setRvFilter(rating, btn) {
+        _rvRating = rating;
+        _rvPage   = 1;
+        document.querySelectorAll(".rv-filter-btn").forEach(function(b) { b.classList.remove("active"); });
+        if (btn) btn.classList.add("active");
+        loadReviews();
+      }
+
+      function toggleHasImg(btn) {
+        _rvHasImg = !_rvHasImg;
+        _rvPage   = 1;
+        if (btn) btn.classList.toggle("active", _rvHasImg);
+        loadReviews();
+      }
+
+      function goRvPage(p) {
+        _rvPage = p;
+        loadReviews();
+        var tab = document.getElementById("tab-rv");
+        if (tab) tab.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+
+      function submitReview() {
+        if (typeof Auth === "undefined" || !Auth.isLoggedIn()) {
+          showToast("Vui lòng đăng nhập"); return;
+        }
+        var comment = (document.getElementById("rvText") || {}).value || "";
+        if (!_rating) { showToast("Chọn số sao đánh giá", "error"); return; }
+        if (typeof Product === "undefined" || !Product.addReview) return;
+        Product.addReview(_productId, { Rating: _rating, Comment: comment })
+          .then(function() {
+            showToast("✓ Đánh giá đã được gửi!");
+            _rvPage = 1;
+            loadReviews();
+          })
+          .catch(function(e) {
+            showToast(e && e.message || "Lỗi khi gửi đánh giá", "error");
+          });
+      }
+
+      // ── Q&A ──
+      function loadQnA() {
+        var el = document.getElementById("qnaContent");
+        if (!el) return;
+        fetch((typeof PRODUCT_API !== "undefined" ? PRODUCT_API : "") + "/api/qna/product/" + _productId + "?page=" + _qnaPage + "&limit=10")
+          .then(function(r) { return r.json(); })
+          .then(function(data) { renderQnA(data); })
+          .catch(function() { if (el) el.innerHTML = renderQnAEmpty(); });
+      }
+
+      function renderQnA(data) {
+        var el = document.getElementById("qnaContent");
+        if (!el) return;
+        var items = data.items || [];
+        _qnaTotal = data.total    || 0;
+        _qnaPages = data.totalPages || 1;
+
+        // Update tab label
+        var tabBtn = document.getElementById("qnaTabBtn");
+        if (tabBtn) tabBtn.textContent = "Hỏi Đáp (" + _qnaTotal + ")";
+
+        var fmtD = function(dt) { return dt ? new Date(dt).toLocaleDateString("vi-VN") : ""; };
+        var listHtml = items.length ? items.map(function(q) {
+          return '<div class="qna-item">' +
+            '<div class="qna-question"><i class="bi bi-question-circle"></i> ' + (q.question || q.Question || "") + '<span class="qna-date">' + fmtD(q.askedAt) + '</span></div>' +
+            (q.answer
+              ? '<div class="qna-answer"><i class="bi bi-chat-quote"></i> ' + q.answer + '</div>'
+              : '<div class="qna-pending">Chưa có câu trả lời</div>') +
+            '</div>';
+        }).join("") : '<div style="text-align:center;padding:40px;color:var(--gray)"><i class="bi bi-chat-dots" style="font-size:32px;display:block;margin-bottom:10px;opacity:.4"></i>Chưa có câu hỏi nào</div>';
+
+        var pagerHtml = "";
+        if (_qnaPages > 1) {
+          for (var pg = 1; pg <= _qnaPages; pg++) pagerHtml += '<button class="rv-pg-btn' + (pg === _qnaPage ? " active" : "") + '" onclick="goQnaPage(' + pg + ')">' + pg + '</button>';
+          pagerHtml = '<div style="display:flex;gap:6px;justify-content:center;padding:16px 0">' + pagerHtml + '</div>';
+        }
+
+        var isLogged = typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn();
+        var formHtml = !isLogged
+          ? '<div style="padding:12px 16px;background:#fef3c7;border-left:3px solid #f59e0b;font-size:12px;color:#92400e"><a href="login.html" style="color:#92400e;font-weight:600">Đăng nhập</a> để đặt câu hỏi</div>'
+          : '<textarea id="qnaText" class="rv-form-textarea" placeholder="Nhập câu hỏi về sản phẩm..." style="min-height:80px"></textarea>' +
+            '<button class="rv-submit" onclick="submitQuestion()">Gửi Câu Hỏi</button>';
+
+        el.innerHTML = listHtml + pagerHtml +
+          '<div style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">' +
+          '<h4 style="font-family:var(--font-disp);font-size:1rem;font-weight:300;letter-spacing:2px;margin-bottom:14px">Đặt Câu Hỏi</h4>' +
+          formHtml + '</div>';
+      }
+
+      function renderQnAEmpty() {
+        return '<div style="text-align:center;padding:40px;color:var(--gray)">Chưa có câu hỏi nào</div>';
+      }
+
+      function goQnaPage(p) {
+        _qnaPage = p;
+        loadQnA();
+      }
+
+      function submitQuestion() {
+        if (typeof Auth === "undefined" || !Auth.isLoggedIn()) {
+          showToast("Vui lòng đăng nhập", "error"); return;
+        }
+        var txt = (document.getElementById("qnaText") || {}).value || "";
+        if (!txt.trim()) { showToast("Nhập câu hỏi trước", "error"); return; }
+        fetch((typeof PRODUCT_API !== "undefined" ? PRODUCT_API : "") + "/api/qna/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + (typeof Auth !== "undefined" ? Auth.getToken() : "")
+          },
+          body: JSON.stringify({ productId: parseInt(_productId), question: txt.trim() })
+        }).then(function(r) { return r.json(); })
+          .then(function() {
+            showToast("✓ Câu hỏi đã được gửi!");
+            _qnaPage = 1;
+            loadQnA();
+          })
+          .catch(function() { showToast("Lỗi khi gửi câu hỏi", "error"); });
       }
 
       // ── RELATED ──
-      function loadRelated(catId) {
-        var doLoad =
-          typeof Product !== "undefined" && Product.getAll
-            ? Product.getAll({ categoryId: catId, limit: 9 })
-            : Promise.reject();
-        doLoad
-          .then(function (data) {
-            var ps = Array.isArray(data)
-              ? data
-              : data && data.items
-                ? data.items
-                : [];
-            var filtered = ps
-              .filter(function (p) {
-                return (p.Id || p.id).toString() !== _productId.toString();
-              })
-              .slice(0, 6);
-            renderRelated(filtered.length ? filtered : _demoRelated());
-          })
-          .catch(function () {
-            renderRelated(_demoRelated());
-          });
-      }
-
       function renderRelated(ps) {
         var strip = document.getElementById("relatedStrip");
         if (!strip || !ps.length) return;
-        var fmtP = function (n) {
-          return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫";
-        };
-        strip.innerHTML = ps
-          .map(function (p) {
-            var id = p.Id || p.id;
-            var name = p.Name || p.name || "SP";
-            var price =
-              p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
-            var img = p.ImageUrl || p.imageUrl || "";
-            var imgHtml = img
-              ? `<img src="${img}" alt="${name}" loading="lazy" onerror="this.style.display='none'"/>`
-              : '<div style="aspect-ratio:3/4;background:var(--cream)"></div>';
-            return `<div class="prd-related-card" onclick="location.href='product.html?id=${id}'">
-      ${imgHtml}
-      <div class="prd-related-info">
-        <div class="prd-related-name">${name}</div>
-        <div class="prd-related-price">${fmtP(price)}</div>
-      </div>
-    </div>`;
-          })
-          .join("");
+        var fmtP = function (n) { return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫"; };
+        strip.innerHTML = ps.map(function(p) {
+          var id    = p.id    || p.Id;
+          var name  = p.name  || p.Name  || "SP";
+          var price = p.discountPrice || p.DiscountPrice || p.price || p.Price || 0;
+          var img   = p.image || p.imageUrl || p.ImageUrl || "";
+          var imgHtml = img
+            ? '<img src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'"/>'
+            : '<div style="aspect-ratio:3/4;background:var(--cream)"></div>';
+          return '<div class="prd-related-card" onclick="location.href=\'product.html?id=' + id + '\'">' +
+            imgHtml +
+            '<div class="prd-related-info"><div class="prd-related-name">' + name + '</div><div class="prd-related-price">' + fmtP(price) + '</div></div>' +
+            '</div>';
+        }).join("");
       }
 
       // ── STICKY BAR ──
@@ -1005,76 +1042,6 @@
         showToast(msg);
       }
 
-      // ── DEMO DATA ──
-      function _demoProduct() {
-        return {
-          Id: _productId || "101",
-          Name: "Kem Dưỡng Da Vitamin C",
-          Price: 350000,
-          DiscountPrice: 285000,
-          Description:
-            "Kem dưỡng da Vitamin C cao cấp giúp làm sáng da, mờ thâm nám, cung cấp độ ẩm sâu. Thành phần thiên nhiên an toàn cho mọi loại da.",
-          ImageUrl:
-            "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=700&q=80",
-          Images: [
-            "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=700&q=80",
-            "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=700&q=80",
-          ],
-          Category: { Name: "Mỹ Phẩm" },
-          CategoryId: 2,
-          IsNew: true,
-          Stock: 15,
-          Rating: 4.7,
-          ReviewCount: 42,
-        };
-      }
-
-      function _demoRelated() {
-        return [
-          {
-            Id: "102",
-            Name: "Serum Collagen",
-            Price: 420000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=300&q=80",
-          },
-          {
-            Id: "103",
-            Name: "Nước Hoa Hồng",
-            Price: 195000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300&q=80",
-          },
-          {
-            Id: "104",
-            Name: "Kem Chống Nắng",
-            Price: 320000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&q=80",
-          },
-          {
-            Id: "105",
-            Name: "Son Môi Lì",
-            Price: 280000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=300&q=80",
-          },
-          {
-            Id: "106",
-            Name: "Mascara Dài Cong",
-            Price: 195000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1631214500003-02b92869e88c?w=300&q=80",
-          },
-          {
-            Id: "107",
-            Name: "Vòng Tay Bạc",
-            Price: 340000,
-            ImageUrl:
-              "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=300&q=80",
-          },
-        ];
-      }
     </script>
     <script src="js/gsap.js" defer></script>
 

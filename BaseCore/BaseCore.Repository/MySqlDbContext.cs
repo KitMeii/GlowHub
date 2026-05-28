@@ -30,6 +30,7 @@ namespace BaseCore.Repository
         public DbSet<ShopProduct> ShopProducts { get; set; }
         public DbSet<QnA> QnAs { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -67,6 +68,8 @@ namespace BaseCore.Repository
                 entity.Property(e => e.Price).HasPrecision(18, 2);
                 entity.Property(e => e.Description).HasMaxLength(1000);
                 entity.Property(e => e.ImageUrl).HasMaxLength(500);
+                entity.Property(e => e.Images).HasMaxLength(2000);
+                entity.Property(e => e.Specifications).HasMaxLength(2000);
 
                 // RowVersion - Optimistic Concurrency
                 entity.Property(e => e.RowVersion).IsRowVersion().IsConcurrencyToken();
@@ -279,6 +282,25 @@ namespace BaseCore.Repository
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Wishlist entity
+            modelBuilder.Entity<Wishlist>(entity =>
+            {
+                entity.ToTable("Wishlists");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CustomerId).HasMaxLength(450).IsRequired();
+                entity.HasIndex(e => new { e.CustomerId, e.ProductId }).IsUnique();
+
+                entity.HasOne(e => e.Customer)
+                      .WithMany()
+                      .HasForeignKey(e => e.CustomerId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

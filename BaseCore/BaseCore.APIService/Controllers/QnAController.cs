@@ -109,15 +109,27 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { message = "Câu trả lời đã được gửi" });
         }
 
-        // GET /api/qna/customer/{productId}  — Public
+        // GET /api/qna/customer/{productId}  — Public (paged)
         [HttpGet("customer/{productId:int}")]
-        public async Task<IActionResult> GetProductQnA(int productId)
+        [HttpGet("product/{productId:int}")]
+        public async Task<IActionResult> GetProductQnA(
+            int productId,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 5)
         {
-            var items = await _db.QnAs
+            var query = _db.QnAs
+                .Include(q => q.Customer)
                 .Where(q => q.ProductId == productId && q.IsActive)
+                .AsQueryable();
+
+            var total = await query.CountAsync();
+            var items = await query
                 .OrderByDescending(q => q.AskedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
                 .Select(q => new {
                     q.Id,
+                    customerName = q.Customer != null ? (q.Customer.Name ?? q.Customer.UserName) : q.CustomerId,
                     q.Question,
                     askedAt    = q.AskedAt,
                     q.Answer,
@@ -125,11 +137,17 @@ namespace BaseCore.APIService.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(items);
+            return Ok(new {
+                total,
+                page,
+                totalPages = (int)Math.Ceiling((double)total / limit),
+                items
+            });
         }
 
         // POST /api/qna/customer/ask  — Requires login
         [HttpPost("customer/ask")]
+        [HttpPost("ask")]
         [Authorize]
         public async Task<IActionResult> Ask([FromBody] AskQnADto dto)
         {
