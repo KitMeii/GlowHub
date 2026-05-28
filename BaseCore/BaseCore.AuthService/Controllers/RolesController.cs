@@ -17,9 +17,9 @@ namespace BaseCore.AuthService.Controllers
         // In production, this would be stored in database
         private static readonly List<RoleDto> _roles = new()
         {
-            new RoleDto { Id = 1, Name = "Admin", Description = "Administrator with full access", UserType = 1 },
-            new RoleDto { Id = 2, Name = "User", Description = "Regular user with limited access", UserType = 0 },
-            new RoleDto { Id = 3, Name = "Manager", Description = "Manager with moderate access", UserType = 2 }
+            new RoleDto { Id = 1, Name = "Admin",   Description = "Administrator with full access",           UserType = 1 },
+            new RoleDto { Id = 2, Name = "User",    Description = "Customer with shopping access",            UserType = 0 },
+            new RoleDto { Id = 3, Name = "Seller",  Description = "Seller with product management access",   UserType = 2 }
         };
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace BaseCore.AuthService.Controllers
             var permissions = role.UserType switch
             {
                 1 => new[] { "users.read", "users.write", "users.delete", "products.read", "products.write", "products.delete", "orders.read", "orders.write", "orders.delete", "categories.read", "categories.write", "categories.delete", "roles.read", "roles.write" },
-                2 => new[] { "users.read", "products.read", "products.write", "orders.read", "orders.write", "categories.read" },
+                2 => new[] { "products.read", "products.write", "products.delete", "orders.read", "orders.write", "categories.read" },
                 _ => new[] { "products.read", "orders.read", "categories.read" }
             };
 

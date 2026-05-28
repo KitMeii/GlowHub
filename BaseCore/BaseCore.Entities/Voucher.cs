@@ -32,5 +32,10 @@ namespace BaseCore.Entities
         public DateTime? ExpiryDate { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>null = global voucher (admin); set = shop-specific voucher</summary>
+        public string? ShopId { get; set; }
+
+        public Shop? Shop { get; set; }
     }
 }

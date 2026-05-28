@@ -26,6 +26,10 @@ namespace BaseCore.Repository
         public DbSet<SiteSetting> SiteSettings { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<Shop> Shops { get; set; }
+        public DbSet<ShopProduct> ShopProducts { get; set; }
+        public DbSet<QnA> QnAs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -72,6 +76,14 @@ namespace BaseCore.Repository
                       .WithMany()
                       .HasForeignKey(e => e.CategoryId)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship with Shop (nullable)
+                entity.Property(e => e.ShopId).HasMaxLength(450);
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .IsRequired(false)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Configure Order entity
@@ -131,13 +143,15 @@ namespace BaseCore.Repository
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Configure ReView entity
+            // Configure Review entity
             modelBuilder.Entity<Review>(e =>
             {
                 e.ToTable("Reviews");
                 e.HasKey(x => x.Id);
                 e.Property(x => x.UserId).HasMaxLength(450).IsRequired();
                 e.Property(x => x.Comment).HasMaxLength(1000);
+                e.Property(x => x.SellerReply).HasMaxLength(500);
+                e.Property(x => x.Images).HasMaxLength(1000);
 
                 // Mỗi user chỉ review 1 sản phẩm 1 lần
                 e.HasIndex(x => new { x.UserId, x.ProductId }).IsUnique();
@@ -174,12 +188,99 @@ namespace BaseCore.Repository
                 .HasIndex(v => v.Code)
                 .IsUnique();
 
+            // Voucher → Shop (nullable)
+            modelBuilder.Entity<Voucher>(entity =>
+            {
+                entity.Property(e => e.ShopId).HasMaxLength(450);
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .IsRequired(false)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
             // Configure UserAddress entity
             modelBuilder.Entity<UserAddress>()
                 .HasOne(a => a.User)
                 .WithMany()
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Shop entity
+            modelBuilder.Entity<Shop>(entity =>
+            {
+                entity.ToTable("Shops");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasMaxLength(450);
+                entity.Property(e => e.SellerId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.ShopName).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.Logo).HasMaxLength(500);
+                entity.Property(e => e.Address).HasMaxLength(300);
+                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.CommissionRate).HasColumnType("decimal(5,2)");
+
+                entity.HasOne(e => e.Seller)
+                      .WithMany()
+                      .HasForeignKey(e => e.SellerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure ShopProduct entity
+            modelBuilder.Entity<ShopProduct>(entity =>
+            {
+                entity.ToTable("ShopProducts");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ShopId).HasMaxLength(450).IsRequired();
+
+                entity.HasIndex(e => new { e.ShopId, e.ProductId }).IsUnique();
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany(s => s.ShopProducts)
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure QnA entity
+            modelBuilder.Entity<QnA>(entity =>
+            {
+                entity.ToTable("QnA");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CustomerId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Question).HasMaxLength(1000).IsRequired();
+                entity.Property(e => e.Answer).HasMaxLength(2000);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Customer)
+                      .WithMany()
+                      .HasForeignKey(e => e.CustomerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Notification entity
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notifications");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.Message).HasMaxLength(500).IsRequired();
+                entity.Property(e => e.Link).HasMaxLength(500);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // Seed initial data
             SeedData(modelBuilder);

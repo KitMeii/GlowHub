@@ -1,11 +1,10 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaseCore.Entities
 {
     public class Category
     {
-        [BsonId]
+        [Key]
         public int Id { get; set; }
 
         public string Name { get; set; }

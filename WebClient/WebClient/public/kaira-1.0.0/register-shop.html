@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <title>Đăng Ký Shop — GlowHub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f759ab" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=Marcellus&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <style>
+      body { background: #faf9f7; font-family: var(--font-body, 'Jost', sans-serif); }
+      .page-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+      .shop-card { background: #fff; border: 1px solid #ede8e2; border-radius: 2px; padding: 48px 40px; width: 100%; max-width: 560px; }
+      .shop-card h1 { font-family: var(--font-heading, 'Marcellus', serif); font-size: 28px; font-weight: 400; margin-bottom: 8px; }
+      .shop-card .sub { font-size: 13px; color: #888; margin-bottom: 32px; }
+      .form-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; color: #555; margin-bottom: 6px; }
+      .form-control { border-radius: 1px; border-color: #ddd; font-size: 14px; padding: 10px 14px; }
+      .form-control:focus { border-color: #f759ab; box-shadow: 0 0 0 3px rgba(247,89,171,.12); }
+      .btn-primary-dark { background: #111; color: #fff; border: none; border-radius: 1px; padding: 13px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-body, 'Jost', sans-serif); width: 100%; transition: background .2s; }
+      .btn-primary-dark:hover { background: #f759ab; }
+      .status-badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 500; }
+      .status-pending { background: #fff3cd; color: #856404; }
+      .status-active  { background: #d1e7dd; color: #0f5132; }
+      .status-banned  { background: #f8d7da; color: #842029; }
+      #alertBox { display: none; }
+      #existingShop { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="page-wrap">
+      <div class="shop-card">
+        <h1>🏪 Đăng Ký Shop</h1>
+        <p class="sub">Tạo gian hàng để bán mỹ phẩm trên GlowHub. Admin sẽ duyệt trong 1–2 ngày làm việc.</p>
+
+        <!-- Alert -->
+        <div id="alertBox" class="alert mb-4" role="alert"></div>
+
+        <!-- Existing shop info (if seller already has one) -->
+        <div id="existingShop" class="mb-4 p-4" style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:2px">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="mb-0" style="font-family:var(--font-heading,'Marcellus',serif)">Shop của bạn</h5>
+            <span id="shopStatusBadge" class="status-badge status-pending">Chờ duyệt</span>
+          </div>
+          <div class="row g-2" style="font-size:14px">
+            <div class="col-6"><b>Tên shop:</b><br><span id="existingShopName">—</span></div>
+            <div class="col-6"><b>Điện thoại:</b><br><span id="existingPhone">—</span></div>
+            <div class="col-12"><b>Địa chỉ:</b><br><span id="existingAddress">—</span></div>
+            <div class="col-12"><b>Mô tả:</b><br><span id="existingDesc">—</span></div>
+          </div>
+          <hr/>
+          <p class="mb-0" style="font-size:13px;color:#666">
+            Bạn đã có shop. Cuộn xuống để cập nhật thông tin.
+          </p>
+        </div>
+
+        <!-- Register / Update form -->
+        <form id="shopForm">
+          <div class="mb-3">
+            <label class="form-label">Tên Shop *</label>
+            <input type="text" id="shopName" class="form-control" placeholder="VD: GlowBeauty Store" maxlength="100" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea id="description" class="form-control" rows="3" placeholder="Giới thiệu ngắn về shop của bạn..." maxlength="500"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" id="address" class="form-control" placeholder="VD: 123 Nguyễn Huệ, Q.1, TP.HCM" maxlength="300" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Số điện thoại</label>
+            <input type="tel" id="phone" class="form-control" placeholder="0909 xxx xxx" maxlength="20" />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Logo URL</label>
+            <input type="url" id="logo" class="form-control" placeholder="https://..." maxlength="500" />
+          </div>
+          <button type="submit" class="btn-primary-dark" id="submitBtn">Đăng Ký Shop</button>
+        </form>
+
+        <div class="mt-4 text-center" style="font-size:13px;color:#888">
+          <a href="admin.html" style="color:#111">← Quay lại trang quản lý</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+      (function () {
+        // Guard: must be Seller
+        if (!Auth.isLoggedIn() || !Auth.isSeller()) {
+          window.location.href = Auth.isLoggedIn() ? 'index.html' : 'login.html';
+          return;
+        }
+
+        const alertBox  = document.getElementById('alertBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const shopForm  = document.getElementById('shopForm');
+        let existingShopId = null;
+
+        function showAlert(msg, type) {
+          alertBox.className = 'alert alert-' + (type || 'success') + ' mb-4';
+          alertBox.textContent = msg;
+          alertBox.style.display = 'block';
+          alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function fillForm(shop) {
+          document.getElementById('shopName').value    = shop.ShopName || shop.shopName || '';
+          document.getElementById('description').value = shop.Description || shop.description || '';
+          document.getElementById('address').value     = shop.Address || shop.address || '';
+          document.getElementById('phone').value       = shop.Phone || shop.phone || '';
+          document.getElementById('logo').value        = shop.Logo || shop.logo || '';
+        }
+
+        function showExisting(shop) {
+          existingShopId = shop.Id || shop.id;
+          const status = shop.Status ?? shop.status ?? 0;
+          const statusMap = { 0: ['Chờ duyệt', 'pending'], 1: ['Đã duyệt', 'active'], 2: ['Bị khóa', 'banned'] };
+          const [label, cls] = statusMap[status] || ['Không rõ', 'pending'];
+
+          document.getElementById('existingShopName').textContent = shop.ShopName || shop.shopName || '—';
+          document.getElementById('existingPhone').textContent    = shop.Phone || shop.phone || '—';
+          document.getElementById('existingAddress').textContent  = shop.Address || shop.address || '—';
+          document.getElementById('existingDesc').textContent     = shop.Description || shop.description || '—';
+
+          const badge = document.getElementById('shopStatusBadge');
+          badge.textContent = label;
+          badge.className = 'status-badge status-' + cls;
+
+          document.getElementById('existingShop').style.display = 'block';
+          submitBtn.textContent = 'Cập Nhật Thông Tin Shop';
+          fillForm(shop);
+        }
+
+        // Load existing shop
+        Shop.getMy().then(shop => {
+          if (shop) showExisting(shop);
+        }).catch(() => {
+          // No shop yet — form stays as register
+        });
+
+        shopForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Đang xử lý...';
+          alertBox.style.display = 'none';
+
+          const data = {
+            ShopName:    document.getElementById('shopName').value.trim(),
+            Description: document.getElementById('description').value.trim(),
+            Address:     document.getElementById('address').value.trim(),
+            Phone:       document.getElementById('phone').value.trim(),
+            Logo:        document.getElementById('logo').value.trim(),
+          };
+
+          try {
+            if (existingShopId) {
+              await Shop.update(existingShopId, data);
+              showAlert('Cập nhật shop thành công!', 'success');
+            } else {
+              await Shop.register(data);
+              showAlert('Đăng ký shop thành công! Chờ admin duyệt.', 'success');
+              // Reload to show existing shop block
+              setTimeout(() => location.reload(), 1800);
+            }
+          } catch (err) {
+            showAlert(err.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'danger');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = existingShopId ? 'Cập Nhật Thông Tin Shop' : 'Đăng Ký Shop';
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

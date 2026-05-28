@@ -1,22 +1,21 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace BaseCore.Entities
 {
-    public class OrderDetail
+    public class ShopProduct
     {
         [Key]
         public int Id { get; set; }
 
-        public int OrderId { get; set; }
+        [Required, MaxLength(450)]
+        public string ShopId { get; set; } = "";
 
         public int ProductId { get; set; }
 
-        public int Quantity { get; set; }
+        public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
-        public decimal UnitPrice { get; set; }
-
-        public Order Order { get; set; }
-
+        public Shop Shop { get; set; }
         public Product Product { get; set; }
     }
 }
