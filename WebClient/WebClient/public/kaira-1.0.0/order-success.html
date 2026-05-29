@@ -146,7 +146,7 @@
     <script src="js/api.js"></script>
     <script>
     const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
-    const PAYMENT_LABEL = { 0: "Tiền mặt (COD)", 1: "Chuyển khoản", 2: "MoMo", 3: "ZaloPay" };
+    const PAYMENT_LABEL = { "COD": "Thanh toán khi nhận hàng", "BANK": "Chuyển khoản ngân hàng", "MOMO": "Ví MoMo", "ZALOPAY": "ZaloPay" };
     const SHIPPING_LABEL = { standard: "Tiêu chuẩn", express: "Nhanh", same: "Hỏa tốc" };
 
     let orderCode = "";
