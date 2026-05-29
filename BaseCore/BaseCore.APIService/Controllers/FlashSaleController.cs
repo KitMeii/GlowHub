@@ -1,5 +1,6 @@
 using BaseCore.Entities;
 using BaseCore.Repository;
+using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,16 @@ namespace BaseCore.APIService.Controllers
     public class FlashSaleController : ControllerBase
     {
         private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
 
-        public FlashSaleController(MySqlDbContext db) => _db = db;
+        public FlashSaleController(MySqlDbContext db, AuditLogService audit)
+        {
+            _db    = db;
+            _audit = audit;
+        }
 
-        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserId()   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName() => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         /// <summary>GET /api/flashsale/active — Flash sale đang diễn ra</summary>
         [HttpGet("active")]
@@ -181,6 +188,9 @@ namespace BaseCore.APIService.Controllers
                 await _db.SaveChangesAsync();
             }
 
+            await _audit.Log(GetUserId(), GetUserName(), "FLASHSALE_CREATE", "FlashSale", sale.Id.ToString(),
+                null, new { name = sale.Name, startTime = sale.StartTime, endTime = sale.EndTime });
+
             return CreatedAtAction(nameof(GetById), new { id = sale.Id }, new { id = sale.Id });
         }
 
@@ -227,6 +237,8 @@ namespace BaseCore.APIService.Controllers
             if (dto.IsActive.HasValue) sale.IsActive = dto.IsActive.Value;
 
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "FLASHSALE_UPDATE", "FlashSale", id.ToString(),
+                null, new { name = sale.Name, isActive = sale.IsActive });
             return Ok(new { message = "Đã cập nhật flash sale" });
         }
 
@@ -238,6 +250,8 @@ namespace BaseCore.APIService.Controllers
             var sale = await _db.FlashSales.FindAsync(id);
             if (sale == null) return NotFound(new { message = "Không tìm thấy flash sale" });
 
+            await _audit.Log(GetUserId(), GetUserName(), "FLASHSALE_DELETE", "FlashSale", id.ToString(),
+                new { name = sale.Name }, null);
             _db.FlashSales.Remove(sale);
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã xóa flash sale" });

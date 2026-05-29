@@ -66,6 +66,18 @@
       <i class="bi bi-graph-up-arrow"></i> Doanh Thu
     </a>
 
+    <div class="adm-nav-section">Nâng Cao</div>
+    <a class="adm-nav-link" data-page="commission" href="#commission">
+      <i class="bi bi-percent"></i> Hoa Hồng
+    </a>
+    <a class="adm-nav-link" data-page="disputes" href="#disputes" style="display:flex;align-items:center;gap:6px">
+      <i class="bi bi-exclamation-triangle"></i> Khiếu Nại
+      <span class="adm-badge adm-badge-err ms-auto" id="disputeBadge" style="display:none;font-size:11px;padding:1px 6px">0</span>
+    </a>
+    <a class="adm-nav-link" data-page="auditlog" href="#auditlog">
+      <i class="bi bi-journal-text"></i> Audit Log
+    </a>
+
     <div class="adm-nav-section">Hệ Thống</div>
     <a class="adm-nav-link" data-page="settings" href="#settings">
       <i class="bi bi-gear"></i> Cài Đặt
@@ -125,6 +137,14 @@
       <div class="adm-stat-card">
         <div class="adm-stat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-shop-window"></i></div>
         <div><div class="adm-stat-value" id="st-shops">—</div><div class="adm-stat-label">Cửa Hàng Chờ</div></div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(239,68,68,.12);color:#ef4444"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div><div class="adm-stat-value" id="st-disputes">—</div><div class="adm-stat-label">Khiếu Nại Chờ</div></div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6"><i class="bi bi-percent"></i></div>
+        <div><div class="adm-stat-value" id="st-commission">—</div><div class="adm-stat-label">Hoa Hồng Tháng</div></div>
       </div>
     </div>
 
@@ -483,6 +503,12 @@
   <section class="adm-page" id="page-revenue">
     <div class="adm-page-header">
       <h1 class="adm-page-title">Phân Tích Doanh Thu</h1>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="adm-btn adm-btn-sm" onclick="exportRevenue()"><i class="bi bi-file-earmark-spreadsheet"></i> Export Doanh Thu</button>
+        <button class="adm-btn adm-btn-sm" onclick="exportOrders()"><i class="bi bi-file-earmark-spreadsheet"></i> Export Đơn Hàng</button>
+        <button class="adm-btn adm-btn-sm" onclick="exportUsers()"><i class="bi bi-file-earmark-person"></i> Export Users</button>
+        <button class="adm-btn adm-btn-sm" onclick="exportShops()"><i class="bi bi-file-earmark-bar-graph"></i> Export Shops</button>
+      </div>
     </div>
     <div class="adm-filters">
       <input class="adm-input" type="date" id="revFrom" />
@@ -525,6 +551,168 @@
       <div id="settingsList" style="padding:20px">
         <div class="adm-spinner-wrap"><div class="adm-spinner"></div></div>
       </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE: COMMISSION (HOA HỒNG)
+  ═══════════════════════════════════════════════════ -->
+  <section class="adm-page" id="page-commission">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Hoa Hồng</h1>
+      <button class="adm-btn adm-btn-sm" onclick="loadCommission()"><i class="bi bi-arrow-clockwise"></i> Làm Mới</button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="adm-stats-grid" style="grid-template-columns:repeat(5,1fr)" id="commissionSummary">
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-currency-dollar"></i></div><div><div class="adm-stat-value" id="com-revenue">—</div><div class="adm-stat-label">Tổng Doanh Thu</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6"><i class="bi bi-percent"></i></div><div><div class="adm-stat-value" id="com-commission">—</div><div class="adm-stat-label">Tổng Hoa Hồng</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(59,130,246,.12);color:#3b82f6"><i class="bi bi-shop"></i></div><div><div class="adm-stat-value" id="com-net">—</div><div class="adm-stat-label">Net Cho Seller</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-check-circle"></i></div><div><div class="adm-stat-value" id="com-paid">—</div><div class="adm-stat-label">Đã Thanh Toán</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-clock"></i></div><div><div class="adm-stat-value" id="com-pending">—</div><div class="adm-stat-label">Còn Phải Trả</div></div></div>
+    </div>
+
+    <!-- Sub tabs -->
+    <div class="d-flex gap-2 mt-3 mb-3">
+      <button class="adm-btn adm-btn-primary" id="comTabShops" onclick="showComTab('shops')">Hoa Hồng Theo Shop</button>
+      <button class="adm-btn" id="comTabHistory" onclick="showComTab('history')">Lịch Sử Thanh Toán</button>
+    </div>
+
+    <!-- Shops tab -->
+    <div id="comTabShopsContent">
+      <div class="adm-filters">
+        <input class="adm-input" type="date" id="comFrom" />
+        <input class="adm-input" type="date" id="comTo" />
+        <button class="adm-btn adm-btn-primary" onclick="loadCommissionShops()"><i class="bi bi-search"></i> Xem</button>
+      </div>
+      <div class="adm-card">
+        <div class="adm-table-wrap">
+          <table class="adm-table" id="commissionShopsTable">
+            <thead><tr><th>Shop</th><th>Tỷ Lệ</th><th>Doanh Thu</th><th>Hoa Hồng</th><th>Net Seller</th><th>Đã Trả</th><th>Còn Lại</th><th>Thao Tác</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="adm-pagination" id="commissionShopsPagination"></div>
+      </div>
+    </div>
+
+    <!-- History tab -->
+    <div id="comTabHistoryContent" style="display:none">
+      <div class="adm-card">
+        <div class="adm-table-wrap">
+          <table class="adm-table" id="payoutHistoryTable">
+            <thead><tr><th>Shop</th><th>Số Tiền</th><th>Ghi Chú</th><th>Ngày Thanh Toán</th><th>Xử Lý Bởi</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="adm-pagination" id="payoutHistoryPagination"></div>
+      </div>
+    </div>
+
+    <!-- Payout modal -->
+    <div class="adm-modal-backdrop" id="payoutBackdrop" onclick="closePayoutModal()"></div>
+    <div class="adm-modal" id="payoutModal">
+      <div class="adm-modal-head">Thanh Toán Hoa Hồng <button class="adm-modal-close" onclick="closePayoutModal()"><i class="bi bi-x-lg"></i></button></div>
+      <div style="padding:20px">
+        <input type="hidden" id="payoutShopId" />
+        <p id="payoutShopName" class="fw-bold mb-3"></p>
+        <label class="adm-label">Số Tiền Thanh Toán (₫) *</label>
+        <input class="adm-input" type="number" id="payoutAmount" min="1" />
+        <label class="adm-label mt-2">Ngày Thanh Toán</label>
+        <input class="adm-input" type="date" id="payoutDate" />
+        <label class="adm-label mt-2">Ghi Chú</label>
+        <input class="adm-input" id="payoutNote" placeholder="Chuyển khoản tháng 5..." />
+        <div class="d-flex gap-2 mt-3">
+          <button class="adm-btn adm-btn-primary" onclick="savePayout()"><i class="bi bi-check-lg"></i> Xác Nhận</button>
+          <button class="adm-btn" onclick="closePayoutModal()">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE: DISPUTES (KHIẾU NẠI)
+  ═══════════════════════════════════════════════════ -->
+  <section class="adm-page" id="page-disputes">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Khiếu Nại</h1>
+    </div>
+    <div class="adm-filters">
+      <select class="adm-select" id="disputeStatusFilter" onchange="loadDisputes()">
+        <option value="">Tất Cả</option>
+        <option value="OPEN">Mới</option>
+        <option value="PROCESSING">Đang Xử Lý</option>
+        <option value="RESOLVED">Đã Giải Quyết</option>
+      </select>
+    </div>
+    <div class="adm-card">
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="disputesTable">
+          <thead><tr><th>ID</th><th>Mã Đơn</th><th>Khách Hàng</th><th>Lý Do</th><th>Trạng Thái</th><th>Ngày Tạo</th><th>Thao Tác</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="adm-pagination" id="disputesPagination"></div>
+    </div>
+
+    <!-- Detail modal -->
+    <div class="adm-modal-backdrop" id="disputeDetailBackdrop" onclick="closeDisputeDetail()"></div>
+    <div class="adm-modal adm-modal-lg" id="disputeDetailModal">
+      <div class="adm-modal-head">Chi Tiết Khiếu Nại <button class="adm-modal-close" onclick="closeDisputeDetail()"><i class="bi bi-x-lg"></i></button></div>
+      <div id="disputeDetailContent" style="padding:20px;max-height:65vh;overflow-y:auto"></div>
+    </div>
+
+    <!-- Resolve modal -->
+    <div class="adm-modal-backdrop" id="resolveBackdrop" onclick="closeResolveModal()"></div>
+    <div class="adm-modal" id="resolveModal">
+      <div class="adm-modal-head">Giải Quyết Khiếu Nại <button class="adm-modal-close" onclick="closeResolveModal()"><i class="bi bi-x-lg"></i></button></div>
+      <div style="padding:20px">
+        <input type="hidden" id="resolveDisputeId" />
+        <label class="adm-label">Kết Luận *</label>
+        <textarea class="adm-input" id="resolveResolution" rows="3" placeholder="Mô tả kết quả xử lý..."></textarea>
+        <div class="row g-2 mt-1">
+          <div class="col-6">
+            <label class="adm-label">Hoàn Tiền (₫)</label>
+            <input class="adm-input" type="number" id="resolveRefund" value="0" min="0" />
+          </div>
+          <div class="col-6">
+            <label class="adm-label">Kết Quả</label>
+            <select class="adm-select" id="resolveFavor">
+              <option value="true">Có lợi cho khách</option>
+              <option value="false">Không có lợi cho khách</option>
+            </select>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+          <button class="adm-btn adm-btn-primary" onclick="saveResolve()"><i class="bi bi-check-lg"></i> Giải Quyết</button>
+          <button class="adm-btn" onclick="closeResolveModal()">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE: AUDIT LOG
+  ═══════════════════════════════════════════════════ -->
+  <section class="adm-page" id="page-auditlog">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Audit Log</h1>
+    </div>
+    <div class="adm-filters">
+      <input class="adm-input" id="auditAction" placeholder="Tìm action (USER_BAN, SHOP_APPROVE...)" oninput="loadAuditLogs()" />
+      <input class="adm-input" id="auditUser" placeholder="User ID..." oninput="loadAuditLogs()" />
+      <input class="adm-input" type="date" id="auditFrom" onchange="loadAuditLogs()" />
+      <input class="adm-input" type="date" id="auditTo" onchange="loadAuditLogs()" />
+    </div>
+    <div class="adm-card">
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="auditTable">
+          <thead><tr><th>Thời Gian</th><th>Admin</th><th>Hành Động</th><th>Đối Tượng</th><th>Chi Tiết</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="adm-pagination" id="auditPagination"></div>
     </div>
   </section>
 
@@ -571,6 +759,9 @@
     flashsale:  'Flash Sale',
     vouchers:   'Vouchers',
     revenue:    'Doanh Thu',
+    commission: 'Hoa Hồng',
+    disputes:   'Khiếu Nại',
+    auditlog:   'Audit Log',
     settings:   'Cài Đặt'
   };
 
@@ -596,8 +787,11 @@
     else if (page === 'banners') loadBanners();
     else if (page === 'flashsale') loadFlashSales();
     else if (page === 'vouchers') loadVouchers();
-    else if (page === 'revenue') loadRevenue();
-    else if (page === 'settings') loadSettings();
+    else if (page === 'revenue')    loadRevenue();
+    else if (page === 'commission') loadCommission();
+    else if (page === 'disputes')   loadDisputes();
+    else if (page === 'auditlog')   loadAuditLogs();
+    else if (page === 'settings')   loadSettings();
   }
 
   document.querySelectorAll('.adm-nav-link').forEach(link => {
@@ -740,6 +934,19 @@
           <span class="adm-top-val">${fmt(s.revenue)}</span>
         </div>`).join('') || '<div class="adm-empty">Chưa có dữ liệu</div>';
     } catch(e) { toast('Lỗi tải dashboard: ' + e.message, 'error'); }
+
+    // Load disputes count & commission async (non-blocking)
+    try {
+      const dsp = await Admin.getDisputes('status=OPEN&limit=1');
+      const cnt = dsp?.total ?? 0;
+      document.getElementById('st-disputes').textContent = cnt.toLocaleString();
+      const badge = document.getElementById('disputeBadge');
+      if (cnt > 0) { badge.textContent = cnt; badge.style.display = 'inline-block'; }
+    } catch(_) {}
+    try {
+      const com = await Admin.getCommissionSummary();
+      document.getElementById('st-commission').textContent = fmt(com.totalCommission);
+    } catch(_) {}
   }
 
   // ────────────────────────────────────────────
@@ -1376,6 +1583,325 @@
       await Admin.updateConfig(items);
       toast('Đã lưu cài đặt hệ thống');
     } catch(e) { toast(e.message, 'error'); }
+  };
+
+  // ────────────────────────────────────────────
+  // COMMISSION (HOA HỒNG)
+  // ────────────────────────────────────────────
+  let _comShopsPage = 1, _comHistPage = 1;
+
+  async function loadCommission() {
+    try {
+      const s = await Admin.getCommissionSummary();
+      document.getElementById('com-revenue').textContent    = fmt(s.totalRevenue);
+      document.getElementById('com-commission').textContent = fmt(s.totalCommission);
+      document.getElementById('com-net').textContent        = fmt(s.totalNetToSellers);
+      document.getElementById('com-paid').textContent       = fmt(s.totalPaidOut);
+      document.getElementById('com-pending').textContent    = fmt(s.pendingTotal);
+    } catch(e) { toast('Lỗi tải hoa hồng: ' + e.message, 'error'); }
+    loadCommissionShops();
+  }
+  window.loadCommission = loadCommission;
+
+  async function loadCommissionShops(page=1) {
+    _comShopsPage = page;
+    const from = document.getElementById('comFrom')?.value || '';
+    const to   = document.getElementById('comTo')?.value   || '';
+    try {
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (from) params.set('from', from);
+      if (to)   params.set('to', to);
+      const d = await Admin.getCommissionShops(params.toString());
+      const tbody = document.querySelector('#commissionShopsTable tbody');
+      tbody.innerHTML = (d.items || []).map(s => `
+        <tr>
+          <td><strong>${s.shopName}</strong></td>
+          <td>${s.commissionRate}%</td>
+          <td>${fmt(s.revenue)}</td>
+          <td class="text-purple fw-bold">${fmt(s.commissionAmount)}</td>
+          <td>${fmt(s.netRevenue)}</td>
+          <td class="text-success">${fmt(s.paidOut)}</td>
+          <td class="${s.pendingPayout>0?'text-warning fw-bold':''}">${fmt(s.pendingPayout)}</td>
+          <td class="adm-actions">
+            <button class="adm-btn adm-btn-sm adm-btn-primary" onclick="openPayoutModal('${s.shopId}','${s.shopName}',${s.pendingPayout})">
+              <i class="bi bi-cash"></i> Thanh Toán
+            </button>
+          </td>
+        </tr>`).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
+      buildPagination('commissionShopsPagination', page, d.totalPages, 'loadCommissionShops');
+    } catch(e) { toast('Lỗi tải shops: ' + e.message, 'error'); }
+  }
+  window.loadCommissionShops = loadCommissionShops;
+
+  async function loadPayoutHistory(page=1) {
+    _comHistPage = page;
+    try {
+      const d = await Admin.getPayoutHistory('page=' + page + '&limit=20');
+      const tbody = document.querySelector('#payoutHistoryTable tbody');
+      tbody.innerHTML = (d.items || []).map(p => `
+        <tr>
+          <td>${p.shopName || p.shopId}</td>
+          <td class="fw-bold">${fmt(p.amount)}</td>
+          <td>${p.note || '—'}</td>
+          <td>${fmtDate(p.payoutDate)}</td>
+          <td><small class="text-muted">${p.processedBy || '—'}</small></td>
+        </tr>`).join('') || '<tr><td colspan="5" class="adm-empty">Chưa có lịch sử</td></tr>';
+      buildPagination('payoutHistoryPagination', page, d.totalPages, 'loadPayoutHistory');
+    } catch(e) { toast('Lỗi tải lịch sử: ' + e.message, 'error'); }
+  }
+
+  window.showComTab = function(tab) {
+    const isShops = tab === 'shops';
+    document.getElementById('comTabShopsContent').style.display   = isShops ? '' : 'none';
+    document.getElementById('comTabHistoryContent').style.display = isShops ? 'none' : '';
+    document.getElementById('comTabShops').className   = 'adm-btn' + (isShops ? ' adm-btn-primary' : '');
+    document.getElementById('comTabHistory').className = 'adm-btn' + (!isShops ? ' adm-btn-primary' : '');
+    if (!isShops) loadPayoutHistory();
+  };
+
+  window.openPayoutModal = function(shopId, shopName, pending) {
+    document.getElementById('payoutShopId').value   = shopId;
+    document.getElementById('payoutShopName').textContent = shopName + ' — Còn phải trả: ' + fmt(pending);
+    document.getElementById('payoutAmount').value   = pending > 0 ? Math.round(pending) : '';
+    document.getElementById('payoutDate').value     = new Date().toISOString().slice(0,10);
+    document.getElementById('payoutNote').value     = '';
+    document.getElementById('payoutBackdrop').style.display = 'block';
+    document.getElementById('payoutModal').classList.add('open');
+  };
+  window.closePayoutModal = function() {
+    document.getElementById('payoutBackdrop').style.display = 'none';
+    document.getElementById('payoutModal').classList.remove('open');
+  };
+  window.savePayout = async function() {
+    const shopId = document.getElementById('payoutShopId').value;
+    const amount = parseFloat(document.getElementById('payoutAmount').value);
+    const date   = document.getElementById('payoutDate').value;
+    const note   = document.getElementById('payoutNote').value.trim();
+    if (!amount || amount <= 0) { toast('Số tiền phải lớn hơn 0', 'error'); return; }
+    try {
+      const res = await Admin.createPayout(shopId, { amount, note, payoutDate: date ? new Date(date).toISOString() : new Date().toISOString() });
+      toast(res.message || 'Đã ghi nhận thanh toán');
+      closePayoutModal();
+      loadCommission();
+    } catch(e) { toast(e.message, 'error'); }
+  };
+
+  // ────────────────────────────────────────────
+  // DISPUTES (KHIẾU NẠI)
+  // ────────────────────────────────────────────
+  let _disputesPage = 1;
+
+  async function loadDisputes(page=1) {
+    _disputesPage = page;
+    const status = document.getElementById('disputeStatusFilter')?.value || '';
+    try {
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (status) params.set('status', status);
+      const d = await Admin.getDisputes(params.toString());
+
+      // Update badge
+      if (!status || status === 'OPEN') {
+        const openCount = d.total || 0;
+        const badge = document.getElementById('disputeBadge');
+        if (badge) { badge.textContent = openCount; badge.style.display = openCount > 0 ? 'inline-block' : 'none'; }
+      }
+
+      const tbody = document.querySelector('#disputesTable tbody');
+      const DISPUTE_BADGE = { OPEN: 'adm-badge-warn', PROCESSING: 'adm-badge-info', RESOLVED: 'adm-badge-ok' };
+      const DISPUTE_TEXT  = { OPEN: 'Mới', PROCESSING: 'Đang Xử Lý', RESOLVED: 'Đã Giải Quyết' };
+      tbody.innerHTML = (d.items || []).map(dp => `
+        <tr>
+          <td>#${dp.id}</td>
+          <td><strong>${dp.orderCode || dp.orderId}</strong></td>
+          <td>${dp.customerName || dp.customerId}</td>
+          <td>${dp.reason}</td>
+          <td><span class="adm-badge ${DISPUTE_BADGE[dp.status]||'adm-badge-info'}">${DISPUTE_TEXT[dp.status]||dp.status}</span></td>
+          <td>${fmtDate(dp.createdAt)}</td>
+          <td class="adm-actions">
+            <button class="adm-btn adm-btn-sm" onclick="viewDispute(${dp.id})"><i class="bi bi-eye"></i></button>
+            ${dp.status==='OPEN' ? `<button class="adm-btn adm-btn-sm adm-btn-info" onclick="processDispute(${dp.id})"><i class="bi bi-gear"></i> Tiếp Nhận</button>` : ''}
+            ${dp.status!=='RESOLVED' ? `<button class="adm-btn adm-btn-sm adm-btn-ok" onclick="openResolveModal(${dp.id})"><i class="bi bi-check-circle"></i> Giải Quyết</button>` : ''}
+          </td>
+        </tr>`).join('') || '<tr><td colspan="7" class="adm-empty">Không có khiếu nại</td></tr>';
+      buildPagination('disputesPagination', page, d.totalPages, 'loadDisputes');
+    } catch(e) { toast('Lỗi tải khiếu nại: ' + e.message, 'error'); }
+  }
+  window.loadDisputes = loadDisputes;
+
+  window.viewDispute = async function(id) {
+    try {
+      const d = await Admin.getDisputeDetail(id);
+      const DISPUTE_TEXT = { OPEN: 'Mới', PROCESSING: 'Đang Xử Lý', RESOLVED: 'Đã Giải Quyết' };
+      document.getElementById('disputeDetailContent').innerHTML = `
+        <div class="row g-3">
+          <div class="col-md-6">
+            <strong>Khiếu nại #${d.id}</strong><br>
+            <strong>Trạng thái:</strong> ${DISPUTE_TEXT[d.status]||d.status}<br>
+            <strong>Mã đơn:</strong> ${d.orderCode||d.orderId}<br>
+            <strong>Trạng thái đơn:</strong> ${d.orderStatus||'—'}<br>
+            <strong>Ngày tạo:</strong> ${fmtDateTime(d.createdAt)}
+          </div>
+          <div class="col-md-6">
+            <strong>Khách hàng:</strong> ${d.customerName||d.customerId}<br>
+            <strong>Email:</strong> ${d.customerEmail||'—'}<br>
+            ${d.resolvedAt ? `<strong>Ngày giải quyết:</strong> ${fmtDateTime(d.resolvedAt)}<br>` : ''}
+            ${d.refundAmount > 0 ? `<strong>Hoàn tiền:</strong> ${fmt(d.refundAmount)}<br>` : ''}
+          </div>
+        </div>
+        <hr>
+        <p><strong>Lý do:</strong> ${d.reason}</p>
+        ${d.description ? `<p><strong>Mô tả:</strong> ${d.description}</p>` : ''}
+        ${d.resolution  ? `<p><strong>Kết luận:</strong> ${d.resolution}</p>` : ''}
+        ${d.orderDetails?.length ? `
+          <hr>
+          <table class="adm-table">
+            <thead><tr><th>Sản Phẩm</th><th>SL</th><th>Đơn Giá</th></tr></thead>
+            <tbody>${d.orderDetails.map(od=>`<tr><td>${od.productName||od.productId}</td><td>${od.quantity}</td><td>${fmt(od.unitPrice)}</td></tr>`).join('')}</tbody>
+          </table>` : ''}
+        <div class="d-flex gap-2 mt-3">
+          ${d.status==='OPEN' ? `<button class="adm-btn adm-btn-primary" onclick="processDispute(${d.id});closeDisputeDetail()">Tiếp Nhận Xử Lý</button>` : ''}
+          ${d.status!=='RESOLVED' ? `<button class="adm-btn adm-btn-ok" onclick="closeDisputeDetail();openResolveModal(${d.id})">Giải Quyết</button>` : ''}
+        </div>`;
+      document.getElementById('disputeDetailBackdrop').style.display = 'block';
+      document.getElementById('disputeDetailModal').classList.add('open');
+    } catch(e) { toast(e.message, 'error'); }
+  };
+  window.closeDisputeDetail = function() {
+    document.getElementById('disputeDetailBackdrop').style.display = 'none';
+    document.getElementById('disputeDetailModal').classList.remove('open');
+  };
+
+  window.processDispute = async function(id) {
+    try {
+      await Admin.processDispute(id);
+      toast('Đã tiếp nhận xử lý khiếu nại #' + id);
+      loadDisputes(_disputesPage);
+    } catch(e) { toast(e.message, 'error'); }
+  };
+
+  window.openResolveModal = function(id) {
+    document.getElementById('resolveDisputeId').value = id;
+    document.getElementById('resolveResolution').value = '';
+    document.getElementById('resolveRefund').value = '0';
+    document.getElementById('resolveFavor').value = 'true';
+    document.getElementById('resolveBackdrop').style.display = 'block';
+    document.getElementById('resolveModal').classList.add('open');
+  };
+  window.closeResolveModal = function() {
+    document.getElementById('resolveBackdrop').style.display = 'none';
+    document.getElementById('resolveModal').classList.remove('open');
+  };
+  window.saveResolve = async function() {
+    const id         = parseInt(document.getElementById('resolveDisputeId').value);
+    const resolution = document.getElementById('resolveResolution').value.trim();
+    const refund     = parseFloat(document.getElementById('resolveRefund').value) || 0;
+    const favor      = document.getElementById('resolveFavor').value === 'true';
+    if (!resolution) { toast('Vui lòng nhập kết luận', 'error'); return; }
+    try {
+      await Admin.resolveDispute(id, { resolution, refundAmount: refund, favorCustomer: favor });
+      toast('Đã giải quyết khiếu nại #' + id);
+      closeResolveModal();
+      loadDisputes(_disputesPage);
+    } catch(e) { toast(e.message, 'error'); }
+  };
+
+  // ────────────────────────────────────────────
+  // AUDIT LOG
+  // ────────────────────────────────────────────
+  let _auditPage = 1;
+  const AUDIT_COLORS = {
+    'USER_BAN': '#ef4444', 'USER_UNBAN': '#10b981', 'USER_CHANGE_ROLE': '#f59e0b',
+    'SHOP_APPROVE': '#10b981', 'SHOP_BAN': '#ef4444', 'SHOP_COMMISSION': '#8b5cf6',
+    'FLASHSALE_CREATE': '#3b82f6', 'FLASHSALE_UPDATE': '#f59e0b', 'FLASHSALE_DELETE': '#ef4444',
+    'VOUCHER_CREATE': '#3b82f6', 'VOUCHER_UPDATE': '#f59e0b', 'VOUCHER_DELETE': '#ef4444',
+    'COMMISSION_PAYOUT': '#10b981', 'DISPUTE_PROCESS': '#f59e0b', 'DISPUTE_RESOLVE': '#10b981'
+  };
+
+  async function loadAuditLogs(page=1) {
+    _auditPage = page;
+    const action = document.getElementById('auditAction')?.value || '';
+    const userId = document.getElementById('auditUser')?.value || '';
+    const from   = document.getElementById('auditFrom')?.value || '';
+    const to     = document.getElementById('auditTo')?.value   || '';
+    try {
+      const params = new URLSearchParams({ page, limit: 50 });
+      if (action) params.set('action', action);
+      if (userId) params.set('userId', userId);
+      if (from)   params.set('from', from);
+      if (to)     params.set('to', to);
+      const d = await Admin.getAuditLogs(params.toString());
+      const tbody = document.querySelector('#auditTable tbody');
+      tbody.innerHTML = (d.items || []).map(a => {
+        const color = AUDIT_COLORS[a.action] || '#6b7280';
+        const newVal = a.newValue ? JSON.parse(a.newValue) : null;
+        const detail = newVal ? Object.entries(newVal).map(([k,v]) => `${k}: ${v}`).join(', ') : '—';
+        return `
+          <tr>
+            <td><small>${fmtDateTime(a.createdAt)}</small></td>
+            <td>${a.userName || a.userId || '—'}</td>
+            <td><span class="adm-badge" style="background:${color}22;color:${color};border:1px solid ${color}44">${a.action}</span></td>
+            <td>${a.entityType||'—'} #${a.entityId||''}</td>
+            <td><small class="text-muted">${detail}</small></td>
+          </tr>`;
+      }).join('') || '<tr><td colspan="5" class="adm-empty">Không có log</td></tr>';
+      buildPagination('auditPagination', page, d.totalPages, 'loadAuditLogs');
+    } catch(e) { toast('Lỗi tải audit log: ' + e.message, 'error'); }
+  }
+  window.loadAuditLogs = loadAuditLogs;
+
+  // ────────────────────────────────────────────
+  // EXPORT CSV
+  // ────────────────────────────────────────────
+  function triggerDownload(url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  window.exportRevenue = function() {
+    const from = document.getElementById('revFrom')?.value || '';
+    const to   = document.getElementById('revTo')?.value   || '';
+    const p    = new URLSearchParams();
+    if (from) p.set('from', from);
+    if (to)   p.set('to', to);
+    const token = localStorage.getItem('token');
+    fetch(PRODUCT_API + '/api/admin/export/revenue?' + p, { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.blob()).then(blob => {
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url);
+        toast('Đã tải file CSV doanh thu');
+      }).catch(e => toast('Lỗi export: ' + e.message, 'error'));
+  };
+  window.exportOrders = function() {
+    const from = document.getElementById('revFrom')?.value || '';
+    const to   = document.getElementById('revTo')?.value   || '';
+    const p    = new URLSearchParams();
+    if (from) p.set('from', from);
+    if (to)   p.set('to', to);
+    const token = localStorage.getItem('token');
+    fetch(PRODUCT_API + '/api/admin/export/orders?' + p, { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.blob()).then(blob => {
+        triggerDownload(URL.createObjectURL(blob));
+        toast('Đã tải file CSV đơn hàng');
+      }).catch(e => toast('Lỗi export: ' + e.message, 'error'));
+  };
+  window.exportUsers = function() {
+    const token = localStorage.getItem('token');
+    fetch(PRODUCT_API + '/api/admin/export/users', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.blob()).then(blob => {
+        triggerDownload(URL.createObjectURL(blob));
+        toast('Đã tải file CSV users');
+      }).catch(e => toast('Lỗi export: ' + e.message, 'error'));
+  };
+  window.exportShops = function() {
+    const token = localStorage.getItem('token');
+    fetch(PRODUCT_API + '/api/admin/export/shops', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.blob()).then(blob => {
+        triggerDownload(URL.createObjectURL(blob));
+        toast('Đã tải file CSV shops');
+      }).catch(e => toast('Lỗi export: ' + e.message, 'error'));
   };
 
   // ────────────────────────────────────────────

@@ -1413,6 +1413,39 @@ const Admin = {
   updateConfigKey(key, value) {
     return apiFetch(PRODUCT_API, "/api/admin/config/" + key, "PUT", { Key: key, Value: value });
   },
+
+  // ── Commission (Hoa Hồng) ──
+  getCommissionSummary() {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/summary", "GET");
+  },
+  getCommissionShops(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/shops" + (qs ? "?" + qs : ""), "GET");
+  },
+  createPayout(shopId, data) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/payout/" + shopId, "POST", data);
+  },
+  getPayoutHistory(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/history" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── Disputes (Khiếu Nại) ──
+  getDisputes(qs) {
+    return apiFetch(PRODUCT_API, "/api/disputes" + (qs ? "?" + qs : ""), "GET");
+  },
+  getDisputeDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id, "GET");
+  },
+  processDispute(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/process", "PUT");
+  },
+  resolveDispute(id, data) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/resolve", "PUT", data);
+  },
+
+  // ── Audit Log ──
+  getAuditLogs(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/audit-logs" + (qs ? "?" + qs : ""), "GET");
+  },
 };
 
 // ============================================================
@@ -1527,5 +1560,21 @@ const RecentlyViewed = {
   },
   add: function (productId) {
     return apiFetch(PRODUCT_API, "/api/recently-viewed/" + productId, "POST").catch(function () {});
+  },
+};
+
+// ============================================================
+//  DISPUTE MODULE — Customer-facing (tạo khiếu nại)
+// ============================================================
+const DisputeApi = {
+  create(data) {
+    return apiFetch(PRODUCT_API, "/api/disputes", "POST", data);
+  },
+  getMy(page, limit) {
+    const qs = new URLSearchParams({ page: page || 1, limit: limit || 10 });
+    return apiFetch(PRODUCT_API, "/api/disputes/my?" + qs.toString(), "GET");
+  },
+  getDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id, "GET");
   },
 };

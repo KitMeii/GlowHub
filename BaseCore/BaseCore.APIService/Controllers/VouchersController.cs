@@ -1,5 +1,6 @@
 ﻿using BaseCore.Entities;
 using BaseCore.Repository;
+using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,13 +13,16 @@ namespace BaseCore.APIService.Controllers
     public class VouchersController : ControllerBase
     {
         private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
 
-        public VouchersController(MySqlDbContext db)
+        public VouchersController(MySqlDbContext db, AuditLogService audit)
         {
-            _db = db;
+            _db    = db;
+            _audit = audit;
         }
 
-        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserId()   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName() => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         /// <summary>GET /api/vouchers/public — Danh sách voucher public (không cần auth)</summary>
         [HttpGet("public")]
@@ -222,6 +226,8 @@ namespace BaseCore.APIService.Controllers
             voucher.CreatedAt = DateTime.UtcNow;
             _db.Vouchers.Add(voucher);
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "VOUCHER_CREATE", "Voucher", voucher.Id.ToString(),
+                null, new { code = voucher.Code, discountValue = voucher.DiscountValue });
             return CreatedAtAction(nameof(GetAll), voucher);
         }
 
@@ -232,6 +238,7 @@ namespace BaseCore.APIService.Controllers
         {
             var v = await _db.Vouchers.FindAsync(id);
             if (v == null) return NotFound();
+            var oldCode = v.Code;
             v.Description = dto.Description;
             v.DiscountType = dto.DiscountType;
             v.DiscountValue = dto.DiscountValue;
@@ -242,6 +249,8 @@ namespace BaseCore.APIService.Controllers
             v.ExpiryDate = dto.ExpiryDate;
             v.IsActive = dto.IsActive;
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "VOUCHER_UPDATE", "Voucher", id.ToString(),
+                new { code = oldCode }, new { code = v.Code, isActive = v.IsActive, discountValue = v.DiscountValue });
             return Ok(v);
         }
 
@@ -252,6 +261,8 @@ namespace BaseCore.APIService.Controllers
         {
             var v = await _db.Vouchers.FindAsync(id);
             if (v == null) return NotFound();
+            await _audit.Log(GetUserId(), GetUserName(), "VOUCHER_DELETE", "Voucher", id.ToString(),
+                new { code = v.Code }, null);
             _db.Vouchers.Remove(v);
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã xóa voucher" });
