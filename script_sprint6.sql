@@ -164,3 +164,15 @@ WHERE PaymentMethod IS NULL OR PaymentStatus IS NULL;
 SELECT Id, OrderCode, PaymentMethod, PaymentStatus 
 FROM [dbo].[Orders]
 GO
+
+-- Fix các cột decimal bị NULL
+UPDATE [dbo].[Orders]
+SET 
+  ShippingFee = 0,
+  FinalAmount = TotalAmount
+WHERE ShippingFee IS NULL 
+   OR FinalAmount IS NULL;
+
+SELECT Id, OrderCode, TotalAmount, ShippingFee, FinalAmount
+FROM [dbo].[Orders]
+GO
