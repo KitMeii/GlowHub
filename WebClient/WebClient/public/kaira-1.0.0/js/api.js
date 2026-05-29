@@ -544,6 +544,38 @@ const SellerReport = {
 };
 
 // ============================================================
+//  SELLER WALLET MODULE
+// ============================================================
+const SellerWallet = {
+  getWallet() {
+    return apiFetch(PRODUCT_API, "/api/seller/wallet", "GET");
+  },
+  getTransactions(type = "", page = 1, limit = 15) {
+    const qs = new URLSearchParams({ page, limit });
+    if (type) qs.set("type", type);
+    return apiFetch(PRODUCT_API, "/api/seller/wallet/transactions?" + qs.toString(), "GET");
+  },
+};
+
+// ============================================================
+//  ADMIN WALLET MODULE
+// ============================================================
+const AdminWallet = {
+  getOverview() {
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/overview", "GET");
+  },
+  releasePayouts() {
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/release-payouts", "POST");
+  },
+  getTransactions(shopId = "", type = "", page = 1, limit = 20) {
+    const qs = new URLSearchParams({ page, limit });
+    if (shopId) qs.set("shopId", shopId);
+    if (type)   qs.set("type", type);
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/transactions?" + qs.toString(), "GET");
+  },
+};
+
+// ============================================================
 //  CART MODULE  ← Fix hoàn toàn
 // ============================================================
 const Cart = {

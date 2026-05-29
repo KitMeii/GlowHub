@@ -18,6 +18,7 @@ namespace BaseCore.APIService.Controllers
         public async Task<IActionResult> GetAll()
         {
             var cats = await _db.Categories
+                .Where(c => !c.IsDeleted)
                 .Select(c => new {
                     c.Id,
                     c.Name,
@@ -70,19 +71,15 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { message = "Đã cập nhật danh mục", category = cat });
         }
 
-        // DELETE /api/categories/{id} (Admin)
+        // DELETE /api/categories/{id} (Admin) — soft delete
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var cat = await _db.Categories.FindAsync(id);
-            if (cat == null) return NotFound(new { message = "Không tìm thấy danh mục" });
+            if (cat == null || cat.IsDeleted) return NotFound(new { message = "Không tìm thấy danh mục" });
 
-            var productCount = await _db.Products.CountAsync(p => p.CategoryId == id);
-            if (productCount > 0)
-                return BadRequest(new { message = $"Không thể xóa. Danh mục có {productCount} sản phẩm. Hãy chuyển sản phẩm trước." });
-
-            _db.Categories.Remove(cat);
+            cat.IsDeleted = true;
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã xóa danh mục" });
         }
