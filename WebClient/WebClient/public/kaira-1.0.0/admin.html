@@ -541,15 +541,20 @@
   // ────────────────────────────────────────────
   // Auth Guard
   // ────────────────────────────────────────────
-  const token = localStorage.getItem('gh_token');
-  const role  = localStorage.getItem('gh_role');
-  if (!token || role !== 'Admin') {
-    alert('Bạn không có quyền truy cập trang này.');
+  const token    = localStorage.getItem('token');
+  const userStr  = localStorage.getItem('user');
+  const _u       = userStr ? JSON.parse(userStr) : null;
+  const userType = _u ? (_u.userType ?? _u.UserType ?? 0) : -1;
+  const roleVal  = _u ? (_u.role ?? _u.Role ?? '') : '';
+  const isAdmin  = userType === 1 || roleVal === 'Admin' || roleVal === 'admin';
+
+  if (!token || !_u || !isAdmin) {
+    alert('Bạn không có quyền truy cập trang này.\n(Cần đăng nhập bằng tài khoản Admin)');
     location.href = 'login.html';
     return;
   }
 
-  const adminName = localStorage.getItem('gh_username') || 'Admin';
+  const adminName = _u.name || _u.Name || _u.userName || _u.UserName || 'Admin';
   document.getElementById('adminName').textContent = adminName;
 
   // ────────────────────────────────────────────
@@ -631,6 +636,13 @@
   function fmt(n) { return n != null ? Number(n).toLocaleString('vi-VN') + '₫' : '—'; }
   function fmtDate(s) { return s ? new Date(s).toLocaleDateString('vi-VN') : '—'; }
   function fmtDateTime(s) { return s ? new Date(s).toLocaleString('vi-VN') : '—'; }
+  // Normalize PascalCase API response keys → camelCase so all renders use camelCase uniformly
+  function norm(o) {
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return o;
+    const r = {};
+    for (const k of Object.keys(o)) r[k.charAt(0).toLowerCase() + k.slice(1)] = o[k];
+    return r;
+  }
 
   const STATUS_BADGE = {
     'PENDING':   'adm-badge-warn',
@@ -748,7 +760,7 @@
 
       const d = await Admin.getUsers(params.toString());
       const tbody = document.querySelector('#usersTable tbody');
-      tbody.innerHTML = d.items.map(u => `
+      tbody.innerHTML = d.items.map(norm).map(u => `
         <tr>
           <td><strong>${u.name || u.userName}</strong><br><small class="text-muted">${u.userName}</small></td>
           <td>${u.email || '—'}</td>
@@ -800,7 +812,7 @@
     try {
       const d = await Admin.getShopStats(new URLSearchParams({ status, page, limit: 20 }).toString());
       const tbody = document.querySelector('#shopsTable tbody');
-      tbody.innerHTML = d.items.map(s => `
+      tbody.innerHTML = d.items.map(norm).map(s => `
         <tr>
           <td><strong>${s.shopName}</strong></td>
           <td><span class="adm-badge ${s.status===1?'adm-badge-ok':s.status===2?'adm-badge-err':'adm-badge-warn'}">${shopStatusText(s.status)}</span></td>
@@ -860,11 +872,8 @@
     const search   = document.getElementById('productSearch')?.value || '';
     const catId    = document.getElementById('productCategory')?.value || '';
     try {
-      const params = new URLSearchParams({ page, limit: 20 });
-      if (search) params.set('search', search);
-      if (catId)  params.set('categoryId', catId);
-      const d = await Products.getAll(params.toString());
-      const items = d.items || d;
+      const d = await Product.getAll({ page, pageSize: 20, keyword: search || undefined, categoryId: catId || undefined });
+      const items = (d.items || d).map(norm);
       const tbody = document.querySelector('#productsTable tbody');
       tbody.innerHTML = items.map(p => `
         <tr>
@@ -872,7 +881,7 @@
           <td>${p.name}</td>
           <td>${fmt(p.discountPrice||p.price)}</td>
           <td class="${p.stock<10?'text-danger fw-bold':''}">${p.stock}</td>
-          <td>${p.categoryName||'—'}</td>
+          <td>${p.category?.name ?? p.category?.Name ?? '—'}</td>
           <td>${p.isActive ? '<span class="adm-badge adm-badge-ok">Đang Bán</span>' : '<span class="adm-badge adm-badge-err">Ẩn</span>'}</td>
         </tr>`).join('');
       if (d.totalPages) buildPagination('productsPagination', page, d.totalPages, 'loadProducts');
@@ -981,7 +990,7 @@
     try {
       const cats = await Admin.getCategories();
       const tbody = document.querySelector('#catsTable tbody');
-      tbody.innerHTML = cats.map(c => `
+      tbody.innerHTML = cats.map(norm).map(c => `
         <tr>
           <td>${c.id}</td>
           <td>${c.name}</td>
@@ -1042,7 +1051,7 @@
     try {
       const banners = await Admin.getBanners();
       const tbody = document.querySelector('#bannersTable tbody');
-      tbody.innerHTML = banners.map(b => `
+      tbody.innerHTML = banners.map(norm).map(b => `
         <tr>
           <td><img src="${b.imageUrl}" style="height:40px;border-radius:4px;max-width:80px;object-fit:cover" onerror="this.style.display='none'" /></td>
           <td><strong>${b.title}</strong><br><small class="text-muted">${b.subtitle||''}</small></td>
@@ -1066,7 +1075,7 @@
   };
   window.editBanner = async function(id) {
     try {
-      const b = await Admin.getBanner(id);
+      const b = norm(await Admin.getBanner(id));
       document.getElementById('bannerId').value       = b.id;
       document.getElementById('bannerTitle').value    = b.title;
       document.getElementById('bannerSubtitle').value = b.subtitle||'';
@@ -1123,7 +1132,7 @@
   async function loadFlashSales() {
     try {
       const d = await Admin.getFlashSales();
-      const items = d.items || d;
+      const items = (d.items || d).map(norm);
       const tbody = document.querySelector('#fsTable tbody');
       const now = new Date();
       tbody.innerHTML = items.map(fs => {
@@ -1203,7 +1212,7 @@
       const vouchers = await Admin.getVouchers();
       const tbody = document.querySelector('#vouchersTable tbody');
       const now = new Date();
-      tbody.innerHTML = vouchers.map(v => {
+      tbody.innerHTML = vouchers.map(norm).map(v => {
         const expired = v.expiryDate && new Date(v.expiryDate) < now;
         return `
         <tr>
@@ -1242,7 +1251,7 @@
     try {
       // Find voucher from cached list
       const vouchers = await Admin.getVouchers();
-      const v = vouchers.find(x => x.id === id);
+      const v = vouchers.map(norm).find(x => x.id === id);
       if (!v) return;
       document.getElementById('voucherId').value     = v.id;
       document.getElementById('voucherCode').value   = v.code;
@@ -1345,7 +1354,7 @@
       if (!settings.length) { el.innerHTML = '<div class="adm-empty">Chưa có cài đặt nào.</div>'; return; }
 
       const groups = {};
-      settings.forEach(s => { (groups[s.group] = groups[s.group] || []).push(s); });
+      settings.map(norm).forEach(s => { (groups[s.group] = groups[s.group] || []).push(s); });
 
       el.innerHTML = Object.entries(groups).map(([group, items]) => `
         <div class="adm-settings-group">
