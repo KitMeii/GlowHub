@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ Flash Sale — GlowHub</title>
+    <meta name="description" content="Flash Sale GlowHub — Giảm giá sốc, số lượng có hạn!" />
+    <meta name="robots" content="noindex" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/flash-sale.css" />
+  </head>
+  <body style="background:#fffdf9; font-family:'Jost',sans-serif; min-height:100vh; display:flex; flex-direction:column;">
+
+    <!-- CONFETTI BAR -->
+    <div class="fs-confetti-bar"></div>
+
+    <!-- NAVBAR -->
+    <nav class="fs-nav">
+      <div class="fs-nav-inner">
+        <a href="index.html" class="fs-brand">GLOWHUB</a>
+        <div class="fs-nav-links">
+          <a href="index.html" class="fs-nav-link">Trang Chủ</a>
+          <a href="shop.html" class="fs-nav-link">Cửa Hàng</a>
+          <a href="vouchers.html" class="fs-nav-link">Voucher</a>
+        </div>
+        <a href="cart.html" class="fs-nav-link" style="font-size:20px; position:relative;">
+          <i class="bi bi-bag"></i>
+          <span id="cart-count" style="
+            position:absolute; top:-6px; right:-8px;
+            background:var(--flash-red); color:#fff;
+            font-size:9px; border-radius:999px;
+            padding:1px 5px; font-family:'Jost',sans-serif;
+          ">0</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="fs-hero" id="fsHero">
+      <div class="fs-hero-eyebrow">
+        <i class="bi bi-lightning-charge-fill"></i>
+        <span id="fs-status-badge">Đang tải...</span>
+      </div>
+      <h1 class="fs-hero-title">⚡ FLASH SALE</h1>
+      <p class="fs-hero-sub" id="fs-sale-name">Giảm Giá Sốc — Số Lượng Có Hạn!</p>
+
+      <!-- Countdown -->
+      <div class="fs-countdown" id="fs-countdown" style="display:none">
+        <div class="fs-cd-unit">
+          <span class="fs-cd-num" id="cd-hours">00</span>
+          <span class="fs-cd-label">Giờ</span>
+        </div>
+        <span class="fs-cd-sep">:</span>
+        <div class="fs-cd-unit">
+          <span class="fs-cd-num" id="cd-minutes">00</span>
+          <span class="fs-cd-label">Phút</span>
+        </div>
+        <span class="fs-cd-sep">:</span>
+        <div class="fs-cd-unit">
+          <span class="fs-cd-num" id="cd-seconds">00</span>
+          <span class="fs-cd-label">Giây</span>
+        </div>
+      </div>
+
+      <p id="fs-no-sale" style="color:rgba(255,255,255,0.9); font-size:15px; margin-top:24px; display:none;">
+        Hiện không có Flash Sale đang diễn ra.<br>
+        <a href="shop.html" style="color:#fff; text-decoration:underline;">Xem cửa hàng →</a>
+      </p>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main style="flex:1; max-width:var(--container); margin:0 auto; padding:40px var(--gutter) 60px; width:100%;">
+
+      <!-- Section header -->
+      <div class="fs-section-header d-flex align-items-center justify-content-between flex-wrap gap-2" id="fs-products-header" style="display:none!important;">
+        <h2 class="fs-section-title">Sản Phẩm Flash Sale</h2>
+        <span class="fs-badge-live"><i class="bi bi-lightning-charge-fill"></i> Đang diễn ra</span>
+      </div>
+
+      <!-- Skeleton (loading state) -->
+      <div class="fs-grid" id="fs-skeleton">
+        <div class="fs-skel-card" *ngFor="let i of [1,2,3,4]">
+          <div class="fs-skel-img"></div>
+          <div class="fs-skel-body">
+            <div class="fs-skel-line"></div>
+            <div class="fs-skel-line short"></div>
+            <div class="fs-skel-line short"></div>
+          </div>
+        </div>
+        <!-- 4 skeleton cards -->
+        <div class="fs-skel-card"><div class="fs-skel-img"></div><div class="fs-skel-body"><div class="fs-skel-line"></div><div class="fs-skel-line short"></div></div></div>
+        <div class="fs-skel-card"><div class="fs-skel-img"></div><div class="fs-skel-body"><div class="fs-skel-line"></div><div class="fs-skel-line short"></div></div></div>
+        <div class="fs-skel-card"><div class="fs-skel-img"></div><div class="fs-skel-body"><div class="fs-skel-line"></div><div class="fs-skel-line short"></div></div></div>
+        <div class="fs-skel-card"><div class="fs-skel-img"></div><div class="fs-skel-body"><div class="fs-skel-line"></div><div class="fs-skel-line short"></div></div></div>
+      </div>
+
+      <!-- Product grid (filled by JS) -->
+      <div class="fs-grid" id="fs-grid" style="display:none"></div>
+
+      <!-- Empty state -->
+      <div class="fs-empty" id="fs-empty" style="display:none">
+        <i class="bi bi-lightning-charge"></i>
+        <h3>Không Có Flash Sale</h3>
+        <p style="font-size:14px; color:var(--gray);">Hiện tại không có chương trình Flash Sale.<br>Hãy quay lại sau nhé!</p>
+        <a href="shop.html" style="
+          display:inline-block; margin-top:20px;
+          padding:14px 32px; background:var(--dark);
+          color:#fff; text-decoration:none;
+          font-size:11px; letter-spacing:2px; text-transform:uppercase;
+        ">Xem Cửa Hàng</a>
+      </div>
+
+    </main>
+
+    <!-- UPCOMING SECTION -->
+    <section class="fs-upcoming" id="fs-upcoming-section" style="display:none">
+      <div style="max-width:var(--container); margin:0 auto; padding:0 var(--gutter);">
+        <h2 style="font-family:'Marcellus',serif; letter-spacing:3px; font-size:1.3rem; text-align:center; margin-bottom:24px; color:var(--dark);">
+          SẮP DIỄN RA
+        </h2>
+        <div id="fs-upcoming-list" class="fs-grid"></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="fs-footer">
+      <p>&copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> · <a href="shop.html">Cửa hàng</a></p>
+    </footer>
+
+    <!-- TOAST -->
+    <div class="fs-toast" id="fs-toast"></div>
+
+    <script src="js/api.js"></script>
+    <script>
+    const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+    let countdownInterval = null;
+
+    // ── Countdown ──────────────────────────────────────────
+    function startCountdown(totalSeconds) {
+      clearInterval(countdownInterval);
+      let remaining = Math.max(0, totalSeconds);
+      document.getElementById("fs-countdown").style.display = "";
+
+      function tick() {
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          showToast("Flash Sale đã kết thúc! Trang sẽ tự tải lại...", "info");
+          setTimeout(() => location.reload(), 3000);
+          return;
+        }
+        const h = Math.floor(remaining / 3600);
+        const m = Math.floor((remaining % 3600) / 60);
+        const s = remaining % 60;
+        document.getElementById("cd-hours").textContent   = String(h).padStart(2, "0");
+        document.getElementById("cd-minutes").textContent = String(m).padStart(2, "0");
+        document.getElementById("cd-seconds").textContent = String(s).padStart(2, "0");
+        remaining--;
+      }
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    // ── Render product card ─────────────────────────────────
+    function renderCard(p) {
+      const pct = p.totalQuantity > 0
+        ? Math.min(100, Math.round(p.soldCount / p.totalQuantity * 100))
+        : 100;
+      const soldOut = p.remainingQuantity <= 0;
+
+      return `
+      <div class="fs-card">
+        <div class="fs-card-img-wrap">
+          <img src="${p.image || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&q=80'}"
+               alt="${p.name}"
+               onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&q=80'"
+               loading="lazy" />
+          <span class="fs-badge-discount">⚡ FLASH -${p.discountPercent}%</span>
+          ${soldOut ? `<div class="fs-card-sold-out"><span>ĐÃ HẾT</span></div>` : ""}
+        </div>
+        <div class="fs-card-body">
+          <div class="fs-card-name">${p.name}</div>
+          <div class="fs-price-wrap">
+            <span class="fs-price-original">${fmt(p.originalPrice)}</span>
+            <span class="fs-price-sale">${fmt(p.salePrice)}</span>
+          </div>
+          <div class="fs-progress-wrap">
+            <div class="fs-progress-labels">
+              <span>Đã bán ${p.soldCount}</span>
+              <span>Còn ${Math.max(0, p.remainingQuantity)}</span>
+            </div>
+            <div class="fs-progress-bar">
+              <div class="fs-progress-fill" data-pct="${pct}"></div>
+            </div>
+          </div>
+          ${soldOut
+            ? `<button class="fs-btn-buy sold-out" disabled>ĐÃ HẾT HÀNG</button>`
+            : `<a href="product.html?id=${p.productId}" class="fs-btn-buy">
+                <i class="bi bi-lightning-charge-fill me-1"></i> MUA NGAY
+              </a>`}
+        </div>
+      </div>`;
+    }
+
+    // ── Animate progress bars ───────────────────────────────
+    function animateBars() {
+      document.querySelectorAll(".fs-progress-fill").forEach(el => {
+        const pct = el.dataset.pct || 0;
+        requestAnimationFrame(() => {
+          setTimeout(() => { el.style.width = pct + "%"; }, 200);
+        });
+      });
+    }
+
+    // ── Load active flash sale ──────────────────────────────
+    async function loadFlashSale() {
+      try {
+        const sale = await FlashSale.getActive();
+
+        document.getElementById("fs-skeleton").style.display = "none";
+
+        if (!sale || !sale.products || sale.products.length === 0) {
+          document.getElementById("fs-status-badge").textContent = "Không có Flash Sale";
+          document.getElementById("fs-no-sale").style.display = "";
+          document.getElementById("fs-empty").style.display = "";
+          return;
+        }
+
+        document.getElementById("fs-status-badge").textContent = "Đang diễn ra";
+        document.getElementById("fs-sale-name").textContent = sale.name;
+
+        startCountdown(sale.secondsRemaining);
+
+        const grid = document.getElementById("fs-grid");
+        grid.innerHTML = sale.products.map(renderCard).join("");
+        grid.style.display = "";
+
+        document.getElementById("fs-products-header").style.display = "";
+
+        animateBars();
+
+      } catch (e) {
+        document.getElementById("fs-skeleton").style.display = "none";
+        document.getElementById("fs-empty").style.display = "";
+        console.error("Flash Sale load error:", e);
+      }
+    }
+
+    // ── Load upcoming flash sales ───────────────────────────
+    async function loadUpcoming() {
+      try {
+        const upcoming = await FlashSale.getUpcoming();
+        if (!upcoming || upcoming.length === 0) return;
+
+        const section = document.getElementById("fs-upcoming-section");
+        const list = document.getElementById("fs-upcoming-list");
+
+        list.innerHTML = upcoming.map(sale => `
+          <div class="fs-upcoming-card">
+            <div class="fs-upcoming-label">Sắp diễn ra</div>
+            <div class="fs-upcoming-name">${sale.name}</div>
+            <div style="font-size:12px; color:var(--gray); margin-bottom:10px;">
+              ${new Date(sale.startTime).toLocaleString("vi-VN")}
+            </div>
+            <div class="fs-upcoming-countdown" id="up-${sale.id}">
+              Còn ${formatSeconds(sale.secondsUntilStart)}
+            </div>
+            <div style="font-size:11px; color:var(--gray); margin-top:8px;">
+              ${sale.products ? sale.products.length : 0} sản phẩm
+            </div>
+          </div>
+        `).join("");
+
+        section.style.display = "";
+      } catch (_) {}
+    }
+
+    function formatSeconds(s) {
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      if (h > 0) return `${h}g ${m}p`;
+      return `${m} phút`;
+    }
+
+    // ── Cart count ──────────────────────────────────────────
+    function updateCartCount() {
+      try {
+        const cnt = (CartDB ? CartDB.getAll() : []).reduce((s, i) => s + (i.quantity || 1), 0);
+        document.getElementById("cart-count").textContent = cnt;
+      } catch (_) {}
+    }
+
+    // ── Toast ───────────────────────────────────────────────
+    function showToast(msg, type) {
+      const t = document.getElementById("fs-toast");
+      t.textContent = msg;
+      t.style.background = type === "error" ? "var(--flash-red)" : "var(--dark)";
+      t.classList.add("show");
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => t.classList.remove("show"), 3000);
+    }
+
+    // ── Init ────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      updateCartCount();
+      loadFlashSale();
+      loadUpcoming();
+    });
+    </script>
+  </body>
+</html>

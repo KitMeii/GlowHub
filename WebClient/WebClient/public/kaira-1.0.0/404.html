@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Trang Không Tìm Thấy | GlowHub</title>
+    <meta name="robots" content="noindex" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: var(--font-body);
+        background: var(--cream-soft);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Background decorative elements */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse at 20% 20%, rgba(247,89,171,0.07) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 80%, rgba(247,89,171,0.05) 0%, transparent 50%);
+        pointer-events: none;
+      }
+
+      .err-brand {
+        font-family: var(--font-brand);
+        font-size: 1.2rem;
+        letter-spacing: 4px;
+        color: var(--dark);
+        text-decoration: none;
+        margin-bottom: 60px;
+        display: block;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+      }
+      .err-brand:hover { opacity: 1; color: var(--pink); }
+
+      .err-number {
+        font-family: var(--font-brand);
+        font-size: clamp(7rem, 20vw, 14rem);
+        color: transparent;
+        -webkit-text-stroke: 2px var(--border);
+        line-height: 1;
+        letter-spacing: 8px;
+        position: relative;
+        margin-bottom: 8px;
+        animation: errFloat 4s ease-in-out infinite;
+        user-select: none;
+      }
+      .err-number::after {
+        content: "404";
+        position: absolute;
+        inset: 0;
+        font-family: var(--font-brand);
+        font-size: clamp(7rem, 20vw, 14rem);
+        color: var(--pink);
+        opacity: 0.07;
+        letter-spacing: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: blur(20px);
+      }
+
+      @keyframes errFloat {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-12px); }
+      }
+
+      .err-emoji {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 20px;
+        animation: errBounce 2s ease-in-out infinite;
+      }
+      @keyframes errBounce {
+        0%, 100% { transform: scale(1); }
+        50%       { transform: scale(1.15); }
+      }
+
+      .err-title {
+        font-family: var(--font-brand);
+        font-size: clamp(1.4rem, 4vw, 2rem);
+        letter-spacing: 4px;
+        color: var(--dark);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .err-sub {
+        font-size: 14px;
+        color: var(--gray);
+        line-height: 1.7;
+        max-width: 400px;
+        margin: 0 auto 36px;
+      }
+
+      .err-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 48px;
+      }
+
+      .err-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 32px;
+        background: var(--dark);
+        color: #fff;
+        text-decoration: none;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        transition: background 0.2s, transform 0.2s;
+      }
+      .err-btn-primary:hover {
+        background: var(--pink);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+
+      .err-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 28px;
+        background: transparent;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        text-decoration: none;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        transition: all 0.2s;
+      }
+      .err-btn-secondary:hover {
+        background: var(--dark);
+        color: #fff;
+        border-color: var(--dark);
+        transform: translateY(-2px);
+      }
+
+      .err-links {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+      .err-links a {
+        color: var(--gray);
+        text-decoration: none;
+        transition: color 0.2s;
+        text-transform: uppercase;
+      }
+      .err-links a:hover { color: var(--pink); }
+
+      .err-divider {
+        width: 1px;
+        height: 14px;
+        background: var(--border);
+        align-self: center;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="err-brand">GLOWHUB</a>
+
+    <div class="err-number">404</div>
+    <span class="err-emoji">🫧</span>
+
+    <h1 class="err-title">Trang Không Tìm Thấy</h1>
+    <p class="err-sub">
+      Trang bạn đang tìm kiếm có thể đã được di chuyển, xóa,<br>
+      hoặc chưa từng tồn tại. Đừng lo — hãy tiếp tục khám phá GlowHub!
+    </p>
+
+    <div class="err-actions">
+      <a href="index.html" class="err-btn-primary">
+        <i class="bi bi-house"></i> Trang Chủ
+      </a>
+      <a href="shop.html" class="err-btn-secondary">
+        <i class="bi bi-grid"></i> Xem Cửa Hàng
+      </a>
+    </div>
+
+    <div class="err-links">
+      <a href="flash-sale.html">⚡ Flash Sale</a>
+      <div class="err-divider"></div>
+      <a href="vouchers.html">🎫 Voucher</a>
+      <div class="err-divider"></div>
+      <a href="cart.html">🛍 Giỏ Hàng</a>
+      <div class="err-divider"></div>
+      <a href="policy.html">Chính Sách</a>
+    </div>
+  </body>
+</html>

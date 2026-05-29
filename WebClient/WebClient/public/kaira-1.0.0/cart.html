@@ -37,6 +37,7 @@
     /></noscript>
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/cart.css" />
+    <link rel="stylesheet" href="theme/voucher.css" />
   </head>
   <body>
     <div id="lux-cursor-dot"></div>
@@ -409,8 +410,11 @@
                           </div>
                           <div class="coupon-bar">
                             <input type="text" id="coupon-input" placeholder="Nhập mã giảm giá..." maxlength="20"
-                              onkeydown="if(event.key==='Enter')applyCoupon()" />
+                              onkeydown="if(event.key==='Enter')applyCoupon()" style="text-transform:uppercase" />
                             <button onclick="applyCoupon()">Áp Dụng</button>
+                            <button onclick="openVoucherPicker()" style="background:var(--pink-light);color:var(--pink);border:1px solid var(--pink);padding:0 14px;font-size:18px;" title="Chọn voucher">
+                              <i class="bi bi-ticket-perforated-fill"></i>
+                            </button>
                           </div>
                           <div class="coupon-msg" id="coupon-msg"></div>
                         </div>
@@ -418,10 +422,25 @@
                       </div>`;
 
         // Right side: summary
+        const subtotalForBar = items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+        const FREE_SHIP_THRESHOLD = 500000;
+        const shipBarPct = Math.min(100, Math.round(subtotalForBar / FREE_SHIP_THRESHOLD * 100));
+        const shipBarRemain = Math.max(0, FREE_SHIP_THRESHOLD - subtotalForBar);
+        const shipBarHTML = `
+          <div style="margin-bottom:16px; padding:12px; background:#f8fdf8; border:1px solid #d1fae5; border-radius:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#16a34a; margin-bottom:6px; letter-spacing:0.5px;">
+              <span><i class="bi bi-truck"></i> ${shipBarRemain > 0 ? 'Thêm <strong>' + fmt(shipBarRemain) + '</strong> để miễn phí vận chuyển' : '🎉 Bạn được miễn phí vận chuyển!'}</span>
+              <span>${shipBarPct}%</span>
+            </div>
+            <div style="height:6px; background:#dcfce7; border-radius:999px; overflow:hidden;">
+              <div style="height:100%; width:${shipBarPct}%; background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px; transition:width 1s ease;"></div>
+            </div>
+          </div>`;
         const rightHTML = `
                       <div class="summary-box">
                         <div class="summary-box-header"><h2>Tóm Tắt Đơn Hàng</h2></div>
                         <div class="summary-body">
+                          ${shipBarHTML}
                           ${renderSummaryLines(items)}
                           <div class="shipping-options">
                             <p>Phương Thức Vận Chuyển</p>
@@ -793,5 +812,108 @@
       });
     </script>
     <script src="js/gsap.js" defer></script>
+
+    <!-- VOUCHER PICKER MODAL -->
+    <div class="vo-modal-backdrop" id="voucherPickerBackdrop" onclick="if(event.target===this)closeVoucherPicker()">
+      <div class="vo-modal">
+        <div class="vo-modal-header">
+          <span class="vo-modal-title">🎫 CHỌN VOUCHER</span>
+          <button class="vo-modal-close" onclick="closeVoucherPicker()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div style="padding:12px 20px; border-bottom:1px solid var(--border);">
+          <div style="display:flex; border:1px solid var(--border);">
+            <input type="text" id="vp-search" placeholder="Tìm mã..." style="flex:1;border:none;outline:none;padding:9px 12px;font-size:12px;letter-spacing:1px;text-transform:uppercase;" oninput="vpFilter()" />
+            <span style="padding:9px 12px;color:var(--gray);"><i class="bi bi-search"></i></span>
+          </div>
+        </div>
+        <div class="vo-modal-body" id="vp-list">
+          <div style="text-align:center;padding:32px;color:var(--gray);font-size:13px;">Đang tải voucher...</div>
+        </div>
+        <div class="vo-modal-footer">
+          <button class="vo-modal-btn-cancel" onclick="closeVoucherPicker()">Đóng</button>
+          <button class="vo-modal-btn-apply" onclick="applyPickedVoucher()">Áp Dụng</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    var _vpVouchers   = [];
+    var _vpSelected   = null;
+    var _vpLoaded     = false;
+
+    function openVoucherPicker() {
+      var bd = document.getElementById("voucherPickerBackdrop");
+      bd.classList.add("show");
+      document.body.style.overflow = "hidden";
+      if (!_vpLoaded) loadVoucherPicker();
+    }
+    function closeVoucherPicker() {
+      document.getElementById("voucherPickerBackdrop").classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    async function loadVoucherPicker() {
+      try {
+        var res = await fetch("/api/vouchers/public");
+        if (res.ok) _vpVouchers = await res.json();
+        _vpLoaded = true;
+        vpRender(_vpVouchers);
+      } catch(_) {
+        document.getElementById("vp-list").innerHTML =
+          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+      }
+    }
+
+    function vpFilter() {
+      var q = (document.getElementById("vp-search").value || "").toLowerCase();
+      var filtered = q ? _vpVouchers.filter(v =>
+        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
+      ) : _vpVouchers;
+      vpRender(filtered);
+    }
+
+    function vpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
+    function vpDiscLabel(v) {
+      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${vpFmt(v.discountValue)}`;
+    }
+
+    function vpRender(list) {
+      var el = document.getElementById("vp-list");
+      if (!list.length) {
+        el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
+        return;
+      }
+      el.innerHTML = list.map(v => `
+        <div class="vo-modal-voucher-item ${_vpSelected && _vpSelected.code === v.code ? 'selected' : ''}"
+             onclick="vpSelect(this,'${v.code}')">
+          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.description || v.code}</div>
+            <div class="vo-mvi-sub">
+              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
+              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.code}</div>
+        </div>
+      `).join("");
+    }
+
+    function vpSelect(el, code) {
+      document.querySelectorAll(".vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
+      el.classList.add("selected");
+      _vpSelected = _vpVouchers.find(v => v.code === code) || { code };
+    }
+
+    function applyPickedVoucher() {
+      if (!_vpSelected) { closeVoucherPicker(); return; }
+      var inp = document.getElementById("coupon-input");
+      if (inp) {
+        inp.value = _vpSelected.code;
+        closeVoucherPicker();
+        if (typeof applyCoupon === "function") applyCoupon();
+      }
+    }
+    </script>
   </body>
 </html>

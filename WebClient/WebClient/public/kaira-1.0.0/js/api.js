@@ -1301,3 +1301,91 @@ if (typeof Product !== "undefined") {
     );
   };
 }
+
+// ============================================================
+//  FLASH SALE
+// ============================================================
+const FlashSale = {
+  getActive: function () {
+    return apiFetch(PRODUCT_API, "/api/flashsale/active", "GET");
+  },
+  getUpcoming: function () {
+    return apiFetch(PRODUCT_API, "/api/flashsale/upcoming", "GET");
+  },
+  getById: function (id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "GET");
+  },
+};
+
+// ============================================================
+//  VOUCHER PUBLIC (customer-facing, no auth required for public)
+// ============================================================
+const VoucherPublic = {
+  getAll: function () {
+    return apiFetch(PRODUCT_API, "/api/vouchers/public", "GET");
+  },
+  getMy: function () {
+    return apiFetch(PRODUCT_API, "/api/vouchers/my", "GET");
+  },
+  save: function (code) {
+    return apiFetch(PRODUCT_API, "/api/vouchers/save/" + code, "POST");
+  },
+  validate: function (code, orderAmount, shopId) {
+    return apiFetch(PRODUCT_API, "/api/vouchers/validate", "POST", {
+      Code: code,
+      OrderAmount: orderAmount,
+      ShopId: shopId || null,
+    });
+  },
+};
+
+// ============================================================
+//  COMPARE (in-memory via localStorage; server endpoint optional)
+// ============================================================
+const Compare = {
+  _key: "gh_compare",
+  _get: function () {
+    try { return JSON.parse(localStorage.getItem(this._key) || "[]"); } catch (_) { return []; }
+  },
+  _save: function (list) {
+    try { localStorage.setItem(this._key, JSON.stringify(list)); } catch (_) {}
+  },
+  getAll: function () { return Promise.resolve(this._get()); },
+  add: function (product) {
+    var list = this._get();
+    if (list.find(function (p) { return p.id === product.id; })) return Promise.resolve(list);
+    if (list.length >= 3) return Promise.reject(new Error("Max 3 products"));
+    list.push(product);
+    this._save(list);
+    return Promise.resolve(list);
+  },
+  remove: function (productId) {
+    var list = this._get().filter(function (p) { return p.id !== productId; });
+    this._save(list);
+    return Promise.resolve(list);
+  },
+  clear: function () {
+    this._save([]);
+    return Promise.resolve([]);
+  },
+};
+
+// ============================================================
+//  RECENTLY VIEWED
+// ============================================================
+const RecentlyViewed = {
+  get: function () {
+    // Try API, fallback to localStorage
+    var token = Auth && Auth.getToken ? Auth.getToken() : null;
+    if (token) {
+      return apiFetch(PRODUCT_API, "/api/recently-viewed", "GET").catch(function () {
+        try { return JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]"); } catch (_) { return []; }
+      });
+    }
+    try { return Promise.resolve(JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]")); }
+    catch (_) { return Promise.resolve([]); }
+  },
+  add: function (productId) {
+    return apiFetch(PRODUCT_API, "/api/recently-viewed/" + productId, "POST").catch(function () {});
+  },
+};

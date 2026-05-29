@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>So Sánh Sản Phẩm — GlowHub</title>
+    <meta name="robots" content="noindex" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/compare.css" />
+  </head>
+  <body style="background:var(--cream-soft); font-family:var(--font-body); min-height:100vh; display:flex; flex-direction:column;">
+
+    <!-- NAVBAR -->
+    <nav class="cmp-page-nav">
+      <div class="cmp-page-nav-inner">
+        <a href="index.html" class="cmp-brand">GLOWHUB</a>
+        <div style="display:flex; align-items:center; gap:20px;">
+          <a href="shop.html" style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dark); text-decoration:none;">← Tiếp Tục Mua Sắm</a>
+          <a href="cart.html" style="font-size:20px; position:relative; color:var(--dark); text-decoration:none;">
+            <i class="bi bi-bag"></i>
+            <span id="cart-count" style="position:absolute; top:-6px; right:-8px; background:var(--pink); color:#fff; font-size:9px; border-radius:999px; padding:1px 5px;">0</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <div class="cmp-page-header">
+      <h1 class="cmp-page-title"><i class="bi bi-bar-chart-line" style="color:var(--pink)"></i> So Sánh Sản Phẩm</h1>
+      <p style="font-size:13px; color:var(--gray); letter-spacing:0.5px; margin-bottom:0;">So sánh chi tiết để chọn sản phẩm phù hợp nhất</p>
+    </div>
+
+    <!-- SKELETON -->
+    <div id="cmp-skeleton" style="max-width:var(--container); margin:32px auto; padding:0 var(--gutter); width:100%;">
+      <div style="display:grid; grid-template-columns:160px repeat(3, 1fr); gap:12px;">
+        <div style="background:#f0ece6; height:300px;"></div>
+        <div style="background:linear-gradient(90deg,#f0ece6 25%,#e8e3dc 50%,#f0ece6 75%); background-size:400% 100%; animation:cmpSkel 1.4s ease infinite; height:300px;"></div>
+        <div style="background:linear-gradient(90deg,#f0ece6 25%,#e8e3dc 50%,#f0ece6 75%); background-size:400% 100%; animation:cmpSkel 1.4s ease infinite; height:300px;"></div>
+        <div style="background:linear-gradient(90deg,#f0ece6 25%,#e8e3dc 50%,#f0ece6 75%); background-size:400% 100%; animation:cmpSkel 1.4s ease infinite; height:300px;"></div>
+      </div>
+    </div>
+    <style>
+    @keyframes cmpSkel { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+    </style>
+
+    <!-- COMPARE TABLE -->
+    <div class="cmp-table-wrap" id="cmp-table-wrap" style="display:none;"></div>
+
+    <!-- EMPTY STATE -->
+    <div class="cmp-empty" id="cmp-empty" style="display:none; flex:1;">
+      <i class="bi bi-bar-chart-line"></i>
+      <h3>Chưa Có Sản Phẩm Để So Sánh</h3>
+      <p style="font-size:13px;">Vui lòng chọn ít nhất 2 sản phẩm từ trang cửa hàng.</p>
+      <a href="shop.html" style="display:inline-block;margin-top:20px;padding:12px 28px;background:var(--dark);color:#fff;text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;">
+        Xem Cửa Hàng
+      </a>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="cmp-footer" style="margin-top:auto;">
+      <p>&copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> · <a href="shop.html">Cửa hàng</a></p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+    const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+    const stars = r => {
+      var full = Math.round(r || 0);
+      return "★".repeat(full) + "☆".repeat(5 - full);
+    };
+
+    // ── Load product IDs from URL / localStorage ──────
+    var _urlIds = new URLSearchParams(location.search).get("ids");
+    var _ids = _urlIds
+      ? _urlIds.split(",").map(Number).filter(Boolean)
+      : JSON.parse(localStorage.getItem("gh_compare") || "[]").map(p => p.id);
+
+    // Remove duplicates, cap at 3
+    _ids = [...new Set(_ids)].slice(0, 3);
+
+    function updateCartCount() {
+      try {
+        var cnt = (CartDB ? CartDB.getAll() : []).reduce((s, i) => s + (i.quantity || 1), 0);
+        document.getElementById("cart-count").textContent = cnt;
+      } catch(_) {}
+    }
+
+    // ── Fetch all products ────────────────────────────
+    async function loadCompare() {
+      if (_ids.length < 2) {
+        document.getElementById("cmp-skeleton").style.display = "none";
+        document.getElementById("cmp-empty").style.display = "";
+        return;
+      }
+
+      let products = [];
+      await Promise.all(_ids.map(async id => {
+        try {
+          const res = await fetch("/api/products/" + id);
+          if (res.ok) {
+            const d = await res.json();
+            products.push(d);
+          }
+        } catch(_) {}
+      }));
+
+      // preserve URL order
+      products = _ids.map(id => products.find(p => (p.Id || p.id) === id)).filter(Boolean);
+
+      document.getElementById("cmp-skeleton").style.display = "none";
+
+      if (products.length < 2) {
+        document.getElementById("cmp-empty").style.display = "";
+        return;
+      }
+
+      renderTable(products);
+    }
+
+    function removeProduct(id) {
+      _ids = _ids.filter(x => x !== id);
+      // update localStorage
+      var stored = JSON.parse(localStorage.getItem("gh_compare") || "[]");
+      stored = stored.filter(p => p.id !== id);
+      localStorage.setItem("gh_compare", JSON.stringify(stored));
+      // update URL
+      var u = new URL(location.href);
+      u.searchParams.set("ids", _ids.join(","));
+      history.replaceState(null, "", u.toString());
+      if (_ids.length < 2) {
+        document.getElementById("cmp-table-wrap").style.display = "none";
+        document.getElementById("cmp-empty").style.display = "";
+        return;
+      }
+      loadCompare();
+    }
+
+    function renderTable(products) {
+      var n = products.length;
+
+      // --- compute best values ---
+      var prices    = products.map(p => p.DiscountPrice || p.discountPrice || p.Price || p.price || 0);
+      var ratings   = products.map(p => p.avgRating || 0);
+      var sold      = products.map(p => p.soldCount || p.SoldCount || 0);
+      var stocks    = products.map(p => p.Stock || p.stock || 0);
+      var reviews   = products.map(p => p.totalReviews || 0);
+
+      var minPrice  = Math.min(...prices);
+      var maxRating = Math.max(...ratings);
+      var maxSold   = Math.max(...sold);
+      var maxStock  = Math.max(...stocks);
+      var maxReview = Math.max(...reviews);
+
+      // --- header row ---
+      var colHeaders = products.map((p, i) => {
+        var img  = p.imageUrl || p.ImageUrl || p.images?.[0] || "";
+        var name = p.Name || p.name || "Sản phẩm";
+        var id   = p.Id || p.id;
+        return `<th class="cmp-col-header">
+          <button class="cmp-col-remove" onclick="removeProduct(${id})" title="Xóa"><i class="bi bi-x-lg"></i></button>
+          ${img ? `<img src="${img}" alt="${name}" onerror="this.src='images/product-item-1.jpg'">` : ""}
+          <div class="cmp-col-name">${name}</div>
+        </th>`;
+      }).join("");
+
+      // --- rows helper ---
+      function row(label, cells) {
+        return `<tr><td class="cmp-row-label">${label}</td>${cells}</tr>`;
+      }
+
+      function cell(content, best, worst) {
+        var cls = best ? "cmp-best" : worst ? "cmp-worst" : "";
+        return `<td class="${cls}">${content}</td>`;
+      }
+
+      // --- price row ---
+      var priceRow = row("Giá Bán", products.map((p, i) => {
+        var saleP = p.DiscountPrice || p.discountPrice;
+        var origP = p.Price || p.price || 0;
+        var effectiveP = saleP || origP;
+        var content = `<div class="cmp-price-sale">${fmt(effectiveP)}</div>`
+          + (saleP ? `<div class="cmp-price-orig">${fmt(origP)}</div>` : "");
+        return cell(content, effectiveP === minPrice && minPrice > 0, false);
+      }).join(""));
+
+      // --- rating row ---
+      var ratingRow = row("Đánh Giá", products.map((p, i) => {
+        var r = p.avgRating || 0;
+        var cnt = p.totalReviews || 0;
+        var content = `<div class="cmp-stars">${stars(r)}</div><div style="font-size:11px;color:var(--gray)">${r.toFixed ? r.toFixed(1) : r}/5 (${cnt} đánh giá)</div>`;
+        return cell(content, r === maxRating && r > 0, false);
+      }).join(""));
+
+      // --- sold row ---
+      var soldRow = row("Đã Bán", products.map((p, i) => {
+        var s = p.soldCount || p.SoldCount || 0;
+        return cell(s.toLocaleString("vi-VN") + " SP", s === maxSold && s > 0, false);
+      }).join(""));
+
+      // --- stock row ---
+      var stockRow = row("Tồn Kho", products.map((p, i) => {
+        var st = p.Stock || p.stock || 0;
+        return cell(st > 0 ? st + " SP" : '<span style="color:var(--error)">Hết hàng</span>', st === maxStock && st > 0, st === 0);
+      }).join(""));
+
+      // --- category row ---
+      var catRow = row("Danh Mục", products.map(p =>
+        `<td>${p.categoryName || p.CategoryName || "—"}</td>`
+      ).join(""));
+
+      // --- reviews count row ---
+      var rvRow = row("Số Đánh Giá", products.map((p, i) => {
+        var rv = p.totalReviews || 0;
+        return cell(rv, rv === maxReview && rv > 0, false);
+      }).join(""));
+
+      // --- CTA row ---
+      var ctaRow = row("", products.map(p => {
+        var id = p.Id || p.id;
+        return `<td><div class="cmp-btn-row">
+          <a href="product.html?id=${id}" class="cmp-btn-buy"><i class="bi bi-bag-plus"></i> Mua Ngay</a>
+          <a href="product.html?id=${id}" style="font-size:10px;color:var(--gray);text-decoration:none;letter-spacing:1px;">Xem Chi Tiết →</a>
+        </div></td>`;
+      }).join(""));
+
+      var html = `
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th class="cmp-row-label" style="background:var(--dark);color:#fff;text-align:center;">Tiêu Chí</th>
+              ${colHeaders}
+            </tr>
+          </thead>
+          <tbody>
+            ${priceRow}
+            ${ratingRow}
+            ${soldRow}
+            ${stockRow}
+            ${catRow}
+            ${rvRow}
+            ${ctaRow}
+          </tbody>
+        </table>
+        <p style="font-size:11px;color:var(--gray);text-align:right;margin-top:8px;letter-spacing:0.5px;">
+          <i class="bi bi-info-circle"></i> Ô màu xanh = giá trị tốt nhất trong nhóm
+        </p>
+      `;
+
+      var wrap = document.getElementById("cmp-table-wrap");
+      wrap.innerHTML = html;
+      wrap.style.display = "";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateCartCount();
+      loadCompare();
+    });
+    </script>
+  </body>
+</html>

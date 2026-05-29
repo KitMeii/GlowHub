@@ -50,5 +50,8 @@ namespace BaseCore.Entities
 
         /// <summary>Cached sold count — incremented when order completes</summary>
         public int SoldCount { get; set; } = 0;
+
+        /// <summary>Cached view count — incremented on product detail page load</summary>
+        public int ViewCount { get; set; } = 0;
     }
 }

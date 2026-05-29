@@ -3,6 +3,7 @@ using BaseCore.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BaseCore.APIService.Controllers
 {
@@ -15,6 +16,103 @@ namespace BaseCore.APIService.Controllers
         public VouchersController(MySqlDbContext db)
         {
             _db = db;
+        }
+
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        /// <summary>GET /api/vouchers/public — Danh sách voucher public (không cần auth)</summary>
+        [HttpGet("public")]
+        public async Task<IActionResult> GetPublic()
+        {
+            var now = DateTime.UtcNow;
+            var vouchers = await _db.Vouchers
+                .Where(v => v.IsActive &&
+                    (!v.ExpiryDate.HasValue || v.ExpiryDate >= now) &&
+                    (!v.StartDate.HasValue  || v.StartDate  <= now) &&
+                    (!v.UsageLimit.HasValue || v.UsedCount < v.UsageLimit))
+                .OrderByDescending(v => v.DiscountValue)
+                .Select(v => new {
+                    v.Id,
+                    v.Code,
+                    v.Description,
+                    v.DiscountType,
+                    v.DiscountValue,
+                    v.MaxDiscount,
+                    v.MinOrderAmount,
+                    v.ExpiryDate,
+                    v.StartDate,
+                    v.ShopId,
+                    remainingUsage = v.UsageLimit.HasValue ? v.UsageLimit - v.UsedCount : (int?)null,
+                    voucherType = v.ShopId == null ? "system" : "shop"
+                })
+                .ToListAsync();
+
+            return Ok(vouchers);
+        }
+
+        /// <summary>GET /api/vouchers/my — Voucher đã lưu của customer</summary>
+        [HttpGet("my")]
+        [Authorize]
+        public async Task<IActionResult> GetMy()
+        {
+            var userId = GetUserId();
+            var now = DateTime.UtcNow;
+            var saved = await _db.CustomerVouchers
+                .Include(cv => cv.Voucher)
+                .Where(cv => cv.UserId == userId && !cv.IsUsed && cv.Voucher.IsActive)
+                .OrderByDescending(cv => cv.SavedAt)
+                .Select(cv => new {
+                    cv.Id,
+                    cv.SavedAt,
+                    cv.IsUsed,
+                    voucher = new {
+                        cv.Voucher.Id,
+                        cv.Voucher.Code,
+                        cv.Voucher.Description,
+                        cv.Voucher.DiscountType,
+                        cv.Voucher.DiscountValue,
+                        cv.Voucher.MaxDiscount,
+                        cv.Voucher.MinOrderAmount,
+                        cv.Voucher.ExpiryDate,
+                        cv.Voucher.ShopId,
+                        isExpired = cv.Voucher.ExpiryDate.HasValue && cv.Voucher.ExpiryDate < now
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(saved);
+        }
+
+        /// <summary>POST /api/vouchers/save/{code} — Lưu voucher vào tài khoản</summary>
+        [HttpPost("save/{code}")]
+        [Authorize]
+        public async Task<IActionResult> Save(string code)
+        {
+            var userId = GetUserId()!;
+            var now = DateTime.UtcNow;
+
+            var voucher = await _db.Vouchers.FirstOrDefaultAsync(v =>
+                v.Code == code.ToUpper() && v.IsActive &&
+                (!v.ExpiryDate.HasValue || v.ExpiryDate >= now));
+
+            if (voucher == null)
+                return NotFound(new { message = "Voucher không tồn tại hoặc đã hết hạn" });
+
+            var already = await _db.CustomerVouchers
+                .AnyAsync(cv => cv.UserId == userId && cv.VoucherId == voucher.Id);
+
+            if (already)
+                return BadRequest(new { message = "Bạn đã lưu voucher này rồi" });
+
+            _db.CustomerVouchers.Add(new CustomerVoucher
+            {
+                UserId = userId,
+                VoucherId = voucher.Id,
+                SavedAt = now
+            });
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Đã lưu voucher thành công", code = voucher.Code });
         }
 
         /// <summary>

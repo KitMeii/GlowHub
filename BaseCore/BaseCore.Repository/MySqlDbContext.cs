@@ -32,6 +32,10 @@ namespace BaseCore.Repository
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+        public DbSet<FlashSale> FlashSales { get; set; }
+        public DbSet<FlashSaleProduct> FlashSaleProducts { get; set; }
+        public DbSet<RecentlyViewed> RecentlyVieweds { get; set; }
+        public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -325,6 +329,71 @@ namespace BaseCore.Repository
                 entity.HasOne(e => e.Product)
                       .WithMany()
                       .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure FlashSale entity
+            modelBuilder.Entity<FlashSale>(entity =>
+            {
+                entity.ToTable("FlashSales");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+
+                entity.HasMany(e => e.Products)
+                      .WithOne(p => p.FlashSale)
+                      .HasForeignKey(p => p.FlashSaleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure FlashSaleProduct entity
+            modelBuilder.Entity<FlashSaleProduct>(entity =>
+            {
+                entity.ToTable("FlashSaleProducts");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.SalePrice).HasPrecision(18, 2);
+                entity.Property(e => e.OriginalPrice).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure RecentlyViewed entity
+            modelBuilder.Entity<RecentlyViewed>(entity =>
+            {
+                entity.ToTable("RecentlyVieweds");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure CustomerVoucher entity
+            modelBuilder.Entity<CustomerVoucher>(entity =>
+            {
+                entity.ToTable("CustomerVouchers");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+
+                entity.HasIndex(e => new { e.UserId, e.VoucherId }).IsUnique();
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Voucher)
+                      .WithMany()
+                      .HasForeignKey(e => e.VoucherId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

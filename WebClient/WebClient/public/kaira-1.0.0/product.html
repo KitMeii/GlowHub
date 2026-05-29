@@ -54,6 +54,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap" rel="stylesheet" /></noscript>
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/product.css" />
+    <link rel="stylesheet" href="theme/compare.css" />
 </head>
   <body>
     <div id="lux-cursor-dot"></div>
@@ -379,9 +380,51 @@
           loadReviews();
           loadQnA();
           _initWishState();
+          // Record view + show viewer counter
+          _recordView(p.id || p.Id);
+          _startViewerCounter(p.viewCount || p.ViewCount || 0);
         }).catch(function() {
           showToast("Không thể tải sản phẩm", "error");
         });
+      }
+
+      function _recordView(productId) {
+        try {
+          fetch("/api/products/" + productId + "/view", { method: "POST" }).catch(function(){});
+        } catch(_) {}
+        // Save to localStorage fallback
+        try {
+          var p = _product;
+          var entry = {
+            id: productId,
+            name: p.name || p.Name,
+            price: p.price || p.Price,
+            discountPrice: p.discountPrice || p.DiscountPrice,
+            imageUrl: p.imageUrl || p.ImageUrl,
+            viewedAt: new Date().toISOString()
+          };
+          var list = JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]");
+          list = list.filter(function(x){ return x.id !== productId; });
+          list.unshift(entry);
+          if (list.length > 20) list.length = 20;
+          localStorage.setItem("gh_recently_viewed", JSON.stringify(list));
+        } catch(_) {}
+      }
+
+      function _startViewerCounter(baseViewCount) {
+        // Simulate concurrent viewers based on view count
+        var base = Math.max(1, Math.min(30, Math.floor((baseViewCount || 0) / 50) + Math.floor(Math.random() * 5) + 2));
+        var viewersEl = document.getElementById("prd-viewers");
+        var countEl   = document.getElementById("prd-viewer-count");
+        if (!viewersEl || !countEl) return;
+        countEl.textContent = base;
+        viewersEl.style.display = "";
+        // Slight random fluctuation every 8-15s
+        setInterval(function() {
+          var delta = Math.random() > 0.5 ? 1 : -1;
+          base = Math.max(1, Math.min(50, base + delta));
+          countEl.textContent = base;
+        }, 8000 + Math.random() * 7000);
       }
 
       // ── RENDER PRODUCT ──
@@ -535,6 +578,8 @@
           '<i class="bi bi-bag-plus"></i> Thêm Vào Giỏ Hàng</button>' +
           '<button class="prd-btn-wish" id="wishBtn" onclick="toggleWish()">' +
           '<i class="bi bi-heart"></i> <span id="wishText">Yêu Thích</span></button>' +
+          '<button class="prd-btn-compare" id="compareBtn" onclick="toggleCompareProduct(' + id + ",'" + name.replace(/'/g, "\\'") + "','" + (img || "") + "','" + fmt(price) + '\')">' +
+          '<i class="bi bi-bar-chart-line"></i> <span id="compareText">So Sánh</span></button>' +
           '<div class="prd-divider"></div>' +
           // TABS
           '<div class="prd-tabs">' +
@@ -575,7 +620,12 @@
           '<div class="prd-share">' +
           '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(location.href) +
           '" class="prd-share-btn" target="_blank" rel="noopener"><i class="bi bi-facebook"></i> Facebook</a>' +
+          '<a href="https://zalo.me/share/url?url=' + encodeURIComponent(location.href) + '&title=' + encodeURIComponent(name) +
+          '" class="prd-share-btn" target="_blank" rel="noopener" style="background:#0068ff;color:#fff;border-color:#0068ff;">Zalo</a>' +
           '<button class="prd-share-btn" onclick="copyLink()"><i class="bi bi-link-45deg"></i> Sao Chép Link</button>' +
+          "</div>" +
+          '<div id="prd-viewers" style="display:none; font-size:11px; color:var(--gray); margin-top:10px; letter-spacing:0.5px;">' +
+          '<i class="bi bi-eye" style="color:var(--pink)"></i> <span id="prd-viewer-count">0</span> người đang xem sản phẩm này' +
           "</div>" +
           '<div class="prd-meta">' +
           '<div>SKU: <span style="color:var(--dark)">GH-' + id + "</span></div>" +
@@ -1120,6 +1170,94 @@
         }
       }
       document.addEventListener("DOMContentLoaded", function() { _updateNavWishBadge(); });
+    </script>
+
+    <!-- COMPARE BAR (product page) -->
+    <div class="cmp-bar" id="cmpBar">
+      <div class="cmp-bar-inner">
+        <div class="cmp-bar-slots" id="cmpSlots"></div>
+        <div class="cmp-bar-actions">
+          <button class="cmp-btn-go" onclick="goCompare()">
+            <i class="bi bi-bar-chart-line-fill"></i> So Sánh Ngay
+          </button>
+          <button class="cmp-btn-clear" onclick="compareClear()">Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    var _cmpItems = JSON.parse(localStorage.getItem("gh_compare") || "[]");
+    function _saveCmp() { localStorage.setItem("gh_compare", JSON.stringify(_cmpItems)); }
+
+    function _cmpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
+
+    function toggleCompareProduct(id, name, img, price) {
+      var idx = _cmpItems.findIndex(function(p){ return p.id === id; });
+      if (idx >= 0) {
+        _cmpItems.splice(idx, 1);
+      } else {
+        if (_cmpItems.length >= 3) {
+          alert("Chỉ so sánh tối đa 3 sản phẩm!");
+          return;
+        }
+        _cmpItems.push({ id: id, name: name, img: img, price: price });
+      }
+      _saveCmp();
+      renderCmpBar();
+      var inList = _cmpItems.some(function(p){ return p.id === id; });
+      var btn = document.getElementById("compareBtn");
+      var txt = document.getElementById("compareText");
+      if (btn) btn.classList.toggle("wished", inList);
+      if (txt) txt.textContent = inList ? "Đang So Sánh" : "So Sánh";
+    }
+
+    function compareClear() {
+      _cmpItems = [];
+      _saveCmp();
+      renderCmpBar();
+      var btn = document.getElementById("compareBtn");
+      var txt = document.getElementById("compareText");
+      if (btn) btn.classList.remove("wished");
+      if (txt) txt.textContent = "So Sánh";
+    }
+
+    function goCompare() {
+      if (_cmpItems.length < 2) { alert("Chọn ít nhất 2 sản phẩm để so sánh!"); return; }
+      window.location.href = "compare.html?ids=" + _cmpItems.map(function(p){ return p.id; }).join(",");
+    }
+
+    function renderCmpBar() {
+      var bar   = document.getElementById("cmpBar");
+      var slots = document.getElementById("cmpSlots");
+      if (_cmpItems.length === 0) { bar.classList.remove("show"); return; }
+      bar.classList.add("show");
+      var html = "";
+      for (var i = 0; i < 3; i++) {
+        var p = _cmpItems[i];
+        if (p) {
+          html += '<div class="cmp-slot filled">'
+            + '<img src="' + p.img + '" alt="' + p.name + '" onerror="this.src=\'images/product-item-1.jpg\'">'
+            + '<div class="cmp-slot-name">' + (p.name.length > 20 ? p.name.slice(0, 18) + "…" : p.name) + '</div>'
+            + '<button class="cmp-slot-remove" onclick="toggleCompareProduct(' + p.id + ')"><i class="bi bi-x"></i></button>'
+            + '</div>';
+        } else {
+          html += '<div class="cmp-slot empty"><i class="bi bi-plus-lg"></i><span>Thêm SP</span></div>';
+        }
+      }
+      slots.innerHTML = html;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      renderCmpBar();
+      // Sync compare button state on load
+      var urlId = parseInt(new URLSearchParams(location.search).get("id"));
+      if (urlId && _cmpItems.some(function(p){ return p.id === urlId; })) {
+        var btn = document.getElementById("compareBtn");
+        var txt = document.getElementById("compareText");
+        if (btn) btn.classList.add("wished");
+        if (txt) txt.textContent = "Đang So Sánh";
+      }
+    });
     </script>
   </body>
 </html>
