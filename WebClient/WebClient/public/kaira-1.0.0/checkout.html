@@ -14,6 +14,7 @@
           rel="stylesheet" media="print" onload="this.media='all'" />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/checkout.css" />
+    <link rel="stylesheet" href="theme/voucher.css" />
   </head>
   <body>
     <!-- NAVBAR -->
@@ -326,10 +327,13 @@
               <!-- Voucher -->
               <div style="margin:14px 0 10px;padding-top:14px;border-top:1px solid var(--border)">
                 <label class="gh-label" style="margin-bottom:6px">Mã Giảm Giá</label>
-                <div class="voucher-wrap">
+                <div class="voucher-wrap" style="display:flex;gap:6px;align-items:stretch;">
                   <input type="text" class="voucher-input" id="voucherInput"
-                    placeholder="NHẬP MÃ" style="text-transform:uppercase" />
+                    placeholder="NHẬP MÃ" style="text-transform:uppercase;flex:1" />
                   <button class="voucher-btn" onclick="applyVoucher()">Áp Dụng</button>
+                  <button onclick="openCoVoucherPicker()" style="padding:0 12px;background:var(--pink-light);color:var(--pink);border:1px solid var(--pink);cursor:pointer;font-size:18px;line-height:1;" title="Chọn voucher">
+                    <i class="bi bi-ticket-perforated-fill"></i>
+                  </button>
                 </div>
                 <div class="voucher-ok" id="voucherOk">
                   <i class="bi bi-check-circle-fill"></i><span></span>
@@ -1139,6 +1143,108 @@
         c.appendChild(t);
         setTimeout(function () { if (t.parentNode) t.remove(); }, 3500);
       }
+    </script>
+
+    <!-- VOUCHER PICKER MODAL (checkout) -->
+    <div class="vo-modal-backdrop" id="coVoucherPickerBackdrop" onclick="if(event.target===this)closeCoVoucherPicker()">
+      <div class="vo-modal">
+        <div class="vo-modal-header">
+          <span class="vo-modal-title">🎫 CHỌN VOUCHER</span>
+          <button class="vo-modal-close" onclick="closeCoVoucherPicker()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div style="padding:12px 20px; border-bottom:1px solid var(--border);">
+          <div style="display:flex; border:1px solid var(--border);">
+            <input type="text" id="co-vp-search" placeholder="Tìm mã..." style="flex:1;border:none;outline:none;padding:9px 12px;font-size:12px;letter-spacing:1px;text-transform:uppercase;" oninput="coVpFilter()" />
+            <span style="padding:9px 12px;color:var(--gray);"><i class="bi bi-search"></i></span>
+          </div>
+        </div>
+        <div class="vo-modal-body" id="co-vp-list">
+          <div style="text-align:center;padding:32px;color:var(--gray);font-size:13px;">Đang tải voucher...</div>
+        </div>
+        <div class="vo-modal-footer">
+          <button class="vo-modal-btn-cancel" onclick="closeCoVoucherPicker()">Đóng</button>
+          <button class="vo-modal-btn-apply" onclick="applyCoPickedVoucher()">Áp Dụng</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    var _coVpVouchers = [];
+    var _coVpSelected = null;
+    var _coVpLoaded   = false;
+
+    function openCoVoucherPicker() {
+      document.getElementById("coVoucherPickerBackdrop").classList.add("show");
+      document.body.style.overflow = "hidden";
+      if (!_coVpLoaded) loadCoVoucherPicker();
+    }
+    function closeCoVoucherPicker() {
+      document.getElementById("coVoucherPickerBackdrop").classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    async function loadCoVoucherPicker() {
+      try {
+        var res = await fetch("/api/vouchers/public");
+        if (res.ok) _coVpVouchers = await res.json();
+        _coVpLoaded = true;
+        coVpRender(_coVpVouchers);
+      } catch(_) {
+        document.getElementById("co-vp-list").innerHTML =
+          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+      }
+    }
+
+    function coVpFilter() {
+      var q = (document.getElementById("co-vp-search").value || "").toLowerCase();
+      var filtered = q ? _coVpVouchers.filter(v =>
+        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
+      ) : _coVpVouchers;
+      coVpRender(filtered);
+    }
+
+    function coVpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
+    function coVpDiscLabel(v) {
+      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${coVpFmt(v.discountValue)}`;
+    }
+
+    function coVpRender(list) {
+      var el = document.getElementById("co-vp-list");
+      if (!list.length) {
+        el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
+        return;
+      }
+      el.innerHTML = list.map(v => `
+        <div class="vo-modal-voucher-item ${_coVpSelected && _coVpSelected.code === v.code ? 'selected' : ''}"
+             onclick="coVpSelect(this,'${v.code}')">
+          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.description || v.code}</div>
+            <div class="vo-mvi-sub">
+              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
+              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.code}</div>
+        </div>
+      `).join("");
+    }
+
+    function coVpSelect(el, code) {
+      document.querySelectorAll("#co-vp-list .vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
+      el.classList.add("selected");
+      _coVpSelected = _coVpVouchers.find(v => v.code === code) || { code };
+    }
+
+    function applyCoPickedVoucher() {
+      if (!_coVpSelected) { closeCoVoucherPicker(); return; }
+      var inp = document.getElementById("voucherInput");
+      if (inp) {
+        inp.value = _coVpSelected.code;
+        closeCoVoucherPicker();
+        if (typeof applyVoucher === "function") applyVoucher();
+      }
+    }
     </script>
   </body>
 </html>

@@ -378,6 +378,51 @@ namespace BaseCore.APIService.Controllers
             await _productRepository.UpdateAsync(product);
             return Ok(new { isActive = product.IsActive });
         }
+
+        /// <summary>POST /api/products/{id}/view — Tăng view count + ghi recently viewed</summary>
+        [HttpPost("{id:int}/view")]
+        public async Task<IActionResult> RecordView(int id)
+        {
+            var product = await _db.Products.FindAsync(id);
+            if (product == null) return NotFound();
+
+            product.ViewCount++;
+            await _db.SaveChangesAsync();
+
+            // Nếu đã đăng nhập → ghi recently viewed
+            var userId = GetUserId();
+            if (userId != null)
+            {
+                var existing = await _db.RecentlyVieweds
+                    .FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == id);
+
+                if (existing != null)
+                {
+                    existing.ViewedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    var count = await _db.RecentlyVieweds.CountAsync(r => r.UserId == userId);
+                    if (count >= 20)
+                    {
+                        var oldest = await _db.RecentlyVieweds
+                            .Where(r => r.UserId == userId)
+                            .OrderBy(r => r.ViewedAt)
+                            .FirstAsync();
+                        _db.RecentlyVieweds.Remove(oldest);
+                    }
+                    _db.RecentlyVieweds.Add(new BaseCore.Entities.RecentlyViewed
+                    {
+                        UserId = userId,
+                        ProductId = id,
+                        ViewedAt = DateTime.UtcNow
+                    });
+                }
+                await _db.SaveChangesAsync();
+            }
+
+            return Ok(new { viewCount = product.ViewCount });
+        }
     }
 
     // DTOs

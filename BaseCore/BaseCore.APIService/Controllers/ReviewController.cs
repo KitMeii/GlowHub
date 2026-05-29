@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BaseCore.Entities;
@@ -6,13 +6,13 @@ using BaseCore.Repository;
 
 namespace BaseCore.APIService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/reviews")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class ReviewsController : ControllerBase
+    public class AdminReviewsController : ControllerBase
     {
         private readonly MySqlDbContext _context;
-        public ReviewsController(MySqlDbContext context) => _context = context;
+        public AdminReviewsController(MySqlDbContext context) => _context = context;
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
