@@ -256,6 +256,42 @@ namespace BaseCore.APIService.Controllers
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã xóa voucher" });
         }
+
+        /// <summary>GET /api/Vouchers/{id}/usage — Lịch sử sử dụng voucher (Admin)</summary>
+        [HttpGet("{id}/usage")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsage(int id, [FromQuery] int page = 1, [FromQuery] int limit = 20)
+        {
+            var v = await _db.Vouchers.FindAsync(id);
+            if (v == null) return NotFound(new { message = "Không tìm thấy voucher" });
+
+            var query = _db.CustomerVouchers
+                .Include(cv => cv.User)
+                .Where(cv => cv.VoucherId == id);
+
+            var total = await query.CountAsync();
+            var usage = await query
+                .OrderByDescending(cv => cv.SavedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(cv => new {
+                    cv.Id,
+                    cv.SavedAt,
+                    cv.IsUsed,
+                    user = new { cv.User.Id, cv.User.Name, cv.User.Email }
+                })
+                .ToListAsync();
+
+            return Ok(new {
+                voucherId = id,
+                code      = v.Code,
+                usedCount = v.UsedCount,
+                items     = usage,
+                total,
+                page,
+                totalPages = (int)Math.Ceiling((double)total / limit)
+            });
+        }
     }
 
     public class ValidateVoucherDto

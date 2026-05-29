@@ -292,6 +292,106 @@ namespace BaseCore.APIService.Controllers
             try { await _shopService.BanAsync(id); return Ok(new { message = "Shop đã bị khóa" }); }
             catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
         }
+
+        // GET /api/shops/admin/stats — Tất cả shops với doanh thu / đơn hàng / sản phẩm
+        [HttpGet("admin/stats")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> GetAdminShopStats(
+            [FromQuery] int status = -1,
+            [FromQuery] int page   = 1,
+            [FromQuery] int limit  = 20)
+        {
+            var query = _db.Shops.AsQueryable();
+            if (status >= 0) query = query.Where(s => s.Status == status);
+
+            var total = await query.CountAsync();
+            var shops = await query
+                .OrderByDescending(s => s.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
+
+            var allOrders = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .ToListAsync();
+
+            var result = new List<object>();
+            foreach (var shop in shops)
+            {
+                var productIds  = await _db.Products.Where(p => p.ShopId == shop.Id).Select(p => p.Id).ToListAsync();
+                var productCount = productIds.Count;
+                var shopOrders  = allOrders.Where(o => o.OrderDetails.Any(od => productIds.Contains(od.ProductId))).ToList();
+                var orderCount  = shopOrders.Count;
+                var revenue     = shopOrders
+                    .Where(o => o.Status == "COMPLETED")
+                    .Sum(o => o.OrderDetails.Where(od => productIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
+
+                result.Add(new {
+                    shop.Id,
+                    shop.ShopName,
+                    shop.Logo,
+                    shop.Status,
+                    shop.CommissionRate,
+                    shop.CreatedAt,
+                    productCount,
+                    orderCount,
+                    revenue
+                });
+            }
+
+            return Ok(new { items = result, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
+        }
+
+        // PUT /api/shops/admin/{id}/commission
+        [HttpPut("admin/{id}/commission")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> UpdateCommission(string id, [FromBody] UpdateCommissionDto dto)
+        {
+            if (dto.CommissionRate < 0 || dto.CommissionRate > 100)
+                return BadRequest(new { message = "Commission rate phải từ 0 đến 100" });
+
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            shop.CommissionRate = dto.CommissionRate;
+            shop.UpdatedAt      = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã cập nhật hoa hồng", commissionRate = dto.CommissionRate });
+        }
+
+        // GET /api/shops/admin/{id}/stats
+        [HttpGet("admin/{id}/stats")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> GetShopStats(string id, [FromQuery] string? from, [FromQuery] string? to)
+        {
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            var fromDate = DateTime.TryParse(from, out var f) ? f.ToUniversalTime().Date : DateTime.UtcNow.AddDays(-29).Date;
+            var toDate   = DateTime.TryParse(to, out var t) ? t.ToUniversalTime().Date : DateTime.UtcNow.Date;
+
+            var productIds = await _db.Products.Where(p => p.ShopId == id).Select(p => p.Id).ToListAsync();
+            var orders = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o => o.OrderDate.Date >= fromDate && o.OrderDate.Date <= toDate
+                         && o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
+                .ToListAsync();
+
+            var revenue    = orders.Where(o => o.Status == "COMPLETED").Sum(o => o.OrderDetails.Where(od => productIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
+            var commission = revenue * (shop.CommissionRate / 100m);
+
+            return Ok(new {
+                shopId   = id,
+                shopName = shop.ShopName,
+                from     = fromDate.ToString("yyyy-MM-dd"),
+                to       = toDate.ToString("yyyy-MM-dd"),
+                commissionRate = shop.CommissionRate,
+                totalOrders  = orders.Count,
+                revenue,
+                commission,
+                net = revenue - commission
+            });
+        }
     }
 
     public class RegisterShopRequest
@@ -310,5 +410,10 @@ namespace BaseCore.APIService.Controllers
         public string? Logo { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
+    }
+
+    public class UpdateCommissionDto
+    {
+        public decimal CommissionRate { get; set; }
     }
 }

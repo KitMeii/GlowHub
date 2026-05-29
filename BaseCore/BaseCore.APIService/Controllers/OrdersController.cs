@@ -622,6 +622,195 @@ namespace BaseCore.APIService.Controllers
         }
 
         // ─────────────────────────────────────────────────────────
+        // ADMIN — full order management
+        // ─────────────────────────────────────────────────────────
+
+        /// <summary>GET /api/admin/orders?status=&amp;search=&amp;from=&amp;to=&amp;page=&amp;limit=</summary>
+        [HttpGet("admin/orders")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminOrders(
+            [FromQuery] string? status = null,
+            [FromQuery] string? search = null,
+            [FromQuery] string? from   = null,
+            [FromQuery] string? to     = null,
+            [FromQuery] string? payment = null,
+            [FromQuery] int page  = 1,
+            [FromQuery] int limit = 20)
+        {
+            var query = _db.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status) && status.ToUpper() != "ALL")
+                query = query.Where(o => o.Status == status.ToUpper());
+
+            if (!string.IsNullOrEmpty(payment))
+                query = query.Where(o => o.PaymentMethod == payment.ToUpper());
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(o =>
+                    (o.OrderCode != null && o.OrderCode.Contains(search)) ||
+                    (o.ReceiverName != null && o.ReceiverName.Contains(search)) ||
+                    (o.ReceiverPhone != null && o.ReceiverPhone.Contains(search)) ||
+                    o.User.Name.Contains(search) ||
+                    o.User.Email.Contains(search));
+
+            if (DateTime.TryParse(from, out var fromDate))
+                query = query.Where(o => o.OrderDate >= fromDate.ToUniversalTime());
+
+            if (DateTime.TryParse(to, out var toDate))
+                query = query.Where(o => o.OrderDate <= toDate.ToUniversalTime().AddDays(1));
+
+            var total = await query.CountAsync();
+            var orders = await query
+                .OrderByDescending(o => o.OrderDate)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(o => new {
+                    orderId       = o.Id,
+                    orderCode     = o.OrderCode ?? ("ORD-" + o.Id.ToString("D6")),
+                    status        = o.Status,
+                    paymentMethod = o.PaymentMethod,
+                    paymentStatus = o.PaymentStatus,
+                    totalAmount   = o.TotalAmount,
+                    finalAmount   = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount + o.ShippingFee,
+                    shippingFee   = o.ShippingFee,
+                    createdAt     = DateTime.SpecifyKind(o.OrderDate, DateTimeKind.Utc),
+                    receiverName  = o.ReceiverName,
+                    receiverPhone = o.ReceiverPhone,
+                    shippingAddress = o.ShippingAddress,
+                    cancelReason  = o.CancelReason,
+                    trackingCode  = o.TrackingCode,
+                    itemCount     = o.OrderDetails.Count,
+                    customer = new {
+                        id    = o.User.Id,
+                        name  = o.User.Name,
+                        email = o.User.Email
+                    },
+                    firstItem = o.OrderDetails.Select(od => new {
+                        productName = od.Product != null ? od.Product.Name : "",
+                        imageUrl    = od.Product != null ? od.Product.ImageUrl : ""
+                    }).FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(new { items = orders, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
+        }
+
+        /// <summary>GET /api/admin/orders/{id} — Chi tiết đơn hàng cho admin</summary>
+        [HttpGet("admin/orders/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminOrderDetail(int id)
+        {
+            var order = await _db.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails).ThenInclude(od => od.Product).ThenInclude(p => p == null ? null : p.Shop)
+                .Include(o => o.StatusHistory)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+            return Ok(new {
+                orderId         = order.Id,
+                orderCode       = order.OrderCode ?? ("ORD-" + order.Id.ToString("D6")),
+                status          = order.Status,
+                paymentMethod   = order.PaymentMethod,
+                paymentStatus   = order.PaymentStatus,
+                totalAmount     = order.TotalAmount,
+                shippingFee     = order.ShippingFee,
+                finalAmount     = order.FinalAmount > 0 ? order.FinalAmount : order.TotalAmount + order.ShippingFee,
+                shippingAddress = order.ShippingAddress,
+                receiverName    = order.ReceiverName,
+                receiverPhone   = order.ReceiverPhone,
+                trackingCode    = order.TrackingCode,
+                cancelReason    = order.CancelReason,
+                note            = order.Note,
+                createdAt       = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc),
+                updatedAt       = order.UpdatedAt != null ? (DateTime?)DateTime.SpecifyKind(order.UpdatedAt.Value, DateTimeKind.Utc) : null,
+                customer = new {
+                    id    = order.User.Id,
+                    name  = order.User.Name,
+                    email = order.User.Email,
+                    phone = order.User.Phone
+                },
+                items = order.OrderDetails.Select(od => new {
+                    productId   = od.ProductId,
+                    productName = od.Product?.Name ?? "",
+                    imageUrl    = od.Product?.ImageUrl ?? "",
+                    shopName    = od.Product?.Shop?.ShopName ?? "",
+                    qty         = od.Quantity,
+                    unitPrice   = od.UnitPrice,
+                    subtotal    = od.UnitPrice * od.Quantity
+                }),
+                statusHistory = order.StatusHistory
+                    .OrderBy(h => h.ChangedAt)
+                    .Select(h => new {
+                        status    = h.Status,
+                        note      = h.Note,
+                        changedAt = DateTime.SpecifyKind(h.ChangedAt, DateTimeKind.Utc)
+                    })
+            });
+        }
+
+        /// <summary>PUT /api/admin/orders/{id}/status — Admin cập nhật trạng thái (có ghi lịch sử)</summary>
+        [HttpPut("admin/orders/{id:int}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminUpdateOrderStatus(int id, [FromBody] UpdateStatusDto dto)
+        {
+            var validStatuses = new[] {
+                OrderStatus.Pending, OrderStatus.Confirmed,
+                OrderStatus.Shipping, OrderStatus.Delivered,
+                OrderStatus.Completed, OrderStatus.Cancelled
+            };
+            if (!validStatuses.Contains(dto.Status))
+                return BadRequest(new { message = "Trạng thái không hợp lệ" });
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var order = await _db.Orders
+                    .Include(o => o.OrderDetails)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+                var oldStatus = order.Status;
+                order.Status    = dto.Status;
+                order.UpdatedAt = DateTime.UtcNow;
+
+                if (dto.Status == OrderStatus.Cancelled
+                    && oldStatus != OrderStatus.Cancelled
+                    && oldStatus != OrderStatus.Completed)
+                {
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        var product = await _db.Products.FindAsync(detail.ProductId);
+                        if (product != null) product.Stock += detail.Quantity;
+                    }
+                }
+
+                _db.OrderStatusHistories.Add(new OrderStatusHistory {
+                    OrderId   = id,
+                    Status    = dto.Status,
+                    Note      = dto.Note ?? $"Admin cập nhật: {oldStatus} → {dto.Status}",
+                    ChangedBy = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier),
+                    ChangedAt = DateTime.UtcNow
+                });
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return Ok(new { message = $"Đã cập nhật đơn #{id} → {dto.Status}" });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────
         // SELLER — shop order endpoints
         // ─────────────────────────────────────────────────────────
 
@@ -861,6 +1050,7 @@ namespace BaseCore.APIService.Controllers
     public class UpdateStatusDto
     {
         public string Status { get; set; } = "";
+        public string? Note { get; set; }
     }
 
     public class ShipOrderDto
