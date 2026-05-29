@@ -1354,7 +1354,7 @@ const Admin = {
 
   // ── Banners ──
   getBanners() {
-    return apiFetch(PRODUCT_API, "/api/banners", "GET");
+    return apiFetch(PRODUCT_API, "/api/banners/all", "GET");
   },
   getBanner(id) {
     return apiFetch(PRODUCT_API, "/api/banners/" + id, "GET");
