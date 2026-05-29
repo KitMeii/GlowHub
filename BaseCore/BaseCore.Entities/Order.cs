@@ -57,7 +57,49 @@ namespace BaseCore.Entities
 
         public DateTime? EstimatedDelivery { get; set; }
 
+        // ── Financial fields (Sprint 10) ──
+
+        /// <summary>Shop xử lý đơn này</summary>
+        [MaxLength(450)]
+        public string? ShopId { get; set; }
+
+        /// <summary>TotalAmount - ShippingFee - ShopVoucherDiscount</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ProductRevenue { get; set; } = 0m;
+
+        /// <summary>Tỷ lệ hoa hồng tại thời điểm đặt hàng</summary>
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal CommissionRate { get; set; } = 0m;
+
+        /// <summary>ProductRevenue × CommissionRate / 100</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal CommissionAmount { get; set; } = 0m;
+
+        /// <summary>ProductRevenue - CommissionAmount</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SellerPayoutAmount { get; set; } = 0m;
+
+        /// <summary>Giảm giá từ voucher của shop</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ShopVoucherDiscount { get; set; } = 0m;
+
+        /// <summary>Giảm giá từ voucher hệ thống</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SystemVoucherDiscount { get; set; } = 0m;
+
+        /// <summary>Giảm phí ship từ voucher freeship</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FreeshipDiscount { get; set; } = 0m;
+
+        /// <summary>PENDING | WAITING_RELEASE | RELEASED | REFUNDED</summary>
+        [MaxLength(20)]
+        public string PayoutStatus { get; set; } = PayoutStatusValue.Pending;
+
+        public DateTime? WalletReleaseAt { get; set; }
+
         public User User { get; set; } = null!;
+
+        public Shop? Shop { get; set; }
 
         public List<OrderDetail> OrderDetails { get; set; } = new();
 
@@ -85,5 +127,12 @@ namespace BaseCore.Entities
         public const string Unpaid   = "UNPAID";
         public const string Paid     = "PAID";
         public const string Refunded = "REFUNDED";
+    }
+
+    public static class PayoutStatusValue {
+        public const string Pending        = "PENDING";
+        public const string WaitingRelease = "WAITING_RELEASE";
+        public const string Released       = "RELEASED";
+        public const string Refunded       = "REFUNDED";
     }
 }

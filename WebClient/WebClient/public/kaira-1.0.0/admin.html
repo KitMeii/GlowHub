@@ -77,6 +77,9 @@
     <a class="adm-nav-link" data-page="auditlog" href="#auditlog">
       <i class="bi bi-journal-text"></i> Audit Log
     </a>
+    <a class="adm-nav-link" data-page="wallet-admin" href="#wallet-admin">
+      <i class="bi bi-wallet2"></i> Quản Lý Ví
+    </a>
 
     <div class="adm-nav-section">Hệ Thống</div>
     <a class="adm-nav-link" data-page="settings" href="#settings">
@@ -565,12 +568,15 @@
     </div>
 
     <!-- Summary cards -->
-    <div class="adm-stats-grid" style="grid-template-columns:repeat(5,1fr)" id="commissionSummary">
-      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-currency-dollar"></i></div><div><div class="adm-stat-value" id="com-revenue">—</div><div class="adm-stat-label">Tổng Doanh Thu</div></div></div>
+    <div class="adm-stats-grid" style="grid-template-columns:repeat(3,1fr)" id="commissionSummary">
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-currency-dollar"></i></div><div><div class="adm-stat-value" id="com-revenue">—</div><div class="adm-stat-label">Tổng Doanh Thu SP</div></div></div>
       <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6"><i class="bi bi-percent"></i></div><div><div class="adm-stat-value" id="com-commission">—</div><div class="adm-stat-label">Tổng Hoa Hồng</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(247,89,171,.12);color:var(--pink)"><i class="bi bi-graph-up"></i></div><div><div class="adm-stat-value" id="com-profit">—</div><div class="adm-stat-label">Lợi Nhuận Admin</div></div></div>
+    </div>
+    <div class="adm-stats-grid" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
       <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(59,130,246,.12);color:#3b82f6"><i class="bi bi-shop"></i></div><div><div class="adm-stat-value" id="com-net">—</div><div class="adm-stat-label">Net Cho Seller</div></div></div>
-      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-check-circle"></i></div><div><div class="adm-stat-value" id="com-paid">—</div><div class="adm-stat-label">Đã Thanh Toán</div></div></div>
-      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-clock"></i></div><div><div class="adm-stat-value" id="com-pending">—</div><div class="adm-stat-label">Còn Phải Trả</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-check-circle"></i></div><div><div class="adm-stat-value" id="com-released">—</div><div class="adm-stat-label">Đã Giải Ngân</div></div></div>
+      <div class="adm-stat-card"><div class="adm-stat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-clock"></i></div><div><div class="adm-stat-value" id="com-pending">—</div><div class="adm-stat-label">Chờ Giải Ngân</div></div></div>
     </div>
 
     <!-- Sub tabs -->
@@ -589,7 +595,7 @@
       <div class="adm-card">
         <div class="adm-table-wrap">
           <table class="adm-table" id="commissionShopsTable">
-            <thead><tr><th>Shop</th><th>Tỷ Lệ</th><th>Doanh Thu</th><th>Hoa Hồng</th><th>Net Seller</th><th>Đã Trả</th><th>Còn Lại</th><th>Thao Tác</th></tr></thead>
+            <thead><tr><th>Shop</th><th>Tỷ Lệ</th><th>Doanh Thu SP</th><th>Hoa Hồng</th><th>Net Seller</th><th>Số Dư Ví</th><th>Đã Nhận</th><th>Đơn</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -716,6 +722,75 @@
     </div>
   </section>
 
+  <!-- ═══════════════════════════════════════════════════
+       PAGE: WALLET ADMIN (QUẢN LÝ VÍ)
+  ═══════════════════════════════════════════════════ -->
+  <section class="adm-page" id="page-wallet-admin">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Quản Lý Ví Seller</h1>
+      <button class="adm-btn adm-btn-primary" onclick="releasePayouts()" id="btnRelease">
+        <i class="bi bi-lightning-charge"></i> Giải Ngân Ngay
+      </button>
+    </div>
+
+    <!-- Overview cards -->
+    <div class="adm-stats-grid" style="grid-template-columns:repeat(4,1fr)" id="walletAdminCards">
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(247,89,171,.12);color:var(--pink)"><i class="bi bi-wallet2"></i></div>
+        <div><div class="adm-stat-value" id="wa-total-balance">—</div><div class="adm-stat-label">Tổng Số Dư Ví</div></div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-clock-history"></i></div>
+        <div><div class="adm-stat-value" id="wa-pending">—</div><div class="adm-stat-label">Chờ Giải Ngân</div></div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-graph-up-arrow"></i></div>
+        <div><div class="adm-stat-value" id="wa-total-earned">—</div><div class="adm-stat-label">Tổng Đã Giải Ngân</div></div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(59,130,246,.12);color:#3b82f6"><i class="bi bi-arrow-bar-up"></i></div>
+        <div><div class="adm-stat-value" id="wa-total-withdrawn">—</div><div class="adm-stat-label">Tổng Đã Rút</div></div>
+      </div>
+    </div>
+
+    <!-- Wallets table -->
+    <div class="adm-card mt-3">
+      <div class="adm-card-head"><span>Ví Của Các Shop</span></div>
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="walletAdminTable">
+          <thead><tr><th>Shop</th><th>Số Dư</th><th>Tổng Nhận</th><th>Đã Rút</th><th>Đã Hoàn</th><th>Cập Nhật</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="adm-card mt-3">
+      <div class="adm-card-head" style="justify-content:space-between">
+        <span>Lịch Sử Giao Dịch</span>
+        <div class="d-flex gap-2">
+          <select class="adm-select" id="waTxShop" onchange="loadWalletAdminTx(1)" style="min-width:180px">
+            <option value="">Tất cả shop</option>
+          </select>
+          <select class="adm-select" id="waTxType" onchange="loadWalletAdminTx(1)">
+            <option value="">Tất cả loại</option>
+            <option value="EARNING">Nhận tiền</option>
+            <option value="REFUND">Hoàn trả</option>
+            <option value="WITHDRAWAL">Rút tiền</option>
+            <option value="ADJUSTMENT">Điều chỉnh</option>
+          </select>
+        </div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="walletAdminTxTable">
+          <thead><tr><th>Shop</th><th>Loại</th><th>Số Tiền</th><th>Trước</th><th>Sau</th><th>Đơn</th><th>Ghi Chú</th><th>Thời Gian</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="adm-pagination" id="walletAdminTxPager"></div>
+    </div>
+  </section>
+
 </div><!-- /adm-main -->
 
 <!-- Scripts -->
@@ -760,9 +835,10 @@
     vouchers:   'Vouchers',
     revenue:    'Doanh Thu',
     commission: 'Hoa Hồng',
-    disputes:   'Khiếu Nại',
-    auditlog:   'Audit Log',
-    settings:   'Cài Đặt'
+    disputes:      'Khiếu Nại',
+    auditlog:      'Audit Log',
+    settings:      'Cài Đặt',
+    'wallet-admin':'Quản Lý Ví'
   };
 
   function navigateTo(page) {
@@ -788,10 +864,11 @@
     else if (page === 'flashsale') loadFlashSales();
     else if (page === 'vouchers') loadVouchers();
     else if (page === 'revenue')    loadRevenue();
-    else if (page === 'commission') loadCommission();
-    else if (page === 'disputes')   loadDisputes();
-    else if (page === 'auditlog')   loadAuditLogs();
-    else if (page === 'settings')   loadSettings();
+    else if (page === 'commission')    loadCommission();
+    else if (page === 'disputes')      loadDisputes();
+    else if (page === 'auditlog')      loadAuditLogs();
+    else if (page === 'settings')      loadSettings();
+    else if (page === 'wallet-admin')  loadWalletAdmin();
   }
 
   document.querySelectorAll('.adm-nav-link').forEach(link => {
@@ -1593,11 +1670,13 @@
   async function loadCommission() {
     try {
       const s = await Admin.getCommissionSummary();
-      document.getElementById('com-revenue').textContent    = fmt(s.totalRevenue);
-      document.getElementById('com-commission').textContent = fmt(s.totalCommission);
-      document.getElementById('com-net').textContent        = fmt(s.totalNetToSellers);
-      document.getElementById('com-paid').textContent       = fmt(s.totalPaidOut);
-      document.getElementById('com-pending').textContent    = fmt(s.pendingTotal);
+      const n = v => norm(s, v);
+      document.getElementById('com-revenue').textContent    = fmt(n('totalRevenue')    ?? n('TotalRevenue'));
+      document.getElementById('com-commission').textContent = fmt(n('totalCommission') ?? n('TotalCommission'));
+      document.getElementById('com-profit').textContent     = fmt(n('adminNetProfit')  ?? n('AdminNetProfit'));
+      document.getElementById('com-net').textContent        = fmt(n('totalNetToSellers') ?? n('TotalNetToSellers'));
+      document.getElementById('com-released').textContent   = fmt(n('totalReleased')   ?? n('TotalReleased'));
+      document.getElementById('com-pending').textContent    = fmt(n('pendingRelease')  ?? n('PendingRelease'));
     } catch(e) { toast('Lỗi tải hoa hồng: ' + e.message, 'error'); }
     loadCommissionShops();
   }
@@ -1613,21 +1692,19 @@
       if (to)   params.set('to', to);
       const d = await Admin.getCommissionShops(params.toString());
       const tbody = document.querySelector('#commissionShopsTable tbody');
-      tbody.innerHTML = (d.items || []).map(s => `
-        <tr>
-          <td><strong>${s.shopName}</strong></td>
-          <td>${s.commissionRate}%</td>
-          <td>${fmt(s.revenue)}</td>
-          <td class="text-purple fw-bold">${fmt(s.commissionAmount)}</td>
-          <td>${fmt(s.netRevenue)}</td>
-          <td class="text-success">${fmt(s.paidOut)}</td>
-          <td class="${s.pendingPayout>0?'text-warning fw-bold':''}">${fmt(s.pendingPayout)}</td>
-          <td class="adm-actions">
-            <button class="adm-btn adm-btn-sm adm-btn-primary" onclick="openPayoutModal('${s.shopId}','${s.shopName}',${s.pendingPayout})">
-              <i class="bi bi-cash"></i> Thanh Toán
-            </button>
-          </td>
-        </tr>`).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
+      tbody.innerHTML = (d.items || []).map(s => {
+        const n = v => norm(s, v);
+        return `<tr>
+          <td><strong>${n('shopName') ?? n('ShopName') ?? ''}</strong></td>
+          <td>${n('commissionRate') ?? n('CommissionRate') ?? 0}%</td>
+          <td>${fmt(n('revenue') ?? n('Revenue') ?? 0)}</td>
+          <td class="text-purple fw-bold">${fmt(n('commissionAmount') ?? n('CommissionAmount') ?? 0)}</td>
+          <td>${fmt(n('netRevenue') ?? n('NetRevenue') ?? 0)}</td>
+          <td style="color:var(--pink);font-weight:600">${fmt(n('walletBalance') ?? n('WalletBalance') ?? 0)}</td>
+          <td class="text-success">${fmt(n('totalEarned') ?? n('TotalEarned') ?? 0)}</td>
+          <td>${n('orderCount') ?? n('OrderCount') ?? 0}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
       buildPagination('commissionShopsPagination', page, d.totalPages, 'loadCommissionShops');
     } catch(e) { toast('Lỗi tải shops: ' + e.message, 'error'); }
   }
@@ -1684,6 +1761,85 @@
       closePayoutModal();
       loadCommission();
     } catch(e) { toast(e.message, 'error'); }
+  };
+
+  // ────────────────────────────────────────────
+  // WALLET ADMIN
+  // ────────────────────────────────────────────
+  async function loadWalletAdmin() {
+    try {
+      const d = await AdminWallet.getOverview();
+      const n = v => norm(d, v);
+      document.getElementById('wa-total-balance').textContent  = fmt(n('totalBalance')         ?? n('TotalBalance'));
+      document.getElementById('wa-pending').textContent        = fmt(n('pendingReleaseAmount') ?? n('PendingReleaseAmount')) + ` (${n('pendingReleaseCount') ?? n('PendingReleaseCount') ?? 0} đơn)`;
+      document.getElementById('wa-total-earned').textContent   = fmt(n('totalEarned')          ?? n('TotalEarned'));
+      document.getElementById('wa-total-withdrawn').textContent= fmt(n('totalWithdrawn')       ?? n('TotalWithdrawn'));
+
+      const wallets = n('wallets') ?? n('Wallets') ?? [];
+      const tbody   = document.querySelector('#walletAdminTable tbody');
+      tbody.innerHTML = wallets.map(w => {
+        const wn = v => norm(w, v);
+        return `<tr>
+          <td><strong>${wn('shopName') ?? wn('ShopName') ?? ''}</strong></td>
+          <td style="color:var(--pink);font-weight:600">${fmt(wn('balance') ?? wn('Balance') ?? 0)}</td>
+          <td class="text-success">${fmt(wn('totalEarned') ?? wn('TotalEarned') ?? 0)}</td>
+          <td>${fmt(wn('totalWithdrawn') ?? wn('TotalWithdrawn') ?? 0)}</td>
+          <td style="color:#ef4444">${fmt(wn('totalRefunded') ?? wn('TotalRefunded') ?? 0)}</td>
+          <td><small class="text-muted">${fmtDate(wn('updatedAt') ?? wn('UpdatedAt'))}</small></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6" class="adm-empty">Chưa có dữ liệu</td></tr>';
+
+      // Populate shop filter dropdown
+      const shopSel = document.getElementById('waTxShop');
+      if (shopSel && shopSel.options.length <= 1) {
+        wallets.forEach(w => {
+          const opt = document.createElement('option');
+          opt.value       = norm(w, 'shopId') ?? norm(w, 'ShopId') ?? '';
+          opt.textContent = norm(w, 'shopName') ?? norm(w, 'ShopName') ?? opt.value;
+          shopSel.appendChild(opt);
+        });
+      }
+    } catch(e) { toast('Lỗi tải ví: ' + e.message, 'error'); }
+    loadWalletAdminTx(1);
+  }
+  window.loadWalletAdmin = loadWalletAdmin;
+
+  async function loadWalletAdminTx(page = 1) {
+    const shopId = document.getElementById('waTxShop')?.value || '';
+    const type   = document.getElementById('waTxType')?.value || '';
+    try {
+      const d = await AdminWallet.getTransactions(shopId, type, page, 20);
+      const tbody = document.querySelector('#walletAdminTxTable tbody');
+      const TX_LABEL = { EARNING:'Nhận tiền', REFUND:'Hoàn trả', WITHDRAWAL:'Rút tiền', ADJUSTMENT:'Điều chỉnh' };
+      tbody.innerHTML = (d.items || []).map(t => {
+        const n = v => norm(t, v);
+        const type = n('type') ?? n('Type') ?? '';
+        const color = type === 'EARNING' ? '#10b981' : type === 'REFUND' ? '#ef4444' : '#666';
+        return `<tr>
+          <td>${n('shopName') ?? n('ShopName') ?? ''}</td>
+          <td><span style="color:${color};font-weight:600">${TX_LABEL[type] || type}</span></td>
+          <td style="color:${color};font-weight:600">${fmt(n('amount') ?? n('Amount') ?? 0)}</td>
+          <td><small>${fmt(n('balanceBefore') ?? n('BalanceBefore') ?? 0)}</small></td>
+          <td><small>${fmt(n('balanceAfter') ?? n('BalanceAfter') ?? 0)}</small></td>
+          <td>${n('orderId') ?? n('OrderId') ? '#' + (n('orderId') ?? n('OrderId')) : '—'}</td>
+          <td><small>${n('note') ?? n('Note') ?? '—'}</small></td>
+          <td><small>${fmtDate(n('createdAt') ?? n('CreatedAt'))}</small></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
+      buildPagination('walletAdminTxPager', page, d.totalPages || 1, 'loadWalletAdminTx');
+    } catch(e) { toast('Lỗi tải giao dịch: ' + e.message, 'error'); }
+  }
+  window.loadWalletAdminTx = loadWalletAdminTx;
+
+  window.releasePayouts = async function() {
+    const btn = document.getElementById('btnRelease');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="adm-spinner" style="width:14px;height:14px;border-width:2px"></span> Đang giải ngân...'; }
+    try {
+      const res = await AdminWallet.releasePayouts();
+      toast(res.message || `Đã giải ngân ${res.released} đơn`);
+      loadWalletAdmin();
+    } catch(e) { toast(e.message, 'error'); }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lightning-charge"></i> Giải Ngân Ngay'; } }
   };
 
   // ────────────────────────────────────────────

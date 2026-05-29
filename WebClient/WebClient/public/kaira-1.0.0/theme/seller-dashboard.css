@@ -150,4 +150,36 @@ input:checked+.toggle-slider:before{transform:translateX(17px)}
 .filter-tabs{display:flex;gap:0;border-bottom:2px solid #f0ebe4;margin-bottom:16px;overflow-x:auto}
 .filter-tab{padding:8px 14px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:#888;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all .15s;font-family:var(--font-body)}
 .filter-tab.active{color:var(--pink);border-bottom-color:var(--pink);font-weight:500}
+/* Skeleton loading */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton-line{background:linear-gradient(90deg,#f0ede9 25%,#e8e3dd 50%,#f0ede9 75%);background-size:800px 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:18px;width:100%}
+.skeleton-list{padding:16px}
+.skeleton-list::before,.skeleton-list::after{content:'';display:block;height:48px;background:linear-gradient(90deg,#f0ede9 25%,#e8e3dd 50%,#f0ede9 75%);background-size:800px 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:8px}
+/* Wallet cards */
+.wallet-card{border-left:3px solid transparent;transition:border-color .2s}
+.wallet-card:hover{border-left-color:var(--pink)}
+/* Transaction timeline */
+.tx-row{display:flex;align-items:flex-start;gap:14px;padding:14px 20px;border-bottom:1px solid #f5f3f0}
+.tx-row:last-child{border-bottom:none}
+.tx-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tx-icon.tx-earn{background:rgba(247,89,171,.1);color:var(--pink)}
+.tx-icon.tx-refund{background:rgba(239,68,68,.1);color:#ef4444}
+.tx-icon.tx-withdraw{background:rgba(59,130,246,.1);color:#3b82f6}
+.tx-icon.tx-adjust{background:rgba(245,158,11,.1);color:#f59e0b}
+.tx-info{flex:1;min-width:0}
+.tx-label{font-size:13px;font-weight:500;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-note{font-size:11px;color:#aaa;margin-top:1px}
+.tx-date{font-size:11px;color:#bbb;margin-top:2px}
+.tx-amount{font-size:14px;font-weight:600;white-space:nowrap}
+/* Payout badges */
+.badge-payout{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.5px}
+.badge-payout.waiting{background:rgba(245,158,11,.12);color:#f59e0b}
+.badge-payout.released{background:rgba(16,185,129,.12);color:#10b981}
+/* Info box */
+.info-box{background:#fdf5fb;border:1px solid #f8d4ed;border-radius:4px;padding:14px 18px;display:flex;align-items:flex-start;gap:12px}
+/* Pager wrap */
+.pager-wrap{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.pager-wrap button{min-width:32px;height:32px;border:1px solid #e8e3dd;background:#fff;border-radius:4px;font-size:12px;cursor:pointer;color:#555;transition:all .15s}
+.pager-wrap button.active,.pager-wrap button:hover:not(:disabled){background:var(--pink);color:#fff;border-color:var(--pink)}
+.pager-wrap button:disabled{opacity:.4;cursor:not-allowed}
 .badge-verified{background:#d1e7dd;color:#0f5132;padding:2px 6px;border-radius:99px;font-size:10px;font-weight:600}

@@ -39,6 +39,8 @@ namespace BaseCore.Repository
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<PayoutHistory> PayoutHistories { get; set; }
         public DbSet<Dispute> Disputes { get; set; }
+        public DbSet<SellerWallet> SellerWallets { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -112,14 +114,28 @@ namespace BaseCore.Repository
                 entity.Property(e => e.OrderCode).HasMaxLength(20);
                 entity.Property(e => e.ReceiverName).HasMaxLength(100);
                 entity.Property(e => e.ReceiverPhone).HasMaxLength(20);
-
                 entity.Property(e => e.PaymentMethod).HasMaxLength(20);
                 entity.Property(e => e.PaymentStatus).HasMaxLength(20);
+                entity.Property(e => e.ShopId).HasMaxLength(450);
+                entity.Property(e => e.CommissionRate).HasPrecision(5, 2);
+                entity.Property(e => e.ProductRevenue).HasPrecision(18, 2);
+                entity.Property(e => e.CommissionAmount).HasPrecision(18, 2);
+                entity.Property(e => e.SellerPayoutAmount).HasPrecision(18, 2);
+                entity.Property(e => e.ShopVoucherDiscount).HasPrecision(18, 2);
+                entity.Property(e => e.SystemVoucherDiscount).HasPrecision(18, 2);
+                entity.Property(e => e.FreeshipDiscount).HasPrecision(18, 2);
+                entity.Property(e => e.PayoutStatus).HasMaxLength(20);
 
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Shop)
+                    .WithMany()
+                    .HasForeignKey(e => e.ShopId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Configure OrderStatusHistory entity
@@ -449,6 +465,47 @@ namespace BaseCore.Repository
                       .WithMany()
                       .HasForeignKey(e => e.CustomerId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure SellerWallet entity
+            modelBuilder.Entity<SellerWallet>(entity =>
+            {
+                entity.ToTable("SellerWallets");
+                entity.HasKey(e => e.ShopId);
+                entity.Property(e => e.ShopId).HasMaxLength(450);
+                entity.Property(e => e.Balance).HasPrecision(18, 2);
+                entity.Property(e => e.TotalEarned).HasPrecision(18, 2);
+                entity.Property(e => e.TotalWithdrawn).HasPrecision(18, 2);
+                entity.Property(e => e.TotalRefunded).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure WalletTransaction entity
+            modelBuilder.Entity<WalletTransaction>(entity =>
+            {
+                entity.ToTable("WalletTransactions");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ShopId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Type).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.Note).HasMaxLength(500);
+                entity.Property(e => e.Amount).HasPrecision(18, 2);
+                entity.Property(e => e.BalanceBefore).HasPrecision(18, 2);
+                entity.Property(e => e.BalanceAfter).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Order)
+                      .WithMany()
+                      .HasForeignKey(e => e.OrderId)
+                      .IsRequired(false)
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             // Seed initial data

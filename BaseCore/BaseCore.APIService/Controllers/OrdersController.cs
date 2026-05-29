@@ -232,8 +232,9 @@ namespace BaseCore.APIService.Controllers
             if (order.Status != OrderStatus.Shipping)
                 return BadRequest(new { message = "Chỉ xác nhận nhận hàng khi đơn đang giao" });
 
-            order.Status    = OrderStatus.Delivered;
-            order.UpdatedAt = DateTime.UtcNow;
+            order.Status       = OrderStatus.Delivered;
+            order.PayoutStatus = PayoutStatusValue.WaitingRelease;
+            order.UpdatedAt    = DateTime.UtcNow;
 
             _db.OrderStatusHistories.Add(new OrderStatusHistory {
                 OrderId   = orderId,
@@ -415,14 +416,25 @@ namespace BaseCore.APIService.Controllers
                     });
                 }
 
-                // Tính phí ship: miễn phí nếu đơn ≥ 500k
-                decimal shippingFee = totalAmount >= 500000m ? 0m : 30000m;
-                if (dto.ShippingMethod == "express") shippingFee = 30000m;
-                if (dto.ShippingMethod == "same")    shippingFee = 50000m;
-                if (totalAmount >= 500000m && dto.ShippingMethod == "standard") shippingFee = 0m;
+                // Lấy thông tin shop & tỷ lệ hoa hồng
+                Shop? orderShop = shopId != null ? await _db.Shops.FindAsync(shopId) : null;
+                decimal commissionRate = orderShop?.CommissionRate > 0 ? orderShop.CommissionRate : 10m;
 
-                // Áp dụng voucher nếu có
-                decimal discount = 0m;
+                // Tính phí ship: miễn phí nếu đơn ≥ 500k (standard)
+                decimal shippingFee     = 30000m;
+                decimal freeshipDiscount = 0m;
+                if (dto.ShippingMethod == "express") shippingFee = 30000m;
+                else if (dto.ShippingMethod == "same") shippingFee = 50000m;
+                else
+                {
+                    if (totalAmount >= 500000m) { shippingFee = 0m; freeshipDiscount = 30000m; }
+                    else shippingFee = 30000m;
+                }
+
+                // Áp dụng voucher nếu có — phân loại shop vs system
+                decimal discount              = 0m;
+                decimal shopVoucherDiscount   = 0m;
+                decimal systemVoucherDiscount = 0m;
                 string? appliedVoucher = null;
                 if (!string.IsNullOrWhiteSpace(dto.VoucherCode))
                 {
@@ -441,19 +453,38 @@ namespace BaseCore.APIService.Controllers
                             discount = voucher.MaxDiscount.Value;
                         voucher.UsedCount++;
                         appliedVoucher = voucher.Code;
+
+                        if (voucher.ShopId != null && voucher.ShopId == shopId)
+                            shopVoucherDiscount = discount;
+                        else
+                            systemVoucherDiscount = discount;
                     }
                 }
+
+                // Công thức tài chính
+                decimal productRevenue     = totalAmount - shopVoucherDiscount;
+                decimal commissionAmount   = Math.Round(productRevenue * commissionRate / 100m, 2);
+                decimal sellerPayoutAmount = productRevenue - commissionAmount;
 
                 decimal finalAmount = totalAmount + shippingFee - discount;
 
                 var order = new Order {
-                    UserId          = userId,
-                    OrderDate       = DateTime.UtcNow,
-                    TotalAmount     = totalAmount,
-                    ShippingFee     = shippingFee,
-                    Discount        = discount,
-                    FinalAmount     = finalAmount,
-                    Status          = OrderStatus.Pending,
+                    UserId                = userId,
+                    ShopId                = shopId,
+                    OrderDate             = DateTime.UtcNow,
+                    TotalAmount           = totalAmount,
+                    ShippingFee           = shippingFee,
+                    Discount              = discount,
+                    FinalAmount           = finalAmount,
+                    Status                = OrderStatus.Pending,
+                    PayoutStatus          = PayoutStatusValue.Pending,
+                    CommissionRate        = commissionRate,
+                    ProductRevenue        = productRevenue,
+                    CommissionAmount      = commissionAmount,
+                    SellerPayoutAmount    = sellerPayoutAmount,
+                    ShopVoucherDiscount   = shopVoucherDiscount,
+                    SystemVoucherDiscount = systemVoucherDiscount,
+                    FreeshipDiscount      = freeshipDiscount,
                     PaymentMethod   = dto.PaymentMethod switch {
                         1 => "BANK",
                         2 => "MOMO",

@@ -240,37 +240,78 @@ namespace BaseCore.APIService.Controllers
             if (dto.RefundAmount < 0)
                 return BadRequest(new { message = "Số tiền hoàn trả không hợp lệ" });
 
-            var oldStatus = dispute.Status;
-            dispute.Status        = DisputeStatus.Resolved;
-            dispute.Resolution    = dto.Resolution;
-            dispute.RefundAmount  = dto.RefundAmount;
-            dispute.FavorCustomer = dto.FavorCustomer;
-            dispute.ResolvedAt    = DateTime.UtcNow;
-            dispute.ResolvedBy    = GetUserId();
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var oldStatus = dispute.Status;
+                dispute.Status        = DisputeStatus.Resolved;
+                dispute.Resolution    = dto.Resolution;
+                dispute.RefundAmount  = dto.RefundAmount;
+                dispute.FavorCustomer = dto.FavorCustomer;
+                dispute.ResolvedAt    = DateTime.UtcNow;
+                dispute.ResolvedBy    = GetUserId();
 
-            await _db.SaveChangesAsync();
+                // Nếu thiên vị customer & đơn đã giải ngân → thu hồi từ ví seller
+                if (dto.FavorCustomer && dto.RefundAmount > 0 && dispute.Order != null
+                    && dispute.Order.PayoutStatus == PayoutStatusValue.Released
+                    && !string.IsNullOrEmpty(dispute.Order.ShopId))
+                {
+                    var wallet = await _db.SellerWallets.FindAsync(dispute.Order.ShopId);
+                    if (wallet != null)
+                    {
+                        var deduct  = Math.Min(dto.RefundAmount, wallet.Balance);
+                        var before  = wallet.Balance;
+                        var after   = before - deduct;
 
-            await _audit.Log(GetUserId(), GetUserName(), "DISPUTE_RESOLVE",
-                "Dispute", id.ToString(),
-                new { status = oldStatus },
-                new { status = DisputeStatus.Resolved, refundAmount = dto.RefundAmount, favorCustomer = dto.FavorCustomer });
+                        wallet.Balance        = after;
+                        wallet.TotalRefunded += deduct;
+                        wallet.UpdatedAt      = DateTime.UtcNow;
 
-            var notifyMsg = dto.FavorCustomer
-                ? $"Khiếu nại #{id} đã được giải quyết theo hướng có lợi cho bạn. Hoàn tiền: {dto.RefundAmount:N0}₫"
-                : $"Khiếu nại #{id} đã được giải quyết. {dto.Resolution}";
+                        _db.WalletTransactions.Add(new WalletTransaction {
+                            ShopId        = dispute.Order.ShopId,
+                            OrderId       = dispute.OrderId,
+                            Type          = WalletTransactionType.Refund,
+                            Amount        = deduct,
+                            BalanceBefore = before,
+                            BalanceAfter  = after,
+                            Note          = $"Thu hồi khiếu nại #{id}",
+                            CreatedAt     = DateTime.UtcNow
+                        });
 
-            await _notify.CreateAsync(dispute.CustomerId,
-                NotificationType.SystemAlert,
-                "Khiếu nại đã được giải quyết",
-                notifyMsg,
-                "/profile.html?tab=disputes");
+                        dispute.Order.PayoutStatus = PayoutStatusValue.Refunded;
+                    }
+                }
 
-            return Ok(new {
-                message       = "Đã giải quyết khiếu nại",
-                status        = dispute.Status,
-                refundAmount  = dispute.RefundAmount,
-                favorCustomer = dispute.FavorCustomer
-            });
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                await _audit.Log(GetUserId(), GetUserName(), "DISPUTE_RESOLVE",
+                    "Dispute", id.ToString(),
+                    new { status = oldStatus },
+                    new { status = DisputeStatus.Resolved, refundAmount = dto.RefundAmount, favorCustomer = dto.FavorCustomer });
+
+                var notifyMsg = dto.FavorCustomer
+                    ? $"Khiếu nại #{id} đã được giải quyết theo hướng có lợi cho bạn. Hoàn tiền: {dto.RefundAmount:N0}₫"
+                    : $"Khiếu nại #{id} đã được giải quyết. {dto.Resolution}";
+
+                await _notify.CreateAsync(dispute.CustomerId,
+                    NotificationType.SystemAlert,
+                    "Khiếu nại đã được giải quyết",
+                    notifyMsg,
+                    "/profile.html?tab=disputes");
+
+                return Ok(new {
+                    message       = "Đã giải quyết khiếu nại",
+                    status        = dispute.Status,
+                    refundAmount  = dispute.RefundAmount,
+                    favorCustomer = dispute.FavorCustomer
+                });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 

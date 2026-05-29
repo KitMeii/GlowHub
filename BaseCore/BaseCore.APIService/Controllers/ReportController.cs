@@ -45,29 +45,20 @@ namespace BaseCore.APIService.Controllers
             var dateFrom = (from ?? DateTime.UtcNow.AddDays(-30)).Date;
             var dateTo   = (to   ?? DateTime.UtcNow).Date.AddDays(1);
 
-            var productIds = await _db.Products
-                .Where(p => p.ShopId == shop!.Id)
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            var commissionRate = ((shop!.CommissionRate > 0 ? shop.CommissionRate : 10m)) / 100m;
-
             var orders = await _db.Orders
-                .Include(o => o.OrderDetails)
-                .Where(o => o.OrderDate >= dateFrom && o.OrderDate < dateTo
-                    && o.Status != OrderStatus.Cancelled
-                    && o.OrderDetails.Any(d => productIds.Contains(d.ProductId)))
+                .Where(o => o.ShopId == shop!.Id
+                    && o.OrderDate >= dateFrom && o.OrderDate < dateTo
+                    && o.Status != OrderStatus.Cancelled)
                 .ToListAsync();
 
             var grouped = orders
                 .GroupBy(o => o.OrderDate.Date)
-                .Select(g =>
-                {
-                    var rev = g.Sum(o =>
-                        o.OrderDetails.Where(d => productIds.Contains(d.ProductId))
-                                      .Sum(d => d.UnitPrice * d.Quantity));
-                    var comm = Math.Round(rev * commissionRate, 0);
-                    return new { date = g.Key.ToString("yyyy-MM-dd"), totalOrders = g.Count(), revenue = rev, commission = comm, netRevenue = rev - comm };
+                .Select(g => new {
+                    date        = g.Key.ToString("yyyy-MM-dd"),
+                    totalOrders = g.Count(),
+                    revenue     = g.Sum(o => o.ProductRevenue),
+                    commission  = g.Sum(o => o.CommissionAmount),
+                    netRevenue  = g.Sum(o => o.SellerPayoutAmount)
                 })
                 .ToDictionary(x => x.date);
 
@@ -146,39 +137,41 @@ namespace BaseCore.APIService.Controllers
             var (shop, err) = await GetActiveShopAsync();
             if (err != null) return err;
 
-            var productIds = await _db.Products
-                .Where(p => p.ShopId == shop!.Id)
-                .Select(p => p.Id)
+            var productCount = await _db.Products.CountAsync(p => p.ShopId == shop!.Id);
+
+            var completedOrders = await _db.Orders
+                .Where(o => o.ShopId == shop!.Id && o.Status == OrderStatus.Completed)
                 .ToListAsync();
 
-            var commissionRate = ((shop!.CommissionRate > 0 ? shop.CommissionRate : 10m)) / 100m;
-
-            var completedDetails = await _db.OrderDetails
-                .Include(d => d.Order)
-                .Include(d => d.Product).ThenInclude(p => p!.Category)
-                .Where(d => productIds.Contains(d.ProductId) && d.Order.Status == OrderStatus.Completed)
-                .ToListAsync();
-
-            var totalRevenue    = completedDetails.Sum(d => d.UnitPrice * d.Quantity);
-            var totalCommission = Math.Round(totalRevenue * commissionRate, 0);
-            var orderCount      = completedDetails.Select(d => d.OrderId).Distinct().Count();
+            var totalRevenue    = completedOrders.Sum(o => o.ProductRevenue);
+            var totalCommission = completedOrders.Sum(o => o.CommissionAmount);
+            var totalNet        = completedOrders.Sum(o => o.SellerPayoutAmount);
+            var orderCount      = completedOrders.Count;
             var avgOrderValue   = orderCount > 0 ? Math.Round(totalRevenue / orderCount, 0) : 0m;
 
-            var topCategory = completedDetails
-                .Where(d => d.Product?.Category != null)
+            var wallet = await _db.SellerWallets.FindAsync(shop!.Id);
+
+            var topCategoryData = await _db.OrderDetails
+                .Include(d => d.Product).ThenInclude(p => p!.Category)
+                .Where(d => d.Product!.ShopId == shop.Id
+                    && d.Order.Status == OrderStatus.Completed)
                 .GroupBy(d => d.Product!.Category!.Name)
-                .OrderByDescending(g => g.Sum(d => d.UnitPrice * d.Quantity))
-                .Select(g => g.Key)
-                .FirstOrDefault() ?? "—";
+                .Select(g => new { category = g.Key, rev = g.Sum(d => d.UnitPrice * d.Quantity) })
+                .OrderByDescending(x => x.rev)
+                .FirstOrDefaultAsync();
 
             return Ok(new {
                 totalRevenue,
                 totalOrders     = orderCount,
-                totalProducts   = productIds.Count,
+                totalProducts   = productCount,
                 avgOrderValue,
                 totalCommission,
-                totalNetRevenue = totalRevenue - totalCommission,
-                topCategory
+                totalNetRevenue = totalNet,
+                topCategory     = topCategoryData?.category ?? "—",
+                walletBalance   = wallet?.Balance ?? 0m,
+                walletPending   = await _db.Orders
+                    .Where(o => o.ShopId == shop.Id && o.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                    .SumAsync(o => o.SellerPayoutAmount)
             });
         }
     }

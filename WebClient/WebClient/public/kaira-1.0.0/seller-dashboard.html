@@ -39,6 +39,7 @@
     <a class="sd-nav-item" data-page="reviews"><i class="bi bi-star-half"></i> Đánh Giá</a>
     <a class="sd-nav-item" data-page="qna"><i class="bi bi-chat-dots"></i> Hỏi Đáp</a>
     <a class="sd-nav-item" data-page="stats"><i class="bi bi-bar-chart-line"></i> Thống Kê</a>
+    <a class="sd-nav-item" data-page="wallet"><i class="bi bi-wallet2"></i> Ví & Thanh Toán</a>
     <div class="sd-nav-sep"></div>
     <a class="sd-nav-item" href="index.html"><i class="bi bi-house"></i> Trang Chủ</a>
     <a class="sd-nav-item" href="#" onclick="event.preventDefault();Auth.logout()"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</a>
@@ -347,6 +348,64 @@
           <thead><tr><th>Ngày</th><th>Số Đơn</th><th>Doanh Thu</th><th>Hoa Hồng</th><th>Thực Nhận</th></tr></thead>
           <tbody id="statsTable"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ WALLET ═══════════════════════════ -->
+    <section class="sd-section" id="page-wallet">
+      <!-- Wallet cards -->
+      <div class="row g-3 mb-4" id="walletCards">
+        <div class="col-6 col-lg-3">
+          <div class="stat-card wallet-card">
+            <div class="label"><i class="bi bi-wallet2 me-1" style="color:var(--pink)"></i>Số Dư Ví</div>
+            <div class="value" id="w-balance"><div class="skeleton-line"></div></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card wallet-card">
+            <div class="label"><i class="bi bi-clock-history me-1" style="color:#f59e0b"></i>Chờ Giải Ngân</div>
+            <div class="value" id="w-pending" style="color:#f59e0b"><div class="skeleton-line"></div></div>
+            <div class="stat-sub" id="w-pending-count"></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card wallet-card">
+            <div class="label"><i class="bi bi-graph-up-arrow me-1" style="color:#20c997"></i>Tổng Đã Nhận</div>
+            <div class="value" id="w-earned" style="color:#20c997"><div class="skeleton-line"></div></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card wallet-card">
+            <div class="label"><i class="bi bi-arrow-return-left me-1" style="color:#ef4444"></i>Đã Hoàn Trả</div>
+            <div class="value" id="w-refunded" style="color:#ef4444"><div class="skeleton-line"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payout info box -->
+      <div class="info-box mb-4">
+        <i class="bi bi-info-circle-fill" style="color:var(--pink);font-size:18px;flex-shrink:0"></i>
+        <div style="font-size:13px;line-height:1.6">
+          <strong>Cơ chế giải ngân:</strong> Sau khi khách xác nhận nhận hàng, đơn chuyển sang <span class="badge-payout waiting">CHỜ GIẢI NGÂN</span>.
+          Admin sẽ duyệt theo đợt, tiền sẽ được cộng vào ví <span class="badge-payout released">ĐÃ GIẢI NGÂN</span>.
+          Nếu có tranh chấp thắng kiện, khoản hoàn trả sẽ bị trừ khỏi ví.
+        </div>
+      </div>
+
+      <!-- Transaction history -->
+      <div class="sd-card">
+        <div class="sd-card-header" style="justify-content:space-between">
+          <span class="sd-card-title">Lịch Sử Giao Dịch</span>
+          <select id="walletTxFilter" class="form-control" style="width:160px;font-size:13px" onchange="loadWalletTx(1)">
+            <option value="">Tất cả</option>
+            <option value="EARNING">Nhận tiền</option>
+            <option value="REFUND">Hoàn trả</option>
+            <option value="WITHDRAWAL">Rút tiền</option>
+            <option value="ADJUSTMENT">Điều chỉnh</option>
+          </select>
+        </div>
+        <div id="walletTxList"><div class="skeleton-list"></div></div>
+        <div id="walletTxPager" class="pager-wrap mt-3"></div>
       </div>
     </section>
 
@@ -747,7 +806,7 @@ function applyShopInfo(shop) {
 const pageTitles = {
   overview:'Tổng Quan', products:'Sản Phẩm', orders:'Đơn Hàng',
   shop:'Thông Tin Shop', vouchers:'Voucher',
-  reviews:'Đánh Giá', qna:'Hỏi Đáp', stats:'Thống Kê'
+  reviews:'Đánh Giá', qna:'Hỏi Đáp', stats:'Thống Kê', wallet:'Ví & Thanh Toán'
 };
 function switchPage(page) {
   document.querySelectorAll('.sd-section').forEach(s => s.classList.remove('active'));
@@ -763,6 +822,7 @@ function switchPage(page) {
   if (page === 'shop')     loadShopStats();
   if (page === 'reviews')  { loadReviewStats(); loadReviews(); }
   if (page === 'qna')      { loadQnAStats();    loadQnA(); }
+  if (page === 'wallet')   { loadWalletInfo(); loadWalletTx(1); }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1363,64 +1423,84 @@ async function loadStats() {
   const to   = document.getElementById('statsTo').value;
   if (!from || !to) { showToast('Vui lòng chọn khoảng thời gian', 'error'); return; }
 
-  try {
-    const res = await SellerShop.getStats(from, to);
-    document.getElementById('stats-orders').textContent    = res.totalOrders;
-    document.getElementById('stats-revenue').textContent   = fmtMoney(res.totalRevenue);
-    document.getElementById('stats-commission').textContent= fmtMoney(res.totalCommission);
-    document.getElementById('stats-net').textContent       = fmtMoney(res.totalNet);
+  // Skeleton
+  ['stats-orders','stats-revenue','stats-commission','stats-net'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="skeleton-line" style="width:80px;height:24px;margin:0 auto"></div>';
+  });
 
-    // Line chart
-    const chart = res.chart || [];
-    const labels = chart.map(x => x.date.slice(5));
-    const revenues = chart.map(x => x.revenue);
+  try {
+    // Load revenue timeline + summary in parallel
+    const [chart, summary] = await Promise.all([
+      SellerReport.getRevenue(from, to),
+      SellerReport.getSummary()
+    ]);
+
+    const rows = Array.isArray(chart) ? chart : [];
+    const totalOrders     = rows.reduce((s, x) => s + (x.totalOrders || 0), 0);
+    const totalRevenue    = rows.reduce((s, x) => s + (x.revenue || 0), 0);
+    const totalCommission = rows.reduce((s, x) => s + (x.commission || 0), 0);
+    const totalNet        = rows.reduce((s, x) => s + (x.netRevenue || 0), 0);
+
+    document.getElementById('stats-orders').textContent     = totalOrders;
+    document.getElementById('stats-revenue').textContent    = fmtMoney(totalRevenue);
+    document.getElementById('stats-commission').textContent = fmtMoney(totalCommission);
+    document.getElementById('stats-net').textContent        = fmtMoney(totalNet);
+
+    // Line chart: doanh thu theo ngày
+    const labels   = rows.map(x => x.date.slice(5));
+    const revenues = rows.map(x => x.revenue || 0);
+    const nets     = rows.map(x => x.netRevenue || 0);
     const ctx = document.getElementById('statsLineChart').getContext('2d');
     if (_charts.statsLine) _charts.statsLine.destroy();
     _charts.statsLine = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: 'Doanh thu', data: revenues, borderColor:'#f759ab',
-          backgroundColor:'rgba(247,89,171,.08)', tension:.4, fill:true, pointRadius:2
-        }]
+        datasets: [
+          { label:'Doanh Thu', data: revenues, borderColor:'#f759ab', backgroundColor:'rgba(247,89,171,.08)', tension:.4, fill:true, pointRadius:2 },
+          { label:'Thực Nhận', data: nets, borderColor:'#20c997', backgroundColor:'rgba(32,201,151,.05)', tension:.4, fill:false, pointRadius:2, borderDash:[4,4] }
+        ]
       },
       options: {
-        plugins: { legend: { display:false } },
+        plugins: { legend: { display:true, position:'top', labels:{ font:{size:11} } } },
         scales: { y: { ticks: { callback: v => new Intl.NumberFormat('vi-VN',{notation:'compact'}).format(v) } } }
       }
     });
 
     // Stats table
     const tbody = document.getElementById('statsTable');
-    tbody.innerHTML = chart.map(x => `
+    tbody.innerHTML = rows.map(x => `
       <tr>
         <td>${x.date}</td>
-        <td>${x.orderCount}</td>
-        <td>${fmtMoney(x.revenue)}</td>
-        <td style="color:#ef4444">${fmtMoney(x.commission)}</td>
-        <td style="color:#0f5132;font-weight:600">${fmtMoney(x.net)}</td>
-      </tr>`).join('') || '<tr><td colspan="5" class="empty-state">Không có dữ liệu</td></tr>';
+        <td>${x.totalOrders || 0}</td>
+        <td>${fmtMoney(x.revenue || 0)}</td>
+        <td style="color:#ef4444">${fmtMoney(x.commission || 0)}</td>
+        <td style="color:#0f5132;font-weight:600">${fmtMoney(x.netRevenue || 0)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:24px;color:#aaa">Không có dữ liệu</td></tr>';
 
-    // Top products bar + pie charts from report API
+    // Top products bar + category pie charts
     try {
       const topItems = await SellerReport.getTopProducts(5, from, to);
 
-      // Bar chart: top 5 bán chạy
       const bCtx = document.getElementById('statsBarChart').getContext('2d');
       if (_charts.statsBar) _charts.statsBar.destroy();
-      _charts.statsBar = new Chart(bCtx, {
-        type: 'bar',
-        data: {
-          labels: topItems.map(p => (p.name||'').slice(0,20)),
-          datasets: [{ label:'Đã bán', data: topItems.map(p => p.soldCount||0), backgroundColor:'#f759ab' }]
-        },
-        options: { indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{ stepSize:1 } } } }
-      });
+      if (topItems && topItems.length) {
+        _charts.statsBar = new Chart(bCtx, {
+          type: 'bar',
+          data: {
+            labels: topItems.map(p => (p.name||'').slice(0,20)),
+            datasets: [{ label:'Đã bán', data: topItems.map(p => p.soldCount||0), backgroundColor:'#f759ab' }]
+          },
+          options: { indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{ stepSize:1 } } } }
+        });
+      } else {
+        bCtx.canvas.parentElement.innerHTML = '<div style="text-align:center;color:#aaa;padding:32px;font-size:13px">Chưa có dữ liệu</div>';
+      }
 
-      // Pie chart: doanh thu theo danh mục
-      const allTop = await SellerReport.getTopProducts(50, from, to);
-      const catMap = {};
+      // Pie: doanh thu theo danh mục
+      const allTop  = await SellerReport.getTopProducts(50, from, to);
+      const catMap  = {};
       (allTop||[]).forEach(p => { const c=p.category||'Khác'; catMap[c]=(catMap[c]||0)+(p.revenue||0); });
       const catLabels = Object.keys(catMap);
       const catData   = catLabels.map(k => catMap[k]);
@@ -1435,6 +1515,8 @@ async function loadStats() {
           },
           options: { plugins:{ legend:{ position:'bottom', labels:{ font:{size:10} } } }, cutout:'55%' }
         });
+      } else {
+        pCtx.canvas.parentElement.innerHTML = '<div style="text-align:center;color:#aaa;padding:32px;font-size:13px">Chưa có dữ liệu</div>';
       }
     } catch(_) {}
 
@@ -1712,6 +1794,64 @@ async function submitAnswer(questionId) {
     loadQnA();
     loadQnAStats();
   } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WALLET
+// ═══════════════════════════════════════════════════════════
+async function loadWalletInfo() {
+  ['w-balance','w-pending','w-earned','w-refunded'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="skeleton-line" style="width:80px;height:24px;margin:0 auto"></div>';
+  });
+  try {
+    const w = await SellerWallet.getWallet();
+    document.getElementById('w-balance').textContent  = fmtMoney(w.balance ?? w.Balance ?? 0);
+    document.getElementById('w-pending').textContent  = fmtMoney(w.pendingPayout ?? w.PendingPayout ?? 0);
+    document.getElementById('w-earned').textContent   = fmtMoney(w.totalEarned ?? w.TotalEarned ?? 0);
+    document.getElementById('w-refunded').textContent = fmtMoney(w.totalRefunded ?? w.TotalRefunded ?? 0);
+    const cnt = w.waitingCount ?? w.WaitingCount ?? 0;
+    const el = document.getElementById('w-pending-count');
+    if (el) el.textContent = cnt > 0 ? `${cnt} đơn đang chờ` : '';
+  } catch(e) {
+    ['w-balance','w-pending','w-earned','w-refunded'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '—';
+    });
+  }
+}
+
+async function loadWalletTx(page = 1) {
+  const el = document.getElementById('walletTxList');
+  el.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+  const type = document.getElementById('walletTxFilter')?.value || '';
+  try {
+    const res = await SellerWallet.getTransactions(type, page, 15);
+    const items = res.items || [];
+    if (!items.length) {
+      el.innerHTML = '<div class="empty-state" style="padding:32px">Chưa có giao dịch nào</div>';
+      document.getElementById('walletTxPager').innerHTML = '';
+      return;
+    }
+    el.innerHTML = items.map(t => {
+      const typeLabel = { EARNING:'Nhận tiền', REFUND:'Hoàn trả', WITHDRAWAL:'Rút tiền', ADJUSTMENT:'Điều chỉnh' }[t.Type || t.type] || (t.Type || t.type);
+      const typeClass = { EARNING:'tx-earn', REFUND:'tx-refund', WITHDRAWAL:'tx-withdraw', ADJUSTMENT:'tx-adjust' }[t.Type || t.type] || '';
+      const amount = t.Amount ?? t.amount ?? 0;
+      const sign   = (t.Type || t.type) === 'EARNING' ? '+' : '-';
+      const color  = (t.Type || t.type) === 'EARNING' ? 'var(--pink)' : '#ef4444';
+      return `<div class="tx-row">
+        <div class="tx-icon ${typeClass}"><i class="bi ${(t.Type||t.type)==='EARNING'?'bi-arrow-down-circle':'bi-arrow-up-circle'}"></i></div>
+        <div class="tx-info">
+          <div class="tx-label">${typeLabel}${t.OrderId||t.orderId ? ` — Đơn #${t.OrderId||t.orderId}` : ''}</div>
+          <div class="tx-note">${t.Note || t.note || ''}</div>
+          <div class="tx-date">${fmtDate(t.CreatedAt || t.createdAt)}</div>
+        </div>
+        <div class="tx-amount" style="color:${color}">${sign}${fmtMoney(amount)}</div>
+      </div>`;
+    }).join('');
+    renderPager('walletTxPager', res.page || page, res.totalPages || 1, p => loadWalletTx(p));
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state" style="padding:32px">Lỗi: ${e.message}</div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
