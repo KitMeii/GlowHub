@@ -1,40 +1,41 @@
 -- ============================================================
+-- 29/05/2026
 -- Script Sprint 6: Customer - Đặt Hàng Nâng Cao + Theo Dõi
 -- Chạy nhiều lần không lỗi (IF NOT EXISTS / IF COL_LENGTH)
 -- ============================================================
+
+USE BaseCoreDB
+GO
 
 -- ─────────────────────────────────────────────────────────────
 -- 1. Orders — thêm cột mới (Sprint 6)
 -- ─────────────────────────────────────────────────────────────
 
-IF COL_LENGTH('dbo.Orders', 'ShippingFee') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [ShippingFee] DECIMAL(18,2) NOT NULL DEFAULT 30000;
-
-IF COL_LENGTH('dbo.Orders', 'Discount') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [Discount] DECIMAL(18,2) NOT NULL DEFAULT 0;
-
-IF COL_LENGTH('dbo.Orders', 'FinalAmount') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [FinalAmount] DECIMAL(18,2) NOT NULL DEFAULT 0;
-
-IF COL_LENGTH('dbo.Orders', 'PaymentMethod') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [PaymentMethod] INT NOT NULL DEFAULT 0;
-    -- 0=COD, 1=Bank, 2=MoMo, 3=ZaloPay
-
-IF COL_LENGTH('dbo.Orders', 'PaymentStatus') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [PaymentStatus] INT NOT NULL DEFAULT 0;
-    -- 0=Unpaid, 1=Paid, 2=Refunded
-
-IF COL_LENGTH('dbo.Orders', 'OrderCode') IS NULL
+-- Thêm các cột mới vào Orders
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'OrderCode' AND Object_ID = OBJECT_ID('Orders'))
     ALTER TABLE [dbo].[Orders] ADD [OrderCode] NVARCHAR(20) NULL;
 
-IF COL_LENGTH('dbo.Orders', 'ReceiverName') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [ReceiverName] NVARCHAR(100) NULL;
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'FinalAmount' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [FinalAmount] DECIMAL(18,2) NULL;
 
-IF COL_LENGTH('dbo.Orders', 'ReceiverPhone') IS NULL
-    ALTER TABLE [dbo].[Orders] ADD [ReceiverPhone] NVARCHAR(20) NULL;
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'ShippingFee' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [ShippingFee] DECIMAL(18,2) DEFAULT 30000;
 
-IF COL_LENGTH('dbo.Orders', 'EstimatedDelivery') IS NULL
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'PaymentMethod' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [PaymentMethod] INT DEFAULT 0;
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'PaymentStatus' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [PaymentStatus] INT DEFAULT 0;
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'EstimatedDelivery' AND Object_ID = OBJECT_ID('Orders'))
     ALTER TABLE [dbo].[Orders] ADD [EstimatedDelivery] DATETIME2 NULL;
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'CancelReason' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [CancelReason] NVARCHAR(500) NULL;
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'TrackingCode' AND Object_ID = OBJECT_ID('Orders'))
+    ALTER TABLE [dbo].[Orders] ADD [TrackingCode] NVARCHAR(100) NULL;
+GO
 
 -- ─────────────────────────────────────────────────────────────
 -- 2. OrderStatusHistories — bảng lịch sử trạng thái đơn hàng
@@ -79,17 +80,20 @@ END
 -- ─────────────────────────────────────────────────────────────
 
 UPDATE [dbo].[Orders]
-SET [FinalAmount] = [TotalAmount] + [ShippingFee] - [Discount]
-WHERE [FinalAmount] = 0 AND [TotalAmount] > 0;
+SET [FinalAmount] = [TotalAmount] + ISNULL([ShippingFee], 30000)
+WHERE [FinalAmount] IS NULL OR [FinalAmount] = 0;
 
 -- ─────────────────────────────────────────────────────────────
 -- 5. Tạo OrderCode cho đơn cũ chưa có
 -- ─────────────────────────────────────────────────────────────
 
+-- Backfill OrderCode
 UPDATE [dbo].[Orders]
-SET [OrderCode] = 'ORD-' + RIGHT('000000' + CAST([Id] AS NVARCHAR), 6)
+SET [OrderCode] = 'ORD-' + RIGHT('000000' + CAST([Id] AS VARCHAR), 6)
 WHERE [OrderCode] IS NULL;
 
+PRINT 'Backfill completed!';
+GO
 -- ─────────────────────────────────────────────────────────────
 -- 6. Seed dữ liệu mẫu Voucher nếu chưa có
 -- ─────────────────────────────────────────────────────────────
@@ -107,3 +111,56 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Vouchers] WHERE [Code] = 'GLOW50K')
     VALUES ('GLOW50K', N'Giảm 50.000đ đơn từ 500.000đ', 'fixed', 50000, 500000, NULL, 50, 0, 1, GETUTCDATE());
 
 PRINT 'Sprint 6 migration completed successfully!';
+
+SELECT TOP 5 Id, UserId, OrderCode, Status, TotalAmount 
+FROM [dbo].[Orders]
+ORDER BY Id DESC
+
+SELECT Id, UserName, UserType 
+FROM [dbo].[Users]
+WHERE Id = '3B8804A2-D9E0-4420-B0BC-5DEE8F0056D8'
+
+
+UPDATE [dbo].[Users]
+SET   Password = '+FdPdpNQPt+S79WIe69RCOtV3djP3rgqgbD3w9BpqIU=',
+      Salt     = 0x926468AE0B5CAB9A331C28DB6B7FBEF6
+WHERE UserName = 'lan.nguyen';
+
+--29/5/2026
+-- Xóa default constraint của PaymentStatus
+DECLARE @constraint NVARCHAR(200)
+SELECT @constraint = name 
+FROM sys.default_constraints 
+WHERE parent_object_id = OBJECT_ID('Orders')
+AND col_name(parent_object_id, parent_column_id) = 'PaymentStatus'
+
+IF @constraint IS NOT NULL
+  EXEC('ALTER TABLE [dbo].[Orders] DROP CONSTRAINT ' + @constraint)
+
+-- Xóa default constraint của PaymentMethod  
+DECLARE @constraint2 NVARCHAR(200)
+SELECT @constraint2 = name 
+FROM sys.default_constraints 
+WHERE parent_object_id = OBJECT_ID('Orders')
+AND col_name(parent_object_id, parent_column_id) = 'PaymentMethod'
+
+IF @constraint2 IS NOT NULL
+  EXEC('ALTER TABLE [dbo].[Orders] DROP CONSTRAINT ' + @constraint2)
+GO
+
+-- Giờ mới đổi kiểu cột
+ALTER TABLE [dbo].[Orders] 
+ALTER COLUMN [PaymentMethod] NVARCHAR(20) NULL;
+
+ALTER TABLE [dbo].[Orders] 
+ALTER COLUMN [PaymentStatus] NVARCHAR(20) NULL;
+GO
+
+-- Update data
+UPDATE [dbo].[Orders]
+SET PaymentMethod = 'COD', PaymentStatus = 'UNPAID'
+WHERE PaymentMethod IS NULL OR PaymentStatus IS NULL;
+
+SELECT Id, OrderCode, PaymentMethod, PaymentStatus 
+FROM [dbo].[Orders]
+GO

@@ -21,18 +21,20 @@ namespace BaseCore.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal ShippingFee { get; set; } = 30000m;
 
-        [Column(TypeName = "decimal(18,2)")]
+        [NotMapped]
         public decimal Discount { get; set; } = 0m;
 
         /// <summary>TotalAmount + ShippingFee - Discount</summary>
         [Column(TypeName = "decimal(18,2)")]
         public decimal FinalAmount { get; set; } = 0m;
 
-        /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
-        public int PaymentMethod { get; set; } = 0;
+        /// <summary>COD | BANK | MOMO | ZALOPAY</summary>
+        [MaxLength(20)]
+        public string PaymentMethod { get; set; } = "COD";
 
-        /// <summary>0=Unpaid, 1=Paid, 2=Refunded</summary>
-        public int PaymentStatus { get; set; } = 0;
+        /// <summary>UNPAID | PAID | REFUNDED</summary>
+        [MaxLength(20)]
+        public string PaymentStatus { get; set; } = "UNPAID";
 
         [MaxLength(20)]
         public string? OrderCode { get; set; }
@@ -72,11 +74,16 @@ namespace BaseCore.Entities
         public const string Cancelled = "CANCELLED";
     }
 
-    /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
-    public static class PaymentMethod {
-        public const int COD     = 0;
-        public const int Bank    = 1;
-        public const int MoMo    = 2;
-        public const int ZaloPay = 3;
+    public static class PaymentMethodValue {
+        public const string COD     = "COD";
+        public const string Bank    = "BANK";
+        public const string MoMo    = "MOMO";
+        public const string ZaloPay = "ZALOPAY";
+    }
+
+    public static class PaymentStatusValue {
+        public const string Unpaid   = "UNPAID";
+        public const string Paid     = "PAID";
+        public const string Refunded = "REFUNDED";
     }
 }

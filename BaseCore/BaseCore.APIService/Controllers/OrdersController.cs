@@ -73,8 +73,8 @@ namespace BaseCore.APIService.Controllers
                     status           = o.Status,
                     totalAmount      = o.TotalAmount,
                     shippingFee      = o.ShippingFee,
-                    discount         = o.Discount,
-                    finalAmount      = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount + o.ShippingFee - o.Discount,
+                    discount         = 0m,
+                    finalAmount      = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount + o.ShippingFee,
                     createdAt        = DateTime.SpecifyKind(o.OrderDate, DateTimeKind.Utc),
                     updatedAt        = o.UpdatedAt != null ? (DateTime?)DateTime.SpecifyKind(o.UpdatedAt.Value, DateTimeKind.Utc) : null,
                     shippingAddress  = o.ShippingAddress,
@@ -129,8 +129,8 @@ namespace BaseCore.APIService.Controllers
                 status           = order.Status,
                 totalAmount      = order.TotalAmount,
                 shippingFee      = order.ShippingFee,
-                discount         = order.Discount,
-                finalAmount      = order.FinalAmount > 0 ? order.FinalAmount : order.TotalAmount + order.ShippingFee - order.Discount,
+                discount         = 0m,
+                finalAmount      = order.FinalAmount > 0 ? order.FinalAmount : order.TotalAmount + order.ShippingFee,
                 createdAt        = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc),
                 updatedAt        = order.UpdatedAt != null ? (DateTime?)DateTime.SpecifyKind(order.UpdatedAt.Value, DateTimeKind.Utc) : null,
                 shippingAddress  = order.ShippingAddress,
@@ -251,73 +251,84 @@ namespace BaseCore.APIService.Controllers
         [HttpGet("my/{orderId:int}/track")]
         public async Task<IActionResult> GetTrackingTimeline(int orderId)
         {
-            var userId = GetUserId();
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-            var order = await _db.Orders
-                .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
-                .Include(o => o.StatusHistory.OrderBy(h => h.ChangedAt))
-                .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
-
-            if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
-
-            var steps = new[] {
-                OrderStatus.Pending, OrderStatus.Confirmed,
-                OrderStatus.Shipping, OrderStatus.Delivered
-            };
-
-            var statusOrder = new[] {
-                OrderStatus.Pending, OrderStatus.Confirmed,
-                OrderStatus.Shipping, OrderStatus.Delivered, OrderStatus.Completed
-            };
-
-            var currentIdx = Array.IndexOf(statusOrder, order.Status);
-            if (order.Status == OrderStatus.Cancelled) currentIdx = -1;
-
-            var timeline = new object[4];
-            var stepLabels = new[] { "Đặt hàng thành công", "Shop xác nhận", "Đang giao hàng", "Đã nhận hàng" };
-            var stepDescs  = new[] {
-                "Đơn hàng đã được đặt thành công",
-                "Shop đã xác nhận và chuẩn bị hàng",
-                "Đơn hàng đang trên đường giao đến bạn",
-                "Đơn hàng đã được giao thành công"
-            };
-
-            for (int i = 0; i < 4; i++)
+            try
             {
-                var history = order.StatusHistory.FirstOrDefault(h => h.Status == steps[i]);
-                var isCompleted = currentIdx >= i && currentIdx >= 0;
-                var isCurrent   = currentIdx == i;
-                timeline[i] = new {
-                    step        = i + 1,
-                    status      = steps[i],
-                    label       = stepLabels[i],
-                    description = stepDescs[i],
-                    isCompleted,
-                    isCurrent,
-                    timestamp   = history != null
-                        ? (DateTime?)DateTime.SpecifyKind(history.ChangedAt, DateTimeKind.Utc)
-                        : (i == 0 ? (DateTime?)DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc) : null)
-                };
-            }
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            return Ok(new {
-                orderId          = order.Id,
-                orderCode        = order.OrderCode ?? ("ORD-" + order.Id.ToString("D6")),
-                currentStatus    = order.Status,
-                isCancelled      = order.Status == OrderStatus.Cancelled,
-                cancelReason     = order.CancelReason,
-                trackingCode     = order.TrackingCode,
-                estimatedDelivery = order.EstimatedDelivery != null
-                    ? (DateTime?)DateTime.SpecifyKind(order.EstimatedDelivery.Value, DateTimeKind.Utc) : null,
-                timeline,
-                items = order.OrderDetails.Select(od => new {
-                    productName = od.Product?.Name ?? "",
-                    imageUrl    = od.Product?.ImageUrl ?? "",
-                    qty         = od.Quantity,
-                    unitPrice   = od.UnitPrice
-                })
-            });
+                var order = await _db.Orders
+                    .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                    .Include(o => o.StatusHistory)
+                    .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+                if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+                var steps = new[] {
+                    OrderStatus.Pending, OrderStatus.Confirmed,
+                    OrderStatus.Shipping, OrderStatus.Delivered
+                };
+
+                var statusOrder = new[] {
+                    OrderStatus.Pending, OrderStatus.Confirmed,
+                    OrderStatus.Shipping, OrderStatus.Delivered, OrderStatus.Completed
+                };
+
+                var currentIdx = Array.IndexOf(statusOrder, order.Status);
+                if (order.Status == OrderStatus.Cancelled) currentIdx = -1;
+
+                var timeline = new object[4];
+                var stepLabels = new[] { "Đặt hàng thành công", "Shop xác nhận", "Đang giao hàng", "Đã nhận hàng" };
+                var stepDescs  = new[] {
+                    "Đơn hàng đã được đặt thành công",
+                    "Shop đã xác nhận và chuẩn bị hàng",
+                    "Đơn hàng đang trên đường giao đến bạn",
+                    "Đơn hàng đã được giao thành công"
+                };
+
+                for (int i = 0; i < 4; i++)
+                {
+                    var history = order.StatusHistory.FirstOrDefault(h => h.Status == steps[i]);
+                    var isCompleted = currentIdx >= i && currentIdx >= 0;
+                    var isCurrent   = currentIdx == i;
+                    timeline[i] = new {
+                        step        = i + 1,
+                        status      = steps[i],
+                        label       = stepLabels[i],
+                        description = stepDescs[i],
+                        isCompleted,
+                        isCurrent,
+                        timestamp   = history != null
+                            ? (DateTime?)DateTime.SpecifyKind(history.ChangedAt, DateTimeKind.Utc)
+                            : (i == 0 ? (DateTime?)DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc) : null)
+                    };
+                }
+
+                return Ok(new {
+                    orderId          = order.Id,
+                    orderCode        = order.OrderCode ?? ("ORD-" + order.Id.ToString("D6")),
+                    currentStatus    = order.Status,
+                    isCancelled      = order.Status == OrderStatus.Cancelled,
+                    cancelReason     = order.CancelReason,
+                    trackingCode     = order.TrackingCode,
+                    estimatedDelivery = order.EstimatedDelivery != null
+                        ? (DateTime?)DateTime.SpecifyKind(order.EstimatedDelivery.Value, DateTimeKind.Utc) : null,
+                    timeline,
+                    items = order.OrderDetails.Select(od => new {
+                        productName = od.Product?.Name ?? "",
+                        imageUrl    = od.Product?.ImageUrl ?? "",
+                        qty         = od.Quantity,
+                        unitPrice   = od.UnitPrice
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new {
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message,
+                    stack = ex.StackTrace
+                });
+            }
         }
 
         // ─────────────────────────────────────────────────────────
@@ -443,8 +454,13 @@ namespace BaseCore.APIService.Controllers
                     Discount        = discount,
                     FinalAmount     = finalAmount,
                     Status          = OrderStatus.Pending,
-                    PaymentMethod   = dto.PaymentMethod,
-                    PaymentStatus   = 0,
+                    PaymentMethod   = dto.PaymentMethod switch {
+                        1 => "BANK",
+                        2 => "MOMO",
+                        3 => "ZALOPAY",
+                        _ => "COD"
+                    },
+                    PaymentStatus   = "UNPAID",
                     ShippingAddress = dto.ShippingAddress,
                     ReceiverName    = dto.ReceiverName ?? "",
                     ReceiverPhone   = dto.ReceiverPhone ?? "",

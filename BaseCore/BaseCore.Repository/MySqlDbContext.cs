@@ -98,7 +98,6 @@ namespace BaseCore.Repository
                 entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
                 entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
                 entity.Property(e => e.ShippingFee).HasPrecision(18, 2);
-                entity.Property(e => e.Discount).HasPrecision(18, 2);
                 entity.Property(e => e.FinalAmount).HasPrecision(18, 2);
                 entity.Property(e => e.ShippingAddress).HasMaxLength(500);
                 entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
@@ -106,6 +105,9 @@ namespace BaseCore.Repository
                 entity.Property(e => e.OrderCode).HasMaxLength(20);
                 entity.Property(e => e.ReceiverName).HasMaxLength(100);
                 entity.Property(e => e.ReceiverPhone).HasMaxLength(20);
+
+                entity.Property(e => e.PaymentMethod).HasMaxLength(20);
+                entity.Property(e => e.PaymentStatus).HasMaxLength(20);
 
                 entity.HasOne(e => e.User)
                     .WithMany()

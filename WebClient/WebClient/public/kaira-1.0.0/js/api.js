@@ -1173,9 +1173,9 @@ var Featured = {
 };
 
 // ============================================================
-//  ADDRESS MODULE — kết nối /api/UserAddresses
+//  USER ADDRESS MODULE — kết nối /api/UserAddresses (alias cũ)
 // ============================================================
-var Address = {
+var UserAddress = {
   // Lấy tất cả địa chỉ của user
   getAll: function () {
     return apiFetch(PRODUCT_API, "/api/UserAddresses", "GET");
@@ -1203,9 +1203,9 @@ var Address = {
 };
 
 // ============================================================
-//  VOUCHER MODULE
+//  VOUCHER LEGACY (alias cũ — dùng VoucherLegacy để tránh trùng const Voucher)
 // ============================================================
-var Voucher = {
+var VoucherLegacy = {
   validate: function (code, orderAmount) {
     return apiFetch(PRODUCT_API, "/api/Vouchers/validate", "POST", {
       code: code,

@@ -233,7 +233,7 @@
     const fmtDate = iso => iso ? new Date(iso).toLocaleDateString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric" }) : "—";
     const fmtDateTime = iso => iso ? new Date(iso).toLocaleString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }) : null;
 
-    const PAYMENT_LABEL = { 0: "Tiền mặt (COD)", 1: "Chuyển khoản", 2: "MoMo", 3: "ZaloPay" };
+    const PAYMENT_LABEL = { "COD": "Thanh toán khi nhận hàng", "BANK": "Chuyển khoản ngân hàng", "MOMO": "Ví MoMo", "ZALOPAY": "ZaloPay" };
 
     const STATUS_META = {
       PENDING:   { label: "Chờ Xác Nhận", cls: "badge-pending"   },
