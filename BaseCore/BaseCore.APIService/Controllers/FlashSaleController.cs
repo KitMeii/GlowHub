@@ -169,19 +169,91 @@ namespace BaseCore.APIService.Controllers
 
                     _db.FlashSaleProducts.Add(new FlashSaleProduct
                     {
-                        FlashSaleId = sale.Id,
-                        ProductId = p.ProductId,
-                        SalePrice = p.SalePrice,
+                        FlashSaleId   = sale.Id,
+                        ProductId     = p.ProductId,
+                        SalePrice     = p.SalePrice,
                         OriginalPrice = product.Price,
-                        Quantity = p.Quantity,
-                        SoldCount = 0,
-                        IsActive = true
+                        Quantity      = p.Quantity,
+                        SoldCount     = 0,
+                        IsActive      = true
                     });
                 }
                 await _db.SaveChangesAsync();
             }
 
             return CreatedAtAction(nameof(GetById), new { id = sale.Id }, new { id = sale.Id });
+        }
+
+        /// <summary>GET /api/admin/flashsales — Danh sách tất cả flash sale (Admin)</summary>
+        [HttpGet("admin/list")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminList([FromQuery] int page = 1, [FromQuery] int limit = 20)
+        {
+            var now = DateTime.UtcNow;
+            var total = await _db.FlashSales.CountAsync();
+            var sales = await _db.FlashSales
+                .OrderByDescending(fs => fs.StartTime)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
+
+            var result = new List<object>();
+            foreach (var fs in sales)
+            {
+                var productCount = await _db.FlashSaleProducts.CountAsync(p => p.FlashSaleId == fs.Id);
+                var soldCount    = await _db.FlashSaleProducts.Where(p => p.FlashSaleId == fs.Id).SumAsync(p => p.SoldCount);
+                string saleState = fs.StartTime > now ? "upcoming" : (fs.EndTime > now && fs.IsActive ? "active" : "ended");
+
+                result.Add(new {
+                    fs.Id, fs.Name, fs.StartTime, fs.EndTime, fs.IsActive,
+                    productCount, soldCount, state = saleState
+                });
+            }
+
+            return Ok(new { items = result, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
+        }
+
+        /// <summary>PUT /api/flashsale/{id} — Cập nhật flash sale (Admin)</summary>
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateFlashSaleDto dto)
+        {
+            var sale = await _db.FlashSales.FindAsync(id);
+            if (sale == null) return NotFound(new { message = "Không tìm thấy flash sale" });
+
+            if (!string.IsNullOrWhiteSpace(dto.Name)) sale.Name = dto.Name;
+            if (dto.StartTime.HasValue) sale.StartTime = dto.StartTime.Value;
+            if (dto.EndTime.HasValue) sale.EndTime = dto.EndTime.Value;
+            if (dto.IsActive.HasValue) sale.IsActive = dto.IsActive.Value;
+
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã cập nhật flash sale" });
+        }
+
+        /// <summary>DELETE /api/flashsale/{id} — Xóa flash sale (Admin)</summary>
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var sale = await _db.FlashSales.FindAsync(id);
+            if (sale == null) return NotFound(new { message = "Không tìm thấy flash sale" });
+
+            _db.FlashSales.Remove(sale);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xóa flash sale" });
+        }
+
+        /// <summary>PUT /api/flashsale/{id}/toggle — Bật/tắt flash sale (Admin)</summary>
+        [HttpPut("{id:int}/toggle")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Toggle(int id)
+        {
+            var sale = await _db.FlashSales.FindAsync(id);
+            if (sale == null) return NotFound(new { message = "Không tìm thấy flash sale" });
+
+            sale.IsActive = !sale.IsActive;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = sale.IsActive ? "Đã bật flash sale" : "Đã tắt flash sale", isActive = sale.IsActive });
         }
     }
 
@@ -198,5 +270,13 @@ namespace BaseCore.APIService.Controllers
         public int ProductId { get; set; }
         public decimal SalePrice { get; set; }
         public int Quantity { get; set; }
+    }
+
+    public class UpdateFlashSaleDto
+    {
+        public string? Name { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

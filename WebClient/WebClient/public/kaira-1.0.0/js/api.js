@@ -1276,6 +1276,146 @@ const Wishlist = {
 };
 
 // ============================================================
+//  ADMIN MODULE — Dành riêng cho Admin Dashboard (Sprint 8)
+// ============================================================
+const Admin = {
+  // ── Dashboard ──
+  getDashboard() {
+    return apiFetch(PRODUCT_API, "/api/admin/dashboard", "GET");
+  },
+  getRevenueStats(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/stats/revenue" + (qs ? "?" + qs : ""), "GET");
+  },
+  getSummary() {
+    return apiFetch(PRODUCT_API, "/api/admin/stats/summary", "GET");
+  },
+
+  // ── Users ──
+  getUsers(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/users" + (qs ? "?" + qs : ""), "GET");
+  },
+  getUserById(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "GET");
+  },
+  banUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/ban", "PUT");
+  },
+  unbanUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/unban", "PUT");
+  },
+  changeRole(id, role) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/role", "PUT", { Role: role });
+  },
+  deleteUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "DELETE");
+  },
+
+  // ── Orders ──
+  getOrders(qs) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders" + (qs ? "?" + qs : ""), "GET");
+  },
+  getOrderDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id, "GET");
+  },
+  updateOrderStatus(id, status, note) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id + "/status", "PUT", { Status: status, Note: note || null });
+  },
+
+  // ── Shops ──
+  getShopStats(qs) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/stats" + (qs ? "?" + qs : ""), "GET");
+  },
+  approveShop(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/approve", "PUT");
+  },
+  banShop(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
+  },
+  updateCommission(id, rate) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/commission", "PUT", { CommissionRate: rate });
+  },
+  getShopStatsById(id, qs) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/stats" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── Categories ──
+  getCategories() {
+    return apiFetch(PRODUCT_API, "/api/categories", "GET");
+  },
+  createCategory(data) {
+    return apiFetch(PRODUCT_API, "/api/categories", "POST", { Name: data.name, Description: data.description });
+  },
+  updateCategory(id, data) {
+    return apiFetch(PRODUCT_API, "/api/categories/" + id, "PUT", { Name: data.name, Description: data.description });
+  },
+  deleteCategory(id) {
+    return apiFetch(PRODUCT_API, "/api/categories/" + id, "DELETE");
+  },
+
+  // ── Banners ──
+  getBanners() {
+    return apiFetch(PRODUCT_API, "/api/banners", "GET");
+  },
+  getBanner(id) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "GET");
+  },
+  createBanner(data) {
+    return apiFetch(PRODUCT_API, "/api/banners", "POST", data);
+  },
+  updateBanner(id, data) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "PUT", data);
+  },
+  deleteBanner(id) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "DELETE");
+  },
+
+  // ── Flash Sale ──
+  getFlashSales(qs) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/admin/list" + (qs ? "?" + qs : ""), "GET");
+  },
+  createFlashSale(data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale", "POST", data);
+  },
+  updateFlashSale(id, data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "PUT", data);
+  },
+  deleteFlashSale(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "DELETE");
+  },
+  toggleFlashSale(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/toggle", "PUT");
+  },
+
+  // ── Vouchers ──
+  getVouchers() {
+    return apiFetch(PRODUCT_API, "/api/Vouchers", "GET");
+  },
+  createVoucher(data) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers", "POST", data);
+  },
+  updateVoucher(id, data) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id, "PUT", data);
+  },
+  deleteVoucher(id) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id, "DELETE");
+  },
+  getVoucherUsage(id, qs) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id + "/usage" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── System Config ──
+  getConfig() {
+    return apiFetch(PRODUCT_API, "/api/admin/config", "GET");
+  },
+  updateConfig(items) {
+    return apiFetch(PRODUCT_API, "/api/admin/config", "PUT", items);
+  },
+  updateConfigKey(key, value) {
+    return apiFetch(PRODUCT_API, "/api/admin/config/" + key, "PUT", { Key: key, Value: value });
+  },
+};
+
+// ============================================================
 //  REVIEW MODULE (thêm vào Product)
 // ============================================================
 // Gắn thêm vào Product object
