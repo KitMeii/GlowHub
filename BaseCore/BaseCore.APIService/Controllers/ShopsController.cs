@@ -15,14 +15,18 @@ namespace BaseCore.APIService.Controllers
     {
         private readonly IShopService _shopService;
         private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
 
-        public ShopsController(IShopService shopService, MySqlDbContext db)
+        public ShopsController(IShopService shopService, MySqlDbContext db, AuditLogService audit)
         {
             _shopService = shopService;
-            _db = db;
+            _db          = db;
+            _audit       = audit;
         }
 
-        private string? GetSellerId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetSellerId()  => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserId()    => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName()  => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         // ─────────────────────────────────────────────────────────
         // PUBLIC
@@ -280,7 +284,13 @@ namespace BaseCore.APIService.Controllers
         [Authorize(Roles = RoleConstant.Admin)]
         public async Task<IActionResult> Approve(string id)
         {
-            try { await _shopService.ApproveAsync(id); return Ok(new { message = "Shop đã được duyệt" }); }
+            try
+            {
+                await _shopService.ApproveAsync(id);
+                await _audit.Log(GetUserId(), GetUserName(), "SHOP_APPROVE", "Shop", id,
+                    new { status = ShopStatus.Pending }, new { status = ShopStatus.Active });
+                return Ok(new { message = "Shop đã được duyệt" });
+            }
             catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
         }
 
@@ -289,7 +299,13 @@ namespace BaseCore.APIService.Controllers
         [Authorize(Roles = RoleConstant.Admin)]
         public async Task<IActionResult> Ban(string id)
         {
-            try { await _shopService.BanAsync(id); return Ok(new { message = "Shop đã bị khóa" }); }
+            try
+            {
+                await _shopService.BanAsync(id);
+                await _audit.Log(GetUserId(), GetUserName(), "SHOP_BAN", "Shop", id,
+                    new { status = ShopStatus.Active }, new { status = ShopStatus.Banned });
+                return Ok(new { message = "Shop đã bị khóa" });
+            }
             catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
         }
 
@@ -353,9 +369,12 @@ namespace BaseCore.APIService.Controllers
             var shop = await _db.Shops.FindAsync(id);
             if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
 
+            var oldRate = shop.CommissionRate;
             shop.CommissionRate = dto.CommissionRate;
             shop.UpdatedAt      = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "SHOP_COMMISSION", "Shop", id,
+                new { commissionRate = oldRate }, new { commissionRate = dto.CommissionRate });
             return Ok(new { message = "Đã cập nhật hoa hồng", commissionRate = dto.CommissionRate });
         }
 

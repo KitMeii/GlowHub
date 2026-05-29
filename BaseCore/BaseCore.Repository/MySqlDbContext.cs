@@ -36,6 +36,9 @@ namespace BaseCore.Repository
         public DbSet<FlashSaleProduct> FlashSaleProducts { get; set; }
         public DbSet<RecentlyViewed> RecentlyVieweds { get; set; }
         public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<PayoutHistory> PayoutHistories { get; set; }
+        public DbSet<Dispute> Disputes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -395,6 +398,57 @@ namespace BaseCore.Repository
                       .WithMany()
                       .HasForeignKey(e => e.VoucherId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure AuditLog entity
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.ToTable("AuditLogs");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Action).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.Property(e => e.UserName).HasMaxLength(256);
+                entity.Property(e => e.EntityType).HasMaxLength(100);
+                entity.Property(e => e.EntityId).HasMaxLength(450);
+                entity.Property(e => e.IpAddress).HasMaxLength(50);
+            });
+
+            // Configure PayoutHistory entity
+            modelBuilder.Entity<PayoutHistory>(entity =>
+            {
+                entity.ToTable("PayoutHistories");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ShopId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Note).HasMaxLength(500);
+                entity.Property(e => e.ProcessedBy).HasMaxLength(450);
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Dispute entity
+            modelBuilder.Entity<Dispute>(entity =>
+            {
+                entity.ToTable("Disputes");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CustomerId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Reason).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.RefundAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.ResolvedBy).HasMaxLength(450);
+
+                entity.HasOne(e => e.Order)
+                      .WithMany()
+                      .HasForeignKey(e => e.OrderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Customer)
+                      .WithMany()
+                      .HasForeignKey(e => e.CustomerId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Seed initial data

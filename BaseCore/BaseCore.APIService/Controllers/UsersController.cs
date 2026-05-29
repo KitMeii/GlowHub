@@ -1,8 +1,10 @@
 using BaseCore.Entities;
 using BaseCore.Repository;
+using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BaseCore.APIService.Controllers
 {
@@ -12,8 +14,16 @@ namespace BaseCore.APIService.Controllers
     public class UsersController : ControllerBase
     {
         private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
 
-        public UsersController(MySqlDbContext db) => _db = db;
+        public UsersController(MySqlDbContext db, AuditLogService audit)
+        {
+            _db    = db;
+            _audit = audit;
+        }
+
+        private string? GetUserId()   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName() => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         /// <summary>GET /api/admin/users?search=&amp;role=&amp;isActive=&amp;page=&amp;limit=</summary>
         [HttpGet]
@@ -85,6 +95,8 @@ namespace BaseCore.APIService.Controllers
             if (u == null) return NotFound(new { message = "Không tìm thấy người dùng" });
             u.IsActive = false;
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "USER_BAN", "User", id,
+                new { isActive = true }, new { isActive = false });
             return Ok(new { message = "Đã khóa tài khoản" });
         }
 
@@ -96,6 +108,8 @@ namespace BaseCore.APIService.Controllers
             if (u == null) return NotFound(new { message = "Không tìm thấy người dùng" });
             u.IsActive = true;
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "USER_UNBAN", "User", id,
+                new { isActive = false }, new { isActive = true });
             return Ok(new { message = "Đã mở khóa tài khoản" });
         }
 
@@ -109,8 +123,11 @@ namespace BaseCore.APIService.Controllers
             var u = await _db.Users.FindAsync(id);
             if (u == null) return NotFound(new { message = "Không tìm thấy người dùng" });
 
+            var oldRole = u.UserType;
             u.UserType = dto.Role;
             await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "USER_CHANGE_ROLE", "User", id,
+                new { userType = oldRole }, new { userType = dto.Role });
             return Ok(new { message = "Đã cập nhật quyền", role = dto.Role });
         }
 
