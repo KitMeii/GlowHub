@@ -8,32 +8,26 @@ USE BaseCoreDB
 GO
 
 -- ── 1. Bảng Wishlist ──────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE Name = 'Wishlist' AND Type = 'U')
+-- Fix bảng Wishlist với đúng kiểu dữ liệu
+IF NOT EXISTS (SELECT * FROM sys.objects 
+  WHERE Name = 'Wishlist' AND type = 'U')
 BEGIN
-    CREATE TABLE [dbo].[Wishlist] (
-        [Id]         INT            NOT NULL IDENTITY(1,1),
-        [CustomerId] INT            NOT NULL,
-        [ProductId]  INT            NOT NULL,
-        [CreatedAt]  DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
-
-        CONSTRAINT [PK_Wishlist] PRIMARY KEY ([Id]),
-
-        CONSTRAINT [FK_Wishlist_Users]
-            FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[Users]([Id])
-            ON DELETE CASCADE,
-
-        CONSTRAINT [FK_Wishlist_Products]
-            FOREIGN KEY ([ProductId]) REFERENCES [dbo].[Products]([Id])
-            ON DELETE CASCADE,
-
-        CONSTRAINT [UQ_Wishlist_Customer_Product]
-            UNIQUE ([CustomerId], [ProductId])
-    );
-
-    PRINT 'Created table Wishlist';
+  CREATE TABLE [dbo].[Wishlist] (
+    [Id]          INT           IDENTITY(1,1) NOT NULL,
+    [CustomerId]  NVARCHAR(450) NOT NULL,
+    [ProductId]   INT           NOT NULL,
+    [CreatedAt]   DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    CONSTRAINT [PK_Wishlist] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Wishlist_Users] 
+      FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[Users]([Id]),
+    CONSTRAINT [FK_Wishlist_Products] 
+      FOREIGN KEY ([ProductId]) REFERENCES [dbo].[Products]([Id]),
+    CONSTRAINT [UQ_Wishlist] UNIQUE ([CustomerId], [ProductId])
+  );
+  PRINT 'Created table Wishlist';
 END
 ELSE
-    PRINT 'Table Wishlist already exists — skipped';
+  PRINT 'Table Wishlist already exists';
 GO
 
 -- ── 2. Cột Products.Images ────────────────────────────────────
