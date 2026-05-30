@@ -4,6 +4,7 @@ using BaseCore.Common;
 using BaseCore.Entities;
 using BaseCore.Repository.EFCore;
 using BaseCore.Repository;
+using BaseCore.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -20,6 +21,7 @@ namespace BaseCore.APIService.Controllers
         private readonly ICartRepositoryEF _cartRepository;
         private readonly IShopRepositoryEF _shopRepository;
         private readonly MySqlDbContext _db;
+        private readonly ShippingCalculatorService _shipping;
 
         public OrdersController(
             IOrderRepositoryEF orderRepository,
@@ -27,7 +29,8 @@ namespace BaseCore.APIService.Controllers
             IProductRepositoryEF productRepository,
             ICartRepositoryEF cartRepository,
             IShopRepositoryEF shopRepository,
-            MySqlDbContext db)
+            MySqlDbContext db,
+            ShippingCalculatorService shipping)
         {
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
@@ -35,6 +38,7 @@ namespace BaseCore.APIService.Controllers
             _cartRepository = cartRepository;
             _shopRepository = shopRepository;
             _db = db;
+            _shipping = shipping;
         }
 
         private string? GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -366,7 +370,7 @@ namespace BaseCore.APIService.Controllers
         }
 
         /// <summary>
-        /// ★ CHECKOUT v2 — Transaction ACID + OrderCode + ShippingFee + Voucher + Notify
+        /// ★ CHECKOUT v3 — Multi-shop SubOrders + Dynamic ShippingFee + Voucher + Notify
         /// </summary>
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout([FromBody] CheckoutDto dto)
@@ -377,65 +381,35 @@ namespace BaseCore.APIService.Controllers
             if (string.IsNullOrWhiteSpace(dto.ShippingAddress))
                 return BadRequest(new { message = "Vui lòng nhập địa chỉ giao hàng." });
 
-            // Lấy giỏ hàng từ DB
-            var cartItems = await _cartRepository.GetByUserAsync(userId);
+            var cartItems = await _db.CartItems
+                .Include(c => c.Product).ThenInclude(p => p!.Shop)
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
             if (!cartItems.Any())
                 return BadRequest(new { message = "Giỏ hàng trống." });
+
+            // Xác định vùng của khách hàng để tính phí ship
+            var toRegion = ShippingRegion.Normalize(dto.ToProvince ?? dto.ShippingAddress);
 
             await using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                decimal totalAmount = 0;
-                var orderDetails = new List<OrderDetail>();
-                string? shopId = null;
-
+                // ── Validate & lock stock ────────────────────────────
                 foreach (var cartItem in cartItems)
                 {
-                    var product = await _db.Products
-                        .Include(p => p.Shop)
-                        .FirstOrDefaultAsync(p => p.Id == cartItem.ProductId);
-
+                    var product = cartItem.Product;
                     if (product == null || !product.IsActive)
-                        throw new Exception($"Sản phẩm '{cartItem.Product?.Name ?? cartItem.ProductId.ToString()}' không còn bán.");
-
+                        throw new Exception($"Sản phẩm #{cartItem.ProductId} không còn bán.");
                     if (product.Stock < cartItem.Quantity)
                         throw new Exception($"'{product.Name}' chỉ còn {product.Stock} sản phẩm, bạn đặt {cartItem.Quantity}.");
-
-                    decimal lockedPrice = product.DiscountPrice ?? product.Price;
-                    totalAmount += lockedPrice * cartItem.Quantity;
-
-                    product.Stock     -= cartItem.Quantity;
-                    product.SoldCount += cartItem.Quantity;
-
-                    if (shopId == null && product.ShopId != null) shopId = product.ShopId;
-
-                    orderDetails.Add(new OrderDetail {
-                        ProductId = product.Id,
-                        Quantity  = cartItem.Quantity,
-                        UnitPrice = lockedPrice
-                    });
                 }
 
-                // Lấy thông tin shop & tỷ lệ hoa hồng
-                Shop? orderShop = shopId != null ? await _db.Shops.FindAsync(shopId) : null;
-                decimal commissionRate = orderShop?.CommissionRate > 0 ? orderShop.CommissionRate : 10m;
-
-                // Tính phí ship: miễn phí nếu đơn ≥ 500k (standard)
-                decimal shippingFee     = 30000m;
-                decimal freeshipDiscount = 0m;
-                if (dto.ShippingMethod == "express") shippingFee = 30000m;
-                else if (dto.ShippingMethod == "same") shippingFee = 50000m;
-                else
-                {
-                    if (totalAmount >= 500000m) { shippingFee = 0m; freeshipDiscount = 30000m; }
-                    else shippingFee = 30000m;
-                }
-
-                // Áp dụng voucher nếu có — phân loại shop vs system
-                decimal discount              = 0m;
-                decimal shopVoucherDiscount   = 0m;
+                // ── Áp dụng voucher (system-level) ──────────────────
                 decimal systemVoucherDiscount = 0m;
-                string? appliedVoucher = null;
+                decimal freeshipDiscount      = 0m;
+                string? appliedVoucher        = null;
+
                 if (!string.IsNullOrWhiteSpace(dto.VoucherCode))
                 {
                     var voucher = await _db.Vouchers.FirstOrDefaultAsync(v =>
@@ -444,72 +418,162 @@ namespace BaseCore.APIService.Controllers
                         (!v.StartDate.HasValue  || v.StartDate  <= DateTime.UtcNow) &&
                         (!v.UsageLimit.HasValue || v.UsedCount < v.UsageLimit));
 
-                    if (voucher != null && totalAmount >= voucher.MinOrderAmount)
+                    if (voucher != null)
                     {
-                        discount = voucher.DiscountType == "percent"
-                            ? totalAmount * voucher.DiscountValue / 100
-                            : voucher.DiscountValue;
-                        if (voucher.MaxDiscount.HasValue && discount > voucher.MaxDiscount.Value)
-                            discount = voucher.MaxDiscount.Value;
-                        voucher.UsedCount++;
-                        appliedVoucher = voucher.Code;
-
-                        if (voucher.ShopId != null && voucher.ShopId == shopId)
-                            shopVoucherDiscount = discount;
-                        else
-                            systemVoucherDiscount = discount;
+                        var subtotalAll = cartItems.Sum(c => (c.Product!.DiscountPrice ?? c.Product.Price) * c.Quantity);
+                        if (subtotalAll >= voucher.MinOrderAmount && voucher.ShopId == null)
+                        {
+                            var disc = voucher.DiscountType == "percent"
+                                ? subtotalAll * voucher.DiscountValue / 100
+                                : voucher.DiscountValue;
+                            if (voucher.MaxDiscount.HasValue && disc > voucher.MaxDiscount.Value)
+                                disc = voucher.MaxDiscount.Value;
+                            systemVoucherDiscount = disc;
+                            voucher.UsedCount++;
+                            appliedVoucher = voucher.Code;
+                        }
                     }
                 }
 
-                // Công thức tài chính
-                decimal productRevenue     = totalAmount - shopVoucherDiscount;
-                decimal commissionAmount   = Math.Round(productRevenue * commissionRate / 100m, 2);
-                decimal sellerPayoutAmount = productRevenue - commissionAmount;
-
-                decimal finalAmount = totalAmount + shippingFee - discount;
+                // ── Tạo parent Order ─────────────────────────────────
+                var paymentMethod = dto.PaymentMethod switch {
+                    1 => "BANK", 2 => "MOMO", 3 => "ZALOPAY", _ => "COD"
+                };
+                int deliveryDays = dto.ShippingMethod == "same" ? 1 : dto.ShippingMethod == "express" ? 2 : 5;
 
                 var order = new Order {
                     UserId                = userId,
-                    ShopId                = shopId,
                     OrderDate             = DateTime.UtcNow,
-                    TotalAmount           = totalAmount,
-                    ShippingFee           = shippingFee,
-                    Discount              = discount,
-                    FinalAmount           = finalAmount,
                     Status                = OrderStatus.Pending,
                     PayoutStatus          = PayoutStatusValue.Pending,
-                    CommissionRate        = commissionRate,
-                    ProductRevenue        = productRevenue,
-                    CommissionAmount      = commissionAmount,
-                    SellerPayoutAmount    = sellerPayoutAmount,
-                    ShopVoucherDiscount   = shopVoucherDiscount,
+                    PaymentMethod         = paymentMethod,
+                    PaymentStatus         = "UNPAID",
+                    ShippingAddress       = dto.ShippingAddress,
+                    ReceiverName          = dto.ReceiverName ?? "",
+                    ReceiverPhone         = dto.ReceiverPhone ?? "",
+                    Note                  = dto.Note,
                     SystemVoucherDiscount = systemVoucherDiscount,
                     FreeshipDiscount      = freeshipDiscount,
-                    PaymentMethod   = dto.PaymentMethod switch {
-                        1 => "BANK",
-                        2 => "MOMO",
-                        3 => "ZALOPAY",
-                        _ => "COD"
-                    },
-                    PaymentStatus   = "UNPAID",
-                    ShippingAddress = dto.ShippingAddress,
-                    ReceiverName    = dto.ReceiverName ?? "",
-                    ReceiverPhone   = dto.ReceiverPhone ?? "",
-                    Note            = dto.Note,
-                    EstimatedDelivery = DateTime.UtcNow.AddDays(dto.ShippingMethod == "same" ? 1 : dto.ShippingMethod == "express" ? 2 : 5),
-                    OrderDetails    = orderDetails
+                    EstimatedDelivery     = DateTime.UtcNow.AddDays(deliveryDays)
                 };
                 _db.Orders.Add(order);
+                await _db.SaveChangesAsync(); // cần Id
+
+                order.OrderCode = "ORD-" + order.Id.ToString("D6");
+
+                // ── Tạo SubOrders theo từng shop ─────────────────────
+                var shopGroups = cartItems.GroupBy(c => c.Product!.ShopId ?? "__no_shop__");
+                decimal grandTotal     = 0m;
+                decimal grandSubtotal  = 0m;
+                decimal grandShipping  = 0m;
+                int subOrderSeq        = 1;
+
+                var subOrderResults = new List<object>();
+
+                foreach (var group in shopGroups)
+                {
+                    var shop = group.First().Product!.Shop;
+                    var fromRegion = ShippingRegion.Normalize(shop?.Region ?? shop?.Province);
+
+                    // Tính shipping fee động theo trọng lượng + vùng
+                    int groupWeight = group.Sum(c => (c.Product!.WeightGram) * c.Quantity);
+                    var shipResult  = _shipping.Calculate(fromRegion, toRegion, groupWeight);
+                    decimal shipFee = dto.ShippingMethod == "express" ? shipResult.Fee + 15_000m
+                                    : dto.ShippingMethod == "same"    ? shipResult.Fee + 30_000m
+                                    : shipResult.Fee;
+
+                    // Financial per shop group
+                    decimal groupSubtotal = group.Sum(c => (c.Product!.DiscountPrice ?? c.Product.Price) * c.Quantity);
+                    decimal commRate      = shop?.CommissionRate > 0 ? shop!.CommissionRate : 10m;
+                    decimal productRev    = groupSubtotal; // shop voucher logic: không có trong MVP
+                    decimal commAmt       = Math.Round(productRev * commRate / 100m, 2);
+                    decimal sellerPayout  = productRev - commAmt;
+                    decimal groupFinal    = groupSubtotal + shipFee;
+
+                    // Tạo SubOrder
+                    var subOrder = new SubOrder {
+                        OrderId            = order.Id,
+                        ShopId             = shop?.Id ?? group.Key,
+                        Status             = OrderStatus.Pending,
+                        TotalAmount        = groupSubtotal,
+                        ShippingFee        = shipFee,
+                        FinalAmount        = groupFinal,
+                        ProductRevenue     = productRev,
+                        CommissionRate     = commRate,
+                        CommissionAmount   = commAmt,
+                        SellerPayoutAmount = sellerPayout,
+                        PayoutStatus       = PayoutStatusValue.Pending,
+                        Note               = dto.Note,
+                        CreatedAt          = DateTime.UtcNow
+                    };
+                    _db.SubOrders.Add(subOrder);
+                    await _db.SaveChangesAsync();
+
+                    subOrder.SubOrderCode = "SUB-" + order.Id.ToString("D6") + "-" + subOrderSeq++;
+
+                    // Tạo SubOrderItems + deduct stock
+                    foreach (var cartItem in group)
+                    {
+                        var product = cartItem.Product!;
+                        decimal lockedPrice = product.DiscountPrice ?? product.Price;
+
+                        _db.SubOrderItems.Add(new SubOrderItem {
+                            SubOrderId = subOrder.Id,
+                            ProductId  = product.Id,
+                            Quantity   = cartItem.Quantity,
+                            UnitPrice  = lockedPrice
+                        });
+
+                        // Cũng tạo OrderDetail (backward compat với legacy endpoints)
+                        _db.OrderDetails.Add(new OrderDetail {
+                            OrderId   = order.Id,
+                            ProductId = product.Id,
+                            Quantity  = cartItem.Quantity,
+                            UnitPrice = lockedPrice
+                        });
+
+                        product.Stock     -= cartItem.Quantity;
+                        product.SoldCount += cartItem.Quantity;
+                    }
+
+                    grandSubtotal += groupSubtotal;
+                    grandShipping += shipFee;
+                    grandTotal    += groupFinal;
+
+                    subOrderResults.Add(new {
+                        subOrderId   = subOrder.Id,
+                        shopId       = subOrder.ShopId,
+                        shopName     = shop?.ShopName ?? "GlowHub",
+                        subtotal     = groupSubtotal,
+                        shippingFee  = shipFee,
+                        finalAmount  = groupFinal
+                    });
+
+                    // Notify seller
+                    if (shop != null)
+                    {
+                        _db.Notifications.Add(new Notification {
+                            UserId    = shop.SellerId,
+                            Title     = "Đơn hàng mới",
+                            Message   = $"SubOrder {subOrder.SubOrderCode} - {groupFinal:N0}₫",
+                            Link      = "/seller-dashboard.html",
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                // ── Cập nhật Order tổng ──────────────────────────────
+                order.TotalAmount   = grandSubtotal;
+                order.ShippingFee   = grandShipping;
+                order.FinalAmount   = grandTotal - systemVoucherDiscount;
+                order.Discount      = systemVoucherDiscount;
+                // ShopId = shop đầu tiên (backward compat)
+                order.ShopId        = shopGroups.First().First().Product?.ShopId;
 
                 // Xóa giỏ hàng
                 _db.CartItems.RemoveRange(cartItems);
 
-                await _db.SaveChangesAsync();
-
-                // Tạo OrderCode sau khi có Id
-                order.OrderCode = "ORD-" + order.Id.ToString("D6");
-
-                // Status history khởi tạo
+                // Status history
                 _db.OrderStatusHistories.Add(new OrderStatusHistory {
                     OrderId   = order.Id,
                     Status    = OrderStatus.Pending,
@@ -521,31 +585,15 @@ namespace BaseCore.APIService.Controllers
                 await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // Notify Seller (async, không chặn)
-                if (shopId != null)
-                {
-                    var shop = await _db.Shops.FindAsync(shopId);
-                    if (shop != null)
-                    {
-                        _db.Notifications.Add(new Notification {
-                            UserId    = shop.SellerId,
-                            Title     = "Đơn hàng mới",
-                            Message   = $"Bạn có đơn hàng mới {order.OrderCode} - {finalAmount:N0}₫",
-                            Link      = "/seller-dashboard.html",
-                            CreatedAt = DateTime.UtcNow
-                        });
-                        await _db.SaveChangesAsync();
-                    }
-                }
-
                 return Ok(new {
                     message           = "Đặt hàng thành công!",
                     orderId           = order.Id,
                     orderCode         = order.OrderCode,
-                    totalAmount,
-                    shippingFee,
-                    discount,
-                    finalAmount,
+                    totalAmount       = grandSubtotal,
+                    totalShipping     = grandShipping,
+                    discount          = systemVoucherDiscount,
+                    finalAmount       = order.FinalAmount,
+                    subOrders         = subOrderResults,
                     estimatedDelivery = DateTime.SpecifyKind(order.EstimatedDelivery!.Value, DateTimeKind.Utc),
                     appliedVoucher
                 });
@@ -1058,6 +1106,157 @@ namespace BaseCore.APIService.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // ─────────────────────────────────────────────────────────
+        // SELLER — SubOrder endpoints (Sprint 11)
+        // ─────────────────────────────────────────────────────────
+
+        /// <summary>GET /api/orders/shop/suborders?status=&amp;page=&amp;limit= — Seller xem SubOrders của shop</summary>
+        [HttpGet("shop/suborders")]
+        [Authorize(Roles = RoleConstant.Seller)]
+        public async Task<IActionResult> GetShopSubOrders(
+            [FromQuery] string? status = null,
+            [FromQuery] int page  = 1,
+            [FromQuery] int limit = 10)
+        {
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var query = _db.SubOrders
+                .Include(s => s.Items).ThenInclude(i => i.Product)
+                .Include(s => s.Order).ThenInclude(o => o.User)
+                .Where(s => s.ShopId == shop!.Id)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(s => s.Status == status.ToUpper());
+
+            var total  = await query.CountAsync();
+            var orders = await query
+                .OrderByDescending(s => s.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(s => new {
+                    subOrderId      = s.Id,
+                    subOrderCode    = s.SubOrderCode ?? ("SUB-" + s.Id.ToString("D6")),
+                    orderId         = s.OrderId,
+                    orderCode       = s.Order.OrderCode ?? ("ORD-" + s.OrderId.ToString("D6")),
+                    status          = s.Status,
+                    payoutStatus    = s.PayoutStatus,
+                    totalAmount     = s.TotalAmount,
+                    shippingFee     = s.ShippingFee,
+                    finalAmount     = s.FinalAmount,
+                    sellerPayout    = s.SellerPayoutAmount,
+                    trackingCode    = s.TrackingCode,
+                    cancelReason    = s.CancelReason,
+                    createdAt       = s.CreatedAt,
+                    shippingAddress = s.Order.ShippingAddress,
+                    receiverName    = s.Order.ReceiverName,
+                    receiverPhone   = s.Order.ReceiverPhone,
+                    customer = new {
+                        name  = s.Order.User.Name,
+                        phone = s.Order.User.Phone,
+                        email = s.Order.User.Email
+                    },
+                    items = s.Items.Select(i => new {
+                        productId   = i.ProductId,
+                        productName = i.Product != null ? i.Product.Name : "",
+                        imageUrl    = i.Product != null ? i.Product.ImageUrl : "",
+                        quantity    = i.Quantity,
+                        unitPrice   = i.UnitPrice,
+                        subtotal    = i.UnitPrice * i.Quantity
+                    })
+                })
+                .ToListAsync();
+
+            return Ok(new { items = orders, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
+        }
+
+        /// <summary>PUT /api/orders/shop/suborders/{id}/confirm — Seller xác nhận SubOrder</summary>
+        [HttpPut("shop/suborders/{id:int}/confirm")]
+        [Authorize(Roles = RoleConstant.Seller)]
+        public async Task<IActionResult> ConfirmSubOrder(int id)
+        {
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var sub = await _db.SubOrders.FirstOrDefaultAsync(s => s.Id == id && s.ShopId == shop!.Id);
+            if (sub == null) return NotFound(new { message = "Không tìm thấy SubOrder" });
+            if (sub.Status != OrderStatus.Pending)
+                return BadRequest(new { message = $"SubOrder đang ở trạng thái {sub.Status}" });
+
+            sub.Status    = OrderStatus.Confirmed;
+            sub.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xác nhận SubOrder" });
+        }
+
+        /// <summary>PUT /api/orders/shop/suborders/{id}/ship — Seller bắt đầu giao SubOrder</summary>
+        [HttpPut("shop/suborders/{id:int}/ship")]
+        [Authorize(Roles = RoleConstant.Seller)]
+        public async Task<IActionResult> ShipSubOrder(int id, [FromBody] ShipOrderDto dto)
+        {
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            var sub = await _db.SubOrders.FirstOrDefaultAsync(s => s.Id == id && s.ShopId == shop!.Id);
+            if (sub == null) return NotFound(new { message = "Không tìm thấy SubOrder" });
+            if (sub.Status != OrderStatus.Confirmed)
+                return BadRequest(new { message = $"SubOrder chưa được xác nhận" });
+
+            sub.Status       = OrderStatus.Shipping;
+            sub.TrackingCode = dto?.TrackingCode;
+            sub.UpdatedAt    = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "SubOrder đang được giao" });
+        }
+
+        /// <summary>PUT /api/orders/shop/suborders/{id}/cancel — Seller hủy SubOrder</summary>
+        [HttpPut("shop/suborders/{id:int}/cancel")]
+        [Authorize(Roles = RoleConstant.Seller)]
+        public async Task<IActionResult> CancelSubOrder(int id, [FromBody] CancelShopOrderDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto?.Reason))
+                return BadRequest(new { message = "Lý do hủy là bắt buộc" });
+
+            var (shop, err) = await GetActiveShopAsync();
+            if (err != null) return err;
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var sub = await _db.SubOrders
+                    .Include(s => s.Items)
+                    .FirstOrDefaultAsync(s => s.Id == id && s.ShopId == shop!.Id);
+
+                if (sub == null) return NotFound(new { message = "Không tìm thấy SubOrder" });
+                if (sub.Status != OrderStatus.Pending)
+                    return BadRequest(new { message = "Chỉ hủy được SubOrder đang Pending" });
+
+                sub.Status       = OrderStatus.Cancelled;
+                sub.CancelReason = dto.Reason;
+                sub.UpdatedAt    = DateTime.UtcNow;
+
+                foreach (var item in sub.Items)
+                {
+                    var product = await _db.Products.FindAsync(item.ProductId);
+                    if (product != null) product.Stock += item.Quantity;
+                }
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                return Ok(new { message = "Đã hủy SubOrder" });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>POST /api/orders/my/{orderId}/received — Khách xác nhận nhận hàng → tất cả SubOrders WAITING_RELEASE</summary>
+        // (Override lại endpoint đã có ở trên để sync SubOrders)
+
     }
 
     public class CheckoutDto
@@ -1066,6 +1265,8 @@ namespace BaseCore.APIService.Controllers
         public string? Note { get; set; }
         public string? ReceiverName { get; set; }
         public string? ReceiverPhone { get; set; }
+        /// <summary>Tỉnh/thành của khách — dùng tính phí ship động</summary>
+        public string? ToProvince { get; set; }
         /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
         public int PaymentMethod { get; set; } = 0;
         public string? VoucherCode { get; set; }

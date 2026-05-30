@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BaseCore.Entities;
+using BaseCore.Repository;
 using BaseCore.Repository.EFCore;
+using BaseCore.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BaseCore.APIService.Controllers
@@ -13,14 +16,98 @@ namespace BaseCore.APIService.Controllers
     {
         private readonly ICartRepositoryEF _cartRepo;
         private readonly IProductRepositoryEF _productRepo;
+        private readonly MySqlDbContext _db;
+        private readonly ShippingCalculatorService _shipping;
 
-        public CartController(ICartRepositoryEF cartRepo, IProductRepositoryEF productRepo)
+        public CartController(
+            ICartRepositoryEF cartRepo,
+            IProductRepositoryEF productRepo,
+            MySqlDbContext db,
+            ShippingCalculatorService shipping)
         {
-            _cartRepo = cartRepo;
+            _cartRepo  = cartRepo;
             _productRepo = productRepo;
+            _db        = db;
+            _shipping  = shipping;
         }
 
         private string? GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        /// <summary>
+        /// GET /api/cart/grouped?toProvince= — Giỏ hàng nhóm theo shop, kèm phí ship mỗi shop
+        /// </summary>
+        [HttpGet("grouped")]
+        public async Task<IActionResult> GetGrouped([FromQuery] string? toProvince = null)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var items = await _db.CartItems
+                .Include(c => c.Product).ThenInclude(p => p!.Shop)
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
+            if (!items.Any())
+                return Ok(new { groups = Array.Empty<object>(), totalAmount = 0m, totalShipping = 0m, grandTotal = 0m });
+
+            var toRegion = ShippingRegion.Normalize(toProvince);
+
+            var groups = items
+                .GroupBy(c => c.Product?.ShopId)
+                .Select(g =>
+                {
+                    var shop      = g.First().Product?.Shop;
+                    var fromRegion = ShippingRegion.Normalize(shop?.Region ?? shop?.Province);
+                    var groupItems = g.ToList();
+
+                    int totalWeight = groupItems.Sum(c => (c.Product?.WeightGram ?? 500) * c.Quantity);
+                    var shipResult  = _shipping.Calculate(fromRegion, toRegion, totalWeight);
+
+                    var subtotal = groupItems.Sum(c =>
+                    {
+                        var price = c.Product?.DiscountPrice ?? c.Product?.Price ?? 0;
+                        return price * c.Quantity;
+                    });
+
+                    return new
+                    {
+                        shopId      = shop?.Id ?? "unknown",
+                        shopName    = shop?.ShopName ?? "GlowHub Official",
+                        shopLogo    = shop?.Logo,
+                        fromRegion,
+                        toRegion,
+                        shippingFee = shipResult.Fee,
+                        totalWeight,
+                        subtotal,
+                        finalAmount = subtotal + shipResult.Fee,
+                        items = groupItems.Select(c => new
+                        {
+                            cartItemId   = c.Id,
+                            productId    = c.ProductId,
+                            productName  = c.Product?.Name ?? "",
+                            imageUrl     = c.Product?.ImageUrl ?? "",
+                            unitPrice    = c.Product?.DiscountPrice ?? c.Product?.Price ?? 0,
+                            originalPrice = c.Product?.Price ?? 0,
+                            quantity     = c.Quantity,
+                            weightGram   = c.Product?.WeightGram ?? 500,
+                            subtotal     = (c.Product?.DiscountPrice ?? c.Product?.Price ?? 0) * c.Quantity,
+                            stockAvailable = c.Product?.Stock ?? 0
+                        }).ToList()
+                    };
+                })
+                .ToList();
+
+            var totalAmount   = groups.Sum(g => g.subtotal);
+            var totalShipping = groups.Sum(g => g.shippingFee);
+
+            return Ok(new {
+                groups,
+                totalAmount,
+                totalShipping,
+                grandTotal = totalAmount + totalShipping,
+                toRegion
+            });
+        }
 
         /// <summary>Xem giỏ hàng hiện tại</summary>
         [HttpGet]

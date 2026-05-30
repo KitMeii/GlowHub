@@ -158,6 +158,9 @@
                 <button class="profile-nav-btn" onclick="showSec('wishlist', this)">
                   <i class="bi bi-heart"></i> Yêu Thích
                 </button>
+                <button class="profile-nav-btn" onclick="showSec('wallet', this)">
+                  <i class="bi bi-wallet2"></i> Ví Của Tôi
+                </button>
                 <div id="sellerNavItem" style="display:none">
                   <hr style="border-color: var(--border); margin: 8px 0"/>
                   <a href="admin.html" class="profile-nav-btn" style="display:flex;text-decoration:none;color:inherit">
@@ -518,12 +521,67 @@
                 </div>
               </div>
             </div>
+
+            <!-- ════ SECTION: VÍ CỦA TÔI ════ -->
+            <div class="psec" id="psec-wallet">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Ví Của Tôi</div>
+                  <button class="gh-btn-outline" onclick="showTopUpModal()">
+                    <i class="bi bi-plus-circle"></i> Nạp Tiền
+                  </button>
+                </div>
+                <div class="pcard-body">
+                  <!-- Balance summary -->
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+                    <div style="flex:1;min-width:160px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                      <div style="font-size:12px;color:var(--gray);margin-bottom:4px">SỐ DƯ HIỆN TẠI</div>
+                      <div id="wBalanceVal" style="font-size:26px;font-weight:700;color:var(--pink)">—</div>
+                    </div>
+                    <div style="flex:1;min-width:140px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                      <div style="font-size:12px;color:var(--gray);margin-bottom:4px">TỔNG NẠP</div>
+                      <div id="wReceivedVal" style="font-size:20px;font-weight:600;color:#2e7d32">—</div>
+                    </div>
+                    <div style="flex:1;min-width:140px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                      <div style="font-size:12px;color:var(--gray);margin-bottom:4px">TỔNG CHI</div>
+                      <div id="wSpentVal" style="font-size:20px;font-weight:600;color:#c62828">—</div>
+                    </div>
+                  </div>
+
+                  <!-- Transaction history -->
+                  <div style="font-size:14px;font-weight:600;margin-bottom:12px">Lịch Sử Giao Dịch</div>
+                  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+                    <button class="gh-btn-outline wtype-btn active" data-type="" onclick="filterWalletTx('',this)">Tất cả</button>
+                    <button class="gh-btn-outline wtype-btn" data-type="TOPUP" onclick="filterWalletTx('TOPUP',this)">Nạp tiền</button>
+                    <button class="gh-btn-outline wtype-btn" data-type="SPEND" onclick="filterWalletTx('SPEND',this)">Chi tiêu</button>
+                    <button class="gh-btn-outline wtype-btn" data-type="REFUND" onclick="filterWalletTx('REFUND',this)">Hoàn tiền</button>
+                  </div>
+                  <div id="walletTxList"><div class="empty-state"><i class="bi bi-clock-history"></i><p>Đang tải...</p></div></div>
+                  <div id="walletTxPager" style="margin-top:12px;display:flex;gap:8px;justify-content:center"></div>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- /col -->
         </div>
         <!-- /row -->
       </div>
       <!-- /container -->
+    </div>
+
+    <!-- Top-up modal -->
+    <div id="topUpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:16px;padding:32px;width:360px;max-width:95vw">
+        <div style="font-size:18px;font-weight:600;margin-bottom:20px">Nạp Tiền Vào Ví</div>
+        <label style="font-size:13px;color:var(--gray);display:block;margin-bottom:4px">Số tiền (₫)</label>
+        <input id="topUpAmount" type="number" min="10000" max="50000000" step="10000" placeholder="Ví dụ: 200000" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;margin-bottom:16px"/>
+        <label style="font-size:13px;color:var(--gray);display:block;margin-bottom:4px">Ghi chú (tùy chọn)</label>
+        <input id="topUpNote" type="text" placeholder="Nạp tiền mua sắm..." style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;margin-bottom:20px"/>
+        <div style="display:flex;gap:10px">
+          <button class="gh-btn-outline" style="flex:1" onclick="hideTopUpModal()">Hủy</button>
+          <button class="gh-btn" style="flex:1;background:var(--pink);color:#fff;border:none;border-radius:8px;padding:10px" onclick="doTopUp()">Nạp Tiền</button>
+        </div>
+      </div>
     </div>
 
     <!-- Toast container -->
@@ -605,7 +663,114 @@
         if (sec === "orders")   loadOrders();
         if (sec === "cart")     renderCart();
         if (sec === "wishlist") renderWishlistPage();
+        if (sec === "wallet")   loadWallet();
       }
+
+      /* ════ WALLET ════ */
+      var walletTxPage = 1;
+      var walletTxType = "";
+
+      function loadWallet() {
+        if (typeof CustomerWallet === "undefined") return;
+        CustomerWallet.get().then(function(r) {
+          document.getElementById("wBalanceVal").textContent   = fmtMoney(r.balance);
+          document.getElementById("wReceivedVal").textContent  = fmtMoney(r.totalReceived);
+          document.getElementById("wSpentVal").textContent     = fmtMoney(r.totalSpent);
+        }).catch(function() {
+          document.getElementById("wBalanceVal").textContent = "Lỗi tải";
+        });
+        loadWalletTx(1, walletTxType);
+      }
+
+      function loadWalletTx(page, type) {
+        walletTxPage = page || 1;
+        walletTxType = type !== undefined ? type : walletTxType;
+        var list = document.getElementById("walletTxList");
+        list.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>Đang tải...</p></div>';
+        CustomerWallet.getTransactions({ type: walletTxType, page: walletTxPage, limit: 15 }).then(function(r) {
+          if (!r.items || r.items.length === 0) {
+            list.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>Chưa có giao dịch nào</p></div>';
+            document.getElementById("walletTxPager").innerHTML = "";
+            return;
+          }
+          var typeLabel = { TOPUP: "Nạp tiền", SPEND: "Chi tiêu", REFUND: "Hoàn tiền", ADJUSTMENT: "Điều chỉnh" };
+          var typeColor = { TOPUP: "#2e7d32", SPEND: "#c62828", REFUND: "#1565c0", ADJUSTMENT: "#6d4c41" };
+          var html = '<table style="width:100%;border-collapse:collapse;font-size:13px">'
+            + '<thead><tr style="border-bottom:2px solid var(--border)">'
+            + '<th style="padding:8px;text-align:left">Loại</th>'
+            + '<th style="padding:8px;text-align:right">Số tiền</th>'
+            + '<th style="padding:8px;text-align:right">Số dư sau</th>'
+            + '<th style="padding:8px">Ghi chú</th>'
+            + '<th style="padding:8px">Thời gian</th>'
+            + '</tr></thead><tbody>';
+          r.items.forEach(function(t) {
+            var sign = (t.type === "SPEND") ? "−" : "+";
+            var color = typeColor[t.type] || "#333";
+            html += '<tr style="border-bottom:1px solid var(--border)">'
+              + '<td style="padding:8px"><span style="background:' + color + '1a;color:' + color + ';border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600">' + (typeLabel[t.type] || t.type) + '</span></td>'
+              + '<td style="padding:8px;text-align:right;color:' + color + ';font-weight:600">' + sign + fmtMoney(Math.abs(t.amount)) + '</td>'
+              + '<td style="padding:8px;text-align:right">' + fmtMoney(t.balanceAfter) + '</td>'
+              + '<td style="padding:8px;color:var(--gray)">' + (t.note || "—") + '</td>'
+              + '<td style="padding:8px;color:var(--gray);white-space:nowrap">' + fmtDate(t.createdAt) + '</td>'
+              + '</tr>';
+          });
+          html += '</tbody></table>';
+          list.innerHTML = html;
+
+          // Pager
+          var pager = document.getElementById("walletTxPager");
+          pager.innerHTML = "";
+          if (r.totalPages > 1) {
+            for (var p = 1; p <= r.totalPages; p++) {
+              (function(pg) {
+                var btn = document.createElement("button");
+                btn.className = "gh-btn-outline";
+                btn.textContent = pg;
+                if (pg === walletTxPage) btn.style.background = "var(--pink)";
+                btn.onclick = function() { loadWalletTx(pg, walletTxType); };
+                pager.appendChild(btn);
+              })(p);
+            }
+          }
+        }).catch(function() {
+          list.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Lỗi tải giao dịch</p></div>';
+        });
+      }
+
+      function filterWalletTx(type, btn) {
+        document.querySelectorAll(".wtype-btn").forEach(function(b) { b.classList.remove("active"); });
+        if (btn) btn.classList.add("active");
+        loadWalletTx(1, type);
+      }
+
+      function showTopUpModal() {
+        document.getElementById("topUpModal").style.display = "flex";
+        document.getElementById("topUpAmount").value = "";
+        document.getElementById("topUpNote").value = "";
+      }
+
+      function hideTopUpModal() {
+        document.getElementById("topUpModal").style.display = "none";
+      }
+
+      function doTopUp() {
+        var amount = parseFloat(document.getElementById("topUpAmount").value);
+        var note = document.getElementById("topUpNote").value.trim();
+        if (!amount || amount < 10000) { toast("Số tiền tối thiểu 10.000₫", "err"); return; }
+        if (amount > 50000000) { toast("Tối đa 50.000.000₫ mỗi lần nạp", "err"); return; }
+        CustomerWallet.topUp({ amount: amount, note: note || undefined }).then(function(r) {
+          hideTopUpModal();
+          toast("Nạp " + fmtMoney(amount) + " thành công!");
+          loadWallet();
+        }).catch(function(e) {
+          toast((e && e.message) || "Nạp tiền thất bại", "err");
+        });
+      }
+
+      // Đóng modal khi click nền
+      document.getElementById("topUpModal").addEventListener("click", function(e) {
+        if (e.target === this) hideTopUpModal();
+      });
 
       /* ══════════════════════════════
          INIT — load user from localStorage

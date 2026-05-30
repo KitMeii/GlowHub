@@ -816,17 +816,49 @@
         var fee = (shippingMethod === 'standard' && sub >= 500000) ? 0 : shippingFee;
         var total = Math.max(0, sub + fee - discountAmt);
 
-        document.getElementById('confirmDetail').innerHTML =
-          '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
+        var grid = '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
           + '<span style="color:var(--gray)">Người nhận:</span><strong>' + addrName + '</strong>'
           + '<span style="color:var(--gray)">Địa chỉ:</span><span>' + addrText + '</span>'
-          + '<span style="color:var(--gray)">Vận chuyển:</span><span>' + (shipLabels[shippingMethod] || shippingMethod) + '</span>'
           + '<span style="color:var(--gray)">Thanh toán:</span><span>' + (payLabels[selectedPay] || selectedPay) + '</span>'
-          + '<span style="color:var(--gray)">Tạm tính:</span><span>' + fmt(sub) + '</span>'
-          + (fee ? '<span style="color:var(--gray)">Phí ship:</span><span>' + fmt(fee) + '</span>' : '')
-          + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
-          + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px">' + fmt(total) + '</strong>'
           + '</div>';
+
+        document.getElementById('confirmDetail').innerHTML = grid
+          + '<div id="confirmShopGroups" style="margin:10px 0;font-size:12px;color:var(--gray)">Đang tính phí vận chuyển...</div>'
+          + '<div style="display:grid;grid-template-columns:120px 1fr;gap:4px 12px;margin-top:8px">'
+          + '<span style="color:var(--gray)">Tạm tính:</span><span>' + fmt(sub) + '</span>'
+          + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
+          + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px" id="confirmTotal">' + fmt(total) + '</strong>'
+          + '</div>';
+
+        // Try to load grouped cart with shipping estimate
+        if (addr && typeof Cart !== 'undefined' && typeof Cart.getGrouped === 'function') {
+          Cart.getGrouped(addr.province).then(function (grouped) {
+            var grpEl = document.getElementById('confirmShopGroups');
+            if (!grpEl) return;
+            if (!grouped || !grouped.groups || !grouped.groups.length) {
+              grpEl.style.display = 'none'; return;
+            }
+            var html = '<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">'
+              + '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Phí vận chuyển theo shop</div>';
+            grouped.groups.forEach(function (g) {
+              html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee">'
+                + '<span><i class="bi bi-shop" style="color:var(--pink);margin-right:4px"></i>' + (g.shopName || g.shopId) + '</span>'
+                + '<span style="font-weight:600">' + fmt(g.shippingFee) + '</span></div>';
+            });
+            html += '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:6px 0;border-top:1px solid var(--border)">'
+              + '<span>Tổng ship</span><span>' + fmt(grouped.totalShipping) + '</span></div></div>';
+            grpEl.innerHTML = html;
+            // Update grand total
+            var grandTotal = document.getElementById('confirmTotal');
+            if (grandTotal) grandTotal.textContent = fmt(grouped.grandTotal - discountAmt);
+          }).catch(function () {
+            var grpEl = document.getElementById('confirmShopGroups');
+            if (grpEl) grpEl.style.display = 'none';
+          });
+        } else {
+          var grpEl = document.getElementById('confirmShopGroups');
+          if (grpEl) grpEl.style.display = 'none';
+        }
       }
 
       // ── Ship / Pay ──
@@ -914,6 +946,7 @@
         var fullAddr = addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', ');
         var payload  = {
           ShippingAddress: fullAddr,
+          ToProvince:      addr.province || '',
           Note:            document.getElementById('orderNote').value.trim(),
           ReceiverName:    addr.name,
           ReceiverPhone:   addr.phone,

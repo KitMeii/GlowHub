@@ -41,6 +41,10 @@ namespace BaseCore.Repository
         public DbSet<Dispute> Disputes { get; set; }
         public DbSet<SellerWallet> SellerWallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<SubOrder> SubOrders { get; set; }
+        public DbSet<SubOrderItem> SubOrderItems { get; set; }
+        public DbSet<CustomerWallet> CustomerWallets { get; set; }
+        public DbSet<CustomerWalletTransaction> CustomerWalletTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -269,6 +273,9 @@ namespace BaseCore.Repository
                 entity.Property(e => e.Address).HasMaxLength(300);
                 entity.Property(e => e.Phone).HasMaxLength(20);
                 entity.Property(e => e.CommissionRate).HasColumnType("decimal(5,2)");
+
+                entity.Property(e => e.Province).HasMaxLength(100);
+                entity.Property(e => e.Region).HasMaxLength(20);
 
                 entity.HasOne(e => e.Seller)
                       .WithMany()
@@ -506,6 +513,96 @@ namespace BaseCore.Repository
                       .HasForeignKey(e => e.OrderId)
                       .IsRequired(false)
                       .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Configure CustomerWallet entity
+            modelBuilder.Entity<CustomerWallet>(entity =>
+            {
+                entity.ToTable("CustomerWallets");
+                entity.HasKey(e => e.UserId);
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.Property(e => e.Balance).HasPrecision(18, 2);
+                entity.Property(e => e.TotalReceived).HasPrecision(18, 2);
+                entity.Property(e => e.TotalSpent).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure CustomerWalletTransaction entity
+            modelBuilder.Entity<CustomerWalletTransaction>(entity =>
+            {
+                entity.ToTable("CustomerWalletTransactions");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.Type).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.Amount).HasPrecision(18, 2);
+                entity.Property(e => e.BalanceBefore).HasPrecision(18, 2);
+                entity.Property(e => e.BalanceAfter).HasPrecision(18, 2);
+                entity.Property(e => e.Note).HasMaxLength(500);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Order)
+                      .WithMany()
+                      .HasForeignKey(e => e.OrderId)
+                      .IsRequired(false)
+                      .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Configure SubOrder entity
+            modelBuilder.Entity<SubOrder>(entity =>
+            {
+                entity.ToTable("SubOrders");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ShopId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.SubOrderCode).HasMaxLength(20);
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+                entity.Property(e => e.ShippingFee).HasPrecision(18, 2);
+                entity.Property(e => e.FinalAmount).HasPrecision(18, 2);
+                entity.Property(e => e.ProductRevenue).HasPrecision(18, 2);
+                entity.Property(e => e.CommissionRate).HasPrecision(5, 2);
+                entity.Property(e => e.CommissionAmount).HasPrecision(18, 2);
+                entity.Property(e => e.SellerPayoutAmount).HasPrecision(18, 2);
+                entity.Property(e => e.ShopVoucherDiscount).HasPrecision(18, 2);
+                entity.Property(e => e.PayoutStatus).HasMaxLength(20);
+                entity.Property(e => e.TrackingCode).HasMaxLength(100);
+                entity.Property(e => e.CancelReason).HasMaxLength(500);
+                entity.Property(e => e.Note).HasMaxLength(500);
+
+                entity.HasOne(e => e.Order)
+                      .WithMany()
+                      .HasForeignKey(e => e.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Configure SubOrderItem entity
+            modelBuilder.Entity<SubOrderItem>(entity =>
+            {
+                entity.ToTable("SubOrderItems");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.SubOrder)
+                      .WithMany(s => s.Items)
+                      .HasForeignKey(e => e.SubOrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Seed initial data
