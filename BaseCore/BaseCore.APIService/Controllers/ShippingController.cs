@@ -98,9 +98,11 @@ namespace BaseCore.APIService.Controllers
         public IActionResult GetRegions()
         {
             return Ok(new[] {
-                new { code = ShippingRegion.HCM,   label = "TP. Hồ Chí Minh" },
-                new { code = ShippingRegion.HN,    label = "Hà Nội" },
-                new { code = ShippingRegion.Other, label = "Tỉnh/Thành khác" }
+                new { code = ShippingRegion.North,   label = "Miền Bắc (Hà Nội, Hải Phòng, Quảng Ninh...)" },
+                new { code = ShippingRegion.Central, label = "Miền Trung (Đà Nẵng, Huế, Khánh Hòa, Lâm Đồng...)" },
+                new { code = ShippingRegion.South,   label = "Miền Nam (TP.HCM, Cần Thơ, Đồng Nai, Bình Dương...)" },
+                new { code = ShippingRegion.Island,  label = "Hải đảo (Phú Quốc, Côn Đảo...)" },
+                new { code = ShippingRegion.Other,   label = "Không xác định" }
             });
         }
     }
