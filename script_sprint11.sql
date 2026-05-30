@@ -36,7 +36,7 @@ IF NOT EXISTS (
     WHERE object_id = OBJECT_ID('UserAddresses') AND name = 'Region'
 )
 BEGIN
-    -- 'HCM' | 'HN' | 'OTHER'
+    -- 'NORTH' | 'CENTRAL' | 'SOUTH' | 'ISLAND' | 'OTHER'
     ALTER TABLE UserAddresses ADD Region NVARCHAR(20) NULL;
     PRINT 'UserAddresses.Region added';
 END
@@ -60,6 +60,7 @@ IF NOT EXISTS (
     WHERE object_id = OBJECT_ID('Shops') AND name = 'Region'
 )
 BEGIN
+    -- 'NORTH' | 'CENTRAL' | 'SOUTH' | 'ISLAND' | 'OTHER'
     ALTER TABLE Shops ADD Region NVARCHAR(20) NULL;
     PRINT 'Shops.Region added';
 END
@@ -180,6 +181,96 @@ BEGIN
     PRINT 'CustomerWalletTransactions table created';
 END
 ELSE PRINT 'CustomerWalletTransactions already exists';
+
+-- ─────────────────────────────────────────────────────────
+-- 9. SEED: Shop Province + Region
+--    Mapping: NORTH | CENTRAL | SOUTH | ISLAND | OTHER
+-- ─────────────────────────────────────────────────────────
+
+-- Beauty Store (demo shop) → SOUTH (TP.HCM)
+UPDATE Shops
+SET Province = 'Ho Chi Minh', Region = 'SOUTH'
+WHERE Id = 'cd9cdd36-30eb-42bd-866c-0cae6ff0fe3e';
+PRINT 'Beauty Store region set to SOUTH';
+
+-- Backfill tất cả shop còn NULL Region:
+--   Nếu Province chứa từ khoá → tự động map vùng
+UPDATE Shops SET Region = 'SOUTH' WHERE Region IS NULL AND (
+    Province LIKE '%Hồ Chí Minh%' OR Province LIKE '%Ho Chi Minh%' OR Province LIKE '%HCM%'
+    OR Province LIKE '%Bình Dương%' OR Province LIKE '%Đồng Nai%' OR Province LIKE '%Long An%'
+    OR Province LIKE '%Cần Thơ%' OR Province LIKE '%An Giang%' OR Province LIKE '%Kiên Giang%'
+    OR Province LIKE '%Tiền Giang%' OR Province LIKE '%Bến Tre%' OR Province LIKE '%Vĩnh Long%'
+    OR Province LIKE '%Trà Vinh%' OR Province LIKE '%Đồng Tháp%' OR Province LIKE '%Hậu Giang%'
+    OR Province LIKE '%Sóc Trăng%' OR Province LIKE '%Bạc Liêu%' OR Province LIKE '%Cà Mau%'
+    OR Province LIKE '%Tây Ninh%' OR Province LIKE '%Bình Phước%' OR Province LIKE '%Vũng Tàu%'
+);
+UPDATE Shops SET Region = 'NORTH' WHERE Region IS NULL AND (
+    Province LIKE '%Hà Nội%' OR Province LIKE '%Ha Noi%' OR Province LIKE '%Hải Phòng%'
+    OR Province LIKE '%Quảng Ninh%' OR Province LIKE '%Hải Dương%' OR Province LIKE '%Hưng Yên%'
+    OR Province LIKE '%Thái Bình%' OR Province LIKE '%Nam Định%' OR Province LIKE '%Ninh Bình%'
+    OR Province LIKE '%Vĩnh Phúc%' OR Province LIKE '%Bắc Ninh%' OR Province LIKE '%Bắc Giang%'
+    OR Province LIKE '%Thái Nguyên%' OR Province LIKE '%Lạng Sơn%' OR Province LIKE '%Cao Bằng%'
+    OR Province LIKE '%Hà Giang%' OR Province LIKE '%Lào Cai%' OR Province LIKE '%Yên Bái%'
+    OR Province LIKE '%Phú Thọ%' OR Province LIKE '%Sơn La%' OR Province LIKE '%Điện Biên%'
+    OR Province LIKE '%Lai Châu%' OR Province LIKE '%Hòa Bình%' OR Province LIKE '%Tuyên Quang%'
+    OR Province LIKE '%Bắc Kạn%'
+);
+UPDATE Shops SET Region = 'CENTRAL' WHERE Region IS NULL AND (
+    Province LIKE '%Thanh Hóa%' OR Province LIKE '%Nghệ An%' OR Province LIKE '%Hà Tĩnh%'
+    OR Province LIKE '%Quảng Bình%' OR Province LIKE '%Quảng Trị%' OR Province LIKE '%Huế%'
+    OR Province LIKE '%Đà Nẵng%' OR Province LIKE '%Quảng Nam%' OR Province LIKE '%Quảng Ngãi%'
+    OR Province LIKE '%Bình Định%' OR Province LIKE '%Phú Yên%' OR Province LIKE '%Khánh Hòa%'
+    OR Province LIKE '%Ninh Thuận%' OR Province LIKE '%Bình Thuận%' OR Province LIKE '%Kon Tum%'
+    OR Province LIKE '%Gia Lai%' OR Province LIKE '%Đắk Lắk%' OR Province LIKE '%Đắk Nông%'
+    OR Province LIKE '%Lâm Đồng%' OR Province LIKE '%Đà Lạt%' OR Province LIKE '%Nha Trang%'
+);
+UPDATE Shops SET Region = 'ISLAND' WHERE Region IS NULL AND (
+    Province LIKE '%Phú Quốc%' OR Province LIKE '%Côn Đảo%' OR Province LIKE '%Hoàng Sa%'
+    OR Province LIKE '%Trường Sa%' OR Province LIKE '%Lý Sơn%'
+);
+-- Fallback
+UPDATE Shops SET Region = 'OTHER' WHERE Region IS NULL;
+
+PRINT 'Shops.Region backfill complete';
+
+-- ─────────────────────────────────────────────────────────
+-- 10. SEED: UserAddresses Region backfill (tương tự)
+-- ─────────────────────────────────────────────────────────
+UPDATE UserAddresses SET Region = 'SOUTH' WHERE Region IS NULL AND Province IS NOT NULL AND (
+    Province LIKE '%Hồ Chí Minh%' OR Province LIKE '%Ho Chi Minh%' OR Province LIKE '%HCM%'
+    OR Province LIKE '%Bình Dương%' OR Province LIKE '%Đồng Nai%' OR Province LIKE '%Long An%'
+    OR Province LIKE '%Cần Thơ%' OR Province LIKE '%An Giang%' OR Province LIKE '%Kiên Giang%'
+    OR Province LIKE '%Tiền Giang%' OR Province LIKE '%Bến Tre%' OR Province LIKE '%Vĩnh Long%'
+    OR Province LIKE '%Trà Vinh%' OR Province LIKE '%Đồng Tháp%' OR Province LIKE '%Hậu Giang%'
+    OR Province LIKE '%Sóc Trăng%' OR Province LIKE '%Bạc Liêu%' OR Province LIKE '%Cà Mau%'
+    OR Province LIKE '%Tây Ninh%' OR Province LIKE '%Bình Phước%' OR Province LIKE '%Vũng Tàu%'
+);
+UPDATE UserAddresses SET Region = 'NORTH' WHERE Region IS NULL AND Province IS NOT NULL AND (
+    Province LIKE '%Hà Nội%' OR Province LIKE '%Ha Noi%' OR Province LIKE '%Hải Phòng%'
+    OR Province LIKE '%Quảng Ninh%' OR Province LIKE '%Hải Dương%' OR Province LIKE '%Hưng Yên%'
+    OR Province LIKE '%Thái Bình%' OR Province LIKE '%Nam Định%' OR Province LIKE '%Ninh Bình%'
+    OR Province LIKE '%Vĩnh Phúc%' OR Province LIKE '%Bắc Ninh%' OR Province LIKE '%Bắc Giang%'
+    OR Province LIKE '%Thái Nguyên%' OR Province LIKE '%Lạng Sơn%' OR Province LIKE '%Cao Bằng%'
+    OR Province LIKE '%Hà Giang%' OR Province LIKE '%Lào Cai%' OR Province LIKE '%Yên Bái%'
+    OR Province LIKE '%Phú Thọ%' OR Province LIKE '%Sơn La%' OR Province LIKE '%Điện Biên%'
+    OR Province LIKE '%Lai Châu%' OR Province LIKE '%Hòa Bình%' OR Province LIKE '%Tuyên Quang%'
+    OR Province LIKE '%Bắc Kạn%'
+);
+UPDATE UserAddresses SET Region = 'CENTRAL' WHERE Region IS NULL AND Province IS NOT NULL AND (
+    Province LIKE '%Thanh Hóa%' OR Province LIKE '%Nghệ An%' OR Province LIKE '%Hà Tĩnh%'
+    OR Province LIKE '%Quảng Bình%' OR Province LIKE '%Quảng Trị%' OR Province LIKE '%Huế%'
+    OR Province LIKE '%Đà Nẵng%' OR Province LIKE '%Quảng Nam%' OR Province LIKE '%Quảng Ngãi%'
+    OR Province LIKE '%Bình Định%' OR Province LIKE '%Phú Yên%' OR Province LIKE '%Khánh Hòa%'
+    OR Province LIKE '%Ninh Thuận%' OR Province LIKE '%Bình Thuận%' OR Province LIKE '%Kon Tum%'
+    OR Province LIKE '%Gia Lai%' OR Province LIKE '%Đắk Lắk%' OR Province LIKE '%Đắk Nông%'
+    OR Province LIKE '%Lâm Đồng%'
+);
+UPDATE UserAddresses SET Region = 'ISLAND' WHERE Region IS NULL AND Province IS NOT NULL AND (
+    Province LIKE '%Phú Quốc%' OR Province LIKE '%Côn Đảo%'
+);
+UPDATE UserAddresses SET Region = 'OTHER' WHERE Region IS NULL AND Province IS NOT NULL;
+
+PRINT 'UserAddresses.Region backfill complete';
 
 -- ─────────────────────────────────────────────────────────
 -- DONE
