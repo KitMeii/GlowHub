@@ -53,5 +53,8 @@ namespace BaseCore.Entities
 
         /// <summary>Cached view count — incremented on product detail page load</summary>
         public int ViewCount { get; set; } = 0;
+
+        /// <summary>Trọng lượng tính phí ship (gram) — mặc định 500g</summary>
+        public int WeightGram { get; set; } = 500;
     }
 }

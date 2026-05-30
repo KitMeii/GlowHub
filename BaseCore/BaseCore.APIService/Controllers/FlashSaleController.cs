@@ -3,6 +3,7 @@ using BaseCore.Repository;
 using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -60,7 +61,7 @@ namespace BaseCore.APIService.Controllers
                         : 0,
                     soldCount = p.SoldCount,
                     totalQuantity = p.Quantity,
-                    remainingQuantity = p.Quantity - p.SoldCount
+                    remainingQuantity = p.RemainingQuantity
                 })
             });
         }
@@ -104,7 +105,7 @@ namespace BaseCore.APIService.Controllers
                             : 0,
                         soldCount = p.SoldCount,
                         totalQuantity = p.Quantity,
-                        remainingQuantity = p.Quantity - p.SoldCount
+                        remainingQuantity = p.RemainingQuantity
                     })
                 });
             }
@@ -145,7 +146,7 @@ namespace BaseCore.APIService.Controllers
                         : 0,
                     soldCount = p.SoldCount,
                     totalQuantity = p.Quantity,
-                    remainingQuantity = p.Quantity - p.SoldCount
+                    remainingQuantity = p.RemainingQuantity
                 })
             });
         }
@@ -269,6 +270,156 @@ namespace BaseCore.APIService.Controllers
             await _db.SaveChangesAsync();
             return Ok(new { message = sale.IsActive ? "Đã bật flash sale" : "Đã tắt flash sale", isActive = sale.IsActive });
         }
+
+        /// <summary>
+        /// POST /api/flashsale/buy — Mua flash sale (atomic, chống race condition)
+        /// Body: { flashSaleProductId, quantity, shippingAddress, receiverName, receiverPhone }
+        /// </summary>
+        [HttpPost("buy")]
+        [Authorize]
+        public async Task<IActionResult> Buy([FromBody] BuyFlashSaleDto dto)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            if (dto.Quantity <= 0)
+                return BadRequest(new { message = "Số lượng phải lớn hơn 0" });
+            if (string.IsNullOrWhiteSpace(dto.ShippingAddress))
+                return BadRequest(new { message = "Vui lòng nhập địa chỉ giao hàng" });
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // ── BƯỚC 1: Kiểm tra flash sale còn hiệu lực ─────────
+                var now = DateTime.UtcNow;
+                var fsp = await _db.FlashSaleProducts
+                    .Include(p => p.FlashSale)
+                    .Include(p => p.Product)
+                    .FirstOrDefaultAsync(p => p.Id == dto.FlashSaleProductId && p.IsActive);
+
+                if (fsp == null)
+                    return NotFound(new { message = "Không tìm thấy sản phẩm flash sale" });
+
+                if (!fsp.FlashSale.IsActive || fsp.FlashSale.StartTime > now || fsp.FlashSale.EndTime <= now)
+                    return BadRequest(new { message = "Flash sale chưa bắt đầu hoặc đã kết thúc" });
+
+                if (fsp.Product == null || !fsp.Product.IsActive)
+                    return BadRequest(new { message = "Sản phẩm không còn bán" });
+
+                // ── BƯỚC 2: ATOMIC DECREMENT — chống race condition ──
+                // Dùng SQL trực tiếp với điều kiện RemainingQuantity >= qty
+                // Nếu rowsAffected = 0 → hết hàng (bị người khác mua trước)
+                var rowsAffected = await _db.Database.ExecuteSqlRawAsync(
+                    @"UPDATE FlashSaleProducts
+                      SET RemainingQuantity = RemainingQuantity - @qty,
+                          SoldCount         = SoldCount + @qty
+                      WHERE Id = @fspId
+                        AND RemainingQuantity >= @qty
+                        AND IsActive = 1",
+                    new SqlParameter("@qty",   dto.Quantity),
+                    new SqlParameter("@fspId", fsp.Id));
+
+                if (rowsAffected == 0)
+                    return BadRequest(new { message = "Sản phẩm đã hết hàng hoặc không đủ số lượng" });
+
+                // ── BƯỚC 3: Deduct Product.Stock ─────────────────────
+                var product = fsp.Product;
+                if (product.Stock < dto.Quantity)
+                {
+                    // Hoàn lại RemainingQuantity nếu stock kho không đủ
+                    await _db.Database.ExecuteSqlRawAsync(
+                        @"UPDATE FlashSaleProducts
+                          SET RemainingQuantity = RemainingQuantity + @qty,
+                              SoldCount         = SoldCount - @qty
+                          WHERE Id = @fspId",
+                        new SqlParameter("@qty",   dto.Quantity),
+                        new SqlParameter("@fspId", fsp.Id));
+                    return BadRequest(new { message = $"Kho chỉ còn {product.Stock} sản phẩm" });
+                }
+
+                product.Stock     -= dto.Quantity;
+                product.SoldCount += dto.Quantity;
+
+                // ── BƯỚC 4: Tạo Order ─────────────────────────────────
+                var shop           = await _db.Shops.FirstOrDefaultAsync(s => s.Id == product.ShopId);
+                decimal commRate   = shop?.CommissionRate > 0 ? shop!.CommissionRate : 10m;
+                decimal salePrice  = fsp.SalePrice;
+                decimal totalAmt   = salePrice * dto.Quantity;
+                decimal productRev = totalAmt;
+                decimal commAmt    = Math.Round(productRev * commRate / 100m, 2);
+                decimal payout     = productRev - commAmt;
+
+                var order = new Order {
+                    UserId             = userId,
+                    ShopId             = product.ShopId,
+                    OrderDate          = DateTime.UtcNow,
+                    TotalAmount        = totalAmt,
+                    ShippingFee        = 0m,     // flash sale miễn phí ship
+                    FinalAmount        = totalAmt,
+                    Status             = OrderStatus.Pending,
+                    PayoutStatus       = PayoutStatusValue.Pending,
+                    CommissionRate     = commRate,
+                    ProductRevenue     = productRev,
+                    CommissionAmount   = commAmt,
+                    SellerPayoutAmount = payout,
+                    PaymentMethod      = "COD",
+                    PaymentStatus      = "UNPAID",
+                    ShippingAddress    = dto.ShippingAddress,
+                    ReceiverName       = dto.ReceiverName ?? "",
+                    ReceiverPhone      = dto.ReceiverPhone ?? "",
+                    Note               = $"[Flash Sale] {fsp.FlashSale.Name}",
+                    EstimatedDelivery  = DateTime.UtcNow.AddDays(3),
+                    OrderDetails = new List<OrderDetail> {
+                        new() { ProductId = product.Id, Quantity = dto.Quantity, UnitPrice = salePrice }
+                    }
+                };
+                _db.Orders.Add(order);
+                await _db.SaveChangesAsync();
+
+                order.OrderCode = "FS-" + order.Id.ToString("D6");
+
+                _db.OrderStatusHistories.Add(new OrderStatusHistory {
+                    OrderId   = order.Id,
+                    Status    = OrderStatus.Pending,
+                    Note      = $"Đặt hàng Flash Sale: {fsp.FlashSale.Name}",
+                    ChangedBy = userId,
+                    ChangedAt = DateTime.UtcNow
+                });
+
+                // Notify seller
+                if (shop != null)
+                {
+                    _db.Notifications.Add(new Notification {
+                        UserId    = shop.SellerId,
+                        Title     = "Đơn Flash Sale mới",
+                        Message   = $"Đơn {order.OrderCode} - {totalAmt:N0}₫",
+                        Link      = "/seller-dashboard.html",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                // Reload để lấy RemainingQuantity sau update
+                await _db.Entry(fsp).ReloadAsync();
+
+                return Ok(new {
+                    message           = "Đặt hàng Flash Sale thành công!",
+                    orderId           = order.Id,
+                    orderCode         = order.OrderCode,
+                    totalAmount       = totalAmt,
+                    salePrice,
+                    quantity          = dto.Quantity,
+                    remainingQuantity = fsp.RemainingQuantity
+                });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 
     public class CreateFlashSaleDto
@@ -292,5 +443,14 @@ namespace BaseCore.APIService.Controllers
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public bool? IsActive { get; set; }
+    }
+
+    public class BuyFlashSaleDto
+    {
+        public int    FlashSaleProductId { get; set; }
+        public int    Quantity           { get; set; } = 1;
+        public string ShippingAddress    { get; set; } = "";
+        public string? ReceiverName     { get; set; }
+        public string? ReceiverPhone    { get; set; }
     }
 }

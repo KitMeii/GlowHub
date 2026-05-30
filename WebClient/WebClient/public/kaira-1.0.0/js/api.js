@@ -1610,3 +1610,107 @@ const DisputeApi = {
     return apiFetch(PRODUCT_API, "/api/disputes/" + id, "GET");
   },
 };
+
+// ============================================================
+//  SHIPPING MODULE
+// ============================================================
+const Shipping = {
+  calculate: function (fromRegion, toRegion, weightGram) {
+    var qs = new URLSearchParams({ fromRegion: fromRegion, toRegion: toRegion, weightGram: weightGram });
+    return apiFetch(PRODUCT_API, "/api/shipping/calculate?" + qs.toString(), "GET");
+  },
+  calculateCart: function (fromShopId, toProvince, items) {
+    return apiFetch(PRODUCT_API, "/api/shipping/calculate-cart", "POST", {
+      fromShopId: fromShopId,
+      toProvince: toProvince,
+      items: items
+    });
+  },
+  getRegions: function () {
+    return apiFetch(PRODUCT_API, "/api/shipping/regions", "GET");
+  },
+};
+
+// ============================================================
+//  CART — getGrouped (grouped by shop with shipping estimate)
+// ============================================================
+Cart.getGrouped = function (toProvince) {
+  var qs = toProvince ? "?toProvince=" + encodeURIComponent(toProvince) : "";
+  return apiFetch(PRODUCT_API, "/api/cart/grouped" + qs, "GET");
+};
+
+// ============================================================
+//  SELLER SUB-ORDER MODULE
+// ============================================================
+const SellerSubOrder = {
+  getAll: function (params) {
+    var qs = new URLSearchParams(params || {});
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
+  },
+  confirm: function (id) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT");
+  },
+  ship: function (id, trackingCode) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { trackingCode: trackingCode });
+  },
+  cancel: function (id, reason) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { reason: reason });
+  },
+};
+
+// ============================================================
+//  CUSTOMER WALLET MODULE
+// ============================================================
+const CustomerWallet = {
+  get: function () {
+    return apiFetch(PRODUCT_API, "/api/customer/wallet", "GET");
+  },
+  getTransactions: function (params) {
+    var qs = new URLSearchParams(params || {});
+    return apiFetch(PRODUCT_API, "/api/customer/wallet/transactions?" + qs.toString(), "GET");
+  },
+  topUp: function (data) {
+    return apiFetch(PRODUCT_API, "/api/customer/wallet/topup", "POST", data);
+  },
+};
+
+// ============================================================
+//  FLASH SALE — buy (race-condition safe)
+// ============================================================
+FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
+  return apiFetch(PRODUCT_API, "/api/flashsale/buy", "POST", {
+    flashSaleProductId: flashSaleProductId,
+    quantity: quantity || 1,
+    shippingAddress: shippingAddress || ""
+  });
+};
+
+// ============================================================
+//  CART — add with shopId/shopName support
+// ============================================================
+(function () {
+  var _origAdd = Cart.add.bind(Cart);
+  Cart.add = function (product, qty) {
+    var items = this.getItems();
+    var id = product.Id || product.id || product._id;
+    var idx = items.findIndex(function (i) { return (i.id || i.Id) == id; });
+    if (idx > -1) {
+      items[idx].qty = (items[idx].qty || 1) + (qty || 1);
+    } else {
+      items.push({
+        id: id,
+        name: product.Name || product.name,
+        price: product.Price || product.price,
+        image: product.ImageUrl || product.imageUrl || product.Image || product.image || "",
+        category: (product.Category && (product.Category.Name || product.Category.name)) || product.CategoryName || product.Category || product.category || "",
+        shopId: product.ShopId || product.shopId || null,
+        shopName: product.ShopName || product.shopName || null,
+        weightGram: product.WeightGram || product.weightGram || 500,
+        qty: qty || 1,
+      });
+    }
+    this._save(items);
+    this._flashBadge();
+    return items;
+  };
+})();

@@ -51,6 +51,10 @@ namespace BaseCore.Entities
         [MaxLength(500)]
         public string? MapAddress { get; set; }
 
+        /// <summary>Vùng giao hàng: HCM | HN | OTHER — tính phí ship</summary>
+        [MaxLength(20)]
+        public string? Region { get; set; }
+
         public bool IsDefault { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

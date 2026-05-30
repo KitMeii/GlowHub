@@ -280,6 +280,30 @@ namespace BaseCore.APIService.Controllers
 
                         dispute.Order.PayoutStatus = PayoutStatusValue.Refunded;
                     }
+
+                    // Credit CustomerWallet với số tiền hoàn
+                    var custWallet = await _db.CustomerWallets.FindAsync(dispute.CustomerId);
+                    if (custWallet == null)
+                    {
+                        custWallet = new CustomerWallet { UserId = dispute.CustomerId, UpdatedAt = DateTime.UtcNow };
+                        _db.CustomerWallets.Add(custWallet);
+                        await _db.SaveChangesAsync();
+                    }
+                    var cwBefore = custWallet.Balance;
+                    var cwAfter  = cwBefore + dto.RefundAmount;
+                    custWallet.Balance        = cwAfter;
+                    custWallet.TotalReceived += dto.RefundAmount;
+                    custWallet.UpdatedAt      = DateTime.UtcNow;
+                    _db.CustomerWalletTransactions.Add(new CustomerWalletTransaction {
+                        UserId        = dispute.CustomerId,
+                        Type          = CustomerWalletTxType.Refund,
+                        Amount        = dto.RefundAmount,
+                        BalanceBefore = cwBefore,
+                        BalanceAfter  = cwAfter,
+                        Note          = $"Hoàn tiền khiếu nại #{id}",
+                        OrderId       = dispute.OrderId,
+                        CreatedAt     = DateTime.UtcNow
+                    });
                 }
 
                 await _db.SaveChangesAsync();

@@ -34,6 +34,13 @@ namespace BaseCore.Entities
         [Column(TypeName = "decimal(5,2)")]
         public decimal CommissionRate { get; set; } = 10m;
 
+        [MaxLength(100)]
+        public string? Province { get; set; }
+
+        /// <summary>Vùng xuất phát: HCM | HN | OTHER — tính phí ship</summary>
+        [MaxLength(20)]
+        public string? Region { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 

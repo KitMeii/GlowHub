@@ -406,7 +406,7 @@
                             <button class="clear-cart-btn" onclick="clearAll()">🗑 Xóa tất cả</button>
                           </div>
                           <div id="items-body">
-                            ${items.map((item) => renderItem(item)).join("")}
+                            ${renderItemsGrouped(items)}
                           </div>
                           <div class="coupon-bar">
                             <input type="text" id="coupon-input" placeholder="Nhập mã giảm giá..." maxlength="20"
@@ -481,6 +481,41 @@
             inp.disabled = true;
           }
         }
+      }
+
+      // ── Group items by shop ──
+      function _groupByShop(items) {
+        const map = {};
+        items.forEach(function (item) {
+          const sid = item.shopId || item.ShopId || "__none__";
+          const sname = item.shopName || item.ShopName || "Shop";
+          if (!map[sid]) map[sid] = { shopId: sid, shopName: sname, items: [] };
+          map[sid].items.push(item);
+        });
+        return Object.values(map);
+      }
+
+      function renderItemsGrouped(items) {
+        const hasShop = items.some((i) => i.shopId || i.ShopId);
+        const groups = _groupByShop(items);
+        if (!hasShop || groups.length <= 1)
+          return items.map((item) => renderItem(item)).join("");
+        return groups
+          .map(function (g) {
+            const groupSub = g.items.reduce(
+              (s, i) => s + (i.price || 0) * (i.qty || 1),
+              0,
+            );
+            return (
+              `<div style="display:flex;align-items:center;justify-content:space-between;` +
+              `padding:10px 14px;margin:12px 0 4px;background:#fdf6f0;border-left:3px solid var(--pink);` +
+              `border-radius:0 8px 8px 0;font-size:13px;font-weight:600;color:#333">` +
+              `<span><i class="bi bi-shop" style="color:var(--pink);margin-right:6px"></i>${g.shopName}</span>` +
+              `<span style="font-weight:400;color:var(--gray)">Tạm tính: ${fmt(groupSub)}</span></div>` +
+              g.items.map((item) => renderItem(item)).join("")
+            );
+          })
+          .join("");
       }
 
       function renderItem(item) {

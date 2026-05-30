@@ -92,6 +92,7 @@ builder.Services.AddScoped<IShopRepositoryEF, ShopRepositoryEF>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddSingleton<ShippingCalculatorService>();
 
 // JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "YourSecretKeyForAuthenticationShouldBeLongEnough");
