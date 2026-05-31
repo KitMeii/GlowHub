@@ -277,29 +277,45 @@
                     <div class="pay-desc">Thanh toán qua ví điện tử MoMo</div>
                   </div>
                 </label>
-                <label class="pay-option" onclick="selectPay('zalopay',this)">
-                  <input type="radio" name="payment" value="zalopay" />
-                  <i class="bi bi-phone-fill" style="font-size:24px;color:#0068ff"></i>
+                <label class="pay-option" onclick="selectPay('vnpay',this)">
+                  <input type="radio" name="payment" value="vnpay" />
+                  <i class="bi bi-lightning-fill" style="font-size:24px;color:#e65100"></i>
                   <div>
-                    <div class="pay-name">ZaloPay</div>
-                    <div class="pay-desc">Thanh toán qua ví ZaloPay</div>
+                    <div class="pay-name">VNPay</div>
+                    <div class="pay-desc">Thẻ ATM / Thẻ tín dụng / QR Code</div>
                   </div>
                 </label>
               </div>
 
-              <!-- Bank info (shown when bank selected) -->
-              <div class="form-section" id="bankInfo" style="display:none;background:#f8fffe;border-color:#86efac">
-                <div class="form-section-title" style="color:#166534">Thông Tin Chuyển Khoản</div>
-                <div style="font-size:13px;line-height:2.4">
-                  <div><strong>Ngân hàng:</strong> Vietcombank</div>
-                  <div><strong>Số tài khoản:</strong> 1234567890</div>
-                  <div><strong>Chủ tài khoản:</strong> GLOWHUB STORE</div>
-                  <div><strong>Nội dung CK:</strong>
-                    <span id="bankContent" style="color:var(--pink);font-weight:700">GH + SĐT của bạn</span>
-                  </div>
+              <!-- Bank info hint (shown when bank selected) -->
+              <div class="form-section" id="bankInfo" style="display:none;background:#f0fdf4;border-color:#86efac">
+                <div class="form-section-title" style="color:#166534"><i class="bi bi-bank me-2"></i>Chuyển Khoản Ngân Hàng</div>
+                <p style="font-size:12px;color:#166534;line-height:1.8">
+                  Sau khi đặt hàng, bạn sẽ được chuyển đến trang thanh toán với thông tin tài khoản và QR code.<br/>
+                  Đơn hàng sẽ được xác nhận sau khi admin kiểm tra chuyển khoản.
+                </p>
+              </div>
+
+              <!-- VNPay info hint (shown when vnpay selected) -->
+              <div class="form-section" id="vnpayInfo" style="display:none;background:#fff3e0;border-color:#fed7aa">
+                <div class="form-section-title" style="color:#c2410c"><i class="bi bi-lightning-fill me-2"></i>Thanh Toán VNPay</div>
+                <p style="font-size:12px;color:#c2410c;line-height:1.8;margin-bottom:10px">
+                  Bạn sẽ được chuyển đến cổng VNPay ngay sau khi đặt hàng. Thời gian thanh toán: <strong>15 phút</strong>.
+                </p>
+                <div style="background:#fff;border:1px solid #fed7aa;padding:10px 14px;font-size:11px;border-radius:4px">
+                  <div style="font-weight:600;margin-bottom:6px;color:#111"><i class="bi bi-credit-card me-1"></i>Thẻ Test (Sandbox):</div>
+                  <div>Số thẻ: <strong>9704198526191432198</strong></div>
+                  <div>Tên: <strong>NGUYEN VAN A</strong> · Ngày PH: <strong>07/15</strong> · OTP: <strong>123456</strong></div>
+                  <div style="color:#888;margin-top:4px">Ngân hàng: NCB</div>
                 </div>
-                <p style="font-size:11px;color:var(--gray);margin-top:8px">
-                  Đơn sẽ được xử lý sau khi xác nhận chuyển khoản (1–2 giờ làm việc)
+              </div>
+
+              <!-- MoMo fake modal hint -->
+              <div class="form-section" id="momoInfo" style="display:none;background:#fff0f8;border-color:#f9a8d4">
+                <div class="form-section-title" style="color:#9d174d"><i class="bi bi-phone me-2"></i>Ví MoMo</div>
+                <p style="font-size:12px;color:#9d174d;line-height:1.8">
+                  Sau khi đặt hàng, QR code MoMo sẽ hiển thị để bạn quét thanh toán.<br/>
+                  <em>(Tính năng đang phát triển — đơn sẽ xử lý như COD)</em>
                 </p>
               </div>
 
@@ -869,11 +885,9 @@
         selectedPay = type;
         document.querySelectorAll('.pay-option').forEach(function (o) { o.classList.remove('selected'); });
         if (el) el.classList.add('selected');
-        document.getElementById('bankInfo').style.display = type === 'bank' ? 'block' : 'none';
-        if (type === 'bank') {
-          var addr = savedAddresses.find(function (a) { return String(a.id) === String(selectedAddrId); });
-          document.getElementById('bankContent').textContent = 'GH ' + (addr ? addr.phone : 'SĐT của bạn');
-        }
+        document.getElementById('bankInfo').style.display  = type === 'bank'   ? 'block' : 'none';
+        document.getElementById('vnpayInfo').style.display = type === 'vnpay'  ? 'block' : 'none';
+        document.getElementById('momoInfo').style.display  = type === 'momo'   ? 'block' : 'none';
       }
 
       // ── Voucher ──
@@ -937,7 +951,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang xử lý...';
 
-        var payMap  = { cod: "COD", bank: "BANK", momo: "MOMO", zalopay: "ZALOPAY" };
+        var payMap  = { cod: "COD", bank: "BANK", momo: "MOMO", vnpay: "VNPAY" };
         var fullAddr = addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', ');
         var payload  = {
           ShippingAddress: fullAddr,
@@ -963,9 +977,31 @@
           if (typeof Cart !== 'undefined' && Cart.clear) Cart.clear();
           localStorage.removeItem('glowhub_cart');
 
-          var orderId   = result && (result.orderId   || result.OrderId   || result.Id   || result.id   || '');
-          var orderCode = result && (result.orderCode || result.OrderCode || ('ORD-' + orderId));
-          window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+          var orderId      = result && (result.orderId      || result.OrderId      || result.Id      || result.id   || '');
+          var orderCode    = result && (result.orderCode    || result.OrderCode    || ('ORD-' + orderId));
+          var payMethod    = result && (result.paymentMethod|| result.PaymentMethod|| payMap[selectedPay] || 'COD');
+          var payStatus    = result && (result.paymentStatus|| result.PaymentStatus|| '');
+          var expireAt     = result && (result.paymentExpireAt || result.PaymentExpireAt || '');
+          var requiresPay  = result && (result.requiresPayment || result.RequiresPayment || false);
+          var finalAmount  = result && (result.finalAmount  || result.FinalAmount  || result.totalAmount || 0);
+
+          if (requiresPay && (payMethod === 'BANK' || payMethod === 'VNPAY')) {
+            // Redirect đến trang chờ thanh toán
+            var wp = 'waiting-payment.html?orderId=' + orderId
+              + '&method=' + payMethod
+              + '&orderCode=' + encodeURIComponent(orderCode)
+              + '&amount=' + finalAmount;
+            if (expireAt) wp += '&expireAt=' + encodeURIComponent(expireAt);
+            window.location.href = wp;
+          } else if (payMethod === 'MOMO') {
+            // MoMo: hiện fake modal rồi redirect order-success
+            showToast('Thanh toán MoMo đang được xử lý...');
+            setTimeout(function() {
+              window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+            }, 1500);
+          } else {
+            window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+          }
         }).catch(function (e) {
           showToast('Lỗi: ' + e.message + '. Vui lòng thử lại!', 'err');
           btn.disabled = false;

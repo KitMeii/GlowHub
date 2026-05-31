@@ -2,70 +2,22 @@
 /* eslint-disable */
 /**
  * GlowHub — gsap.js
- * GSAP + Custom Cursor + Magnetic + Reveal
- * KHÔNG dùng Lenis — native scroll
+ * GSAP Scroll Reveal + Magnetic + Parallax
  */
 (function () {
   "use strict";
 
   document.addEventListener("DOMContentLoaded", function () {
-    initCursor();
     initNavbar();
     initReveal();
     initHeroParallax();
     initMagnetic();
     initBlurUp();
+    initScrollTop();
   });
 
   /* ══════════════════════════════════════
-     1. CUSTOM CURSOR
-  ══════════════════════════════════════ */
-  function initCursor() {
-    if (!window.matchMedia("(hover:hover) and (pointer:fine)").matches) return;
-
-    var dot = document.getElementById("lux-cursor-dot");
-    var ring = document.getElementById("lux-cursor-ring");
-    if (!dot) {
-      dot = document.createElement("div");
-      dot.id = "lux-cursor-dot";
-      ring = document.createElement("div");
-      ring.id = "lux-cursor-ring";
-      document.body.appendChild(dot);
-      document.body.appendChild(ring);
-    }
-
-    var mx = 0,
-      my = 0,
-      rx = 0,
-      ry = 0;
-
-    document.addEventListener("mousemove", function (e) {
-      mx = e.clientX;
-      my = e.clientY;
-      dot.style.left = mx + "px";
-      dot.style.top = my + "px";
-    });
-
-    (function animRing() {
-      rx += (mx - rx) * 0.1;
-      ry += (my - ry) * 0.1;
-      ring.style.left = rx + "px";
-      ring.style.top = ry + "px";
-      requestAnimationFrame(animRing);
-    })();
-
-    var sel =
-      "a,button,.gh-split-panel,.gh-asym-card,.gh-strip-card,.gh-lifestyle-item,.product-card,input,select,textarea,[onclick]";
-    document.addEventListener("mouseover", function (e) {
-      if (e.target.closest(sel)) document.body.classList.add("cursor-hover");
-    });
-    document.addEventListener("mouseout", function (e) {
-      if (e.target.closest(sel)) document.body.classList.remove("cursor-hover");
-    });
-  }
-
-  /* ══════════════════════════════════════
-     2. NAVBAR — shadow khi scroll
+     1. NAVBAR — shadow khi scroll
   ══════════════════════════════════════ */
   function initNavbar() {
     var nav = document.querySelector(".gh-nav");
@@ -257,6 +209,26 @@
         },
         { once: true },
       );
+    });
+  }
+
+  /* ══════════════════════════════════════
+     6. SCROLL TO TOP BUTTON
+  ══════════════════════════════════════ */
+  function initScrollTop() {
+    var btn = document.getElementById("gh-scroll-top");
+    if (!btn) {
+      btn = document.createElement("button");
+      btn.id = "gh-scroll-top";
+      btn.setAttribute("aria-label", "Lên đầu trang");
+      btn.innerHTML = '<i class="bi bi-chevron-up"></i>';
+      document.body.appendChild(btn);
+    }
+    window.addEventListener("scroll", function () {
+      btn.classList.toggle("visible", window.scrollY > 400);
+    }, { passive: true });
+    btn.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 })();

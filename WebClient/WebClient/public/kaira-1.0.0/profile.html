@@ -369,6 +369,13 @@
                     >
                       Hoàn Thành
                     </button>
+                    <button
+                      class="gh-btn-outline"
+                      style="padding: 6px 14px; font-size: 11px"
+                      onclick="filterOrders('WAITING_PAYMENT', this)"
+                    >
+                      💳 Chờ TT
+                    </button>
                   </div>
                 </div>
                 <div class="pcard-body">
@@ -1289,7 +1296,42 @@
         SHIPPING: ["status-SHIPPING", "🚚 Đang Giao"],
         COMPLETED: ["status-COMPLETED", "🎉 Hoàn Thành"],
         CANCELLED: ["status-CANCELLED", "❌ Đã Hủy"],
+        WAITING_PAYMENT: ["status-WAITING_PAYMENT", "💳 Chờ Thanh Toán"],
+        PENDING_BANK_CONFIRM: ["status-PENDING_BANK_CONFIRM", "🏦 Chờ Xác Nhận CK"],
       };
+
+      // ── Countdown timers (cleared on each re-render) ──
+      var _cdTimers = [];
+
+      function _clearCdTimers() {
+        _cdTimers.forEach(function(id) { clearInterval(id); });
+        _cdTimers = [];
+      }
+
+      function _startCountdown(oid, expireAt) {
+        var el = document.getElementById('cd-' + oid);
+        if (!el || !expireAt) return;
+        var expiry = new Date(expireAt).getTime();
+        function tick() {
+          var diff = Math.max(0, expiry - Date.now());
+          if (diff === 0) {
+            el.textContent = 'Hết hạn';
+            el.classList.add('urgent');
+            var btn = document.getElementById('paybtn-' + oid);
+            if (btn) btn.style.opacity = '0.4';
+            clearInterval(tid);
+            return;
+          }
+          var m = Math.floor(diff / 60000);
+          var s = Math.floor((diff % 60000) / 1000);
+          el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+          if (m < 3) el.classList.add('urgent');
+          else el.classList.remove('urgent');
+        }
+        tick();
+        var tid = setInterval(tick, 1000);
+        _cdTimers.push(tid);
+      }
 
       function getStatusBadge(s) {
         var key = (s || "PENDING").toString().toUpperCase();
@@ -1301,6 +1343,7 @@
 
       function renderOrders(filter) {
         if (!filter) filter = currentFilter;
+        _clearCdTimers();
         var wrap = document.getElementById("orderListWrap");
         var list =
           filter === "all"
@@ -1319,16 +1362,19 @@
         }
 
         var ph = "https://placehold.co/44x44/f5f0ea/888?text=IMG";
+        var waitingOids = [];
 
         wrap.innerHTML = list
           .map(function (o) {
             var oid = o.Id || o.id || o.orderId || "—";
-            var status = o.Status || o.status || "PENDING";
+            var status = (o.Status || o.status || "PENDING").toString().toUpperCase();
             var date = o.OrderDate || o.orderDate || o.CreatedAt || o.createdAt;
             var total = o.TotalAmount || o.totalAmount || 0;
             var addr = o.ShippingAddress || o.shippingAddress || "—";
             var items =
               o.Items || o.items || o.OrderDetails || o.orderDetails || [];
+            var payMethod = (o.PaymentMethod || o.paymentMethod || "").toUpperCase();
+            var expireAt = o.PaymentExpireAt || o.paymentExpireAt || o.PaymentExpiry || o.paymentExpiry || "";
 
             var itemsHtml = "";
             if (items && items.length) {
@@ -1376,18 +1422,35 @@
                 '<div style="font-size:13px;color:var(--gray);padding:6px 0">Chi tiết đơn hàng</div>';
             }
 
-            var canCancel = status.toUpperCase() === "PENDING";
-            var cancelBtn = canCancel
-              ? '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'">' +
-                '<i class="bi bi-x-circle"></i> Hủy Đơn</button>'
+            // ── Build action buttons ──
+            var actionBtns = '';
+
+            if (status === 'WAITING_PAYMENT') {
+              // Track for countdown start after DOM insert
+              if (expireAt) waitingOids.push({ oid: oid, expireAt: expireAt });
+              var wpUrl = 'waiting-payment.html?orderId=' + oid + '&method=' + (payMethod || 'BANK')
+                + '&amount=' + total + (expireAt ? '&expireAt=' + encodeURIComponent(expireAt) : '');
+              actionBtns =
+                '<a id="paybtn-' + oid + '" class="pay-now-btn" href="' + wpUrl + '">' +
+                '<i class="bi bi-credit-card"></i> Thanh Toán Ngay</a>';
+            } else if (status === 'PENDING') {
+              actionBtns =
+                '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'">' +
+                '<i class="bi bi-x-circle"></i> Hủy Đơn</button>';
+            }
+
+            // ── Build countdown badge (inline, next to status) ──
+            var cdBadge = (status === 'WAITING_PAYMENT' && expireAt)
+              ? ' <span class="order-countdown" id="cd-' + oid + '">...</span>'
               : '';
+
             return (
               '<div class="order-card">' +
               '<div class="order-header">' +
               '<div><div class="order-id">#' + oid + "</div>" +
               '<div class="order-date">' + fmtDate(date) + "</div></div>" +
-              '<div style="display:flex;align-items:center;gap:8px">' +
-              getStatusBadge(status) + cancelBtn +
+              '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+              getStatusBadge(status) + cdBadge + actionBtns +
               '</div>' +
               "</div>" +
               '<div class="order-body">' + itemsHtml + "</div>" +
@@ -1398,6 +1461,9 @@
             );
           })
           .join("");
+
+        // Start countdowns after DOM is updated
+        waitingOids.forEach(function(w) { _startCountdown(w.oid, w.expireAt); });
       }
 
       /* ══════════════════════════════

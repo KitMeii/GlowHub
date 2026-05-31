@@ -18,9 +18,6 @@
   <link rel="stylesheet" href="theme/shop-profile.css"/>
 </head>
 <body>
-<div id="lux-cursor-dot"></div>
-<div id="lux-cursor-ring"></div>
-
 <!-- TOPBAR -->
 <div class="gh-topbar">🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc</div>
 
@@ -279,22 +276,6 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!_shopId) { location.href = 'shop.html'; return; }
 
   loadShopProfile();
-
-  // GSAP cursor
-  if (typeof gsap !== 'undefined') {
-    var dot  = document.getElementById('lux-cursor-dot');
-    var ring = document.getElementById('lux-cursor-ring');
-    if (dot && ring) {
-      document.addEventListener('mousemove', function(e) {
-        gsap.to(dot,  {x:e.clientX, y:e.clientY, duration:.12, ease:'power2.out'});
-        gsap.to(ring, {x:e.clientX, y:e.clientY, duration:.35, ease:'power2.out'});
-      });
-      document.querySelectorAll('a,button,input,select').forEach(function(el) {
-        el.addEventListener('mouseenter', function() { document.body.classList.add('cursor-hover'); });
-        el.addEventListener('mouseleave', function() { document.body.classList.remove('cursor-hover'); });
-      });
-    }
-  }
 
   // Navbar scroll
   window.addEventListener('scroll', function() {

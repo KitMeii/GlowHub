@@ -46,6 +46,10 @@
     <a class="adm-nav-link" data-page="orders" href="#orders">
       <i class="bi bi-receipt"></i> Đơn Hàng
     </a>
+    <a class="adm-nav-link" data-page="bank-confirm" href="#bank-confirm" style="display:flex;align-items:center;gap:6px">
+      <i class="bi bi-bank2"></i> Xác Nhận CK
+      <span class="adm-badge adm-badge-warn ms-auto" id="bankConfirmBadge" style="display:none;font-size:11px;padding:1px 6px">0</span>
+    </a>
     <a class="adm-nav-link" data-page="categories" href="#categories">
       <i class="bi bi-tags"></i> Danh Mục
     </a>
@@ -148,6 +152,10 @@
       <div class="adm-stat-card">
         <div class="adm-stat-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6"><i class="bi bi-percent"></i></div>
         <div><div class="adm-stat-value" id="st-commission">—</div><div class="adm-stat-label">Hoa Hồng Tháng</div></div>
+      </div>
+      <div class="adm-stat-card" style="cursor:pointer" onclick="navigateTo('bank-confirm')">
+        <div class="adm-stat-icon" style="background:rgba(139,195,74,.12);color:#689f38"><i class="bi bi-bank2"></i></div>
+        <div><div class="adm-stat-value" id="st-bank-pending">—</div><div class="adm-stat-label">Chờ Xác Nhận CK</div></div>
       </div>
     </div>
 
@@ -312,6 +320,65 @@
     <div class="adm-modal adm-modal-lg" id="orderDetailModal">
       <div class="adm-modal-head">Chi Tiết Đơn Hàng <button class="adm-modal-close" onclick="closeOrderDetail()"><i class="bi bi-x-lg"></i></button></div>
       <div id="orderDetailContent" style="padding:20px;max-height:70vh;overflow-y:auto"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE: BANK TRANSFER CONFIRMATION
+  ═══════════════════════════════════════════════════ -->
+  <section class="adm-page" id="page-bank-confirm">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Xác Nhận Chuyển Khoản</h1>
+      <button class="adm-btn adm-btn-sm" onclick="loadBankConfirm()"><i class="bi bi-arrow-clockwise"></i> Làm Mới</button>
+    </div>
+
+    <div class="adm-card" style="margin-bottom:16px;padding:16px 20px;background:#fffbeb;border:1px solid #fcd34d">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#92400e">
+        <i class="bi bi-info-circle-fill" style="font-size:16px"></i>
+        <span>Danh sách các đơn hàng khách đã xác nhận chuyển khoản và đang chờ admin xác nhận thanh toán. Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái <strong>Chờ Xử Lý</strong>.</span>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="bankConfirmTable">
+          <thead>
+            <tr>
+              <th>Mã Đơn</th>
+              <th>Khách Hàng</th>
+              <th>Số Tiền</th>
+              <th>Ngân Hàng</th>
+              <th>Nội Dung CK</th>
+              <th>Thời Gian Xác Nhận</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="bankConfirmBody">
+            <tr><td colspan="7" style="text-align:center;color:#888;padding:24px">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Confirm modal -->
+    <div class="adm-modal-backdrop" id="bankConfirmBackdrop" onclick="closeBankConfirmModal()" style="display:none"></div>
+    <div class="adm-modal" id="bankConfirmModal" style="display:none;max-width:420px">
+      <div class="adm-modal-head">
+        Xác Nhận Thanh Toán
+        <button class="adm-modal-close" onclick="closeBankConfirmModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div style="padding:20px">
+        <p style="font-size:13px;color:#555;margin-bottom:16px">Bạn có chắc muốn xác nhận đã nhận tiền chuyển khoản cho đơn <strong id="bcModalOrderId"></strong>?</p>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#166534">
+          <i class="bi bi-check-circle-fill"></i> Sau khi xác nhận, đơn hàng sẽ được chuyển sang trạng thái <strong>Đang Xử Lý</strong> và hệ thống sẽ thông báo cho khách hàng.
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="adm-btn adm-btn-primary" style="flex:1" onclick="doConfirmBank()">
+            <i class="bi bi-check-lg"></i> Xác Nhận Đã Nhận Tiền
+          </button>
+          <button class="adm-btn" onclick="closeBankConfirmModal()">Hủy</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -838,7 +905,8 @@
     disputes:      'Khiếu Nại',
     auditlog:      'Audit Log',
     settings:      'Cài Đặt',
-    'wallet-admin':'Quản Lý Ví'
+    'wallet-admin': 'Quản Lý Ví',
+    'bank-confirm': 'Xác Nhận Chuyển Khoản'
   };
 
   function navigateTo(page) {
@@ -869,6 +937,7 @@
     else if (page === 'auditlog')      loadAuditLogs();
     else if (page === 'settings')      loadSettings();
     else if (page === 'wallet-admin')  loadWalletAdmin();
+    else if (page === 'bank-confirm')  loadBankConfirm();
   }
 
   document.querySelectorAll('.adm-nav-link').forEach(link => {
@@ -1023,6 +1092,13 @@
     try {
       const com = await Admin.getCommissionSummary();
       document.getElementById('st-commission').textContent = fmt(com.totalCommission);
+    } catch(_) {}
+    try {
+      const bk = await Payment.getPendingBankOrders();
+      const cnt = Array.isArray(bk) ? bk.length : (bk?.total ?? 0);
+      document.getElementById('st-bank-pending').textContent = cnt.toLocaleString();
+      const bdg = document.getElementById('bankConfirmBadge');
+      if (cnt > 0) { bdg.textContent = cnt; bdg.style.display = 'inline-block'; }
     } catch(_) {}
   }
 
@@ -2004,6 +2080,85 @@
     } catch(e) { toast('Lỗi tải audit log: ' + e.message, 'error'); }
   }
   window.loadAuditLogs = loadAuditLogs;
+
+  // ────────────────────────────────────────────
+  // BANK TRANSFER CONFIRMATION
+  // ────────────────────────────────────────────
+  var _bcPendingOrderId = null;
+
+  async function loadBankConfirm() {
+    const tbody = document.getElementById('bankConfirmBody');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;padding:24px"><i class="bi bi-hourglass-split"></i> Đang tải...</td></tr>';
+    try {
+      const list = await Payment.getPendingBankOrders();
+      const orders = Array.isArray(list) ? list : (list?.items || list?.data || []);
+
+      // Update badges
+      const cnt = orders.length;
+      const bdg = document.getElementById('bankConfirmBadge');
+      const dashStat = document.getElementById('st-bank-pending');
+      if (bdg) { bdg.textContent = cnt; bdg.style.display = cnt > 0 ? 'inline-block' : 'none'; }
+      if (dashStat) dashStat.textContent = cnt.toLocaleString();
+
+      if (!orders.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;padding:32px"><i class="bi bi-check2-all" style="font-size:24px;color:#10b981;display:block;margin-bottom:8px"></i>Không có đơn nào chờ xác nhận chuyển khoản</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = orders.map(function(o) {
+        var oid      = o.Id || o.id || o.orderId || '';
+        var code     = o.OrderCode || o.orderCode || ('ORD-' + String(oid).padStart(6,'0'));
+        var customer = o.CustomerName || o.customerName || o.ReceiverName || o.receiverName || '—';
+        var amount   = o.TotalAmount || o.totalAmount || o.Amount || o.amount || 0;
+        var bankName = o.BankName || o.bankName || '—';
+        var ref      = o.TransferReference || o.transferReference || o.OrderCode || o.orderCode || code;
+        var confirmedAt = o.TransferConfirmedAt || o.transferConfirmedAt || o.UpdatedAt || o.updatedAt || '';
+
+        return '<tr>' +
+          '<td><strong>' + code + '</strong></td>' +
+          '<td>' + customer + '</td>' +
+          '<td><strong style="color:var(--pink)">' + fmt(amount) + '</strong></td>' +
+          '<td>' + bankName + '</td>' +
+          '<td><code style="font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:3px">' + ref + '</code></td>' +
+          '<td>' + (confirmedAt ? fmtDateTime(confirmedAt) : '—') + '</td>' +
+          '<td class="adm-actions">' +
+          '<button class="adm-btn adm-btn-sm adm-btn-ok" onclick="openBankConfirmModal(' + oid + ',\'' + code + '\')">' +
+          '<i class="bi bi-check-circle"></i> Xác Nhận</button>' +
+          '</td>' +
+          '</tr>';
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:24px">Lỗi: ' + (e.message || 'Không thể tải dữ liệu') + '</td></tr>';
+      toast('Lỗi tải danh sách CK: ' + e.message, 'error');
+    }
+  }
+  window.loadBankConfirm = loadBankConfirm;
+
+  window.openBankConfirmModal = function(orderId, code) {
+    _bcPendingOrderId = orderId;
+    document.getElementById('bcModalOrderId').textContent = '#' + (code || orderId);
+    document.getElementById('bankConfirmBackdrop').style.display = 'block';
+    document.getElementById('bankConfirmModal').style.display = 'block';
+  };
+
+  window.closeBankConfirmModal = function() {
+    _bcPendingOrderId = null;
+    document.getElementById('bankConfirmBackdrop').style.display = 'none';
+    document.getElementById('bankConfirmModal').style.display = 'none';
+  };
+
+  window.doConfirmBank = async function() {
+    if (!_bcPendingOrderId) return;
+    const oid = _bcPendingOrderId;
+    closeBankConfirmModal();
+    try {
+      await Payment.adminConfirmBank(oid);
+      toast('✓ Đã xác nhận thanh toán cho đơn #' + oid);
+      loadBankConfirm();
+    } catch(e) {
+      toast('Lỗi xác nhận: ' + (e.message || 'Vui lòng thử lại'), 'error');
+    }
+  };
 
   // ────────────────────────────────────────────
   // EXPORT CSV

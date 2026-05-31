@@ -754,29 +754,45 @@ function _fmtMoney(n) {
 // ============================================================
 function showGlobalToast(msg, type) {
   if (type === undefined) type = "success";
-  let container = document.getElementById("_globalToastContainer");
+
+  // Try to use the base.css #gh-toast element first
+  var ghToast = document.getElementById("gh-toast");
+  if (ghToast) {
+    ghToast.textContent = msg;
+    ghToast.className = "show";
+    if (type === "error" || type === "err") ghToast.classList.add("toast-err");
+    else if (type === "warn" || type === "warning") ghToast.classList.add("toast-warn");
+    else if (type === "ok" || type === "success") ghToast.classList.add("toast-ok");
+    clearTimeout(ghToast._tid);
+    ghToast._tid = setTimeout(function() { ghToast.className = ""; }, 3200);
+    return;
+  }
+
+  // Fallback: create floating toast
+  var isErr = (type === "error" || type === "err");
+  var isWarn = (type === "warn" || type === "warning");
+  var borderColor = isErr ? "#dc2626" : isWarn ? "#f59e0b" : "#f759ab";
+  var icon = isErr ? "✕" : isWarn ? "⚠" : "✓";
+
+  var container = document.getElementById("_globalToastContainer");
   if (!container) {
     container = document.createElement("div");
     container.id = "_globalToastContainer";
     container.style.cssText =
-      "position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px";
+      "position:fixed;bottom:24px;right:24px;z-index:11000;display:flex;flex-direction:column;gap:8px;pointer-events:none";
     document.body.appendChild(container);
   }
-  const t = document.createElement("div");
+  var t = document.createElement("div");
   t.style.cssText =
-    "padding:12px 20px;background:" +
-    (type === "success" ? "#111" : "#dc2626") +
-    ";color:#fff;border-radius:4px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);border-left:3px solid " +
-    (type === "success" ? "#f759ab" : "#ff6b6b") +
-    ";transform:translateX(120%);transition:transform 0.3s ease";
-  t.textContent = (type === "success" ? "✓  " : "✕  ") + msg;
+    "padding:12px 20px;background:#111;color:#fff;font-size:12px;letter-spacing:.5px;" +
+    "box-shadow:0 4px 16px rgba(0,0,0,.2);border-left:3px solid " + borderColor +
+    ";transform:translateX(120%);transition:transform 0.3s ease;display:flex;align-items:center;gap:8px;max-width:320px";
+  t.innerHTML = '<span style="font-size:14px">' + icon + '</span><span>' + msg + '</span>';
   container.appendChild(t);
-  requestAnimationFrame(() => {
-    t.style.transform = "translateX(0)";
-  });
-  setTimeout(() => {
+  requestAnimationFrame(function() { t.style.transform = "translateX(0)"; });
+  setTimeout(function() {
     t.style.transform = "translateX(120%)";
-    setTimeout(() => t.remove(), 350);
+    setTimeout(function() { t.remove(); }, 350);
   }, 3000);
 }
 
@@ -1865,4 +1881,83 @@ var VNProvinces = (function () {
   }
 
   return { getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards, setup: setup, getRegion: getRegion };
+})();
+
+// ============================================================
+//  PAYMENT — VNPay + Bank Transfer + Auto-expire
+// ============================================================
+var Payment = (function () {
+
+  // Tạo URL thanh toán VNPay cho đơn hàng
+  function createVNPayUrl(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/vnpay/create', 'POST', { orderId: orderId });
+  }
+
+  // Lấy thông tin chuyển khoản ngân hàng + QR code
+  function getBankInfo(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/bank/info?orderId=' + orderId, 'GET');
+  }
+
+  // Khách xác nhận đã chuyển khoản
+  function submitBankTransfer(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/bank/submit', 'POST', { orderId: orderId });
+  }
+
+  // Admin xác nhận nhận tiền chuyển khoản
+  function adminConfirmBank(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/confirm/' + orderId, 'POST');
+  }
+
+  // Admin: danh sách đơn chờ xác nhận CK
+  function getPendingBankOrders() {
+    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/pending', 'GET');
+  }
+
+  // Kích hoạt auto-expire (gọi định kỳ hoặc khi cần)
+  function expireOrders() {
+    return apiFetch(PRODUCT_API, '/api/payment/expire', 'POST');
+  }
+
+  // Redirect tới trang thanh toán VNPay
+  function redirectToVNPay(orderId) {
+    return createVNPayUrl(orderId).then(function (res) {
+      if (res && res.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        throw new Error('Không tạo được URL thanh toán VNPay');
+      }
+    });
+  }
+
+  // Hiển thị hộp thoại thông tin chuyển khoản
+  function showBankTransferModal(orderId, containerEl) {
+    return getBankInfo(orderId).then(function (info) {
+      if (!containerEl) return info;
+      containerEl.innerHTML =
+        '<div class="text-center">' +
+        '<img src="' + info.qrUrl + '" alt="QR chuyển khoản" style="max-width:220px;border:1px solid #eee;padding:8px;" onerror="this.style.display=\'none\'">' +
+        '</div>' +
+        '<table class="table table-sm mt-3" style="font-size:13px">' +
+        '<tr><td><b>Ngân hàng</b></td><td>' + info.bankName + '</td></tr>' +
+        '<tr><td><b>Số tài khoản</b></td><td><b>' + info.accountNumber + '</b></td></tr>' +
+        '<tr><td><b>Tên tài khoản</b></td><td>' + info.accountName + '</td></tr>' +
+        '<tr><td><b>Số tiền</b></td><td><b>' + info.amount.toLocaleString('vi-VN') + '₫</b></td></tr>' +
+        '<tr><td><b>Nội dung CK</b></td><td><b>' + info.orderCode + '</b></td></tr>' +
+        '</table>' +
+        (info.expireAt ? '<p class="text-danger" style="font-size:12px">⏱ Hết hạn: ' +
+          new Date(info.expireAt).toLocaleString('vi-VN') + '</p>' : '');
+      return info;
+    });
+  }
+
+  return {
+    createVNPayUrl: createVNPayUrl,
+    getBankInfo: getBankInfo,
+    submitBankTransfer: submitBankTransfer,
+    adminConfirmBank: adminConfirmBank,
+    getPendingBankOrders: getPendingBankOrders,
+    expireOrders: expireOrders,
+    redirectToVNPay: redirectToVNPay,
+    showBankTransferModal: showBankTransferModal
+  };
 })();
