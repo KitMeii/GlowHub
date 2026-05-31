@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chờ Thanh Toán — GlowHub</title>
+  <meta name="robots" content="noindex" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body, 'Jost', sans-serif); background: var(--cream, #f8f5f0); min-height: 100vh; display: flex; flex-direction: column; color: var(--dark, #111); }
+    .gh-topbar { background: var(--dark, #111); color: rgba(255,255,255,.65); text-align: center; padding: 7px 20px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }
+    .gh-nav { background: #fff; border-bottom: 1px solid #e2ddd8; padding: 0 40px; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .gh-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; letter-spacing: 7px; text-transform: uppercase; color: var(--dark, #111); text-decoration: none; text-align: center; }
+    .gh-nav-link { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #555; text-decoration: none; transition: color .2s; }
+    .gh-nav-link:hover { color: var(--pink, #f759ab); }
+
+    .page-wrap { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; }
+    .pay-card { background: #fff; border: 1px solid #e2ddd8; max-width: 640px; width: 100%; padding: 48px 40px; }
+
+    .pay-header { text-align: center; margin-bottom: 32px; }
+    .pay-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px; }
+    .pay-icon.bank-icon { background: #e8f5e9; color: #2e7d32; }
+    .pay-icon.vnpay-icon { background: #fff3e0; color: #e65100; }
+    .pay-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+    .pay-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px; }
+    .pay-sub { font-size: 12px; color: #888; letter-spacing: .5px; }
+
+    /* Countdown */
+    .countdown-box { background: #fff9f5; border: 1px solid #f3cdb3; border-radius: 8px; padding: 16px 20px; text-align: center; margin-bottom: 24px; }
+    .countdown-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 8px; }
+    .countdown-timer { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; letter-spacing: 4px; color: var(--dark, #111); }
+    .countdown-timer.urgent { color: #ef4444; }
+    .countdown-expired { display: none; font-size: 13px; color: #ef4444; }
+
+    /* Bank info */
+    .bank-section { margin-bottom: 24px; }
+    .section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 600; color: #888; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2ddd8; }
+    .bank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #e8e8e8; }
+    .bank-row:last-child { border-bottom: none; }
+    .bank-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .bank-value { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .bank-value.highlight { color: var(--pink, #f759ab); font-size: 16px; }
+    .copy-btn { background: none; border: 1px solid #e2ddd8; padding: 4px 10px; font-size: 10px; letter-spacing: 1px; cursor: pointer; color: #555; transition: all .2s; }
+    .copy-btn:hover { background: var(--dark, #111); color: #fff; border-color: var(--dark, #111); }
+
+    /* QR */
+    .qr-wrap { text-align: center; margin-bottom: 24px; }
+    .qr-wrap img { max-width: 240px; width: 100%; border: 1px solid #e2ddd8; }
+    .qr-hint { font-size: 11px; color: #888; margin-top: 8px; letter-spacing: .5px; }
+
+    /* Actions */
+    .btn-primary { display: block; width: 100%; padding: 16px; background: var(--dark, #111); color: #fff; border: none; font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background .3s; text-align: center; text-decoration: none; }
+    .btn-primary:hover { background: var(--pink, #f759ab); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-outline-lnk { display: block; text-align: center; margin-top: 12px; font-size: 11px; color: #888; letter-spacing: 1px; text-decoration: none; }
+    .btn-outline-lnk:hover { color: var(--dark, #111); }
+
+    /* VNPay panel */
+    .vnpay-section { text-align: center; padding: 20px 0; }
+    .vnpay-redirect-hint { font-size: 12px; color: #888; margin-bottom: 24px; line-height: 1.8; }
+    .vnpay-card-info { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; text-align: left; }
+    .vnpay-card-title { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #1e40af; margin-bottom: 12px; font-weight: 600; }
+    .vnpay-card-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+    .vnpay-card-row .lbl { color: #555; min-width: 120px; }
+    .vnpay-card-row .val { font-weight: 600; color: #111; }
+
+    /* Status badge */
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 11px; letter-spacing: .5px; }
+    .status-waiting { background: #fffbeb; color: #92400e; }
+    .status-confirmed { background: #f0fdf4; color: #166534; }
+    .status-expired { background: #fef2f2; color: #991b1b; }
+
+    /* Order summary mini */
+    .order-mini { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 20px; padding: 14px 16px; background: #fafaf8; border: 1px solid #e2ddd8; }
+    .order-mini-code { font-weight: 600; letter-spacing: .5px; }
+    .order-mini-amount { color: var(--pink, #f759ab); font-size: 18px; font-weight: 700; font-family: 'Cormorant Garamond', serif; }
+
+    #ghToast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .gh-toast { background: #111; color: #fff; padding: 12px 18px; font-size: 12px; border-left: 3px solid var(--pink, #f759ab); max-width: 300px; animation: toastIn .3s ease; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    @media (max-width: 500px) { .pay-card { padding: 32px 20px; } .gh-nav { padding: 0 16px; } }
+  </style>
+</head>
+<body>
+
+<div class="gh-topbar">🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc</div>
+
+<nav class="gh-nav">
+  <a href="index.html" class="gh-nav-link">← Trang Chủ</a>
+  <a href="index.html" class="gh-logo">GlowHub</a>
+  <div style="text-align:right">
+    <a href="profile.html" class="gh-nav-link">Tài Khoản</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="pay-card">
+
+    <div class="pay-header">
+      <div class="pay-icon" id="payIcon"><i class="bi bi-hourglass-split"></i></div>
+      <div class="pay-eyebrow" id="payEyebrow">Thanh Toán</div>
+      <h1 class="pay-title" id="payTitle">Đang tải...</h1>
+      <p class="pay-sub" id="paySub"></p>
+    </div>
+
+    <!-- Order summary -->
+    <div class="order-mini" id="orderMini" style="display:none">
+      <div>
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Đơn hàng</div>
+        <div class="order-mini-code" id="orderCode">—</div>
+      </div>
+      <div class="order-mini-amount" id="orderAmount">—</div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-box" id="countdownBox">
+      <div class="countdown-label">Thời gian còn lại để thanh toán</div>
+      <div class="countdown-timer" id="countdown">--:--</div>
+      <div class="countdown-expired" id="countdownExpired">
+        <i class="bi bi-exclamation-triangle me-1"></i> Đơn hàng đã hết hạn thanh toán
+      </div>
+    </div>
+
+    <!-- BANK TRANSFER section -->
+    <div id="bankSection" style="display:none">
+      <div class="bank-section">
+        <div class="section-title">Thông Tin Chuyển Khoản</div>
+        <div class="bank-row">
+          <span class="bank-label">Ngân hàng</span>
+          <span class="bank-value" id="bankName">—</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-label">Số tài khoản</span>
+          <span class="bank-value" id="bankAccount">
+            <span id="bankAccountNum">—</span>
+            <button class="copy-btn" onclick="copyText('bankAccountNum')"><i class="bi bi-copy"></i></button>
+          </span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-label">Chủ tài khoản</span>
+          <span class="bank-value" id="bankOwner">—</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-label">Số tiền</span>
+          <span class="bank-value highlight" id="bankAmount">—</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-label">Nội dung CK</span>
+          <span class="bank-value" id="bankRef">
+            <span id="bankRefVal">—</span>
+            <button class="copy-btn" onclick="copyText('bankRefVal')"><i class="bi bi-copy"></i></button>
+          </span>
+        </div>
+      </div>
+
+      <!-- QR code -->
+      <div class="qr-wrap">
+        <div class="section-title" style="text-align:left">Quét QR Để Chuyển Khoản</div>
+        <img id="bankQR" src="" alt="VietQR" loading="lazy" />
+        <div class="qr-hint">Dùng App ngân hàng quét mã QR để chuyển khoản tự động</div>
+      </div>
+
+      <button class="btn-primary" id="submitBankBtn" onclick="submitBankTransfer()">
+        <i class="bi bi-check2-circle me-2"></i> Tôi Đã Chuyển Khoản
+      </button>
+      <a href="profile.html" class="btn-outline-lnk">Xem đơn hàng của tôi</a>
+    </div>
+
+    <!-- VNPAY section -->
+    <div id="vnpaySection" style="display:none">
+      <div class="vnpay-section">
+        <p class="vnpay-redirect-hint">
+          Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất đơn hàng.<br />
+          Vui lòng <strong>KHÔNG</strong> đóng cửa sổ trình duyệt trong lúc thanh toán.
+        </p>
+
+        <div class="vnpay-card-info">
+          <div class="vnpay-card-title"><i class="bi bi-credit-card me-1"></i> Thẻ Test (Sandbox)</div>
+          <div class="vnpay-card-row"><span class="lbl">Số thẻ:</span><span class="val">9704198526191432198</span></div>
+          <div class="vnpay-card-row"><span class="lbl">Tên chủ thẻ:</span><span class="val">NGUYEN VAN A</span></div>
+          <div class="vnpay-card-row"><span class="lbl">Ngày phát hành:</span><span class="val">07/15</span></div>
+          <div class="vnpay-card-row"><span class="lbl">OTP:</span><span class="val">123456</span></div>
+          <div style="font-size:10px;color:#666;margin-top:8px">Ngân hàng: NCB (Sandbox only)</div>
+        </div>
+
+        <button class="btn-primary" id="vnpayBtn" onclick="redirectVNPay()">
+          <i class="bi bi-lightning-fill me-2"></i> Thanh Toán Qua VNPay Ngay
+        </button>
+        <a href="profile.html" class="btn-outline-lnk">Thanh toán sau</a>
+      </div>
+    </div>
+
+    <!-- Confirmed state -->
+    <div id="confirmedSection" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:8px">Đã Ghi Nhận Xác Nhận</div>
+      <p style="font-size:12px;color:#888;margin-bottom:24px">Admin sẽ xác nhận chuyển khoản trong vài phút.</p>
+      <a href="profile.html" class="btn-primary" style="display:inline-block;max-width:300px">Xem Đơn Hàng</a>
+    </div>
+
+  </div>
+</div>
+
+<div id="ghToast"></div>
+
+<script src="js/api.js"></script>
+<script>
+// @ts-nocheck
+var orderId = null;
+var payMethod = null;
+var expireAt = null;
+var countdownInterval = null;
+var bankInfo = null;
+var _submitted = false;
+
+var fmt = function(n) { return new Intl.NumberFormat('vi-VN').format(n||0) + ' ₫'; };
+
+function showToast(msg, type) {
+  var c = document.getElementById('ghToast');
+  var t = document.createElement('div'); t.className = 'gh-toast';
+  t.style.borderLeftColor = type === 'err' ? '#ef4444' : 'var(--pink)';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 3500);
+}
+
+function copyText(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(function() {
+    showToast('Đã sao chép!');
+  }).catch(function() {
+    var r = document.createRange(); r.selectNode(el);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+    document.execCommand('copy');
+    showToast('Đã sao chép!');
+  });
+}
+
+function startCountdown(expiry) {
+  if (!expiry) return;
+  var endTime = new Date(expiry).getTime();
+  var timerEl = document.getElementById('countdown');
+  var expiredEl = document.getElementById('countdownExpired');
+
+  countdownInterval = setInterval(function() {
+    var now = Date.now();
+    var diff = endTime - now;
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      timerEl.textContent = '00:00';
+      timerEl.classList.add('urgent');
+      expiredEl.style.display = 'block';
+      // Disable action buttons
+      var btn = document.getElementById('submitBankBtn') || document.getElementById('vnpayBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Đơn hàng đã hết hạn'; }
+      return;
+    }
+    var min = Math.floor(diff / 60000);
+    var sec = Math.floor((diff % 60000) / 1000);
+    timerEl.textContent = String(min).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+    if (diff < 180000) timerEl.classList.add('urgent'); // < 3 minutes
+    else timerEl.classList.remove('urgent');
+  }, 1000);
+}
+
+function loadOrder() {
+  var params = new URLSearchParams(location.search);
+  orderId = parseInt(params.get('orderId'), 10);
+  payMethod = (params.get('method') || 'BANK').toUpperCase();
+
+  if (!orderId || isNaN(orderId)) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (!localStorage.getItem('token')) {
+    window.location.href = 'login.html?redirect=' + encodeURIComponent(location.href);
+    return;
+  }
+
+  if (payMethod === 'VNPAY') {
+    showVNPayPanel();
+  } else {
+    loadBankInfo();
+  }
+}
+
+function showVNPayPanel() {
+  document.getElementById('payIcon').className = 'pay-icon vnpay-icon';
+  document.getElementById('payIcon').innerHTML = '<i class="bi bi-lightning-fill"></i>';
+  document.getElementById('payEyebrow').textContent = 'VNPay';
+  document.getElementById('payTitle').textContent = 'Thanh Toán VNPay';
+  document.getElementById('paySub').textContent = 'Đơn hàng của bạn đang chờ thanh toán qua VNPay';
+
+  var params = new URLSearchParams(location.search);
+  var code = params.get('orderCode') || ('ORD-' + String(orderId).padStart(6,'0'));
+  var amount = params.get('amount') || '0';
+  expireAt = params.get('expireAt');
+
+  document.getElementById('orderMini').style.display = 'flex';
+  document.getElementById('orderCode').textContent = code;
+  document.getElementById('orderAmount').textContent = fmt(parseFloat(amount));
+
+  if (expireAt) startCountdown(expireAt);
+  document.getElementById('vnpaySection').style.display = 'block';
+}
+
+function loadBankInfo() {
+  document.getElementById('payIcon').className = 'pay-icon bank-icon';
+  document.getElementById('payIcon').innerHTML = '<i class="bi bi-bank"></i>';
+  document.getElementById('payEyebrow').textContent = 'Chuyển Khoản Ngân Hàng';
+  document.getElementById('payTitle').textContent = 'Thông Tin Thanh Toán';
+  document.getElementById('paySub').textContent = 'Vui lòng chuyển khoản đúng số tiền và nội dung bên dưới';
+
+  if (typeof Payment === 'undefined') {
+    showToast('Không thể tải thông tin thanh toán', 'err');
+    return;
+  }
+
+  Payment.getBankInfo(orderId).then(function(info) {
+    bankInfo = info;
+    expireAt = info.expireAt;
+
+    document.getElementById('orderMini').style.display = 'flex';
+    document.getElementById('orderCode').textContent = info.orderCode || ('ORD-' + String(orderId).padStart(6,'0'));
+    document.getElementById('orderAmount').textContent = fmt(info.amount);
+
+    document.getElementById('bankName').textContent = info.bankName || 'Vietcombank';
+    document.getElementById('bankAccountNum').textContent = info.accountNumber || '';
+    document.getElementById('bankOwner').textContent = info.accountName || '';
+    document.getElementById('bankAmount').textContent = fmt(info.amount);
+    document.getElementById('bankRefVal').textContent = info.orderCode || '';
+    if (info.qrUrl) document.getElementById('bankQR').src = info.qrUrl;
+
+    if (expireAt) startCountdown(expireAt);
+    document.getElementById('bankSection').style.display = 'block';
+  }).catch(function(e) {
+    showToast(e.message || 'Lỗi tải thông tin thanh toán', 'err');
+  });
+}
+
+function submitBankTransfer() {
+  if (_submitted) return;
+  var btn = document.getElementById('submitBankBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang gửi...';
+
+  if (typeof Payment === 'undefined') {
+    showToast('API chưa sẵn sàng', 'err');
+    btn.disabled = false; return;
+  }
+
+  Payment.submitBankTransfer(orderId).then(function() {
+    _submitted = true;
+    clearInterval(countdownInterval);
+    document.getElementById('bankSection').style.display = 'none';
+    document.getElementById('countdownBox').style.display = 'none';
+    document.getElementById('confirmedSection').style.display = 'block';
+    document.getElementById('payTitle').textContent = 'Đã Ghi Nhận!';
+    document.getElementById('payEyebrow').textContent = 'Chờ Xác Nhận';
+    document.getElementById('paySub').textContent = 'Admin sẽ kiểm tra và xác nhận trong vài phút.';
+    showToast('Đã ghi nhận xác nhận chuyển khoản!');
+  }).catch(function(e) {
+    showToast(e.message || 'Không thể gửi xác nhận', 'err');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Tôi Đã Chuyển Khoản';
+  });
+}
+
+function redirectVNPay() {
+  var btn = document.getElementById('vnpayBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang chuyển hướng...';
+
+  if (typeof Payment === 'undefined') {
+    showToast('API chưa sẵn sàng', 'err');
+    btn.disabled = false; return;
+  }
+
+  Payment.createVNPayUrl(orderId).then(function(res) {
+    window.location.href = res.paymentUrl;
+  }).catch(function(e) {
+    showToast(e.message || 'Không thể tạo URL thanh toán', 'err');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lightning-fill me-2"></i> Thanh Toán Qua VNPay Ngay';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadOrder);
+</script>
+</body>
+</html>

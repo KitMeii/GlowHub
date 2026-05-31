@@ -39,65 +39,6 @@
         color: var(--dark);
         background: #fff;
         overflow-x: hidden;
-        cursor: none;
-      }
-
-      /* ── CURSOR ── */
-      #lux-cursor-dot {
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 99999;
-        width: 5px;
-        height: 5px;
-        background: var(--pink);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition:
-          background 0.3s,
-          transform 0.15s;
-      }
-      #lux-cursor-ring {
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 99998;
-        width: 32px;
-        height: 32px;
-        border: 1px solid var(--dark);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        opacity: 0.5;
-        transition:
-          width 0.4s var(--ease-lux),
-          height 0.4s var(--ease-lux),
-          border-color 0.3s,
-          opacity 0.3s,
-          transform 0.12s linear;
-      }
-      body.cursor-hover #lux-cursor-ring {
-        width: 52px;
-        height: 52px;
-        opacity: 0.8;
-        border-color: var(--pink);
-      }
-      @media (hover: none), (pointer: coarse) {
-        #lux-cursor-dot,
-        #lux-cursor-ring {
-          display: none;
-        }
-        body,
-        body * {
-          cursor: auto !important;
-        }
-      }
-      @media (hover: hover) and (pointer: fine) {
-        body,
-        body * {
-          cursor: none !important;
-        }
       }
 
       /* ── TOPBAR ── */
@@ -582,7 +523,7 @@
         color: var(--pink);
         border: none;
         background: none;
-        cursor: none;
+        cursor: pointer;
         font-family: var(--font-body);
         font-weight: 400;
         display: flex;
@@ -858,7 +799,7 @@
         padding: 14px 36px;
         text-decoration: none;
         border: none;
-        cursor: none;
+        cursor: pointer;
         font-family: var(--font-body);
         font-weight: 400;
         transition: background 0.3s;
@@ -937,7 +878,7 @@
         letter-spacing: 3px;
         text-transform: uppercase;
         font-family: var(--font-body);
-        cursor: none;
+        cursor: pointer;
         padding: 10px 0 10px 16px;
         transition: color 0.3s;
       }

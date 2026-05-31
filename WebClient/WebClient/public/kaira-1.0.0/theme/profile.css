@@ -427,6 +427,55 @@
         color: #991b1b;
       }
 
+      .status-WAITING_PAYMENT {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+
+      .status-PENDING_BANK_CONFIRM {
+        background: #ede9fe;
+        color: #5b21b6;
+      }
+
+      .order-countdown {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9a3412;
+        background: #ffedd5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 1px;
+      }
+
+      .order-countdown.urgent {
+        color: #991b1b;
+        background: #fee2e2;
+        animation: cd-pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes cd-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.55; }
+      }
+
+      .pay-now-btn {
+        display: inline-block;
+        font-size: 10px;
+        padding: 5px 14px;
+        background: var(--pink, #f759ab);
+        color: #fff !important;
+        border: none;
+        cursor: pointer;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: background .2s;
+      }
+
+      .pay-now-btn:hover { background: #d6479a; }
+
       .order-body {
         padding: 12px 16px;
       }
