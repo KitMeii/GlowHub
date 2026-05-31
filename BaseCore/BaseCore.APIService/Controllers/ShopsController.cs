@@ -238,6 +238,15 @@ namespace BaseCore.APIService.Controllers
             {
                 var shop = await _shopService.RegisterAsync(
                     sellerId, req.ShopName, req.Description, req.Logo, req.Address, req.Phone);
+                // Set Province + Region if provided
+                if (!string.IsNullOrEmpty(req.Province))
+                {
+                    shop.Province = req.Province;
+                    shop.Region   = !string.IsNullOrEmpty(req.Region)
+                        ? req.Region.ToUpper()
+                        : BaseCore.Services.ShippingRegion.Normalize(req.Province);
+                    await _shopService.UpdateAsync(shop);
+                }
                 return Ok(new { message = "Đăng ký shop thành công. Chờ admin duyệt.", shopId = shop.Id });
             }
             catch (InvalidOperationException ex)
@@ -261,6 +270,13 @@ namespace BaseCore.APIService.Controllers
             if (req.Logo != null) shop.Logo = req.Logo;
             if (req.Address != null) shop.Address = req.Address;
             if (req.Phone != null) shop.Phone = req.Phone;
+            if (req.Province != null) {
+                shop.Province = req.Province;
+                // Derive Region from Province if not explicitly provided
+                shop.Region = !string.IsNullOrEmpty(req.Region)
+                    ? req.Region.ToUpper()
+                    : BaseCore.Services.ShippingRegion.Normalize(req.Province);
+            }
 
             await _shopService.UpdateAsync(shop);
             return Ok(new { message = "Shop đã được cập nhật" });
@@ -420,6 +436,8 @@ namespace BaseCore.APIService.Controllers
         public string? Logo { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
+        public string? Province { get; set; }
+        public string? Region   { get; set; }
     }
 
     public class UpdateShopRequest
@@ -429,6 +447,8 @@ namespace BaseCore.APIService.Controllers
         public string? Logo { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
+        public string? Province { get; set; }
+        public string? Region   { get; set; }
     }
 
     public class UpdateCommissionDto
