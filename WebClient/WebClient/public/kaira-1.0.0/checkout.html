@@ -137,20 +137,20 @@
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Tỉnh/Thành *</label>
-                      <select class="gh-input" id="newProv" onchange="loadNewDist()">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newProv">
+                        <option value="">-- Đang tải... --</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Quận/Huyện *</label>
-                      <select class="gh-input" id="newDist" onchange="loadNewWard()">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newDist" disabled>
+                        <option value="">-- Chọn tỉnh trước --</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Phường/Xã</label>
-                      <select class="gh-input" id="newWard">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newWard" disabled>
+                        <option value="">-- Chọn quận trước --</option>
                       </select>
                     </div>
                     <div class="col-12">
@@ -175,6 +175,9 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Shipping fee preview (auto-update when province selected) -->
+              <div id="shipPreviewBox" style="display:none;background:#fdf6f0;border:1px solid #f3cdb3;border-radius:8px;padding:14px 16px;margin-bottom:16px"></div>
 
               <!-- Shipping method -->
               <div class="form-section" id="shipSection" style="display:none">
@@ -652,55 +655,43 @@
         if (btn) btn.innerHTML = _newAddrVisible
           ? '<i class="bi bi-dash-circle"></i> Ẩn Form'
           : '<i class="bi bi-plus-circle"></i> Thêm Địa Chỉ Mới';
-        if (_newAddrVisible) loadNewAddrProvinces();
+        if (_newAddrVisible) _initNewAddrCascade();
       }
 
-      function loadNewAddrProvinces() {
-        var sel = document.getElementById('newProv');
-        if (!sel || sel.options.length > 1) return;
-        fetch('https://provinces.open-api.vn/api/p/')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            data.forEach(function (p) {
-              var o = document.createElement('option');
-              o.value = p.code; o.textContent = p.name;
-              sel.appendChild(o);
-            });
-          }).catch(function () {});
+      var _addrCascadeReady = false;
+      function _initNewAddrCascade() {
+        if (_addrCascadeReady) return;
+        _addrCascadeReady = true;
+        if (typeof VNProvinces === 'undefined') return;
+        VNProvinces.setup(
+          { prov: 'newProv', dist: 'newDist', ward: 'newWard' },
+          function (loc) {
+            // Update shipping preview when province changes
+            if (loc.provName) _updateShippingPreview(loc.provName);
+          }
+        );
       }
 
-      function loadNewDist() {
-        var distSel = document.getElementById('newDist');
-        var wardSel = document.getElementById('newWard');
-        distSel.innerHTML = '<option value="">-- Chọn quận --</option>';
-        wardSel.innerHTML = '<option value="">-- Chọn phường --</option>';
-        var code = document.getElementById('newProv').value;
-        if (!code) return;
-        fetch('https://provinces.open-api.vn/api/p/' + code + '?depth=2')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            (data.districts || []).forEach(function (d) {
-              var o = document.createElement('option');
-              o.value = d.code; o.textContent = d.name;
-              distSel.appendChild(o);
-            });
-          }).catch(function () {});
-      }
-
-      function loadNewWard() {
-        var wardSel = document.getElementById('newWard');
-        wardSel.innerHTML = '<option value="">-- Chọn phường --</option>';
-        var code = document.getElementById('newDist').value;
-        if (!code) return;
-        fetch('https://provinces.open-api.vn/api/d/' + code + '?depth=2')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            (data.wards || []).forEach(function (w) {
-              var o = document.createElement('option');
-              o.value = w.code; o.textContent = w.name;
-              wardSel.appendChild(o);
-            });
-          }).catch(function () {});
+      function _updateShippingPreview(provinceName) {
+        var previewEl = document.getElementById('shipPreviewBox');
+        if (!previewEl) return;
+        if (!provinceName || typeof Cart === 'undefined' || typeof Cart.getGrouped !== 'function') {
+          previewEl.style.display = 'none'; return;
+        }
+        previewEl.style.display = 'block';
+        previewEl.innerHTML = '<div style="font-size:12px;color:var(--gray)"><i class="bi bi-hourglass-split me-1"></i>Đang tính phí vận chuyển...</div>';
+        Cart.getGrouped(provinceName).then(function (r) {
+          if (!r || !r.groups || !r.groups.length) { previewEl.style.display = 'none'; return; }
+          var html = '<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#333"><i class="bi bi-truck me-1" style="color:var(--pink)"></i>Phí ship ước tính</div>';
+          r.groups.forEach(function (g) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed #eee">'
+              + '<span style="color:#555"><i class="bi bi-shop me-1" style="color:var(--pink)"></i>' + (g.shopName || g.shopId) + '</span>'
+              + '<span style="font-weight:600">' + fmt(g.shippingFee) + '</span></div>';
+          });
+          html += '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:5px 0;color:var(--pink)">'
+            + '<span>Tổng phí ship</span><span>' + fmt(r.totalShipping) + '</span></div>';
+          previewEl.innerHTML = html;
+        }).catch(function () { previewEl.style.display = 'none'; });
       }
 
       function saveNewAddress() {
@@ -723,9 +714,9 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Đang lưu...';
 
-        var provName = prov.options[prov.selectedIndex] ? prov.options[prov.selectedIndex].textContent : '';
-        var distName = dist.options[dist.selectedIndex] ? dist.options[dist.selectedIndex].textContent : '';
-        var wardName = ward.selectedIndex > 0 && ward.options[ward.selectedIndex] ? ward.options[ward.selectedIndex].textContent : '';
+        var provName = prov.selectedIndex > 0 ? (prov.options[prov.selectedIndex].dataset.name || prov.options[prov.selectedIndex].textContent) : '';
+        var distName = dist.selectedIndex > 0 ? (dist.options[dist.selectedIndex].dataset.name || dist.options[dist.selectedIndex].textContent) : '';
+        var wardName = ward.selectedIndex > 0 ? (ward.options[ward.selectedIndex].dataset.name || ward.options[ward.selectedIndex].textContent) : '';
 
         var payload = {
           ReceiverName: name, Phone: phone,
@@ -755,8 +746,12 @@
           // Reset form
           ['newName', 'newPhone', 'newDetail'].forEach(function (id) { document.getElementById(id).value = ''; });
           document.getElementById('newProv').value = '';
-          document.getElementById('newDist').innerHTML = '<option value="">-- Chọn quận --</option>';
-          document.getElementById('newWard').innerHTML = '<option value="">-- Chọn phường --</option>';
+          document.getElementById('newDist').innerHTML = '<option value="">-- Chọn tỉnh trước --</option>';
+          document.getElementById('newDist').disabled = true;
+          document.getElementById('newWard').innerHTML = '<option value="">-- Chọn quận trước --</option>';
+          document.getElementById('newWard').disabled = true;
+          var spb = document.getElementById('shipPreviewBox');
+          if (spb) spb.style.display = 'none';
           document.getElementById('newIsDefault').checked = false;
           showToast('Đã lưu địa chỉ thành công!');
         }).catch(function (e) {

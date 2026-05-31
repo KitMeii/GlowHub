@@ -1714,3 +1714,155 @@ FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
     return items;
   };
 })();
+
+// ============================================================
+//  VN PROVINCES — 3-level cascade (province → district → ward)
+//  Source: https://provinces.open-api.vn/api/
+//  Cache: localStorage 24h
+// ============================================================
+var VNProvinces = (function () {
+  var BASE = 'https://provinces.open-api.vn/api';
+  var TTL  = 86400000; // 24h
+
+  function _write(key, data) {
+    try { localStorage.setItem(key, JSON.stringify({ d: data, t: Date.now() })); } catch (_) {}
+  }
+  function _read(key) {
+    try {
+      var c = JSON.parse(localStorage.getItem(key));
+      return (c && (Date.now() - c.t) < TTL) ? c.d : null;
+    } catch (_) { return null; }
+  }
+  function _fetch(url, cacheKey) {
+    var hit = _read(cacheKey);
+    if (hit) return Promise.resolve(hit);
+    return fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { _write(cacheKey, d); return d; });
+  }
+
+  function getProvinces() {
+    return _fetch(BASE + '/p/?depth=1', 'gh_vnp');
+  }
+  function getDistricts(pCode) {
+    return _fetch(BASE + '/d/?p=' + pCode, 'gh_vnd_' + pCode);
+  }
+  function getWards(dCode) {
+    return _fetch(BASE + '/w/?d=' + dCode, 'gh_vnw_' + dCode);
+  }
+
+  // Fill one <select> element; returns Promise
+  function fillSel(sel, items, placeholder) {
+    sel.innerHTML = '<option value="">Đang tải...</option>';
+    sel.disabled = true;
+    return (items instanceof Promise ? items : Promise.resolve(items))
+      .then(function (list) {
+        sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+        (list || []).forEach(function (item) {
+          var o = document.createElement('option');
+          o.value = item.code;
+          o.textContent = item.name;
+          o.dataset.name = item.name;
+          sel.appendChild(o);
+        });
+        sel.disabled = false;
+      })
+      .catch(function () {
+        sel.innerHTML = '<option value="">Lỗi tải dữ liệu. Nhập thủ công.</option>';
+        sel.disabled = false;
+      });
+  }
+
+  // Reset one select to empty/disabled state
+  function resetSel(sel, placeholder) {
+    if (!sel) return;
+    sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+    sel.disabled = true;
+  }
+
+  /**
+   * Setup 3-level cascade on given element IDs.
+   * opts: { prov, dist, ward } — element IDs
+   * onChange: function({ provCode, provName, distCode, distName, wardCode, wardName })
+   *           called on every change (even partial)
+   */
+  function setup(opts, onChange) {
+    var provSel = document.getElementById(opts.prov);
+    var distSel = opts.dist ? document.getElementById(opts.dist) : null;
+    var wardSel = opts.ward ? document.getElementById(opts.ward) : null;
+    if (!provSel) return;
+
+    if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
+    if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+
+    fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
+      provSel.disabled = false;
+    });
+
+    provSel.addEventListener('change', function () {
+      var pCode = provSel.value;
+      var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+      if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
+      if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+      if (onChange) onChange({ provCode: pCode, provName: pName, distCode: '', distName: '', wardCode: '', wardName: '' });
+      if (!pCode || !distSel) return;
+      fillSel(distSel, getDistricts(pCode), '-- Chọn quận/huyện --').then(function () {
+        distSel.disabled = false;
+      });
+    });
+
+    if (distSel) {
+      distSel.addEventListener('change', function () {
+        var pCode = provSel.value;
+        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+        var dCode = distSel.value;
+        var dName = dCode ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+        if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: '', wardName: '' });
+        if (!dCode || !wardSel) return;
+        fillSel(wardSel, getWards(dCode), '-- Chọn phường/xã --').then(function () {
+          wardSel.disabled = false;
+        });
+      });
+    }
+
+    if (wardSel) {
+      wardSel.addEventListener('change', function () {
+        var pCode = provSel.value;
+        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+        var dCode = distSel ? distSel.value : '';
+        var dName = (dCode && distSel) ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+        var wCode = wardSel.value;
+        var wName = wCode ? (wardSel.options[wardSel.selectedIndex].dataset.name || wardSel.options[wardSel.selectedIndex].textContent) : '';
+        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: wCode, wardName: wName });
+      });
+    }
+  }
+
+  // Map province name → shipping region code (mirrors ShippingRegion.Normalize in C#)
+  function getRegion(provinceName) {
+    if (!provinceName) return 'OTHER';
+    var n = provinceName.toLowerCase();
+    var SOUTH = ['hồ chí minh','ho chi minh','hcm','tphcm','tp.hcm','sài gòn','saigon','sai gon',
+      'bình dương','binh duong','đồng nai','dong nai','bà rịa','ba ria','vũng tàu','vung tau',
+      'long an','tiền giang','tien giang','bến tre','ben tre','vĩnh long','vinh long',
+      'trà vinh','tra vinh','đồng tháp','dong thap','an giang','kiên giang','kien giang',
+      'cần thơ','can tho','hậu giang','hau giang','sóc trăng','soc trang',
+      'bạc liêu','bac lieu','cà mau','ca mau','tây ninh','tay ninh','bình phước','binh phuoc'];
+    var NORTH = ['hà nội','ha noi','hanoi','hải phòng','hai phong','quảng ninh','quang ninh',
+      'hải dương','hai duong','hưng yên','hung yen','thái bình','thai binh','nam định','nam dinh',
+      'hà nam','ha nam','ninh bình','ninh binh','vĩnh phúc','vinh phuc','bắc ninh','bac ninh',
+      'bắc giang','bac giang','thái nguyên','thai nguyen','lạng sơn','lang son','cao bằng','cao bang',
+      'bắc kạn','bac kan','tuyên quang','tuyen quang','hà giang','ha giang','lào cai','lao cai',
+      'yên bái','yen bai','phú thọ','phu tho','sơn la','son la','điện biên','dien bien',
+      'lai châu','lai chau','hòa bình','hoa binh'];
+    var ISLAND = ['phú quốc','phu quoc','côn đảo','con dao','hoàng sa','hoang sa','trường sa','truong sa','lý sơn','ly son'];
+    if (ISLAND.some(function (k) { return n.includes(k); })) return 'ISLAND';
+    if (SOUTH.some(function (k) { return n.includes(k); })) return 'SOUTH';
+    if (NORTH.some(function (k) { return n.includes(k); })) return 'NORTH';
+    // Miền Trung: Thanh Hóa → Lâm Đồng — fallback
+    return 'CENTRAL';
+  }
+
+  return { getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards, setup: setup, getRegion: getRegion };
+})();

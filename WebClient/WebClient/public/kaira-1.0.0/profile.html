@@ -158,6 +158,9 @@
                 <button class="profile-nav-btn" onclick="showSec('wishlist', this)">
                   <i class="bi bi-heart"></i> Yêu Thích
                 </button>
+                <button class="profile-nav-btn" onclick="showSec('addresses', this)">
+                  <i class="bi bi-geo-alt"></i> Địa Chỉ
+                </button>
                 <button class="profile-nav-btn" onclick="showSec('wallet', this)">
                   <i class="bi bi-wallet2"></i> Ví Của Tôi
                 </button>
@@ -522,6 +525,66 @@
               </div>
             </div>
 
+            <!-- ════ SECTION: ĐỊA CHỈ GIAO HÀNG ════ -->
+            <div class="psec" id="psec-addresses">
+              <div class="profile-content-card">
+                <div class="pcard-header">
+                  <div class="pcard-title">Địa Chỉ Giao Hàng</div>
+                  <button class="gh-btn-outline" onclick="toggleProfAddrForm(true)">
+                    <i class="bi bi-plus-circle"></i> Thêm Địa Chỉ
+                  </button>
+                </div>
+                <div class="pcard-body">
+                  <!-- Address list -->
+                  <div id="profAddrList"><div class="empty-state"><i class="bi bi-geo-alt"></i><p>Đang tải...</p></div></div>
+
+                  <!-- Add form -->
+                  <div id="profAddrForm" style="display:none;margin-top:20px;padding:20px;border:1px solid var(--border);border-radius:12px">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:16px">Thêm Địa Chỉ Mới</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                      <div>
+                        <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Họ &amp; Tên *</label>
+                        <input type="text" id="pafName" class="gh-input" placeholder="Nguyễn Thị Lan" style="width:100%"/>
+                      </div>
+                      <div>
+                        <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Số Điện Thoại *</label>
+                        <input type="tel" id="pafPhone" class="gh-input" placeholder="0912 345 678" style="width:100%"/>
+                      </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                      <div>
+                        <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Tỉnh/Thành *</label>
+                        <select id="pafProv" class="gh-input" style="width:100%"><option value="">Đang tải...</option></select>
+                      </div>
+                      <div>
+                        <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Quận/Huyện *</label>
+                        <select id="pafDist" class="gh-input" style="width:100%" disabled><option value="">-- Chọn tỉnh trước --</option></select>
+                      </div>
+                      <div>
+                        <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Phường/Xã</label>
+                        <select id="pafWard" class="gh-input" style="width:100%" disabled><option value="">-- Chọn quận trước --</option></select>
+                      </div>
+                    </div>
+                    <div style="margin-bottom:12px">
+                      <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Địa Chỉ Chi Tiết *</label>
+                      <input type="text" id="pafDetail" class="gh-input" placeholder="Số nhà, tên đường..." style="width:100%"/>
+                    </div>
+                    <div style="margin-bottom:16px">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                        <input type="checkbox" id="pafDefault" style="accent-color:var(--pink)"/> Đặt làm địa chỉ mặc định
+                      </label>
+                    </div>
+                    <div style="display:flex;gap:10px">
+                      <button class="gh-btn-outline" onclick="toggleProfAddrForm(false)">Hủy</button>
+                      <button style="background:var(--pink);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer" onclick="saveProfAddr()" id="pafSaveBtn">
+                        <i class="bi bi-floppy me-1"></i> Lưu Địa Chỉ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- ════ SECTION: VÍ CỦA TÔI ════ -->
             <div class="psec" id="psec-wallet">
               <div class="profile-content-card">
@@ -660,10 +723,120 @@
         if (el) el.classList.add("active");
         if (btn) btn.classList.add("active");
 
-        if (sec === "orders")   loadOrders();
-        if (sec === "cart")     renderCart();
-        if (sec === "wishlist") renderWishlistPage();
-        if (sec === "wallet")   loadWallet();
+        if (sec === "orders")    loadOrders();
+        if (sec === "cart")      renderCart();
+        if (sec === "wishlist")  renderWishlistPage();
+        if (sec === "wallet")    loadWallet();
+        if (sec === "addresses") loadProfAddresses();
+      }
+
+      /* ════ ADDRESS MANAGEMENT ════ */
+      var _profAddrCascadeReady = false;
+      var _profAddresses = [];
+
+      function loadProfAddresses() {
+        var listEl = document.getElementById('profAddrList');
+        listEl.innerHTML = '<div class="empty-state"><i class="bi bi-geo-alt"></i><p>Đang tải...</p></div>';
+        if (typeof Address === 'undefined' || typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-lock"></i><p>Vui lòng đăng nhập</p></div>'; return;
+        }
+        Address.getAll().then(function (list) {
+          _profAddresses = (list || []).map(function (a) {
+            return {
+              id:       a.Id || a.id,
+              name:     a.ReceiverName || a.receiverName || '',
+              phone:    a.Phone || a.phone || '',
+              province: a.Province || a.province || '',
+              district: a.District || a.district || '',
+              ward:     a.Ward || a.ward || '',
+              detail:   a.Detail || a.detail || '',
+              isDefault: a.IsDefault || a.isDefault || false,
+              fullAddress: a.FullAddress || a.fullAddress || ''
+            };
+          });
+          renderProfAddrList();
+        }).catch(function () {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Lỗi tải địa chỉ</p></div>';
+        });
+      }
+
+      function renderProfAddrList() {
+        var listEl = document.getElementById('profAddrList');
+        if (!_profAddresses.length) {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-geo-alt"></i><p>Chưa có địa chỉ. Hãy thêm địa chỉ giao hàng.</p></div>'; return;
+        }
+        listEl.innerHTML = _profAddresses.map(function (a) {
+          var addrText = a.fullAddress || [a.detail, a.ward, a.district, a.province].filter(Boolean).join(', ');
+          return '<div style="padding:14px 16px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;position:relative">'
+            + (a.isDefault ? '<span style="position:absolute;top:12px;right:12px;background:var(--pink);color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600">Mặc Định</span>' : '')
+            + '<div style="font-size:14px;font-weight:600;margin-bottom:2px">' + a.name + ' — ' + a.phone + '</div>'
+            + '<div style="font-size:13px;color:var(--gray)">' + addrText + '</div>'
+            + '<div style="margin-top:10px;display:flex;gap:8px">'
+            + (!a.isDefault ? '<button class="gh-btn-outline" style="font-size:11px;padding:4px 10px" onclick="setProfAddrDefault(' + a.id + ')">Đặt mặc định</button>' : '')
+            + '<button class="gh-btn-outline" style="font-size:11px;padding:4px 10px;color:#ef4444;border-color:#ef4444" onclick="deleteProfAddr(' + a.id + ')">Xóa</button>'
+            + '</div></div>';
+        }).join('');
+      }
+
+      function toggleProfAddrForm(show) {
+        var form = document.getElementById('profAddrForm');
+        form.style.display = show ? 'block' : 'none';
+        if (show && !_profAddrCascadeReady && typeof VNProvinces !== 'undefined') {
+          _profAddrCascadeReady = true;
+          VNProvinces.setup({ prov: 'pafProv', dist: 'pafDist', ward: 'pafWard' });
+        }
+      }
+
+      function saveProfAddr() {
+        var name   = document.getElementById('pafName').value.trim();
+        var phone  = document.getElementById('pafPhone').value.trim();
+        var prov   = document.getElementById('pafProv');
+        var dist   = document.getElementById('pafDist');
+        var ward   = document.getElementById('pafWard');
+        var detail = document.getElementById('pafDetail').value.trim();
+        var isDef  = document.getElementById('pafDefault').checked;
+        if (!name || !phone || !prov.value || !dist.value || !detail) {
+          toast('Vui lòng điền đầy đủ thông tin!', 'err'); return;
+        }
+        var provName = prov.options[prov.selectedIndex].dataset.name || prov.options[prov.selectedIndex].textContent;
+        var distName = dist.options[dist.selectedIndex].dataset.name || dist.options[dist.selectedIndex].textContent;
+        var wardName = ward.selectedIndex > 0 ? (ward.options[ward.selectedIndex].dataset.name || ward.options[ward.selectedIndex].textContent) : '';
+        var btn = document.getElementById('pafSaveBtn');
+        btn.disabled = true; btn.textContent = 'Đang lưu...';
+        Address.create({
+          ReceiverName: name, Phone: phone,
+          Province: provName, ProvinceCode: prov.value,
+          District: distName, DistrictCode: dist.value,
+          Ward: wardName, WardCode: ward.value || '',
+          Detail: detail, IsDefault: isDef
+        }).then(function () {
+          toast('Đã lưu địa chỉ!');
+          toggleProfAddrForm(false);
+          ['pafName','pafPhone','pafDetail'].forEach(function (id) { document.getElementById(id).value = ''; });
+          document.getElementById('pafDefault').checked = false;
+          loadProfAddresses();
+        }).catch(function (e) {
+          toast((e && e.message) || 'Lỗi lưu địa chỉ', 'err');
+        }).finally(function () {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-floppy me-1"></i> Lưu Địa Chỉ';
+        });
+      }
+
+      function deleteProfAddr(id) {
+        if (!confirm('Xóa địa chỉ này?')) return;
+        Address.delete(id).then(function () {
+          toast('Đã xóa địa chỉ');
+          loadProfAddresses();
+        }).catch(function (e) { toast((e && e.message) || 'Lỗi xóa', 'err'); });
+      }
+
+      function setProfAddrDefault(id) {
+        Address.setDefault ? Address.setDefault(id).then(function () {
+          toast('Đã đặt địa chỉ mặc định');
+          loadProfAddresses();
+        }).catch(function (e) { toast(e.message || 'Lỗi', 'err'); })
+        : toast('Chức năng chưa hỗ trợ', 'err');
       }
 
       /* ════ WALLET ════ */
