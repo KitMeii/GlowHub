@@ -39,7 +39,7 @@
         color: var(--dark);
         background: #fff;
         overflow-x: hidden;
-        cursor: none;
+        cursor: auto;
       }
 
       /* ── CURSOR ── */
@@ -96,8 +96,12 @@
       @media (hover: hover) and (pointer: fine) {
         body,
         body * {
-          cursor: none !important;
+          cursor: auto !important;
         }
+        a, button, [role="button"], .prd-thumb, .prd-zoom-btn, .prd-qty-btn,
+        .prd-btn-add, .prd-btn-wish, .prd-btn-compare, .prd-sticky-btn,
+        .prd-tab, .prd-share-btn, .prd-related-card, .rv-submit, .rv-filter-btn,
+        .rv-pg-btn, .prd-zoom-close, select, label { cursor: pointer !important; }
       }
 
       /* ── TOPBAR ── */

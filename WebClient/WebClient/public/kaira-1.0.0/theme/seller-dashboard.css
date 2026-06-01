@@ -182,4 +182,19 @@ input:checked+.toggle-slider:before{transform:translateX(17px)}
 .pager-wrap button{min-width:32px;height:32px;border:1px solid #e8e3dd;background:#fff;border-radius:4px;font-size:12px;cursor:pointer;color:#555;transition:all .15s}
 .pager-wrap button.active,.pager-wrap button:hover:not(:disabled){background:var(--pink);color:#fff;border-color:var(--pink)}
 .pager-wrap button:disabled{opacity:.4;cursor:not-allowed}
+/* ── QUILL EDITOR ── */
+.quill-wrap{border:1px solid #ddd;border-radius:1px;overflow:hidden}
+.quill-wrap .ql-toolbar{background:#fafaf8;border:none;border-bottom:1px solid #e8e3dd;font-family:var(--font-body)}
+.quill-wrap .ql-container{border:none;font-family:var(--font-body);font-size:13px;min-height:100px}
+.quill-wrap .ql-editor{min-height:100px;padding:10px 12px;line-height:1.7}
+.quill-wrap .ql-editor.ql-blank::before{color:#aaa;font-style:normal;font-size:13px}
+/* ── SPECS EDITOR ── */
+.specs-editor{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.spec-row{display:flex;align-items:center;gap:6px}
+.spec-row .spec-key{flex:0 0 40%;font-size:12px}
+.spec-row .spec-val{flex:1;font-size:12px}
+.btn-del-spec{background:none;border:1px solid #f8d7da;color:#dc2626;width:30px;height:30px;border-radius:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.btn-del-spec:hover{background:#f8d7da}
+.btn-add-spec{background:none;border:1px dashed #ddd;color:#888;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;cursor:pointer;font-family:var(--font-body);display:inline-flex;align-items:center;gap:6px;border-radius:1px;transition:all .15s}
+.btn-add-spec:hover{border-color:var(--pink);color:var(--pink)}
 .badge-verified{background:#d1e7dd;color:#0f5132;padding:2px 6px;border-radius:99px;font-size:10px;font-weight:600}

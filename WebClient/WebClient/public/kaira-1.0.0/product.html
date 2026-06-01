@@ -446,7 +446,8 @@
 
       function _recordView(productId) {
         try {
-          fetch("/api/products/" + productId + "/view", { method: "POST" }).catch(function(){});
+          var _apiBase = typeof PRODUCT_API !== "undefined" ? PRODUCT_API : "http://localhost:5001";
+          fetch(_apiBase + "/api/products/" + productId + "/view", { method: "POST" }).catch(function(){});
         } catch(_) {}
         // Save to localStorage fallback
         try {
