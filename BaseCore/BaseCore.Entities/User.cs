@@ -19,5 +19,13 @@ namespace BaseCore.Entities
         public bool IsActive { get; set; }
         public int UserType { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
+
+        /// <summary>GOOGLE | FACEBOOK | null (đăng nhập thường)</summary>
+        [MaxLength(20)]
+        public string? OAuthProvider { get; set; }
+
+        /// <summary>User ID từ OAuth provider</summary>
+        [MaxLength(200)]
+        public string? OAuthId { get; set; }
     }
 }

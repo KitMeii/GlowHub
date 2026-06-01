@@ -52,9 +52,17 @@ namespace BaseCore.APIService.Controllers
             [FromQuery] string? keyword,
             [FromQuery] int? categoryId,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] bool? onlyNew = null,
+            [FromQuery] bool? onlySale = null,
+            [FromQuery] string? sort = null,
+            [FromQuery] bool isActive = true)
         {
-            var (products, totalCount) = await _productRepository.SearchAsync(keyword, categoryId, page, pageSize);
+            var (products, totalCount) = await _productRepository.SearchAsync(
+                keyword, categoryId, page, pageSize,
+                minPrice, maxPrice, onlyNew, onlySale, sort, isActive);
             return Ok(new
             {
                 items = products,
@@ -68,97 +76,188 @@ namespace BaseCore.APIService.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _db.Products
-                .Include(p => p.Category)
-                .Include(p => p.Shop)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null) return NotFound(new { message = "Product not found" });
-
-            // avgRating + totalReviews
-            var reviews = await _db.Reviews.Where(r => r.ProductId == id).ToListAsync();
-            var avgRating = reviews.Count > 0 ? Math.Round(reviews.Average(r => r.Rating), 1) : 0.0;
-
-            // soldCount
-            var soldCount = product.SoldCount > 0
-                ? product.SoldCount
-                : await _db.OrderDetails.Where(od => od.ProductId == id).SumAsync(od => (int?)od.Quantity) ?? 0;
-
-            // shopInfo
-            object? shopInfo = null;
-            if (product.Shop != null)
+            try
             {
-                var shopProductIds = await _db.Products
-                    .Where(p => p.ShopId == product.ShopId && p.IsActive)
-                    .Select(p => p.Id).ToListAsync();
-                var shopReviews = await _db.Reviews
-                    .Where(r => shopProductIds.Contains(r.ProductId)).ToListAsync();
-                var shopAvgRating = shopReviews.Count > 0
-                    ? Math.Round(shopReviews.Average(r => r.Rating), 1) : 0.0;
-                shopInfo = new {
-                    shopId    = product.Shop.Id,
-                    shopName  = product.Shop.ShopName,
-                    logo      = product.Shop.Logo,
-                    avgRating = shopAvgRating
-                };
-            }
+                // ── Main query: Product + Category only (NO Shop join — Shops table may have missing columns) ──
+                var product = await _db.Products
+                    .Include(p => p.Category)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
-            // images — merge ImageUrl + JSON Images field
-            var imagesList = new List<string>();
-            if (!string.IsNullOrEmpty(product.ImageUrl)) imagesList.Add(product.ImageUrl);
-            if (!string.IsNullOrEmpty(product.Images))
-            {
+                if (product == null) return NotFound(new { message = "Không tìm thấy sản phẩm" });
+
+                // ── Reviews ──────────────────────────────────────────────────────
+                var avgRating   = 0.0;
+                var reviewsData = new List<object>();
                 try
                 {
-                    var extra = System.Text.Json.JsonSerializer.Deserialize<List<string>>(product.Images);
-                    if (extra != null) imagesList.AddRange(extra.Take(5 - imagesList.Count));
+                    var revList = await _db.Reviews
+                        .Where(r => r.ProductId == id)
+                        .OrderByDescending(r => r.Id)
+                        .Take(20)
+                        .Select(r => new {
+                            r.Id, r.Rating, r.Comment,
+                            r.UserId,
+                            userName          = r.User != null ? r.User.Name : "",
+                            r.CreatedAt,
+                            r.SellerReply,
+                            r.ReplyAt,
+                            r.IsVerifiedPurchase,
+                            reviewImages      = r.Images
+                        })
+                        .ToListAsync();
+
+                    if (revList.Count > 0)
+                        avgRating = Math.Round(revList.Average(r => r.Rating), 1);
+
+                    reviewsData.AddRange(revList);
                 }
                 catch { }
-            }
 
-            // specifications
-            Dictionary<string, string>? specs = null;
-            if (!string.IsNullOrEmpty(product.Specifications))
-            {
-                try { specs = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(product.Specifications); }
+                // ── SoldCount ─────────────────────────────────────────────────────
+                var soldCount = product.SoldCount;
+                if (soldCount == 0)
+                {
+                    try
+                    {
+                        soldCount = await _db.OrderDetails
+                            .Where(od => od.ProductId == id)
+                            .SumAsync(od => (int?)od.Quantity) ?? 0;
+                    }
+                    catch { }
+                }
+
+                // ── Shop (separate query, fully protected) ────────────────────────
+                string? shopId = null, shopName = null, shopLogo = null;
+                double  shopAvgRating = 0.0;
+                if (!string.IsNullOrEmpty(product.ShopId))
+                {
+                    try
+                    {
+                        // Use Select to pick only safe columns (avoids Province/Region schema crash)
+                        var shopRow = await _db.Shops
+                            .Where(s => s.Id == product.ShopId)
+                            .Select(s => new { s.Id, s.ShopName, s.Logo })
+                            .FirstOrDefaultAsync();
+
+                        if (shopRow != null)
+                        {
+                            shopId   = shopRow.Id;
+                            shopName = shopRow.ShopName;
+                            shopLogo = shopRow.Logo;
+
+                            try
+                            {
+                                var spIds = await _db.Products
+                                    .Where(p => p.ShopId == shopId && p.IsActive)
+                                    .Select(p => p.Id).ToListAsync();
+                                var sRevs = await _db.Reviews
+                                    .Where(r => spIds.Contains(r.ProductId))
+                                    .Select(r => (double)r.Rating)
+                                    .ToListAsync();
+                                if (sRevs.Count > 0)
+                                    shopAvgRating = Math.Round(sRevs.Average(), 1);
+                            }
+                            catch { }
+                        }
+                    }
+                    catch { }
+                }
+
+                // ── Images (merge ImageUrl + JSON Images) ─────────────────────────
+                var imagesList = new List<string>();
+                if (!string.IsNullOrEmpty(product.ImageUrl))
+                    imagesList.Add(product.ImageUrl);
+                if (!string.IsNullOrEmpty(product.Images))
+                {
+                    try
+                    {
+                        var extra = System.Text.Json.JsonSerializer.Deserialize<List<string>>(product.Images);
+                        if (extra != null)
+                            imagesList.AddRange(extra.Take(Math.Max(0, 5 - imagesList.Count)));
+                    }
+                    catch { }
+                }
+
+                // ── Specifications ────────────────────────────────────────────────
+                object? specs = null;
+                if (!string.IsNullOrEmpty(product.Specifications))
+                {
+                    try
+                    {
+                        specs = System.Text.Json.JsonSerializer
+                            .Deserialize<Dictionary<string, string>>(product.Specifications);
+                    }
+                    catch { }
+                }
+
+                // ── Related Products ──────────────────────────────────────────────
+                var relatedList = new List<object>();
+                try
+                {
+                    var rawRelated = await _db.Products
+                        .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.IsActive)
+                        .OrderByDescending(p => p.Id)
+                        .Take(4)
+                        .Select(p => new {
+                            p.Id, p.Name, p.Price, p.DiscountPrice,
+                            image = p.ImageUrl, p.IsNew, p.SoldCount
+                        })
+                        .ToListAsync();
+                    relatedList.AddRange(rawRelated);
+                }
                 catch { }
+
+                // ── isInWishlist ──────────────────────────────────────────────────
+                var isInWishlist = false;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    try
+                    {
+                        isInWishlist = await _db.Wishlists
+                            .AnyAsync(w => w.CustomerId == userId && w.ProductId == id);
+                    }
+                    catch { }
+                }
+
+                return Ok(new {
+                    id             = product.Id,
+                    name           = product.Name,
+                    price          = product.Price,
+                    discountPrice  = product.DiscountPrice,
+                    stock          = product.Stock,
+                    isActive       = product.IsActive,
+                    isNew          = product.IsNew,
+                    soldCount,
+                    viewCount      = product.ViewCount,
+                    weightGram     = product.WeightGram,
+                    imageUrl       = product.ImageUrl,
+                    images         = imagesList,
+                    description    = product.Description,
+                    categoryId     = product.CategoryId,
+                    categoryName   = product.Category?.Name,
+                    specifications = specs,
+                    avgRating,
+                    totalReviews   = reviewsData.Count,
+                    reviews        = reviewsData,
+                    shopId,
+                    shopName,
+                    shopLogo,
+                    shopAvgRating,
+                    relatedProducts = relatedList,
+                    isInWishlist,
+                    createdAt      = product.CreatedAt
+                });
             }
-
-            // relatedProducts (4 cùng danh mục)
-            var related = await _db.Products
-                .Include(p => p.Category)
-                .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.IsActive)
-                .OrderByDescending(p => p.CreatedAt)
-                .Take(4)
-                .Select(p => new {
-                    p.Id, p.Name, p.Price, p.DiscountPrice,
-                    image = p.ImageUrl, p.IsNew, p.SoldCount
-                })
-                .ToListAsync();
-
-            // isInWishlist
-            var isInWishlist = false;
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userId))
-                isInWishlist = await _db.Wishlists.AnyAsync(w => w.CustomerId == userId && w.ProductId == id);
-
-            return Ok(new {
-                product.Id, product.Name, product.Price, product.DiscountPrice,
-                product.Stock, product.IsActive, product.IsNew, product.SoldCount,
-                imageUrl      = product.ImageUrl,
-                images        = imagesList,
-                description   = product.Description,
-                categoryId    = product.CategoryId,
-                categoryName  = product.Category?.Name,
-                specifications = specs,
-                avgRating,
-                totalReviews  = reviews.Count,
-                soldCount,
-                shopInfo,
-                relatedProducts = related,
-                isInWishlist,
-                createdAt     = product.CreatedAt
-            });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new {
+                    error  = "Lỗi tải chi tiết sản phẩm",
+                    detail = ex.Message,
+                    inner  = ex.InnerException?.Message
+                });
+            }
         }
 
         [HttpGet("category/{categoryId}")]

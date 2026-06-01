@@ -1,7 +1,12 @@
 -- ============================================================
+-- 29/05/2026
 --  SPRINT 9 — Database Migration Script
 --  Tables: AuditLogs, Disputes, PayoutHistories
 -- ============================================================
+
+USE BaseCoreDB
+GO
+
 
 -- 1. AuditLogs
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'AuditLogs')

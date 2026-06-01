@@ -437,8 +437,9 @@ namespace BaseCore.APIService.Controllers
 
                 // ── Tạo parent Order ─────────────────────────────────
                 var paymentMethod = dto.PaymentMethod switch {
-                    1 => "BANK", 2 => "MOMO", 3 => "ZALOPAY", _ => "COD"
+                    1 => "BANK", 2 => "MOMO", 3 => "ZALOPAY", 4 => "VNPAY", _ => "COD"
                 };
+                var needsOnlinePayment = paymentMethod is "VNPAY" or "BANK";
                 int deliveryDays = dto.ShippingMethod == "same" ? 1 : dto.ShippingMethod == "express" ? 2 : 5;
 
                 var order = new Order {
@@ -447,7 +448,9 @@ namespace BaseCore.APIService.Controllers
                     Status                = OrderStatus.Pending,
                     PayoutStatus          = PayoutStatusValue.Pending,
                     PaymentMethod         = paymentMethod,
-                    PaymentStatus         = "UNPAID",
+                    PaymentStatus         = needsOnlinePayment ? PaymentStatusValue.WaitingPayment : PaymentStatusValue.Unpaid,
+                    PaymentExpireAt       = needsOnlinePayment ? DateTime.UtcNow.AddMinutes(15) : null,
+                    ToProvince            = dto.ToProvince,
                     ShippingAddress       = dto.ShippingAddress,
                     ReceiverName          = dto.ReceiverName ?? "",
                     ReceiverPhone         = dto.ReceiverPhone ?? "",
@@ -595,7 +598,12 @@ namespace BaseCore.APIService.Controllers
                     finalAmount       = order.FinalAmount,
                     subOrders         = subOrderResults,
                     estimatedDelivery = DateTime.SpecifyKind(order.EstimatedDelivery!.Value, DateTimeKind.Utc),
-                    appliedVoucher
+                    appliedVoucher,
+                    paymentMethod,
+                    paymentStatus     = order.PaymentStatus,
+                    paymentExpireAt   = order.PaymentExpireAt.HasValue
+                        ? (DateTime?)DateTime.SpecifyKind(order.PaymentExpireAt.Value, DateTimeKind.Utc) : null,
+                    requiresPayment   = needsOnlinePayment
                 });
             }
             catch (DbUpdateConcurrencyException)

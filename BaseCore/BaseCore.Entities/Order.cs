@@ -97,6 +97,26 @@ namespace BaseCore.Entities
 
         public DateTime? WalletReleaseAt { get; set; }
 
+        // ── Sprint 12: Payment flow fields ──
+
+        /// <summary>Tỉnh/thành giao đến — dùng tính phí ship động</summary>
+        [MaxLength(100)]
+        public string? ToProvince { get; set; }
+
+        /// <summary>Mã giao dịch VNPay từ IPN callback</summary>
+        [MaxLength(100)]
+        public string? VNPayTransactionId { get; set; }
+
+        /// <summary>Hết hạn thanh toán — 15 phút sau khi tạo đơn VNPAY/BANK</summary>
+        public DateTime? PaymentExpireAt { get; set; }
+
+        /// <summary>Thời điểm khách xác nhận đã chuyển khoản</summary>
+        public DateTime? BankTransferConfirmedAt { get; set; }
+
+        /// <summary>Admin ID đã xác nhận nhận tiền chuyển khoản</summary>
+        [MaxLength(450)]
+        public string? BankTransferConfirmedBy { get; set; }
+
         public User User { get; set; } = null!;
 
         public Shop? Shop { get; set; }
@@ -119,14 +139,19 @@ namespace BaseCore.Entities
     public static class PaymentMethodValue {
         public const string COD     = "COD";
         public const string Bank    = "BANK";
+        public const string VNPay   = "VNPAY";
         public const string MoMo    = "MOMO";
         public const string ZaloPay = "ZALOPAY";
     }
 
     public static class PaymentStatusValue {
-        public const string Unpaid   = "UNPAID";
-        public const string Paid     = "PAID";
-        public const string Refunded = "REFUNDED";
+        public const string Unpaid             = "UNPAID";
+        public const string Paid               = "PAID";
+        public const string Refunded           = "REFUNDED";
+        public const string WaitingPayment     = "WAITING_PAYMENT";
+        public const string Failed             = "FAILED";
+        public const string Expired            = "EXPIRED";
+        public const string PendingBankConfirm = "PENDING_BANK_CONFIRM";
     }
 
     public static class PayoutStatusValue {
