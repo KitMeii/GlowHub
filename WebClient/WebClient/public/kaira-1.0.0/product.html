@@ -520,7 +520,7 @@
         _setMeta("ogTitle", name + " — GlowHub");
         _setMeta("ogDesc", desc.substring(0, 150) || name);
         _setMeta("ogImage", imgs[0]);
-        document.getElementById("bcCat").textContent = cat;
+        document.getElementById("bcCat").textContent = catName;
         document.getElementById("bcCat").href = "shop.html?cat=" + catId;
         document.getElementById("bcName").textContent = name;
 
@@ -569,9 +569,9 @@
             ? '<div class="prd-stock-low"><i class="bi bi-exclamation-triangle"></i> Chỉ còn ' + stock + " sản phẩm</div>"
             : '<div class="prd-stock-ok"><i class="bi bi-check-circle"></i> Còn hàng</div>';
 
-        // Shop info HTML
+        // Shop info HTML — support cả format cũ (p.shopInfo) lẫn format mới (flat fields)
         var shopHtml = "";
-        var si = p.shopInfo;
+        var si = p.shopInfo || (p.shopId ? { shopId: p.shopId, shopName: p.shopName, logo: p.shopLogo, avgRating: p.shopAvgRating } : null);
         if (si && si.shopId) {
           var shopLogo = si.logo
             ? '<img src="' + si.logo + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0f0f0" onerror="this.style.display=\'none\'">'
@@ -634,7 +634,7 @@
           '<i class="bi bi-bag-plus"></i> Thêm Vào Giỏ Hàng</button>' +
           '<button class="prd-btn-wish" id="wishBtn" onclick="toggleWish()">' +
           '<i class="bi bi-heart"></i> <span id="wishText">Yêu Thích</span></button>' +
-          '<button class="prd-btn-compare" id="compareBtn" onclick="toggleCompareProduct(' + id + ",'" + name.replace(/'/g, "\\'") + "','" + (img || "") + "','" + fmt(price) + '\')">' +
+          '<button class="prd-btn-compare" id="compareBtn" onclick="toggleCompareProduct(' + id + ",'" + name.replace(/'/g, "\\'") + "','" + (imgs[0] || "") + "','" + fmtP(price) + '\')">' +
           '<i class="bi bi-bar-chart-line"></i> <span id="compareText">So Sánh</span></button>' +
           '<div class="prd-divider"></div>' +
           // TABS
