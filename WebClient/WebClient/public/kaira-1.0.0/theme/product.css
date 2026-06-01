@@ -4,9 +4,7 @@
    ══════════════════════════════════════════════ */
 
 /* ── Reset cursor ── */
-.product-page *,
-.product-page *::before,
-.product-page *::after { cursor: auto; }
+.product-page * { cursor: auto; }
 .product-page a,
 .product-page button,
 .product-page [role="button"],
@@ -29,14 +27,14 @@
   align-items: center;
   gap: 8px;
   padding: 20px 0;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.5px;
   font-family: var(--font-body);
-  color: rgba(0,0,0,0.4);
+  color: rgba(0,0,0,0.45);
   flex-wrap: wrap;
 }
 .product-breadcrumb a {
-  color: rgba(0,0,0,0.4);
+  color: rgba(0,0,0,0.45);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -96,7 +94,7 @@
 }
 .gallery-arrow:hover {
   background: var(--white);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .gallery-arrow-prev { left: 12px; }
 .gallery-arrow-next { right: 12px; }
@@ -144,6 +142,23 @@
   opacity: 1;
 }
 
+/* Zoom overlay */
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.zoom-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
 /* ══ PRODUCT INFO ══════════════════════════════ */
 .product-info {
   display: flex;
@@ -168,8 +183,8 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.rating-stars { color: #f59e0b; font-size: 16px; letter-spacing: 1px; }
-.rating-count {
+.rating-stars-display { color: #f59e0b; font-size: 16px; letter-spacing: 1px; }
+.rating-count-link {
   font-size: 12px;
   color: rgba(0,0,0,0.45);
   font-family: var(--font-body);
@@ -210,17 +225,27 @@
 }
 
 /* 4. Tồn kho */
-.product-stock-row {
+.product-stock-row { font-family: var(--font-body); }
+.stock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   letter-spacing: 0.5px;
   font-family: var(--font-body);
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
-.stock-in  { color: #16a34a; font-weight: 500; }
-.stock-low { color: #d97706; font-weight: 500; }
-.stock-out { color: #dc2626; font-weight: 500; }
+.stock-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.stock-in { color: #16a34a; }
+.stock-in .stock-dot { background: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.2); }
+.stock-low { color: #d97706; }
+.stock-low .stock-dot { background: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.2); }
+.stock-out { color: #dc2626; }
+.stock-out .stock-dot { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.2); }
 
 /* 5. Qty */
 .product-qty-section { display: flex; flex-direction: column; gap: 8px; }
@@ -271,7 +296,7 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 16px 24px;
+  height: 52px;
   background: var(--dark);
   color: var(--white);
   border: none;
@@ -280,15 +305,30 @@
   text-transform: uppercase;
   font-family: var(--font-body);
   transition: background 0.2s;
-  height: 52px;
 }
 .btn-add-cart:hover:not(:disabled) { background: var(--pink); }
-.btn-add-cart:disabled {
-  background: rgba(0,0,0,0.2);
-  cursor: not-allowed;
-}
+.btn-add-cart:disabled { background: rgba(0,0,0,0.2); cursor: not-allowed; }
 
-/* 7. Secondary actions */
+/* 7. Mua ngay */
+.btn-buy-now {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  background: var(--pink);
+  color: var(--white);
+  border: none;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: opacity 0.2s;
+}
+.btn-buy-now:hover:not(:disabled) { opacity: 0.88; }
+.btn-buy-now:disabled { background: rgba(0,0,0,0.2); cursor: not-allowed; }
+
+/* 8. Secondary actions */
 .product-secondary-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -299,7 +339,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 13px 16px;
+  height: 48px;
   background: none;
   border: 1px solid rgba(0,0,0,0.15);
   font-size: 9px;
@@ -314,14 +354,14 @@
   background: var(--dark);
   color: var(--white);
 }
-.btn-secondary-action.active {
-  border-color: var(--pink);
-  background: #fff0f6;
-  color: var(--pink);
+#btnWishlist.active {
+  border-color: var(--pink) !important;
+  color: var(--pink) !important;
+  background: rgba(247,89,171,0.04);
 }
-#btnWishlist.active { border-color: var(--pink); color: var(--pink); }
+#btnWishlist.active svg { fill: currentColor !important; }
 
-/* 8. Shop card */
+/* 9. Shop card */
 .shop-card {
   display: flex;
   align-items: center;
@@ -352,7 +392,6 @@
   overflow: hidden;
 }
 .shop-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.shop-card-info { min-width: 0; }
 .shop-card-name {
   font-size: 13px;
   font-weight: 600;
@@ -374,7 +413,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   border: 1px solid var(--pink);
-  padding: 8px 16px;
+  padding: 9px 16px;
   color: var(--pink);
   text-decoration: none;
   transition: all 0.2s;
@@ -388,7 +427,6 @@
 .product-benefits {
   display: grid;
   grid-template-columns: repeat(4,1fr);
-  gap: 0;
   border: 1px solid rgba(0,0,0,0.08);
   margin-bottom: 48px;
 }
@@ -400,7 +438,13 @@
   border-right: 1px solid rgba(0,0,0,0.08);
 }
 .benefit-item:last-child { border-right: none; }
-.benefit-icon { font-size: 28px; flex-shrink: 0; }
+.benefit-svg {
+  width: 28px; height: 28px;
+  stroke: var(--pink);
+  fill: none;
+  stroke-width: 1.5;
+  flex-shrink: 0;
+}
 .benefit-title {
   font-size: 12px;
   font-weight: 600;
@@ -450,27 +494,45 @@
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* Tab: Mô tả */
+/* Tab Mô tả: 2 cột */
+.tab-desc-layout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 40px;
+  align-items: start;
+}
+.tab-desc-heading {
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--dark);
+  margin: 0 0 16px;
+  font-family: var(--font-body);
+}
 .tab-desc-content {
   font-size: 14px;
   line-height: 1.9;
   color: rgba(0,0,0,0.7);
   font-family: var(--font-body);
-  max-width: 760px;
 }
-.tab-desc-content h3,
-.tab-desc-content h4 {
+.tab-desc-content p { margin-bottom: 12px; }
+.tab-desc-content ul, .tab-desc-content ol { padding-left: 20px; margin-bottom: 12px; }
+.tab-desc-content li { margin-bottom: 6px; }
+.tab-desc-content h3, .tab-desc-content h4 {
   font-family: var(--font-display);
   font-weight: 400;
   color: var(--dark);
-  margin: 28px 0 10px;
+  margin: 24px 0 10px;
 }
-.tab-desc-content ul,
-.tab-desc-content ol { padding-left: 20px; }
-.tab-desc-content li { margin-bottom: 6px; }
-.tab-desc-content p { margin-bottom: 12px; }
+.tab-desc-img {
+  width: 100%;
+  object-fit: cover;
+  max-height: 300px;
+  display: block;
+}
 
-/* Tab: Thành phần */
+/* Tab Thành phần */
 .tab-ingredients-content {
   font-size: 14px;
   line-height: 1.9;
@@ -479,27 +541,32 @@
   max-width: 760px;
 }
 
-/* Tab: Đánh giá */
+/* Reviews overview */
 .reviews-overview {
   display: flex;
-  align-items: center;
   gap: 40px;
-  padding: 28px;
-  background: var(--cream);
-  margin-bottom: 28px;
+  margin-bottom: 32px;
+  align-items: flex-start;
 }
-.reviews-avg-big { text-align: center; flex-shrink: 0; }
-.avg-number {
-  font-size: 3rem;
+.reviews-avg-col { text-align: center; flex-shrink: 0; }
+.avg-big-number {
+  font-size: 3.5rem;
   font-weight: 700;
   color: var(--dark);
   font-family: var(--font-body);
   line-height: 1;
   display: block;
 }
-.avg-stars { color: #f59e0b; font-size: 18px; display: block; margin: 6px 0 4px; }
-.avg-total { font-size: 11px; color: rgba(0,0,0,0.4); font-family: var(--font-body); }
+.avg-stars-row { color: #f59e0b; font-size: 20px; display: block; margin: 8px 0 4px; }
+.avg-total-text { font-size: 11px; color: rgba(0,0,0,0.45); font-family: var(--font-body); }
+.reviews-bars-col { flex: 1; }
+.rating-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rating-bar-label { font-size: 11px; color: rgba(0,0,0,0.5); font-family: var(--font-body); width: 24px; text-align: right; flex-shrink: 0; }
+.rating-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+.rating-bar-fill { height: 100%; background: var(--pink); border-radius: 4px; transition: width 0.5s ease; }
+.rating-bar-count { font-size: 11px; color: rgba(0,0,0,0.4); font-family: var(--font-body); width: 24px; flex-shrink: 0; }
 
+/* Review items */
 .review-item { padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
 .review-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
 .review-avatar {
@@ -521,11 +588,10 @@
 .review-date { font-size: 11px; color: rgba(0,0,0,0.35); font-family: var(--font-body); margin-left: auto; }
 .review-body { font-size: 13px; line-height: 1.7; color: rgba(0,0,0,0.65); font-family: var(--font-body); margin: 0; }
 .reviews-empty { text-align: center; padding: 48px 24px; }
-.reviews-empty-icon { font-size: 40px; display: block; opacity: 0.3; margin-bottom: 12px; }
 .reviews-empty p { font-size: 13px; color: rgba(0,0,0,0.4); font-family: var(--font-body); }
 
 /* Review form */
-.review-form-section {
+.review-form-wrap {
   margin-top: 32px;
   padding-top: 32px;
   border-top: 1px solid rgba(0,0,0,0.06);
@@ -535,11 +601,11 @@
   font-size: 1.1rem;
   font-weight: 400;
   color: var(--dark);
-  margin-bottom: 16px;
+  margin: 0 0 16px;
 }
-.star-picker { display: flex; gap: 6px; font-size: 28px; color: #f59e0b; margin-bottom: 16px; }
+.star-picker { display: flex; gap: 6px; font-size: 28px; color: #f59e0b; margin-bottom: 16px; cursor: pointer; }
 .star-picker span { cursor: pointer; }
-#reviewComment {
+#reviewText {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid rgba(0,0,0,0.12);
@@ -550,8 +616,9 @@
   margin-bottom: 12px;
   background: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
-#reviewComment:focus { border-color: var(--pink); }
+#reviewText:focus { border-color: var(--pink); }
 .btn-submit-review {
   background: var(--dark);
   color: var(--white);
@@ -566,13 +633,13 @@
 .btn-submit-review:hover { background: var(--pink); }
 
 /* Q&A */
-.qa-list { margin-bottom: 28px; }
+.qa-list { margin-bottom: 24px; }
 .qa-item { padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
-.qa-question { font-size: 13px; font-weight: 600; color: var(--dark); font-family: var(--font-body); margin-bottom: 8px; }
+.qa-question { font-size: 13px; font-weight: 600; color: var(--dark); font-family: var(--font-body); margin-bottom: 6px; }
 .qa-question::before { content: 'Q: '; color: var(--pink); }
 .qa-answer { font-size: 13px; color: rgba(0,0,0,0.6); font-family: var(--font-body); line-height: 1.6; }
 .qa-answer::before { content: 'A: '; color: #16a34a; font-weight: 600; }
-.qa-form { display: flex; gap: 10px; margin-top: 16px; }
+.qa-form-wrap { display: flex; gap: 10px; margin-top: 16px; }
 #qaInput {
   flex: 1;
   padding: 12px 16px;
@@ -584,7 +651,7 @@
   transition: border-color 0.2s;
 }
 #qaInput:focus { border-color: var(--pink); }
-.btn-ask {
+.btn-ask-qa {
   background: var(--dark);
   color: var(--white);
   border: none;
@@ -596,9 +663,9 @@
   white-space: nowrap;
   transition: background 0.2s;
 }
-.btn-ask:hover { background: var(--pink); }
+.btn-ask-qa:hover { background: var(--pink); }
 
-/* ══ RELATED — DƯỚI CÙNG ══════════════════════ */
+/* ══ RELATED ══════════════════════════════════ */
 .related-section {
   margin-top: 60px;
   padding-top: 48px;
@@ -619,17 +686,17 @@
 }
 .related-view-all {
   font-size: 11px;
-  letter-spacing: 1px;
   color: var(--pink);
   text-decoration: none;
   font-family: var(--font-body);
   transition: opacity 0.2s;
 }
 .related-view-all:hover { opacity: 0.7; }
-.related-track-wrap { position: relative; }
+.related-wrap { position: relative; }
 .related-arrow {
   position: absolute;
-  top: 50%; transform: translateY(-50%);
+  top: 40%;
+  transform: translateY(-50%);
   width: 40px; height: 40px;
   background: var(--white);
   border: 1px solid rgba(0,0,0,0.12);
@@ -639,8 +706,8 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
-  transition: all 0.2s;
   line-height: 1;
+  transition: all 0.2s;
 }
 .related-arrow:hover { background: var(--dark); color: var(--white); border-color: var(--dark); }
 .related-arrow:disabled { opacity: 0.25; cursor: default; }
@@ -656,9 +723,7 @@
   padding: 4px 2px 8px;
 }
 .related-track::-webkit-scrollbar { display: none; }
-
-/* Related item card */
-.related-item { flex: 0 0 220px; scroll-snap-align: start; cursor: pointer; }
+.related-item { flex: 0 0 200px; scroll-snap-align: start; cursor: pointer; }
 .related-item-img {
   position: relative;
   aspect-ratio: 1 / 1;
@@ -754,13 +819,18 @@
   .price-current { font-size: 1.6rem; }
   .product-benefits { grid-template-columns: repeat(2,1fr); }
   .benefit-item:nth-child(2) { border-right: none; }
+  .tab-desc-layout { grid-template-columns: 1fr; }
+  .tab-desc-img { display: none; }
+  .reviews-overview { flex-direction: column; gap: 20px; }
   .related-item { flex: 0 0 160px; }
   .related-arrow-prev { left: -8px; }
   .related-arrow-next { right: -8px; }
-  .reviews-overview { flex-direction: column; gap: 20px; align-items: flex-start; }
 }
 @media (max-width: 480px) {
+  .product-page { padding: 0 16px 60px; }
   .product-benefits { grid-template-columns: 1fr; }
   .benefit-item { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .benefit-item:last-child { border-bottom: none; }
+  .product-secondary-actions { grid-template-columns: 1fr; }
   .related-item { flex: 0 0 140px; }
 }
