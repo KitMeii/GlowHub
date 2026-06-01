@@ -287,23 +287,11 @@
             Sản Phẩm Liên Quan
           </h2>
         </div>
-        <div class="prd-related-strip" id="relatedStrip">
-          <div
-            class="prd-skeleton"
-            style="flex: 0 0 25%; min-width: 200px; aspect-ratio: 3/4"
-          ></div>
-          <div
-            class="prd-skeleton"
-            style="flex: 0 0 25%; min-width: 200px; aspect-ratio: 3/4"
-          ></div>
-          <div
-            class="prd-skeleton"
-            style="flex: 0 0 25%; min-width: 200px; aspect-ratio: 3/4"
-          ></div>
-          <div
-            class="prd-skeleton"
-            style="flex: 0 0 25%; min-width: 200px; aspect-ratio: 3/4"
-          ></div>
+        <div class="related-grid" id="relGrid">
+          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
+          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
+          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
+          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
         </div>
       </div>
     </section>
@@ -570,24 +558,16 @@
             ? '<div class="prd-stock-low"><i class="bi bi-exclamation-triangle"></i> Chỉ còn ' + stock + " sản phẩm</div>"
             : '<div class="prd-stock-ok"><i class="bi bi-check-circle"></i> Còn hàng</div>';
 
-        // Shop info HTML — support cả format cũ (p.shopInfo) lẫn format mới (flat fields)
-        var shopHtml = "";
-        var si = p.shopInfo || (p.shopId ? { shopId: p.shopId, shopName: p.shopName, logo: p.shopLogo, avgRating: p.shopAvgRating } : null);
-        if (si && si.shopId) {
-          var shopLogo = si.logo
-            ? '<img src="' + si.logo + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0f0f0" onerror="this.style.display=\'none\'">'
-            : '<div style="width:36px;height:36px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">' + (si.shopName || "S")[0].toUpperCase() + "</div>";
-          shopHtml = '<div class="prd-shop-box">' +
-            '<a href="shop-profile.html?id=' + si.shopId + '" class="prd-shop-link">' +
-            shopLogo +
-            '<div>' +
-            '<div class="prd-shop-name">' + (si.shopName || "Shop") + '</div>' +
-            (si.avgRating ? '<div class="prd-shop-rating">⭐ ' + Number(si.avgRating).toFixed(1) + '</div>' : '') +
-            '</div>' +
-            '</a>' +
-            '<a href="shop-profile.html?id=' + si.shopId + '" class="prd-shop-visit">Xem Shop <i class="bi bi-arrow-right"></i></a>' +
-            '</div>';
-        }
+        // Shop info — static DOM template, populated after innerHTML is set
+        var shopHtml =
+          '<div id="shopCard" class="prd-shop-box" style="display:none">' +
+          '<a href="shop.html" id="shopLink" class="prd-shop-link">' +
+          '<div id="shopAvatar" style="width:36px;height:36px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0"></div>' +
+          '<div><div id="shopName" class="prd-shop-name">GlowHub Store</div>' +
+          '<div id="shopSub" class="prd-shop-rating">GlowHub Verified Store</div></div>' +
+          '</a>' +
+          '<a href="shop.html" id="shopVisitLink" class="prd-shop-visit">Xem Shop <i class="bi bi-arrow-right"></i></a>' +
+          '</div>';
 
         // Sold count badge
         var soldHtml = soldCnt > 0
@@ -692,6 +672,37 @@
           '<div><i class="bi bi-truck" style="color:var(--dark)"></i> Miễn phí vận chuyển đơn từ 500.000₫</div>' +
           "</div>";
 
+        // Populate shop card via getElementById (runs after innerHTML is set above)
+        (function() {
+          function norm(obj, camel, pascal) { return obj[camel] !== undefined ? obj[camel] : obj[pascal]; }
+          var shopNameVal = norm(p,'shopName','ShopName') || (p.shopInfo && p.shopInfo.shopName) || 'GlowHub Store';
+          var shopIdVal   = norm(p,'shopId','ShopId')    || (p.shopInfo && p.shopInfo.shopId);
+          var shopLogoVal = norm(p,'shopLogo','ShopLogo') || (p.shopInfo && p.shopInfo.logo);
+          var shopRatVal  = norm(p,'shopAvgRating','ShopAvgRating') || (p.shopInfo && p.shopInfo.avgRating) || 0;
+          var shopCard = document.getElementById('shopCard');
+          if (shopCard) {
+            shopCard.style.display = 'flex';
+            var avatarEl = document.getElementById('shopAvatar');
+            if (avatarEl) {
+              var initial = (shopNameVal || 'G')[0].toUpperCase();
+              if (shopLogoVal) {
+                avatarEl.innerHTML = '<img src="' + shopLogoVal + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.textContent=\'' + initial + '\'">';
+              } else {
+                avatarEl.textContent = initial;
+              }
+            }
+            var nameEl = document.getElementById('shopName');
+            if (nameEl) nameEl.textContent = shopNameVal;
+            var subEl = document.getElementById('shopSub');
+            if (subEl) subEl.textContent = shopRatVal > 0 ? '★ ' + Number(shopRatVal).toFixed(1) + ' · GlowHub Verified' : 'GlowHub Verified Store';
+            var href = shopIdVal ? 'shop-profile.html?id=' + shopIdVal : 'shop.html';
+            var linkEl = document.getElementById('shopLink');
+            if (linkEl) linkEl.href = href;
+            var visitEl = document.getElementById('shopVisitLink');
+            if (visitEl) visitEl.href = href;
+          }
+        })();
+
         // Update sticky bar
         document.getElementById("stickyName").textContent = name;
         document.getElementById("stickyPrice").textContent = fmtP(finalP);
@@ -769,18 +780,26 @@
       // ── ADD TO CART ──
       function addToCart() {
         if (!_product) return;
-        var qty = parseInt(document.getElementById("qtyInput").value) || 1;
-        var p = _product;
-        var name = p.Name || p.name || "Sản phẩm";
-        var price =
-          p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
-        var img = p.ImageUrl || p.imageUrl || "";
-        var id = p.Id || p.id;
-        for (var i = 0; i < qty; i++) {
-          if (typeof Cart !== "undefined")
-            Cart.add({ id: id, name: name, price: price, image: img });
+        var qty  = parseInt(document.getElementById("qtyInput").value) || 1;
+        var p    = _product;
+        var name = p.name  || p.Name  || "Sản phẩm";
+        var price = p.discountPrice || p.DiscountPrice || p.price || p.Price || 0;
+        var img  = p.imageUrl || p.ImageUrl || "";
+        var id   = p.id || p.Id;
+        if (typeof CartLimit !== "undefined") {
+          var result = CartLimit.add({ id: id, name: name, price: price, image: img, qty: qty });
+          if (result.success) {
+            var msg = result.action === 'updated'
+              ? '✓ Đã cập nhật "' + name + '" trong giỏ'
+              : '✓ Đã thêm ' + qty + 'x "' + name + '" vào giỏ';
+            showToast(msg);
+          }
+        } else {
+          for (var i = 0; i < qty; i++) {
+            if (typeof Cart !== "undefined") Cart.add({ id: id, name: name, price: price, image: img });
+          }
+          showToast('✓ Đã thêm ' + qty + 'x "' + name + '" vào giỏ');
         }
-        showToast("✓ Đã thêm " + qty + 'x "' + name + '" vào giỏ');
       }
 
       // ── WISHLIST ──
@@ -807,34 +826,49 @@
         var btn   = document.getElementById("wishBtn");
         var txt   = document.getElementById("wishText");
 
-        var wItems = _getWishlist();
-        if (!_wished) {
-          wItems.push({ id: id, name: name, price: price, image: image });
-          _saveWishlist(wItems);
-          _wished = true;
-          if (btn) { btn.classList.add("wished"); btn.querySelector("i").className = "bi bi-heart-fill"; }
-          if (txt) txt.textContent = "Đã Yêu Thích";
-          showToast("♥ Đã thêm vào yêu thích");
-          if (typeof Wishlist !== "undefined") Wishlist.add(id).catch(function(){});
+        if (typeof WishlistLimit !== "undefined") {
+          var result = WishlistLimit.toggle({ id: id, name: name, price: price, image: image });
+          if (result.success) {
+            _wished = result.action === 'added';
+            if (_wished) {
+              if (btn) { btn.classList.add("wished"); btn.querySelector("i").className = "bi bi-heart-fill"; }
+              if (txt) txt.textContent = "Đã Yêu Thích";
+              showToast("♥ Đã thêm vào yêu thích");
+            } else {
+              if (btn) { btn.classList.remove("wished"); btn.querySelector("i").className = "bi bi-heart"; }
+              if (txt) txt.textContent = "Yêu Thích";
+              showToast("Đã xóa khỏi yêu thích");
+            }
+            window.dispatchEvent(new Event('wishlist-updated'));
+          }
         } else {
-          _saveWishlist(wItems.filter(function(p) { return p.id != id; }));
-          _wished = false;
-          if (btn) { btn.classList.remove("wished"); btn.querySelector("i").className = "bi bi-heart"; }
-          if (txt) txt.textContent = "Yêu Thích";
-          showToast("Đã xóa khỏi yêu thích");
-          if (typeof Wishlist !== "undefined") Wishlist.remove(id).catch(function(){});
+          var wItems = _getWishlist();
+          if (!_wished) {
+            wItems.push({ id: id, name: name, price: price, image: image });
+            _saveWishlist(wItems);
+            _wished = true;
+            if (btn) { btn.classList.add("wished"); btn.querySelector("i").className = "bi bi-heart-fill"; }
+            if (txt) txt.textContent = "Đã Yêu Thích";
+            showToast("♥ Đã thêm vào yêu thích");
+          } else {
+            _saveWishlist(wItems.filter(function(p) { return p.id != id; }));
+            _wished = false;
+            if (btn) { btn.classList.remove("wished"); btn.querySelector("i").className = "bi bi-heart"; }
+            if (txt) txt.textContent = "Yêu Thích";
+            showToast("Đã xóa khỏi yêu thích");
+          }
+          _updateNavWishBadge();
         }
-        _updateNavWishBadge();
       }
 
       // Khởi tạo trạng thái tim khi trang load
       function _initWishState() {
         if (!_product) return;
         var id = _product.id || _product.Id;
-        // Use API flag if available (product includes isInWishlist for logged-in users)
         var fromApi = _product.isInWishlist;
+        var inLimit = typeof WishlistLimit !== "undefined" && WishlistLimit.isInList(id);
         var items   = _getWishlist();
-        _wished = (fromApi === true) || items.some(function(p) { return p.id == id; });
+        _wished = (fromApi === true) || inLimit || items.some(function(p) { return p.id == id; });
         var btn = document.getElementById("wishBtn");
         var txt = document.getElementById("wishText");
         if (_wished) {
@@ -1086,22 +1120,28 @@
 
       // ── RELATED ──
       function renderRelated(ps) {
-        var strip = document.getElementById("relatedStrip");
-        if (!strip || !ps.length) return;
-        var fmtP = function (n) { return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫"; };
-        strip.innerHTML = ps.map(function(p) {
-          var id    = p.id    || p.Id;
-          var name  = p.name  || p.Name  || "SP";
-          var price = p.discountPrice || p.DiscountPrice || p.price || p.Price || 0;
-          var img   = p.image || p.imageUrl || p.ImageUrl || "";
-          var imgHtml = img
-            ? '<img src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'"/>'
-            : '<div style="aspect-ratio:3/4;background:var(--cream)"></div>';
-          return '<div class="prd-related-card" onclick="location.href=\'product.html?id=' + id + '\'">' +
-            imgHtml +
-            '<div class="prd-related-info"><div class="prd-related-name">' + name + '</div><div class="prd-related-price">' + fmtP(price) + '</div></div>' +
-            '</div>';
-        }).join("");
+        var relGrid = document.getElementById("relGrid");
+        if (!relGrid || !ps.length) return;
+        var fmt = function(n) { return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫"; };
+        relGrid.innerHTML = ps.slice(0, 4).map(function(rp) {
+          var rpId     = rp.Id || rp.id;
+          var rpName   = rp.Name || rp.name || '';
+          var rpPrice  = rp.Price || rp.price || 0;
+          var rpDPrice = rp.DiscountPrice || rp.discountPrice || null;
+          var rpImg    = rp.image || rp.Image || rp.imageUrl || rp.ImageUrl || rp.thumbnail || rp.Thumbnail || '';
+          var rpIsNew  = rp.IsNew || rp.isNew;
+          var rpDisc   = rpDPrice && rpPrice ? Math.round((1 - rpDPrice / rpPrice) * 100) : 0;
+          var dispPrice = rpDPrice || rpPrice;
+          return '<div class="related-card" onclick="location.href=\'product.html?id=' + rpId + '\'">' +
+            '<div class="related-img-wrap">' +
+            (rpIsNew ? '<span class="related-badge-new">MỚI</span>' : '') +
+            (rpDisc > 0 ? '<span class="related-badge-sale">-' + rpDisc + '%</span>' : '') +
+            '<img src="' + rpImg + '" alt="' + rpName + '" loading="lazy" onerror="this.src=\'https://placehold.co/400x400/f8f5f0/999?text=No+Image\'">' +
+            '</div><div class="related-info"><p class="related-name">' + rpName + '</p>' +
+            '<div class="related-price"><span class="related-price-current">' + fmt(dispPrice) + '</span>' +
+            (rpDPrice ? '<span class="related-price-orig">' + fmt(rpPrice) + '</span>' : '') +
+            '</div></div></div>';
+        }).join('');
       }
 
       // ── STICKY BAR ──
@@ -1316,6 +1356,7 @@
       }
     });
     </script>
+    <script src="js/cart-limit.js" defer></script>
     <script src="js/navbar.js" defer></script>
   </body>
 </html>
