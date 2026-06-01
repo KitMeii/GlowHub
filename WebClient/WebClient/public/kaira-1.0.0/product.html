@@ -263,35 +263,19 @@
         border-top: 1px solid var(--border);
       "
     >
-      <div style="max-width: 1400px; margin: 0 auto">
-        <div style="text-align: center; padding: 0 40px clamp(30px, 4vw, 50px)">
-          <span
-            style="
-              font-size: 9px;
-              letter-spacing: 5px;
-              text-transform: uppercase;
-              color: var(--gray);
-              display: block;
-              margin-bottom: 12px;
-            "
-            >Khám Phá Thêm</span
-          >
-          <h2
-            style="
-              font-family: var(--font-disp);
-              font-size: clamp(1.4rem, 3vw, 2.2rem);
-              font-weight: 300;
-              letter-spacing: 3px;
-            "
-          >
-            Sản Phẩm Liên Quan
-          </h2>
-        </div>
-        <div class="related-grid" id="relGrid">
-          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
-          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
-          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
-          <div class="prd-skeleton" style="aspect-ratio:1/1"></div>
+      <div style="max-width: 1400px; margin: 0 auto" id="relatedWrap">
+        <div class="related-section">
+          <div class="related-header">
+            <h2 class="related-title">Sản Phẩm Liên Quan</h2>
+          </div>
+          <div class="related-track-wrap">
+            <div class="related-track" id="relGrid">
+              <div class="prd-skeleton" style="flex:0 0 220px;aspect-ratio:1/1"></div>
+              <div class="prd-skeleton" style="flex:0 0 220px;aspect-ratio:1/1"></div>
+              <div class="prd-skeleton" style="flex:0 0 220px;aspect-ratio:1/1"></div>
+              <div class="prd-skeleton" style="flex:0 0 220px;aspect-ratio:1/1"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1119,29 +1103,103 @@
       }
 
       // ── RELATED ──
-      function renderRelated(ps) {
-        var relGrid = document.getElementById("relGrid");
-        if (!relGrid || !ps.length) return;
-        var fmt = function(n) { return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫"; };
-        relGrid.innerHTML = ps.slice(0, 4).map(function(rp) {
-          var rpId     = rp.Id || rp.id;
-          var rpName   = rp.Name || rp.name || '';
-          var rpPrice  = rp.Price || rp.price || 0;
-          var rpDPrice = rp.DiscountPrice || rp.discountPrice || null;
-          var rpImg    = rp.image || rp.Image || rp.imageUrl || rp.ImageUrl || rp.thumbnail || rp.Thumbnail || '';
-          var rpIsNew  = rp.IsNew || rp.isNew;
-          var rpDisc   = rpDPrice && rpPrice ? Math.round((1 - rpDPrice / rpPrice) * 100) : 0;
+      function renderRelatedItems(ps) {
+        var fmt = function(n) { return new Intl.NumberFormat('vi-VN').format(n || 0) + ' ₫'; };
+        return ps.map(function(rp) {
+          var rpId      = rp.Id || rp.id;
+          var rpName    = rp.Name || rp.name || '';
+          var rpPrice   = rp.Price || rp.price || 0;
+          var rpDPrice  = rp.DiscountPrice || rp.discountPrice || null;
+          var rpImg     = rp.image || rp.Image || rp.imageUrl || rp.ImageUrl || rp.thumbnail || rp.Thumbnail || '';
+          var rpIsNew   = rp.IsNew || rp.isNew;
+          var rpDisc    = rpDPrice && rpPrice ? Math.round((1 - rpDPrice / rpPrice) * 100) : 0;
           var dispPrice = rpDPrice || rpPrice;
-          return '<div class="related-card" onclick="location.href=\'product.html?id=' + rpId + '\'">' +
-            '<div class="related-img-wrap">' +
-            (rpIsNew ? '<span class="related-badge-new">MỚI</span>' : '') +
-            (rpDisc > 0 ? '<span class="related-badge-sale">-' + rpDisc + '%</span>' : '') +
-            '<img src="' + rpImg + '" alt="' + rpName + '" loading="lazy" onerror="this.src=\'https://placehold.co/400x400/f8f5f0/999?text=No+Image\'">' +
-            '</div><div class="related-info"><p class="related-name">' + rpName + '</p>' +
-            '<div class="related-price"><span class="related-price-current">' + fmt(dispPrice) + '</span>' +
-            (rpDPrice ? '<span class="related-price-orig">' + fmt(rpPrice) + '</span>' : '') +
-            '</div></div></div>';
+          var origPrice = rpDPrice ? rpPrice : 0;
+          var safeName  = rpName.replace(/'/g, '').replace(/"/g, '');
+          return '<div class="related-item" onclick="location.href=\'product.html?id=' + rpId + '\'">' +
+            '<div class="related-item-img">' +
+            (rpIsNew ? '<span class="ri-badge ri-badge-new">MỚI</span>' : '') +
+            (rpDisc > 0 ? '<span class="ri-badge ri-badge-sale">-' + rpDisc + '%</span>' : '') +
+            '<img src="' + rpImg + '" alt="' + rpName + '" loading="lazy" onerror="this.src=\'https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub\'">' +
+            '<div class="ri-overlay">' +
+            '<button class="ri-quick-cart" onclick="event.stopPropagation();quickAddCart(' + rpId + ',\'' + safeName + '\',' + dispPrice + ',\'' + rpImg + '\')">' +
+            '+ GIỎ HÀNG</button>' +
+            '</div>' +
+            '</div>' +
+            '<div class="ri-info">' +
+            '<p class="ri-name">' + rpName + '</p>' +
+            '<div class="ri-price-wrap">' +
+            '<span class="ri-price-current">' + fmt(dispPrice) + '</span>' +
+            (origPrice > 0 ? '<span class="ri-price-orig">' + fmt(origPrice) + '</span>' : '') +
+            '</div>' +
+            (rpDisc > 0 ? '<span class="ri-save">Tiết kiệm ' + rpDisc + '%</span>' : '') +
+            '</div>' +
+            '</div>';
         }).join('');
+      }
+
+      function setupRelatedScroll() {
+        var track = document.getElementById('relTrack');
+        var prev  = document.getElementById('relPrev');
+        var next  = document.getElementById('relNext');
+        if (!track) return;
+        var scrollAmt = 280;
+
+        if (next) next.addEventListener('click', function() {
+          track.scrollBy({ left: scrollAmt, behavior: 'smooth' });
+        });
+        if (prev) prev.addEventListener('click', function() {
+          track.scrollBy({ left: -scrollAmt, behavior: 'smooth' });
+        });
+
+        function updateBtns() {
+          if (prev) {
+            var atStart = track.scrollLeft <= 0;
+            prev.style.opacity = atStart ? '0.3' : '1';
+            prev.disabled = atStart;
+          }
+          if (next) {
+            var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 10;
+            next.style.opacity = atEnd ? '0.3' : '1';
+            next.disabled = atEnd;
+          }
+        }
+        track.addEventListener('scroll', updateBtns, { passive: true });
+        updateBtns();
+      }
+
+      window.quickAddCart = function(id, name, price, image) {
+        if (typeof CartLimit !== 'undefined') {
+          var result = CartLimit.add({ id: id, name: name, price: price, image: image, qty: 1 });
+          if (result.success) {
+            if (typeof showGlobalToast === 'function') showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ', 'ok');
+            else if (typeof showToast === 'function') showToast('✓ Đã thêm "' + name + '" vào giỏ');
+          }
+        } else {
+          if (typeof Cart !== 'undefined') Cart.add({ id: id, name: name, price: price, image: image });
+          if (typeof showToast === 'function') showToast('✓ Đã thêm "' + name + '" vào giỏ');
+        }
+      };
+
+      function renderRelated(ps) {
+        var wrap = document.getElementById('relatedWrap');
+        if (!wrap || !ps.length) return;
+        wrap.innerHTML =
+          '<div class="related-section">' +
+          '<div class="related-header">' +
+          '<h2 class="related-title">Sản Phẩm Liên Quan</h2>' +
+          '<div class="related-nav">' +
+          '<button class="related-prev" id="relPrev">&#8249;</button>' +
+          '<button class="related-next" id="relNext">&#8250;</button>' +
+          '</div>' +
+          '</div>' +
+          '<div class="related-track-wrap">' +
+          '<div class="related-track" id="relTrack">' +
+          renderRelatedItems(ps) +
+          '</div>' +
+          '</div>' +
+          '</div>';
+        setupRelatedScroll();
       }
 
       // ── STICKY BAR ──
