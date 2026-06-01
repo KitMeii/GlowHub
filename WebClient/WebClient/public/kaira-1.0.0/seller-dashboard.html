@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet"/>
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="theme/seller-dashboard.css" />
 </head>
@@ -431,7 +432,17 @@
         <div class="col-12">
           <div class="form-group">
             <label class="form-label">Mô tả</label>
-            <textarea id="p-desc" class="form-control" rows="3" maxlength="1000"></textarea>
+            <div class="quill-wrap">
+              <div id="p-desc-editor"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Thông Số Kỹ Thuật</label>
+            <div class="specs-editor" id="specsEditor"></div>
+            <button type="button" class="btn-add-spec" onclick="addSpecRow('','')"><i class="bi bi-plus-circle"></i> Thêm thông số</button>
+            <input type="hidden" id="productSpecs"/>
           </div>
         </div>
         <div class="col-md-6">
@@ -617,6 +628,7 @@
 <!-- Toast container -->
 <div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script src="js/api.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -637,6 +649,79 @@ let _reviewFilter    = { rating: null, replied: null };
 let _qnaPage         = 1;
 let _qnaFilter       = null;
 let _notifInterval   = null;
+
+// ═══════════════════════════════════════════════════════════
+//  QUILL EDITOR + SPECS UI
+// ═══════════════════════════════════════════════════════════
+let _quill = null;
+
+function initQuill() {
+  if (_quill) return;
+  _quill = new Quill('#p-desc-editor', {
+    theme: 'snow',
+    placeholder: 'Mô tả sản phẩm...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'clean']
+      ]
+    }
+  });
+}
+
+function getDescription() {
+  if (!_quill) return '';
+  const html = _quill.root.innerHTML;
+  return html === '<p><br></p>' ? '' : html;
+}
+
+function setDescription(html) {
+  if (!_quill) { initQuill(); }
+  if (!html) { _quill.setContents([]); return; }
+  _quill.root.innerHTML = html;
+}
+
+function addSpecRow(key, val) {
+  const editor = document.getElementById('specsEditor');
+  if (!editor) return;
+  const row = document.createElement('div');
+  row.className = 'spec-row';
+  row.innerHTML =
+    '<input type="text" class="spec-key form-control" placeholder="Tên thông số" value="' + _escAttr(key) + '" oninput="updateSpecsJSON()"/>' +
+    '<input type="text" class="spec-val form-control" placeholder="Giá trị" value="' + _escAttr(val) + '" oninput="updateSpecsJSON()"/>' +
+    '<button type="button" class="btn-del-spec" onclick="this.parentElement.remove();updateSpecsJSON()" title="Xóa"><i class="bi bi-x"></i></button>';
+  editor.appendChild(row);
+  updateSpecsJSON();
+}
+
+function updateSpecsJSON() {
+  const rows = document.querySelectorAll('#specsEditor .spec-row');
+  const obj = {};
+  rows.forEach(function(row) {
+    const k = row.querySelector('.spec-key').value.trim();
+    const v = row.querySelector('.spec-val').value.trim();
+    if (k) obj[k] = v;
+  });
+  document.getElementById('productSpecs').value = Object.keys(obj).length ? JSON.stringify(obj) : '';
+}
+
+function loadSpecsFromJSON(specs) {
+  const editor = document.getElementById('specsEditor');
+  if (!editor) return;
+  editor.innerHTML = '';
+  document.getElementById('productSpecs').value = '';
+  if (!specs) return;
+  try {
+    const obj = typeof specs === 'string' ? JSON.parse(specs) : specs;
+    Object.keys(obj).forEach(function(k) { addSpecRow(k, obj[k]); });
+  } catch(_) {}
+}
+
+function _escAttr(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
 
 function fmtMoney(n) {
   if (n == null || n === '') return '—';
@@ -1020,10 +1105,10 @@ async function toggleProduct(id, checkbox) {
 }
 
 function openProductModal(product = null) {
+  initQuill();
   _editingProductId = product ? (product.id || product.Id) : null;
   document.getElementById('productModalTitle').textContent = product ? 'Sửa Sản Phẩm' : 'Thêm Sản Phẩm';
   document.getElementById('p-name').value     = product?.name || product?.Name || '';
-  document.getElementById('p-desc').value     = product?.description || product?.Description || '';
   document.getElementById('p-price').value    = product?.price || product?.Price || '';
   document.getElementById('p-discount').value = product?.discountPrice || product?.DiscountPrice || '';
   document.getElementById('p-stock').value    = product?.stock ?? product?.Stock ?? '';
@@ -1031,6 +1116,8 @@ function openProductModal(product = null) {
   document.getElementById('p-active').value   = String(product?.isActive ?? product?.IsActive ?? true);
   const catId = product?.categoryId || product?.CategoryId || '';
   document.getElementById('p-category').value = catId;
+  setDescription(product?.description || product?.Description || '');
+  loadSpecsFromJSON(product?.specifications || product?.Specifications || null);
   previewProductImg();
   hideAlert('productAlertBox');
   openModal('productModal');
@@ -1050,7 +1137,7 @@ async function saveProduct() {
   const catId    = parseInt(document.getElementById('p-category').value);
   const discount = document.getElementById('p-discount').value ? parseFloat(document.getElementById('p-discount').value) : null;
   const image    = document.getElementById('p-image').value.trim();
-  const desc     = document.getElementById('p-desc').value.trim();
+  const desc     = getDescription();
   const isActive = document.getElementById('p-active').value === 'true';
 
   if (!name)            { showAlert('productAlertBox','Tên sản phẩm là bắt buộc'); return; }
@@ -1059,7 +1146,8 @@ async function saveProduct() {
   if (!catId)           { showAlert('productAlertBox','Vui lòng chọn danh mục'); return; }
   if (discount !== null && discount >= price) { showAlert('productAlertBox','Giá KM phải nhỏ hơn giá gốc'); return; }
 
-  const data = { Name:name, Price:price, Stock:stock, CategoryId:catId, Description:desc, ImageUrl:image, IsActive:isActive };
+  const specs = document.getElementById('productSpecs').value || null;
+  const data = { Name:name, Price:price, Stock:stock, CategoryId:catId, Description:desc, ImageUrl:image, IsActive:isActive, Specifications: specs };
   if (discount !== null) data.DiscountPrice = discount;
 
   try {
