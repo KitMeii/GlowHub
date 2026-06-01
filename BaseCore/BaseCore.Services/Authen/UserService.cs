@@ -16,6 +16,9 @@ namespace BaseCore.Services.Authen
         Task Update(User user, string password = null);
         Task Delete(string id);
         Task<(List<User> Users, int TotalCount)> Search(string keyword, int page, int pageSize);
+        Task<User?> FindByOAuthAsync(string provider, string oauthId);
+        Task<User?> FindByEmailAsync(string email);
+        Task<User> FindOrCreateOAuthUserAsync(string provider, string oauthId, string? name, string? email);
     }
 
     public class UserService : IUserService
@@ -118,6 +121,55 @@ namespace BaseCore.Services.Authen
         public async Task<(List<User> Users, int TotalCount)> Search(string keyword, int page, int pageSize)
         {
             return await _userRepository.SearchAsync(keyword, page, pageSize);
+        }
+
+        public async Task<User?> FindByOAuthAsync(string provider, string oauthId)
+        {
+            return await _userRepository.GetByOAuthAsync(provider, oauthId);
+        }
+
+        public async Task<User?> FindByEmailAsync(string email)
+        {
+            return await _userRepository.GetByEmailAsync(email);
+        }
+
+        public async Task<User> FindOrCreateOAuthUserAsync(string provider, string oauthId, string? name, string? email)
+        {
+            // 1. Tìm theo OAuthId
+            var existing = await _userRepository.GetByOAuthAsync(provider, oauthId);
+            if (existing != null) return existing;
+
+            // 2. Liên kết tài khoản có sẵn qua email
+            if (!string.IsNullOrEmpty(email))
+            {
+                var byEmail = await _userRepository.GetByEmailAsync(email);
+                if (byEmail != null)
+                {
+                    byEmail.OAuthProvider = provider;
+                    byEmail.OAuthId = oauthId;
+                    await _userRepository.UpdateAsync(byEmail);
+                    return byEmail;
+                }
+            }
+
+            // 3. Tạo user mới
+            var shortId = oauthId.Length > 8 ? oauthId[..8] : oauthId;
+            var username = (provider.ToLower() + "_" + shortId).ToLower();
+            var newUser = new User
+            {
+                Id            = Guid.NewGuid().ToString(),
+                Name          = name ?? username,
+                UserName      = username,
+                Email         = email ?? "",
+                OAuthProvider = provider,
+                OAuthId       = oauthId,
+                Password      = "",
+                IsActive      = true,
+                UserType      = 0,
+                Created       = DateTime.Now
+            };
+            await _userRepository.CreateAsync(newUser);
+            return newUser;
         }
     }
 }

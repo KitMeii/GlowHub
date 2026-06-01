@@ -897,11 +897,10 @@
         if (state.cat) params.categoryId = state.cat;
         if (state.query) params.keyword = state.query;
         if (state.onlySale) params.onlySale = true;
-
         if (state.onlyNew) params.onlyNew = true;
-
         if (state.minRating > 0) params.minRating = state.minRating;
-
+        if (state.minPrice > 0) params.minPrice = state.minPrice;
+        if (state.maxPrice > 0) params.maxPrice = state.maxPrice;
         if (state.brand) params.brand = state.brand;
         params.isActive = true;
 

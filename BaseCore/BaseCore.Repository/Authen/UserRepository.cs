@@ -16,6 +16,8 @@ namespace BaseCore.Repository.Authen
         Task UpdateAsync(User user);
         Task DeleteAsync(string id);
         Task<(List<User> Users, int TotalCount)> SearchAsync(string keyword, int page, int pageSize);
+        Task<User?> GetByOAuthAsync(string provider, string oauthId);
+        Task<User?> GetByEmailAsync(string email);
     }
 
     public class UserRepository : IUserRepository
@@ -92,6 +94,18 @@ namespace BaseCore.Repository.Authen
                 .ToListAsync();
 
             return (users, totalCount);
+        }
+
+        public async Task<User?> GetByOAuthAsync(string provider, string oauthId)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.OAuthProvider == provider && u.OAuthId == oauthId && u.IsActive);
+        }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
         }
     }
 }

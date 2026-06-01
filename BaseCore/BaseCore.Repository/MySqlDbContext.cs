@@ -61,6 +61,8 @@ namespace BaseCore.Repository
                 entity.Property(e => e.Name).HasMaxLength(100);
                 entity.Property(e => e.Email).HasMaxLength(100);
                 entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.OAuthProvider).HasMaxLength(20);
+                entity.Property(e => e.OAuthId).HasMaxLength(200);
                 entity.HasIndex(e => e.UserName).IsUnique();
             });
 
@@ -129,6 +131,9 @@ namespace BaseCore.Repository
                 entity.Property(e => e.SystemVoucherDiscount).HasPrecision(18, 2);
                 entity.Property(e => e.FreeshipDiscount).HasPrecision(18, 2);
                 entity.Property(e => e.PayoutStatus).HasMaxLength(20);
+                entity.Property(e => e.ToProvince).HasMaxLength(100);
+                entity.Property(e => e.VNPayTransactionId).HasMaxLength(100);
+                entity.Property(e => e.BankTransferConfirmedBy).HasMaxLength(450);
 
                 entity.HasOne(e => e.User)
                     .WithMany()
