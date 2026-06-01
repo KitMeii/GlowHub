@@ -47,10 +47,38 @@
   function updateCartBadge() {
     try {
       var cart = JSON.parse(localStorage.getItem('gh_cart') || '[]');
-      var n = cart.reduce(function(s, i) { return s + (i.qty || i.quantity || 1); }, 0);
+      var count = cart.reduce(function(s, i) { return s + (i.qty || i.quantity || 1); }, 0);
       $$('.gh-cart-badge').forEach(function(el) {
-        el.textContent = n > 99 ? '99+' : n;
-        el.style.display = n > 0 ? 'flex' : 'none';
+        if (count <= 0) { el.style.display = 'none'; return; }
+        var txt = count > 99 ? '99+' : String(count);
+        if (el.textContent !== txt) {
+          el.textContent = txt;
+          el.classList.remove('badge-bump');
+          void el.offsetWidth;
+          el.classList.add('badge-bump');
+        }
+        el.style.display = 'flex';
+      });
+    } catch (e) { }
+  }
+
+  function updateWishlistBadge() {
+    try {
+      var wl = JSON.parse(localStorage.getItem('gh_wishlist') || localStorage.getItem('glowhub_wishlist') || '[]');
+      var count = wl.length;
+      $$('.gh-wish-dot').forEach(function(el) {
+        el.style.display = count > 0 ? 'block' : 'none';
+      });
+      $$('.gh-wishlist-badge').forEach(function(el) {
+        if (count <= 0) { el.style.display = 'none'; return; }
+        var txt = count > 99 ? '99+' : String(count);
+        if (el.textContent !== txt) {
+          el.textContent = txt;
+          el.classList.remove('badge-bump');
+          void el.offsetWidth;
+          el.classList.add('badge-bump');
+        }
+        el.style.display = 'flex';
       });
     } catch (e) { }
   }
@@ -237,13 +265,6 @@
       $$('.gh-admin-only').forEach(function(el) { el.style.display = 'flex'; });
     }
 
-    try {
-      var wl = JSON.parse(localStorage.getItem('gh_wishlist') || localStorage.getItem('glowhub_wishlist') || '[]');
-      if (wl.length > 0) {
-        $$('.gh-wish-dot').forEach(function(el) { el.style.display = 'block'; });
-      }
-    } catch (e) { }
-
     loadPendingBadge(token);
     loadWalletBal(token, role);
 
@@ -394,6 +415,7 @@
     initScrollEffect();
     initUser();
     updateCartBadge();
+    updateWishlistBadge();
     loadCategories();
     initSearch();
     markActivePage();
@@ -401,6 +423,11 @@
     initScrollTop();
 
     window.addEventListener('cart-updated', updateCartBadge);
+    window.addEventListener('wishlist-updated', updateWishlistBadge);
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'gh_cart') updateCartBadge();
+      if (e.key === 'gh_wishlist' || e.key === 'glowhub_wishlist') updateWishlistBadge();
+    });
   });
 
 })();

@@ -2030,3 +2030,89 @@
         letter-spacing: 0.5px;
       }
       }
+
+      /* ── Related Products Grid ── */
+      .related-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .related-card {
+        cursor: pointer;
+      }
+      .related-card:hover .related-img-wrap img {
+        transform: scale(1.04);
+      }
+      .related-img-wrap {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        background: var(--cream);
+        margin-bottom: 14px;
+      }
+      .related-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+        display: block;
+      }
+      .related-badge-new {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: var(--pink);
+        color: #fff;
+        font-size: 9px;
+        letter-spacing: 2px;
+        padding: 4px 10px;
+        z-index: 1;
+      }
+      .related-badge-sale {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 9px;
+        letter-spacing: 1px;
+        padding: 4px 10px;
+        z-index: 1;
+      }
+      .related-info {
+        padding: 0 4px;
+      }
+      .related-name {
+        font-size: 13px;
+        font-family: var(--font-disp);
+        color: var(--dark);
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.4em;
+        line-height: 1.4;
+      }
+      .related-price {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .related-price-current {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--pink);
+      }
+      .related-price-orig {
+        font-size: 11px;
+        color: rgba(0,0,0,0.35);
+        text-decoration: line-through;
+      }
+      @media (max-width: 768px) {
+        .related-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+      }

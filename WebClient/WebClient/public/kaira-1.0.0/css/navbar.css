@@ -609,3 +609,12 @@
   .gh-nav-right { gap: 10px; }
   .gh-login-cta { display: none; }
 }
+
+/* ── Badge Bump Animation ── */
+@keyframes badgeBump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.5); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.badge-bump { animation: badgeBump 0.35s ease; }
