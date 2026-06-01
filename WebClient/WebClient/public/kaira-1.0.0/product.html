@@ -55,49 +55,108 @@
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/product.css" />
     <link rel="stylesheet" href="theme/compare.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
   <body>
-    <!-- TOPBAR -->
-    <div class="gh-topbar">
-      🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc
-    </div>
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
 
-    <!-- NAVBAR -->
-    <nav class="gh-nav" id="mainNav">
-      <div class="gh-nav-inner">
-        <div class="gh-nav-left">
-          <a href="shop.html" class="gh-nav-link">Cửa Hàng</a>
-          <a href="shop.html?section=new" class="gh-nav-link">Mới Về</a>
-          <a href="shop.html?section=sale" class="gh-nav-link">Ưu Đãi</a>
-        </div>
-        <a href="index.html" class="gh-logo">GlowHub</a>
-        <div class="gh-nav-right">
-          <div
-            id="nav-user-area"
-            style="
-              font-size: 10px;
-              letter-spacing: 2px;
-              text-transform: uppercase;
-            "
-          ></div>
-          <a href="shop.html" class="gh-nav-icon" title="Tìm kiếm"
-            ><i class="bi bi-search"></i
-          ></a>
-          <button
-            class="gh-nav-icon"
-            title="Yêu thích"
-            onclick="openWishPanel()"
-            style="background:none;border:none;padding:0;cursor:pointer;position:relative"
-            ><i class="bi bi-heart" id="navHeartIcon"></i
-            ><span id="wish-count" class="gh-cart-count" style="display:none">0</span
-          ></button>
-          <a href="cart.html" class="gh-nav-icon" title="Giỏ hàng">
-            <i class="bi bi-bag"></i>
-            <span id="cart-count" class="gh-cart-count">0</span>
-          </a>
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
+          </div>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
         </div>
       </div>
-    </nav>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
 
     <!-- BREADCRUMB -->
     <div class="prd-breadcrumb">
@@ -1256,5 +1315,6 @@
       }
     });
     </script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>
