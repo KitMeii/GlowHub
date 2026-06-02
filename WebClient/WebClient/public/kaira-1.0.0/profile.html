@@ -517,6 +517,21 @@
       </div>
     </div>
 
+    <!-- ── Order Detail Modal ── -->
+    <div id="orderDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px">
+      <div style="background:#fff;max-width:680px;width:100%;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative;margin:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #ede8e2">
+          <div>
+            <div style="font-size:12px;color:#888;letter-spacing:1.5px;text-transform:uppercase">Chi Tiết Đơn Hàng</div>
+            <div id="odm-code" style="font-family:var(--font-disp,'Cormorant Garamond',serif);font-size:20px;font-weight:500;margin-top:4px;color:#111">—</div>
+          </div>
+          <button onclick="hideOrderDetailModal()" style="background:none;border:none;font-size:28px;color:#aaa;cursor:pointer;line-height:1;padding:0 4px">×</button>
+        </div>
+        <div id="odmBody" style="padding:24px;min-height:120px"></div>
+        <div id="odmFooter" style="padding:16px 24px;border-top:1px solid #ede8e2;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
     <!-- Toast -->
     <div id="profileToast"></div>
 
@@ -817,11 +832,21 @@
         PENDING:              ['status-PENDING', '⏳ Chờ Xử Lý'],
         CONFIRMED:            ['status-CONFIRMED', '✅ Đã Xác Nhận'],
         SHIPPING:             ['status-SHIPPING', '🚚 Đang Giao'],
+        DELIVERED:            ['status-COMPLETED', '📦 Đã Nhận Hàng'],
         COMPLETED:            ['status-COMPLETED', '🎉 Hoàn Thành'],
         CANCELLED:            ['status-CANCELLED', '❌ Đã Hủy'],
         WAITING_PAYMENT:      ['status-WAITING_PAYMENT', '💳 Chờ Thanh Toán'],
         PENDING_BANK_CONFIRM: ['status-PENDING_BANK_CONFIRM', '🏦 Chờ Xác Nhận CK'],
       };
+
+      // Close order detail modal on backdrop click or Escape
+      document.addEventListener('click', function(e) {
+        var modal = document.getElementById('orderDetailModal');
+        if (modal && modal.style.display !== 'none' && e.target === modal) hideOrderDetailModal();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { hideOrderDetailModal(); }
+      });
 
       var _cdTimers = [];
       function _clearCdTimers() { _cdTimers.forEach(function(id) { clearInterval(id); }); _cdTimers = []; }
@@ -889,6 +914,7 @@
           } else {
             itemsHtml = '<div style="font-size:13px;color:var(--gray);padding:6px 0">Chi tiết đơn hàng</div>';
           }
+          var finalAmount = o.finalAmount || o.FinalAmount || total;
           var actionBtns = '';
           if (status === 'WAITING_PAYMENT') {
             if (expireAt) waitingOids.push({ oid: oid, expireAt: expireAt });
@@ -896,17 +922,20 @@
             actionBtns = '<a id="paybtn-' + oid + '" class="pay-now-btn" href="' + wpUrl + '"><i class="bi bi-credit-card"></i> Thanh Toán Ngay</a>';
           } else if (status === 'PENDING') {
             actionBtns = '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'"><i class="bi bi-x-circle"></i> Hủy Đơn</button>';
+          } else if (status === 'SHIPPING') {
+            actionBtns = '<button onclick="confirmReceived(' + oid + ')" style="font-size:11px;padding:5px 14px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:opacity .2s" onmouseover="this.style.opacity=\'.75\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
           }
           var cdBadge = (status === 'WAITING_PAYMENT' && expireAt) ? ' <span class="order-countdown" id="cd-' + oid + '">...</span>' : '';
+          var detailBtn = '<button onclick="viewOrderDetail(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ccc;background:#fff;color:#555;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.borderColor=\'#111\';this.style.color=\'#111\'" onmouseout="this.style.borderColor=\'#ccc\';this.style.color=\'#555\'"><i class="bi bi-file-text"></i> Chi Tiết</button>';
           return '<div class="order-card">' +
             '<div class="order-header">' +
             '<div><div class="order-id">#' + oid + '</div><div class="order-date">' + fmtDate(date) + '</div></div>' +
-            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + getStatusBadge(status) + cdBadge + actionBtns + '</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + getStatusBadge(status) + cdBadge + actionBtns + detailBtn + '</div>' +
             '</div>' +
             '<div class="order-body">' + itemsHtml + '</div>' +
             '<div class="order-footer">' +
             '<div style="font-size:12px;color:var(--gray);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📍 ' + addr + '</div>' +
-            '<div class="order-total">Tổng: <span>' + fmtMoney(total) + '</span></div>' +
+            '<div class="order-total">Thanh toán: <span>' + fmtMoney(finalAmount) + '</span></div>' +
             '</div></div>';
         }).join('');
         waitingOids.forEach(function(w) { _startCountdown(w.oid, w.expireAt); });
@@ -923,6 +952,118 @@
           });
           renderOrders(currentFilter);
         }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể hủy'), 'err'); });
+      }
+
+      function viewOrderDetail(orderId) {
+        var modal = document.getElementById('orderDetailModal');
+        var body  = document.getElementById('odmBody');
+        var footer = document.getElementById('odmFooter');
+        document.getElementById('odm-code').textContent = 'Đang tải...';
+        body.innerHTML = '<div style="text-align:center;padding:32px;color:#888"><i class="bi bi-hourglass-split" style="font-size:24px"></i><p>Đang tải...</p></div>';
+        footer.innerHTML = '';
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (typeof Order === 'undefined' || !Order.getDetail) {
+          body.innerHTML = '<div style="color:#ef4444;padding:24px">Không thể kết nối API</div>';
+          return;
+        }
+        Order.getDetail(orderId).then(function(o) {
+          var code = o.orderCode || ('#' + o.orderId);
+          document.getElementById('odm-code').textContent = code;
+
+          var statusLabels = {
+            PENDING: '⏳ Chờ Xử Lý', CONFIRMED: '✅ Đã Xác Nhận',
+            SHIPPING: '🚚 Đang Giao',  COMPLETED: '🎉 Hoàn Thành',
+            DELIVERED: '📦 Đã Nhận',   CANCELLED: '❌ Đã Hủy',
+          };
+          var payMap = { COD: 'Thanh toán khi nhận', BANK: 'Chuyển khoản', MOMO: 'MoMo', VNPAY: 'VNPay', ZALOPAY: 'ZaloPay' };
+          var status = (o.status || '').toUpperCase();
+          var ph = 'https://placehold.co/48x48/f5f0ea/888?text=IMG';
+
+          var itemsHtml = (o.items || []).map(function(i) {
+            return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
+              '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
+              '<div style="flex:1;min-width:0">' +
+                '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>' +
+                '<div style="font-size:12px;color:#888;margin-top:2px">×' + (i.qty || i.quantity || 1) + ' · ' + fmtMoney(i.unitPrice) + '</div>' +
+              '</div>' +
+              '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
+              '</div>';
+          }).join('');
+
+          var timelineHtml = '';
+          if (o.statusHistory && o.statusHistory.length) {
+            timelineHtml = '<div style="margin-top:20px">' +
+              '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Lịch Sử</div>' +
+              o.statusHistory.map(function(h) {
+                return '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:12px">' +
+                  '<span style="color:var(--pink,#f759ab);flex-shrink:0">●</span>' +
+                  '<div><b>' + (statusLabels[h.status] || h.status) + '</b>' +
+                  (h.note ? ' — ' + h.note : '') +
+                  '<div style="color:#aaa">' + fmtDate(h.changedAt) + '</div></div></div>';
+              }).join('') +
+              '</div>';
+          }
+
+          var shopHtml = o.shopInfo ? '<div style="font-size:12px;color:#888;margin-bottom:4px">🏪 ' + (o.shopInfo.shopName || '') + '</div>' : '';
+
+          body.innerHTML =
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' +
+              '<div>' +
+                '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Giao Hàng</div>' +
+                '<div style="font-size:13px;line-height:1.8">' +
+                  '<div>👤 ' + (o.receiverName || '—') + (o.receiverPhone ? ' · ' + o.receiverPhone : '') + '</div>' +
+                  '<div>📍 ' + (o.shippingAddress || '—') + '</div>' +
+                  (o.trackingCode ? '<div>🚚 Mã VĐ: <b>' + o.trackingCode + '</b></div>' : '') +
+                  (o.cancelReason ? '<div style="color:#ef4444">❌ ' + o.cancelReason + '</div>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Thanh Toán</div>' +
+                '<div style="font-size:13px;line-height:1.8">' +
+                  '<div>' + (payMap[o.paymentMethod] || o.paymentMethod || '—') + '</div>' +
+                  '<div style="color:#888;font-size:12px">' + (o.paymentStatus || '') + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            shopHtml +
+            '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Sản Phẩm</div>' +
+            itemsHtml +
+            '<div style="text-align:right;margin-top:16px;font-size:13px">' +
+              '<div style="margin-bottom:4px">Tạm tính: ' + fmtMoney(o.totalAmount) + '</div>' +
+              '<div style="margin-bottom:4px">Phí vận chuyển: ' + fmtMoney(o.shippingFee) + '</div>' +
+              (o.discount ? '<div style="color:var(--pink,#f759ab);margin-bottom:4px">Giảm giá: -' + fmtMoney(o.discount) + '</div>' : '') +
+              '<div style="font-size:17px;font-weight:700;color:var(--pink,#f759ab);margin-top:8px">Thanh toán: ' + fmtMoney(o.finalAmount) + '</div>' +
+            '</div>' +
+            timelineHtml;
+
+          footer.innerHTML = '<button onclick="hideOrderDetailModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">Đóng</button>';
+          if (status === 'SHIPPING') {
+            footer.innerHTML += '<button onclick="confirmReceived(' + o.orderId + ')" style="padding:9px 20px;border:none;background:#111;color:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-left:8px"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
+          }
+        }).catch(function(e) {
+          body.innerHTML = '<div style="color:#ef4444;padding:24px">Lỗi: ' + (e.message || 'Không thể tải chi tiết') + '</div>';
+        });
+      }
+
+      function hideOrderDetailModal() {
+        document.getElementById('orderDetailModal').style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      function confirmReceived(orderId) {
+        if (!confirm('Xác nhận đã nhận hàng cho đơn #' + orderId + '?')) return;
+        if (typeof Order === 'undefined' || !Order.confirmReceived) { toast('Không thể kết nối API', 'err'); return; }
+        Order.confirmReceived(orderId).then(function() {
+          toast('Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm.');
+          hideOrderDetailModal();
+          allOrders = allOrders.map(function(o) {
+            if ((o.orderId || o.Id || o.id) == orderId) { o.status = o.Status = 'DELIVERED'; }
+            return o;
+          });
+          renderOrders(currentFilter);
+        }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err'); });
       }
 
       /* ══════════════════════════════
