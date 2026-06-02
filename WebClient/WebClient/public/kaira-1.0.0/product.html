@@ -200,33 +200,34 @@
             </div>
           </div>
 
-          <!-- 6. Nút Thêm giỏ -->
-          <button class="btn-add-cart" id="btnAddCart">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-              <line x1="3" y1="6" x2="21" y2="6"/>
-              <path d="M16 10a4 4 0 0 1-8 0"/>
-            </svg>
-            THÊM VÀO GIỎ HÀNG
-          </button>
-          <button class="btn-buy-now prd-btn-buy" id="btnBuyNow">MUA NGAY</button>
+          <!-- 6–7. Action group -->
+          <div class="prd-actions-group">
+            <button class="btn-add-cart" id="btnAddCart">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              THÊM VÀO GIỎ HÀNG
+            </button>
+            <button class="btn-buy-now prd-btn-buy" id="btnBuyNow">MUA NGAY</button>
 
-          <!-- 7. Yêu thích + So sánh -->
-          <div class="product-secondary-actions">
-            <button class="btn-secondary-action" id="btnWishlist">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="1.5">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              YÊU THÍCH
-            </button>
-            <button class="btn-secondary-action" id="btnCompare">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="1.5">
-                <line x1="18" y1="20" x2="18" y2="10"/>
-                <line x1="12" y1="20" x2="12" y2="4"/>
-                <line x1="6" y1="20" x2="6" y2="14"/>
-              </svg>
-              SO SÁNH
-            </button>
+            <div class="product-secondary-actions">
+              <button class="btn-secondary-action" id="btnWishlist">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="1.5">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                YÊU THÍCH
+              </button>
+              <button class="btn-secondary-action" id="btnCompare">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="1.5">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                SO SÁNH
+              </button>
+            </div>
           </div>
 
           <!-- 8. Shop card -->
@@ -371,15 +372,23 @@
 
     </main>
 
+    <!-- ── COMPARE BAR (floating) ── -->
+    <div class="compare-bar" id="compareBar">
+      <span class="compare-bar-label">So sánh</span>
+      <div class="compare-slots" id="compareSlots"></div>
+      <div class="compare-bar-actions">
+        <button class="compare-bar-go" onclick="window.goCompare()">SO SÁNH NGAY</button>
+        <button class="compare-bar-clear" onclick="window.clearCompare()">XÓA TẤT CẢ</button>
+      </div>
+    </div>
+
     <!-- ── FOOTER ── -->
     <footer class="gh-footer">
       <div class="gh-footer-top">
-        <div>
+        <!-- Col 1: Brand -->
+        <div class="gh-footer-brand">
           <a href="index.html" class="gh-footer-logo">GlowHub</a>
-          <p class="gh-footer-desc">
-            Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam. Mang lại vẻ đẹp và
-            sự tự tin cho hàng triệu phụ nữ.
-          </p>
+          <p class="gh-footer-desc">Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam. Mang lại vẻ đẹp và sự tự tin cho hàng triệu phụ nữ.</p>
           <div class="gh-footer-social">
             <a href="https://facebook.com" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
             <a href="https://instagram.com" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
@@ -387,8 +396,9 @@
             <a href="https://youtube.com" target="_blank" rel="noopener"><i class="bi bi-youtube"></i></a>
           </div>
         </div>
+        <!-- Col 2: Về chúng tôi -->
         <div class="gh-footer-col">
-          <h5>Cửa Hàng</h5>
+          <h5>Về Chúng Tôi</h5>
           <ul>
             <li><a href="shop.html?section=new">Hàng Mới Về</a></li>
             <li><a href="shop.html?cat=1">Thời Trang</a></li>
@@ -397,29 +407,44 @@
             <li><a href="shop.html?section=sale">Khuyến Mãi</a></li>
           </ul>
         </div>
+        <!-- Col 3: Chính sách -->
+        <div class="gh-footer-col">
+          <h5>Chính Sách</h5>
+          <ul>
+            <li><a href="policy.html#doi-tra">Đổi Trả</a></li>
+            <li><a href="policy.html#van-chuyen">Vận Chuyển</a></li>
+            <li><a href="policy.html#bao-mat">Bảo Mật</a></li>
+            <li><a href="policy.html#dieu-khoan">Điều Khoản</a></li>
+          </ul>
+        </div>
+        <!-- Col 4: Hỗ trợ -->
         <div class="gh-footer-col">
           <h5>Hỗ Trợ</h5>
           <ul>
             <li><a href="policy.html#huong-dan">Hướng Dẫn Mua Hàng</a></li>
-            <li><a href="policy.html#doi-tra">Chính Sách Đổi Trả</a></li>
-            <li><a href="policy.html#van-chuyen">Vận Chuyển</a></li>
             <li><a href="policy.html#faq">Câu Hỏi Thường Gặp</a></li>
             <li><a href="policy.html#lien-he">Liên Hệ</a></li>
+            <li><a href="login.html">Tài Khoản</a></li>
           </ul>
         </div>
-        <div class="gh-footer-col">
-          <h5>Tài Khoản</h5>
-          <ul>
-            <li><a href="login.html">Đăng Nhập</a></li>
-            <li><a href="register.html">Đăng Ký</a></li>
-            <li><a href="profile.html">Hồ Sơ</a></li>
-            <li><a href="profile.html#orders">Đơn Hàng</a></li>
-            <li><a href="admin.html">Quản Trị</a></li>
-          </ul>
+        <!-- Col 5: Newsletter -->
+        <div class="gh-footer-col gh-footer-newsletter">
+          <h5>Nhận Ưu Đãi</h5>
+          <p class="gh-newsletter-desc">Đăng ký để nhận tin tức và ưu đãi độc quyền từ GlowHub</p>
+          <form class="gh-newsletter-form" onsubmit="return false">
+            <input type="email" class="gh-newsletter-input" placeholder="Email của bạn..." />
+            <button type="submit" class="gh-newsletter-btn">ĐĂNG KÝ</button>
+          </form>
         </div>
       </div>
       <div class="gh-footer-bottom">
         <p>© 2026 GlowHub. Bảo lưu mọi quyền.</p>
+        <div class="gh-footer-pay">
+          <span class="pay-badge pay-visa">VISA</span>
+          <span class="pay-badge pay-mc">MC</span>
+          <span class="pay-badge pay-zalo">ZaloPay</span>
+          <span class="pay-badge pay-cod">COD</span>
+        </div>
         <div class="gh-footer-bottom-links">
           <a href="policy.html#dieu-khoan">Điều Khoản</a>
           <a href="policy.html#bao-mat">Bảo Mật</a>
@@ -720,23 +745,31 @@
           });
         }
 
-        // So sánh
+        // So sánh — toggle + show bar immediately
         const btnCmp = $('btnCompare');
         if (btnCmp) {
+          const _initCmp = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+          if (_initCmp.find(function(x) { return String(x.id) === String(productId); })) {
+            btnCmp.classList.add('active');
+          }
           btnCmp.addEventListener('click', function() {
-            const compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
-            if (compare.length >= 3) {
-              showToast('⚠️ Chỉ so sánh tối đa 3 SP', 'warn'); return;
-            }
-            const exists = compare.find(function(x) { return String(x.id) === String(productId); });
-            if (!exists) {
+            let compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+            const idx = compare.findIndex(function(x) { return String(x.id) === String(productId); });
+            if (idx >= 0) {
+              compare.splice(idx, 1);
+              localStorage.setItem('gh_compare', JSON.stringify(compare));
+              btnCmp.classList.remove('active');
+              showToast('Đã xóa khỏi so sánh', 'info');
+            } else {
+              if (compare.length >= 3) {
+                showToast('⚠️ Chỉ so sánh tối đa 3 sản phẩm', 'warn'); return;
+              }
               compare.push({ id: productId, name: name, price: currentPrice, image: imageUrl });
               localStorage.setItem('gh_compare', JSON.stringify(compare));
               btnCmp.classList.add('active');
-              showToast('Đã thêm vào so sánh', 'ok');
-            } else {
-              showToast('Sản phẩm đã trong so sánh', 'info');
+              showToast('✓ Đã thêm vào so sánh', 'ok');
             }
+            updateCompareBar();
           });
         }
 
@@ -802,21 +835,21 @@
 
       /* ── Stock ── */
       function renderStockStatus(stock) {
-        const el = $('stockRow') || document.querySelector('.prd-stock') || document.querySelector('[class*="stock"]');
+        const el = $('stockRow');
         if (!el) return;
-        const makeDot = function(color) {
-          return '<svg viewBox="0 0 8 8" width="8" height="8" style="margin-right:6px;flex-shrink:0"><circle cx="4" cy="4" r="4" fill="' + color + '"/></svg>';
-        };
-        el.style.cssText = 'display:inline-flex;align-items:center;font-size:12px;font-family:var(--font-body);letter-spacing:0.5px;';
+        el.style.cssText = '';
         if (stock <= 0) {
-          el.innerHTML = makeDot('#dc2626') + 'Hết hàng';
-          el.style.color = '#dc2626';
+          el.innerHTML =
+            '<span class="stock-dot stock-dot-red"></span>' +
+            '<span style="color:#dc2626;font-size:12px;font-family:var(--font-body)">Hết hàng</span>';
         } else if (stock <= 10) {
-          el.innerHTML = makeDot('#d97706') + 'Chỉ còn ' + stock + ' sản phẩm';
-          el.style.color = '#d97706';
+          el.innerHTML =
+            '<span class="stock-dot stock-dot-orange"></span>' +
+            '<span style="color:#d97706;font-size:12px;font-family:var(--font-body)">Chỉ còn ' + stock + ' sản phẩm</span>';
         } else {
-          el.innerHTML = makeDot('#16a34a') + 'Còn hàng';
-          el.style.color = '#16a34a';
+          el.innerHTML =
+            '<span class="stock-dot stock-dot-green"></span>' +
+            '<span style="color:#16a34a;font-size:12px;font-family:var(--font-body)">Còn hàng</span>';
         }
       }
 
@@ -1180,6 +1213,54 @@
         } catch(e) {}
       }
 
+      /* ── Compare bar ── */
+      function updateCompareBar() {
+        const bar = $('compareBar');
+        const slots = $('compareSlots');
+        if (!bar || !slots) return;
+        const compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+        let html = '';
+        for (let i = 0; i < 3; i++) {
+          const item = compare[i];
+          if (item) {
+            html += '<div class="compare-slot filled">' +
+              '<img src="' + (item.image || '') + '" alt="" onerror="this.src=\'https://placehold.co/56x56/f8f5f0/ccc?text=G\'">' +
+              '<button class="compare-slot-remove" onclick="window.removeFromCompare(\'' + String(item.id) + '\')">✕</button>' +
+              '</div>';
+          } else {
+            html += '<div class="compare-slot"></div>';
+          }
+        }
+        slots.innerHTML = html;
+        if (compare.length > 0) {
+          bar.classList.add('visible');
+        } else {
+          bar.classList.remove('visible');
+        }
+      }
+
+      window.removeFromCompare = function(id) {
+        let compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+        compare = compare.filter(function(x) { return String(x.id) !== String(id); });
+        localStorage.setItem('gh_compare', JSON.stringify(compare));
+        const btnCmp = $('btnCompare');
+        if (btnCmp && productId && String(productId) === String(id)) {
+          btnCmp.classList.remove('active');
+        }
+        updateCompareBar();
+      };
+
+      window.clearCompare = function() {
+        localStorage.removeItem('gh_compare');
+        const btnCmp = $('btnCompare');
+        if (btnCmp) btnCmp.classList.remove('active');
+        updateCompareBar();
+      };
+
+      window.goCompare = function() {
+        location.href = 'compare.html';
+      };
+
       /* ── Toast ── */
       function showToast(msg, type) {
         if (typeof showGlobalToast === 'function') {
@@ -1200,7 +1281,10 @@
       }
 
       /* ── Init ── */
-      document.addEventListener('DOMContentLoaded', loadProduct);
+      document.addEventListener('DOMContentLoaded', function() {
+        loadProduct();
+        updateCompareBar();
+      });
 
     })();
     </script>
