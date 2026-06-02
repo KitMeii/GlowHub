@@ -1357,3 +1357,127 @@
   .compare-bar { gap: 10px; }
   .compare-bar-label { display: none; }
 }
+
+/* ── Review own-actions (edit / delete) ── */
+.review-own-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.rv-edit-btn, .rv-del-btn {
+  border: 1px solid rgba(0,0,0,0.12);
+  background: transparent;
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  color: rgba(0,0,0,0.45);
+  font-family: var(--font-body);
+}
+.rv-edit-btn:hover { background: #fff3f8; border-color: var(--pink); color: var(--pink); }
+.rv-del-btn:hover  { background: #fff1f0; border-color: #dc2626;    color: #dc2626; }
+
+/* ── Inline edit form ── */
+.rv-edit-wrap {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+}
+.rv-edit-stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.rv-edit-stars span {
+  font-size: 22px;
+  color: #f59e0b;
+  line-height: 1;
+  user-select: none;
+}
+.rv-edit-comment {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid rgba(0,0,0,0.14);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.rv-edit-comment:focus { border-color: var(--pink); }
+.rv-edit-btns { display: flex; gap: 8px; margin-top: 10px; }
+.rv-edit-save {
+  background: var(--dark);
+  color: var(--white);
+  border: none;
+  padding: 8px 18px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.rv-edit-save:hover:not(:disabled) { background: var(--pink); }
+.rv-edit-save:disabled { opacity: 0.55; cursor: default; }
+.rv-edit-cancel {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 8px 16px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.rv-edit-cancel:hover { border-color: rgba(0,0,0,0.35); }
+
+/* ── Delete confirmation strip ── */
+.rv-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  color: rgba(0,0,0,0.65);
+}
+.rv-del-yes {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.2s;
+}
+.rv-del-yes:hover:not(:disabled) { background: #b91c1c; }
+.rv-del-yes:disabled { opacity: 0.55; }
+.rv-del-no {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 5px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.rv-del-no:hover { border-color: rgba(0,0,0,0.35); }

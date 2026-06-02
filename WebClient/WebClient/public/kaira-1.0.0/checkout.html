@@ -562,21 +562,12 @@
       //  CART
       // ─────────────────────────────────────────────
       function loadCartItems() {
-        var doLoad = typeof CartDB !== 'undefined' && typeof Auth !== 'undefined' && Auth.isLoggedIn()
-          ? CartDB.getItems()
-          : Promise.resolve(typeof Cart !== 'undefined' ? Cart.getItems() : []);
-
-        doLoad.then(function (items) {
-          cartItems = items || [];
-          renderCartReview();
-          renderSummaryItems();
-          updateTotals();
-        }).catch(function () {
-          cartItems = typeof Cart !== 'undefined' ? Cart.getItems() : [];
-          renderCartReview();
-          renderSummaryItems();
-          updateTotals();
-        });
+        var raw = localStorage.getItem('gh_cart');
+        cartItems = raw ? JSON.parse(raw) : [];
+        renderCartReview();
+        renderSummaryItems();
+        updateTotals();
+        if (!cartItems.length) showEmptyCart();
       }
 
       function _itemPrice(item) {
@@ -1027,18 +1018,15 @@
           ShippingMethod:  shippingMethod
         };
 
-        var syncP = typeof CartDB !== 'undefined' && Auth.isLoggedIn()
-          ? CartDB.syncToDB().catch(function (e) { console.warn('[Cart sync]', e); })
-          : Promise.resolve();
-
-        syncP.then(function () {
+        Promise.resolve()
+        .then(function () {
           return typeof Order !== 'undefined'
             ? Order.checkout(payload)
             : Promise.reject(new Error('API not ready'));
         }).then(function (result) {
           cartItems = [];
           if (typeof Cart !== 'undefined' && Cart.clear) Cart.clear();
-          localStorage.removeItem('glowhub_cart');
+          localStorage.removeItem('gh_cart');
 
           var orderId      = result && (result.orderId      || result.OrderId      || result.Id      || result.id   || '');
           var orderCode    = result && (result.orderCode    || result.OrderCode    || ('ORD-' + orderId));
