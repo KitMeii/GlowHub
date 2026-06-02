@@ -685,6 +685,13 @@
         }).catch(function () { showAddrSection([]); });
       }
 
+      function loadNewAddrProvinces() {
+        // VNProvinces.setup (in api.js) already handles the full 3-level cascade
+        // for the newProv / newDist / newWard selects in the new-address form.
+        // _initNewAddrCascade guards against double-init with _addrCascadeReady.
+        _initNewAddrCascade();
+      }
+
       function showAddrSection(list) {
         document.getElementById('addrLoading').style.display = 'none';
         document.getElementById('addrSection').style.display  = 'block';
