@@ -561,13 +561,38 @@
       // ─────────────────────────────────────────────
       //  CART
       // ─────────────────────────────────────────────
+      function showEmptyCart() {
+        var el = document.getElementById('cartReview');
+        if (!el) {
+          var containers = [
+            document.querySelector('.checkout-items'),
+            document.querySelector('[class*="cart"]'),
+          ].filter(Boolean);
+          el = containers[0] || null;
+        }
+        if (el) {
+          el.innerHTML = '<div style="text-align:center;padding:60px 20px">'
+            + '<svg viewBox="0 0 24 24" width="48" height="48" stroke="rgba(0,0,0,0.2)" fill="none" stroke-width="1.5" style="display:block;margin:0 auto 16px">'
+            + '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>'
+            + '<line x1="3" y1="6" x2="21" y2="6"/>'
+            + '<path d="M16 10a4 4 0 0 1-8 0"/>'
+            + '</svg>'
+            + '<p style="font-size:14px;color:rgba(0,0,0,0.4);font-family:var(--font-body);margin-bottom:16px">Giỏ hàng trống</p>'
+            + '<a href="shop.html" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dark);border-bottom:1px solid;text-decoration:none;font-family:var(--font-body)">TIếP TỤC MUA SắM</a>'
+            + '</div>';
+        }
+      }
+
       function loadCartItems() {
         var raw = localStorage.getItem('gh_cart');
         cartItems = raw ? JSON.parse(raw) : [];
+        if (!cartItems.length) {
+          showEmptyCart();
+          return;
+        }
         renderCartReview();
         renderSummaryItems();
         updateTotals();
-        if (!cartItems.length) showEmptyCart();
       }
 
       function _itemPrice(item) {
