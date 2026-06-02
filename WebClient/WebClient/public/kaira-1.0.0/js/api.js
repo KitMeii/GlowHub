@@ -598,7 +598,7 @@ const AdminWallet = {
 //  CART MODULE  ← Fix hoàn toàn
 // ============================================================
 const Cart = {
-  STORAGE_KEY: "glowhub_cart",
+  STORAGE_KEY: "gh_cart",
 
   /** Đọc giỏ hàng từ localStorage */
   getItems() {
@@ -613,6 +613,7 @@ const Cart = {
   _save(items) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
     this._updateUI();
+    window.dispatchEvent(new Event('cart-updated'));
   },
 
   /** Thêm sản phẩm vào giỏ */
@@ -670,6 +671,7 @@ const Cart = {
   clear() {
     localStorage.removeItem(this.STORAGE_KEY);
     this._updateUI();
+    window.dispatchEvent(new Event('cart-updated'));
   },
 
   /** Tổng số lượng */
@@ -1008,6 +1010,7 @@ async function renderProductsOnIndex() {
 function _attachStaticCartButtons() {
   document.querySelectorAll(".btn-add-cart").forEach((btn) => {
     if (btn.dataset.cartBound) return;
+    if (btn.getAttribute("onclick")) return; // already handled by inline onclick
     btn.dataset.cartBound = "1";
     btn.addEventListener("click", function () {
       // Lấy thông tin từ DOM gần nhất

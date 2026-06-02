@@ -524,8 +524,9 @@ function loadProducts(reset) {
 function renderCard(p) {
   var pid = p.id || p.Id;
   var fmtP = function(n) { return new Intl.NumberFormat('vi-VN').format(n||0) + ' ₫'; };
-  var finalPrice = p.discountPrice || p.price || 0;
-  var oldPrice   = p.discountPrice ? p.price : 0;
+  var price      = p.price || p.Price || 0;
+  var finalPrice = p.discountPrice || price;
+  var oldPrice   = p.discountPrice ? price : 0;
   var avg = p.avgRating || 0;
   var starsHtml = buildStars(avg);
   var badge = p.isNew
@@ -534,15 +535,17 @@ function renderCard(p) {
   var imgHtml = p.image
     ? '<img src="' + p.image + '" alt="' + escHtml(p.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>'
     : '<div style="aspect-ratio:3/4;background:#f5f0ea"></div>';
-  return '<div class="sp-card">' +
+  var safeNameJson = JSON.stringify(p.name  || '').replace(/"/g, '&quot;');
+  var safeImgJson  = JSON.stringify(p.image || '').replace(/"/g, '&quot;');
+  return '<div class="sp-card" onclick="location.href=\'product.html?id=' + pid + '\'" style="cursor:pointer">' +
     '<div class="sp-card-img-wrap">' + badge + imgHtml +
     '<button class="sp-card-wish" data-id="' + pid + '" onclick="event.stopPropagation();toggleWish(' + pid + ',this)" title="Yêu thích"><i class="bi bi-heart"></i></button>' +
-    '<button class="sp-card-add" onclick="event.stopPropagation();quickAddCart(' + pid + ',' + JSON.stringify(p.name||'') + ',' + finalPrice + ',' + JSON.stringify(p.image||'') + ')"><i class="bi bi-bag-plus"></i> Thêm Giỏ</button>' +
+    '<button class="sp-card-add" onclick="event.stopPropagation();quickAddCart(' + pid + ',' + safeNameJson + ',' + finalPrice + ',' + safeImgJson + ')"><i class="bi bi-bag-plus"></i> Thêm Giỏ</button>' +
     '</div>' +
-    '<div class="sp-card-info" onclick="location.href=\'product.html?id=' + pid + '\'">' +
+    '<div class="sp-card-info">' +
     '<div class="sp-card-name">' + escHtml(p.name||'') + '</div>' +
     (avg > 0 ? '<div class="sp-card-rating">' + starsHtml + '<span>(' + (p.reviewCount||0) + ')</span></div>' : '') +
-    '<div>' +
+    '<div class="sp-card-price-row">' +
     '<span class="sp-card-price">' + fmtP(finalPrice) + '</span>' +
     (oldPrice ? '<span class="sp-card-price-old">' + fmtP(oldPrice) + '</span>' : '') +
     '</div>' +

@@ -1011,11 +1011,17 @@
           var statusLabels = {
             PENDING: '⏳ Chờ Xử Lý', CONFIRMED: '✅ Đã Xác Nhận',
             SHIPPING: '🚚 Đang Giao',  COMPLETED: '🎉 Hoàn Thành',
-            DELIVERED: '📦 Đã Nhận',   CANCELLED: '❌ Đã Hủy',
+            DELIVERED: '📦 Đã Nhận Hàng', CANCELLED: '❌ Đã Hủy',
+          };
+          var statusColors = {
+            PENDING: '#f59e0b', CONFIRMED: '#3b82f6',
+            SHIPPING: '#8b5cf6', COMPLETED: '#10b981',
+            DELIVERED: '#10b981', CANCELLED: '#ef4444',
           };
           var payMap = { COD: 'Thanh toán khi nhận', BANK: 'Chuyển khoản', MOMO: 'MoMo', VNPAY: 'VNPay', ZALOPAY: 'ZaloPay' };
           var status = (o.status || '').toUpperCase();
           var ph = 'https://placehold.co/48x48/f5f0ea/888?text=IMG';
+          var statusColor = statusColors[status] || '#888';
 
           var itemsHtml = (o.items || []).map(function(i) {
             return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
@@ -1044,7 +1050,21 @@
 
           var shopHtml = o.shopInfo ? '<div style="font-size:12px;color:#888;margin-bottom:4px">🏪 ' + (o.shopInfo.shopName || '') + '</div>' : '';
 
+          var shippingBanner = (status === 'SHIPPING')
+            ? '<div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:16px">' +
+              '<i class="bi bi-truck" style="font-size:18px;color:#16a34a;flex-shrink:0"></i>' +
+              '<div style="flex:1">' +
+              '<div style="font-size:13px;font-weight:600;color:#15803d">Đơn hàng đang trên đường giao đến bạn</div>' +
+              '<div style="font-size:12px;color:#166534;margin-top:2px">Khi nhận được hàng, hãy nhấn <b>"Đã Nhận Hàng"</b> để xác nhận.</div>' +
+              '</div></div>'
+            : '';
+
           body.innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">' +
+            '<span style="display:inline-flex;align-items:center;gap:6px;background:' + statusColor + '1a;color:' + statusColor + ';border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;border:1px solid ' + statusColor + '40">' + (statusLabels[status] || status) + '</span>' +
+            '<span style="font-size:11px;color:#aaa">Ngày đặt: ' + fmtDate(o.createdAt || o.orderDate) + '</span>' +
+            '</div>' +
+            shippingBanner +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' +
               '<div>' +
                 '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Giao Hàng</div>' +
@@ -1076,7 +1096,7 @@
 
           footer.innerHTML = '<button onclick="hideOrderDetailModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">Đóng</button>';
           if (status === 'SHIPPING') {
-            footer.innerHTML += '<button onclick="confirmReceived(' + o.orderId + ')" style="padding:9px 20px;border:none;background:#111;color:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-left:8px"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
+            footer.innerHTML += '<button onclick="confirmReceived(' + o.orderId + ')" style="padding:9px 24px;border:none;background:#16a34a;color:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.opacity=\'.85\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
           }
         }).catch(function(e) {
           body.innerHTML = '<div style="color:#ef4444;padding:24px">Lỗi: ' + (e.message || 'Không thể tải chi tiết') + '</div>';

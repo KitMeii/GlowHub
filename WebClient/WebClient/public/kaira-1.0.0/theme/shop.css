@@ -442,6 +442,13 @@
         overflow: hidden;
         transition: 0.3s;
         background: #fff;
+        display: flex;
+        flex-direction: column;
+      }
+      .product-card > .p-3 {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
       }
       .product-card:hover {
         transform: translateY(-4px);
@@ -461,12 +468,24 @@
         font-size: 14px;
         color: var(--dark);
         text-decoration: none;
-        display: block;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.8em;
         margin-bottom: 4px;
         transition: 0.15s;
       }
       .prod-title:hover {
         color: var(--pink);
+      }
+      .prod-price-wrap {
+        min-height: 2.4em;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
       }
       .prod-price {
         color: var(--pink);
@@ -477,7 +496,6 @@
         text-decoration: line-through;
         color: var(--gray);
         font-size: 12px;
-        margin-left: 6px;
       }
       .badge-new {
         position: absolute;
