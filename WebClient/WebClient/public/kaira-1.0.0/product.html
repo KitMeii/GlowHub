@@ -1048,7 +1048,9 @@
             const rRating = norm(rv, 'rating', 'Rating') || 5;
             const rCmt    = norm(rv, 'comment', 'Comment', 'content') || '';
             const rDate   = norm(rv, 'createdAt', 'CreatedAt') || '';
-            const rImgs   = norm(rv, 'images', 'Images') || [];
+            const _rImgsRaw = norm(rv, 'images', 'Images');
+            const rImgs = Array.isArray(_rImgsRaw) ? _rImgsRaw
+              : (typeof _rImgsRaw === 'string' && _rImgsRaw ? _rImgsRaw.split(',').filter(Boolean) : []);
             const initial = (rName[0] || 'K').toUpperCase();
             const imgsHtml = rImgs.length
               ? '<div class="review-imgs">' + rImgs.map(function(url) {
