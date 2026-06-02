@@ -1761,10 +1761,16 @@ var VNProvinces = (function () {
     return _fetch(BASE + '/p/?depth=1', 'gh_vnp');
   }
   function getDistricts(pCode) {
-    return _fetch(BASE + '/d/?p=' + pCode, 'gh_vnd_' + pCode);
+    // Correct endpoint: /p/{code}?depth=2 returns { districts: [...] }
+    // /d/?p= is NOT a supported filter — returns ALL ~700 districts (wrong)
+    return _fetch(BASE + '/p/' + pCode + '?depth=2', 'gh_vnd2_' + pCode)
+      .then(function (d) { return d.districts || []; });
   }
   function getWards(dCode) {
-    return _fetch(BASE + '/w/?d=' + dCode, 'gh_vnw_' + dCode);
+    // Correct endpoint: /d/{code}?depth=2 returns { wards: [...] }
+    // /w/?d= is NOT a supported filter — returns ALL wards (wrong)
+    return _fetch(BASE + '/d/' + dCode + '?depth=2', 'gh_vnw2_' + dCode)
+      .then(function (d) { return d.wards || []; });
   }
 
   // Fill one <select> element; returns Promise
