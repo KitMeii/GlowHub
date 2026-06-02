@@ -685,11 +685,30 @@
         }).catch(function () { showAddrSection([]); });
       }
 
+      var _addrCascadeInited = false;
       function loadNewAddrProvinces() {
-        // VNProvinces.setup (in api.js) already handles the full 3-level cascade
-        // for the newProv / newDist / newWard selects in the new-address form.
-        // _initNewAddrCascade guards against double-init with _addrCascadeReady.
-        _initNewAddrCascade();
+        if (_addrCascadeInited) return;
+        _addrCascadeInited = true;
+        if (typeof VNProvinces === 'undefined') return;
+        VNProvinces.setupCascade(
+          { province: 'newProv', district: 'newDist', ward: 'newWard' },
+          function (loc) { if (loc.provName) _updateShippingPreview(loc.provName); }
+        );
+      }
+
+      function fillAddressForm(addr) {
+        var provCode = addr.ProvinceCode || addr.provinceCode || '';
+        var distCode = addr.DistrictCode || addr.districtCode || '';
+        var wardCode = addr.WardCode     || addr.wardCode     || '';
+        document.getElementById('newName').value   = addr.ReceiverName || addr.name   || '';
+        document.getElementById('newPhone').value  = addr.Phone        || addr.phone  || '';
+        document.getElementById('newDetail').value = addr.Detail       || addr.detail || '';
+        if (provCode && typeof VNProvinces !== 'undefined') {
+          VNProvinces.setValues(
+            { province: 'newProv', district: 'newDist', ward: 'newWard' },
+            { provinceCode: provCode, districtCode: distCode, wardCode: wardCode }
+          );
+        }
       }
 
       function showAddrSection(list) {
@@ -760,18 +779,8 @@
         if (_newAddrVisible) _initNewAddrCascade();
       }
 
-      var _addrCascadeReady = false;
       function _initNewAddrCascade() {
-        if (_addrCascadeReady) return;
-        _addrCascadeReady = true;
-        if (typeof VNProvinces === 'undefined') return;
-        VNProvinces.setup(
-          { prov: 'newProv', dist: 'newDist', ward: 'newWard' },
-          function (loc) {
-            // Update shipping preview when province changes
-            if (loc.provName) _updateShippingPreview(loc.provName);
-          }
-        );
+        loadNewAddrProvinces();
       }
 
       function _updateShippingPreview(provinceName) {

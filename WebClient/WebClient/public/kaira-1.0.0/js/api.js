@@ -1880,7 +1880,53 @@ var VNProvinces = (function () {
     return 'CENTRAL';
   }
 
-  return { getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards, setup: setup, getRegion: getRegion };
+  // setupCascade — same as setup() but accepts {province, district, ward} key names
+  function setupCascade(ids, onChange) {
+    return setup(
+      { prov: ids.province || ids.prov, dist: ids.district || ids.dist, ward: ids.ward },
+      onChange
+    );
+  }
+
+  // setValues — fill + pre-select all 3 levels (for edit-address forms)
+  function setValues(ids, values) {
+    var provId   = ids.province || ids.prov;
+    var distId   = ids.district || ids.dist;
+    var wardId   = ids.ward;
+    var provSel  = provId ? document.getElementById(provId) : null;
+    var distSel  = distId ? document.getElementById(distId) : null;
+    var wardSel  = wardId ? document.getElementById(wardId) : null;
+    var provCode = String(values.provinceCode || '');
+    var distCode = String(values.districtCode || '');
+    var wardCode = String(values.wardCode     || '');
+
+    if (!provSel || !provCode) return Promise.resolve();
+
+    return fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
+      for (var i = 0; i < provSel.options.length; i++) {
+        if (String(provSel.options[i].value) === provCode) { provSel.selectedIndex = i; break; }
+      }
+      if (!distSel || !distCode) return;
+      return fillSel(distSel, getDistricts(provCode), '-- Chọn quận/huyện --').then(function () {
+        distSel.disabled = false;
+        for (var i = 0; i < distSel.options.length; i++) {
+          if (String(distSel.options[i].value) === distCode) { distSel.selectedIndex = i; break; }
+        }
+        if (!wardSel || !wardCode) return;
+        return fillSel(wardSel, getWards(distCode), '-- Chọn phường/xã --').then(function () {
+          wardSel.disabled = false;
+          for (var i = 0; i < wardSel.options.length; i++) {
+            if (String(wardSel.options[i].value) === wardCode) { wardSel.selectedIndex = i; break; }
+          }
+        });
+      });
+    });
+  }
+
+  return {
+    getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards,
+    setup: setup, setupCascade: setupCascade, setValues: setValues, getRegion: getRegion
+  };
 })();
 
 // ============================================================
