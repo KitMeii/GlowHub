@@ -283,6 +283,73 @@ namespace BaseCore.APIService.Controllers
         }
 
         // ─────────────────────────────────────────────────────────
+        // FOLLOW
+        // ─────────────────────────────────────────────────────────
+
+        // POST /api/shops/{id}/follow
+        [HttpPost("{id}/follow")]
+        [Authorize]
+        public async Task<IActionResult> Follow(string id)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            var exists = await _db.ShopFollows
+                .AnyAsync(f => f.UserId == userId && f.ShopId == id);
+            if (!exists)
+            {
+                _db.ShopFollows.Add(new ShopFollow { UserId = userId, ShopId = id });
+                await _db.SaveChangesAsync();
+            }
+            return Ok(new { message = "Đã theo dõi shop", shopId = id });
+        }
+
+        // DELETE /api/shops/{id}/follow
+        [HttpDelete("{id}/follow")]
+        [Authorize]
+        public async Task<IActionResult> Unfollow(string id)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var follow = await _db.ShopFollows
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ShopId == id);
+            if (follow != null)
+            {
+                _db.ShopFollows.Remove(follow);
+                await _db.SaveChangesAsync();
+            }
+            return Ok(new { message = "Đã bỏ theo dõi shop" });
+        }
+
+        // GET /api/shops/followed
+        [HttpGet("followed")]
+        [Authorize]
+        public async Task<IActionResult> GetFollowed()
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var follows = await _db.ShopFollows
+                .Where(f => f.UserId == userId)
+                .Include(f => f.Shop)
+                .OrderByDescending(f => f.CreatedAt)
+                .Select(f => new
+                {
+                    shopId   = f.ShopId,
+                    shopName = f.Shop.ShopName,
+                    logo     = f.Shop.Logo,
+                    followedAt = f.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new { items = follows, total = follows.Count });
+        }
+
+        // ─────────────────────────────────────────────────────────
         // ADMIN
         // ─────────────────────────────────────────────────────────
 
