@@ -8,11 +8,11 @@ namespace BaseCore.APIService.Controllers
     [Authorize]
     public class UploadController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly UploadsConfig _uploads;
 
-        public UploadController(IWebHostEnvironment env)
+        public UploadController(UploadsConfig uploads)
         {
-            _env = env;
+            _uploads = uploads;
         }
 
         // POST /api/upload/image
@@ -29,7 +29,7 @@ namespace BaseCore.APIService.Controllers
             if (file.Length > 5 * 1024 * 1024)
                 return BadRequest(new { message = "Ảnh không được vượt quá 5MB" });
 
-            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads");
+            var uploadsDir = _uploads.Path;
             Directory.CreateDirectory(uploadsDir);
 
             var ext      = Path.GetExtension(file.FileName).ToLowerInvariant();

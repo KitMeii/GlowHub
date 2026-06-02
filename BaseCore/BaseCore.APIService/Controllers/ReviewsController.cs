@@ -24,6 +24,9 @@ namespace BaseCore.APIService.Controllers
             _notificationService = notificationService;
         }
 
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                    ?? User.FindFirstValue("sub");
+
         // GET /api/products/{productId}/reviews
         [HttpGet]
         public async Task<IActionResult> GetReviews(int productId)
@@ -104,6 +107,46 @@ namespace BaseCore.APIService.Controllers
             }
 
             return Ok(review);
+        }
+
+        // PUT /api/products/{productId}/reviews/{reviewId}  — chỉ tác giả mới được sửa
+        [HttpPut("{reviewId:int}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateReview(int productId, int reviewId, [FromBody] UpdateReviewDto dto)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+            if (dto.Rating < 1 || dto.Rating > 5)
+                return BadRequest(new { message = "Rating phải từ 1 đến 5" });
+
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.Id == reviewId && r.ProductId == productId && r.UserId == userId);
+            if (review == null)
+                return NotFound(new { message = "Đánh giá không tồn tại hoặc không thuộc về bạn" });
+
+            review.Rating    = dto.Rating;
+            if (dto.Comment != null) review.Comment = dto.Comment;
+            review.CreatedAt = DateTime.Now;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã cập nhật đánh giá" });
+        }
+
+        // DELETE /api/products/{productId}/reviews/{reviewId}  — chỉ tác giả mới được xóa
+        [HttpDelete("{reviewId:int}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int productId, int reviewId)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.Id == reviewId && r.ProductId == productId && r.UserId == userId);
+            if (review == null)
+                return NotFound(new { message = "Đánh giá không tồn tại hoặc không thuộc về bạn" });
+
+            _db.Reviews.Remove(review);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xóa đánh giá" });
         }
     }
 
@@ -387,10 +430,12 @@ namespace BaseCore.APIService.Controllers
 
             return Ok(review);
         }
+
     }
 
     public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; }  public List<string>? Images { get; set; } }
     public class ReplyReviewDto { public string Reply { get; set; } = ""; }
+    public class UpdateReviewDto { public int Rating { get; set; } public string? Comment { get; set; } }
     public class CreateReviewDto
     {
         public int ProductId { get; set; }

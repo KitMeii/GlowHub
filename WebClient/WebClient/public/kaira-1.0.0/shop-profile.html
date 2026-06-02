@@ -424,6 +424,8 @@ function renderShopHeader(d) {
   document.getElementById('infoPhone').textContent   = d.phone   || '—';
   document.getElementById('infoJoined').textContent  = d.joinedDate
     ? new Date(d.joinedDate).toLocaleDateString('vi-VN') : '—';
+
+  initFollowBtn(_shopId);
 }
 
 function renderStats(s) {
@@ -705,25 +707,153 @@ function quickAddCart(id, name, price, img) {
 }
 
 // ── FOLLOW ──
-function toggleFollow() {
-  _followed = !_followed;
+var _FOLLOW_KEY = 'gh_followed_shops';
+
+function initFollowBtn(shopId) {
+  var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
+  _followed = list.some(function(s) { return String(s.id) === String(shopId); });
+  _syncFollowBtn();
+}
+
+function _syncFollowBtn() {
   var btn = document.getElementById('followBtn');
+  if (!btn) return;
   if (_followed) {
     btn.innerHTML = '<i class="bi bi-heart-fill"></i> Đang Theo Dõi';
     btn.classList.add('active');
-    showToast('♥ Đã theo dõi shop ' + ((_shopData && _shopData.shopName) || ''));
   } else {
     btn.innerHTML = '<i class="bi bi-heart"></i> Theo Dõi';
     btn.classList.remove('active');
   }
 }
 
+function toggleFollow() {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    showToast('Vui lòng đăng nhập để theo dõi shop', 'error');
+    setTimeout(function() { location.href = 'login.html'; }, 1200);
+    return;
+  }
+  var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
+  _followed = !_followed;
+  if (_followed) {
+    list.push({ id: _shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+    showToast('♥ Đã theo dõi shop ' + ((_shopData && _shopData.shopName) || ''));
+  } else {
+    list = list.filter(function(s) { return String(s.id) !== String(_shopId); });
+    showToast('Đã bỏ theo dõi shop');
+  }
+  localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
+  _syncFollowBtn();
+}
+
 // ── CHAT ──
 function handleChatShop() {
   if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
-    showToast('Vui lòng đăng nhập để chat với shop', 'error'); return;
+    showToast('Vui lòng đăng nhập để chat với shop', 'error');
+    setTimeout(function() { location.href = 'login.html'; }, 1200);
+    return;
   }
-  showToast('Tính năng chat đang phát triển');
+  openChatWidget();
+}
+
+var _CHAT_KEY_PREFIX = 'gh_chat_';
+var _chatOpen = false;
+
+function _chatKey() { return _CHAT_KEY_PREFIX + _shopId; }
+
+function _getChatMsgs() { return JSON.parse(localStorage.getItem(_chatKey()) || '[]'); }
+
+function _saveChatMsgs(msgs) { localStorage.setItem(_chatKey(), JSON.stringify(msgs)); }
+
+function openChatWidget() {
+  var widget = document.getElementById('spChatWidget');
+  if (!widget) { _buildChatWidget(); widget = document.getElementById('spChatWidget'); }
+  widget.classList.add('open');
+  _chatOpen = true;
+  _renderChatMsgs();
+  var input = document.getElementById('spChatInput');
+  if (input) input.focus();
+}
+
+function closeChatWidget() {
+  var widget = document.getElementById('spChatWidget');
+  if (widget) widget.classList.remove('open');
+  _chatOpen = false;
+}
+
+function _buildChatWidget() {
+  var shopName = (_shopData && _shopData.shopName) || 'Shop';
+  var fab = document.createElement('button');
+  fab.id = 'spChatFab';
+  fab.className = 'visible';
+  fab.title = 'Chat với ' + shopName;
+  fab.innerHTML = '<i class="bi bi-chat-dots"></i><span class="sp-chat-badge" id="spChatBadge"></span>';
+  fab.onclick = function() { openChatWidget(); };
+  document.body.appendChild(fab);
+
+  var widget = document.createElement('div');
+  widget.id = 'spChatWidget';
+  widget.innerHTML =
+    '<div class="sp-chat-head">' +
+      '<i class="bi bi-chat-dots"></i>' +
+      '<span class="sp-chat-head-name">Chat với ' + escHtml(shopName) + '</span>' +
+      '<button class="sp-chat-close" onclick="closeChatWidget()" title="Đóng">×</button>' +
+    '</div>' +
+    '<div class="sp-chat-msgs" id="spChatMsgs"><p class="sp-chat-empty">Bắt đầu cuộc trò chuyện với shop!</p></div>' +
+    '<div class="sp-chat-foot">' +
+      '<input class="sp-chat-input" id="spChatInput" placeholder="Nhập tin nhắn..." />' +
+      '<button class="sp-chat-send" onclick="sendChatMsg()" title="Gửi"><i class="bi bi-send"></i></button>' +
+    '</div>';
+  document.body.appendChild(widget);
+
+  document.getElementById('spChatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMsg(); }
+  });
+}
+
+function _renderChatMsgs() {
+  var box = document.getElementById('spChatMsgs');
+  if (!box) return;
+  var msgs = _getChatMsgs();
+  if (!msgs.length) {
+    box.innerHTML = '<p class="sp-chat-empty">Bắt đầu cuộc trò chuyện với shop!</p>';
+    return;
+  }
+  box.innerHTML = msgs.map(function(m) {
+    return '<div class="sp-chat-bubble ' + (m.from === 'me' ? 'me' : 'them') + '">' +
+      escHtml(m.text) +
+      '<span class="sp-chat-ts">' + m.time + '</span></div>';
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendChatMsg() {
+  var input = document.getElementById('spChatInput');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text) return;
+  var msgs = _getChatMsgs();
+  var now = new Date();
+  var timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  msgs.push({ from: 'me', text: text, time: timeStr });
+  _saveChatMsgs(msgs);
+  input.value = '';
+  _renderChatMsgs();
+
+  // Simulated auto-reply after 1.2s
+  setTimeout(function() {
+    var replies = ['Xin chào! Shop sẽ phản hồi sớm nhất có thể 😊', 'Cảm ơn bạn đã liên hệ!', 'Bạn cần hỗ trợ gì ạ?', 'Shop đang kiểm tra, bạn chờ shop chút nhé!'];
+    var reply = replies[Math.floor(Math.random() * replies.length)];
+    var now2 = new Date();
+    var t2 = now2.getHours() + ':' + String(now2.getMinutes()).padStart(2,'0');
+    msgs.push({ from: 'shop', text: reply, time: t2 });
+    _saveChatMsgs(msgs);
+    if (_chatOpen) _renderChatMsgs();
+    else {
+      var badge = document.getElementById('spChatBadge');
+      if (badge) badge.classList.add('has'), badge.textContent = '+1';
+    }
+  }, 1200);
 }
 
 // ── DESC TOGGLE ──

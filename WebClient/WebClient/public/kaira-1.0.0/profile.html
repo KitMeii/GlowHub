@@ -222,6 +222,7 @@
           <a class="ptab" href="#addresses" data-tab="addresses">📍 Địa Chỉ</a>
           <a class="ptab" href="#vouchers"  data-tab="vouchers">🎫 Voucher</a>
           <a class="ptab" href="#settings"  data-tab="settings">⚙️ Tài Khoản</a>
+          <a class="ptab" href="#followed"  data-tab="followed">🏪 Shop Đã Theo Dõi</a>
         </div>
       </div>
 
@@ -485,6 +486,17 @@
         </div>
         <!-- /ptab-settings -->
 
+        <!-- ════ TAB: SHOP ĐÃ THEO DÕI ════ -->
+        <div class="ptab-pane" id="ptab-followed">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Shop Đã Theo Dõi</div>
+            </div>
+            <div id="followedShopsList" style="padding:8px 0"></div>
+          </div>
+        </div>
+        <!-- /ptab-followed -->
+
       </div>
       <!-- /profile-content -->
     </div>
@@ -553,7 +565,7 @@
       var _tabLoaded = {};
 
       function showTab(tab) {
-        var validTabs = ['orders', 'wishlist', 'wallet', 'addresses', 'vouchers', 'settings'];
+        var validTabs = ['orders', 'wishlist', 'wallet', 'addresses', 'vouchers', 'settings', 'followed'];
         if (validTabs.indexOf(tab) === -1) tab = 'orders';
 
         document.querySelectorAll('.ptab-pane').forEach(function(el) { el.classList.remove('active'); });
@@ -569,6 +581,35 @@
         if (tab === 'wallet'    )                          { loadWallet(); }
         if (tab === 'addresses' && !_tabLoaded.addresses)  { loadProfAddresses(); _tabLoaded.addresses = true; }
         if (tab === 'vouchers'  )                          { loadVouchers(); }
+        if (tab === 'followed'  )                          { renderFollowedShops(); }
+      }
+
+      function renderFollowedShops() {
+        var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+        var container = document.getElementById('followedShopsList');
+        if (!container) return;
+        if (!list.length) {
+          container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:#aaa"><div style="font-size:40px;margin-bottom:12px">🏪</div><div>Bạn chưa theo dõi shop nào</div><a href="shop.html" class="gh-btn" style="display:inline-block;margin-top:16px;padding:8px 20px;background:var(--pink);color:#fff;border-radius:8px;text-decoration:none">Khám Phá Shop</a></div>';
+          return;
+        }
+        container.innerHTML = list.map(function(s) {
+          var avatar = s.logo
+            ? '<img src="' + s.logo + '" style="width:48px;height:48px;border-radius:50%;object-fit:cover">'
+            : '<div style="width:48px;height:48px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">' + (s.name||'S')[0].toUpperCase() + '</div>';
+          return '<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border)">' +
+            avatar +
+            '<div style="flex:1"><div style="font-weight:600;font-size:14px">' + (s.name||'Shop') + '</div></div>' +
+            '<a href="shop-profile.html?id=' + s.id + '" class="gh-btn-outline" style="padding:6px 16px;font-size:12px;border-radius:20px">Xem Shop</a>' +
+            '<button onclick="unfollowShop(\'' + s.id + '\')" style="background:none;border:1px solid #ddd;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;color:#888">Bỏ Theo Dõi</button>' +
+            '</div>';
+        }).join('');
+      }
+
+      function unfollowShop(shopId) {
+        var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+        list = list.filter(function(s) { return String(s.id) !== String(shopId); });
+        localStorage.setItem('gh_followed_shops', JSON.stringify(list));
+        renderFollowedShops();
       }
 
       function showTabByHash() {
