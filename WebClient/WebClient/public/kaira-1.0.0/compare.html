@@ -156,6 +156,7 @@
 
     <script src="js/api.js"></script>
     <script>
+    const API = "http://localhost:5001";
     const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
     const stars = r => {
       var full = Math.round(r || 0);
@@ -189,7 +190,7 @@
       let products = [];
       await Promise.all(_ids.map(async id => {
         try {
-          const res = await fetch("/api/products/" + id);
+          const res = await fetch(API + "/api/products/" + id);
           if (res.ok) {
             const d = await res.json();
             products.push(d);
