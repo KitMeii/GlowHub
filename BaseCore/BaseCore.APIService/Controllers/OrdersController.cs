@@ -465,7 +465,8 @@ namespace BaseCore.APIService.Controllers
                 order.OrderCode = "ORD-" + order.Id.ToString("D6");
 
                 // ── Tạo SubOrders theo từng shop ─────────────────────
-                var shopGroups = cartItems.GroupBy(c => c.Product!.ShopId ?? "__no_shop__");
+                // Group by ShopId (empty string for products without a shop)
+                var shopGroups = cartItems.GroupBy(c => c.Product!.ShopId ?? "");
                 decimal grandTotal     = 0m;
                 decimal grandSubtotal  = 0m;
                 decimal grandShipping  = 0m;
@@ -475,7 +476,8 @@ namespace BaseCore.APIService.Controllers
 
                 foreach (var group in shopGroups)
                 {
-                    var shop = group.First().Product!.Shop;
+                    var shop      = group.First().Product!.Shop;
+                    var hasShop   = shop != null && !string.IsNullOrEmpty(group.Key);
                     var fromRegion = ShippingRegion.Normalize(shop?.Region ?? shop?.Province);
 
                     // Tính shipping fee động theo trọng lượng + vùng
@@ -488,46 +490,52 @@ namespace BaseCore.APIService.Controllers
                     // Financial per shop group
                     decimal groupSubtotal = group.Sum(c => (c.Product!.DiscountPrice ?? c.Product.Price) * c.Quantity);
                     decimal commRate      = shop?.CommissionRate > 0 ? shop!.CommissionRate : 10m;
-                    decimal productRev    = groupSubtotal; // shop voucher logic: không có trong MVP
+                    decimal productRev    = groupSubtotal;
                     decimal commAmt       = Math.Round(productRev * commRate / 100m, 2);
                     decimal sellerPayout  = productRev - commAmt;
                     decimal groupFinal    = groupSubtotal + shipFee;
 
-                    // Tạo SubOrder
-                    var subOrder = new SubOrder {
-                        OrderId            = order.Id,
-                        ShopId             = shop?.Id ?? group.Key,
-                        Status             = OrderStatus.Pending,
-                        TotalAmount        = groupSubtotal,
-                        ShippingFee        = shipFee,
-                        FinalAmount        = groupFinal,
-                        ProductRevenue     = productRev,
-                        CommissionRate     = commRate,
-                        CommissionAmount   = commAmt,
-                        SellerPayoutAmount = sellerPayout,
-                        PayoutStatus       = PayoutStatusValue.Pending,
-                        Note               = dto.Note,
-                        CreatedAt          = DateTime.UtcNow
-                    };
-                    _db.SubOrders.Add(subOrder);
-                    await _db.SaveChangesAsync();
+                    // Tạo SubOrder chỉ khi sản phẩm thuộc về một shop hợp lệ
+                    SubOrder? subOrder = null;
+                    if (hasShop)
+                    {
+                        subOrder = new SubOrder {
+                            OrderId            = order.Id,
+                            ShopId             = shop!.Id,
+                            Status             = OrderStatus.Pending,
+                            TotalAmount        = groupSubtotal,
+                            ShippingFee        = shipFee,
+                            FinalAmount        = groupFinal,
+                            ProductRevenue     = productRev,
+                            CommissionRate     = commRate,
+                            CommissionAmount   = commAmt,
+                            SellerPayoutAmount = sellerPayout,
+                            PayoutStatus       = PayoutStatusValue.Pending,
+                            Note               = dto.Note,
+                            CreatedAt          = DateTime.UtcNow
+                        };
+                        _db.SubOrders.Add(subOrder);
+                        await _db.SaveChangesAsync();
+                        subOrder.SubOrderCode = "SUB-" + order.Id.ToString("D6") + "-" + subOrderSeq++;
+                    }
 
-                    subOrder.SubOrderCode = "SUB-" + order.Id.ToString("D6") + "-" + subOrderSeq++;
-
-                    // Tạo SubOrderItems + deduct stock
+                    // Tạo SubOrderItems (khi có SubOrder) + deduct stock + OrderDetails
                     foreach (var cartItem in group)
                     {
                         var product = cartItem.Product!;
                         decimal lockedPrice = product.DiscountPrice ?? product.Price;
 
-                        _db.SubOrderItems.Add(new SubOrderItem {
-                            SubOrderId = subOrder.Id,
-                            ProductId  = product.Id,
-                            Quantity   = cartItem.Quantity,
-                            UnitPrice  = lockedPrice
-                        });
+                        if (hasShop && subOrder != null)
+                        {
+                            _db.SubOrderItems.Add(new SubOrderItem {
+                                SubOrderId = subOrder.Id,
+                                ProductId  = product.Id,
+                                Quantity   = cartItem.Quantity,
+                                UnitPrice  = lockedPrice
+                            });
+                        }
 
-                        // Cũng tạo OrderDetail (backward compat với legacy endpoints)
+                        // OrderDetail (backward compat với legacy endpoints)
                         _db.OrderDetails.Add(new OrderDetail {
                             OrderId   = order.Id,
                             ProductId = product.Id,
@@ -543,20 +551,20 @@ namespace BaseCore.APIService.Controllers
                     grandShipping += shipFee;
                     grandTotal    += groupFinal;
 
-                    subOrderResults.Add(new {
-                        subOrderId   = subOrder.Id,
-                        shopId       = subOrder.ShopId,
-                        shopName     = shop?.ShopName ?? "GlowHub",
-                        subtotal     = groupSubtotal,
-                        shippingFee  = shipFee,
-                        finalAmount  = groupFinal
-                    });
-
-                    // Notify seller
-                    if (shop != null)
+                    if (hasShop && subOrder != null)
                     {
+                        subOrderResults.Add(new {
+                            subOrderId   = subOrder.Id,
+                            shopId       = subOrder.ShopId,
+                            shopName     = shop!.ShopName ?? "GlowHub",
+                            subtotal     = groupSubtotal,
+                            shippingFee  = shipFee,
+                            finalAmount  = groupFinal
+                        });
+
+                        // Notify seller
                         _db.Notifications.Add(new Notification {
-                            UserId    = shop.SellerId,
+                            UserId    = shop!.SellerId,
                             Title     = "Đơn hàng mới",
                             Message   = $"SubOrder {subOrder.SubOrderCode} - {groupFinal:N0}₫",
                             Link      = "/seller-dashboard.html",
@@ -570,8 +578,8 @@ namespace BaseCore.APIService.Controllers
                 order.ShippingFee   = grandShipping;
                 order.FinalAmount   = grandTotal - systemVoucherDiscount;
                 order.Discount      = systemVoucherDiscount;
-                // ShopId = shop đầu tiên (backward compat)
-                order.ShopId        = shopGroups.First().First().Product?.ShopId;
+                // ShopId = shop đầu tiên có hàng (backward compat)
+                order.ShopId        = shopGroups.FirstOrDefault(g => !string.IsNullOrEmpty(g.Key))?.First().Product?.ShopId;
 
                 // Xóa giỏ hàng
                 _db.CartItems.RemoveRange(cartItems);
@@ -614,7 +622,10 @@ namespace BaseCore.APIService.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return BadRequest(new { message = ex.Message });
+                var msg = ex.Message;
+                if (ex.InnerException != null) msg += " | " + ex.InnerException.Message;
+                if (ex.InnerException?.InnerException != null) msg += " | " + ex.InnerException.InnerException.Message;
+                return BadRequest(new { message = msg });
             }
         }
 
