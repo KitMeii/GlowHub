@@ -95,6 +95,11 @@ builder.Services.AddScoped<AuditLogService>();
 builder.Services.AddSingleton<ShippingCalculatorService>();
 builder.Services.AddScoped<VNPayService>();
 
+// wwwroot for static file serving (uploaded images)
+var wwwrootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+Directory.CreateDirectory(Path.Combine(wwwrootPath, "uploads"));
+builder.Environment.WebRootPath = wwwrootPath;
+
 // JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "YourSecretKeyForAuthenticationShouldBeLongEnough");
 builder.Services.AddAuthentication(x =>
@@ -131,6 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();

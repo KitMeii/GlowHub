@@ -28,18 +28,23 @@ namespace BaseCore.APIService.Controllers
         [HttpGet]
         public async Task<IActionResult> GetReviews(int productId)
         {
-            var reviews = await _db.Reviews
+            var rows = await _db.Reviews
+                .Include(r => r.User)
                 .Where(r => r.ProductId == productId)
                 .OrderByDescending(r => r.CreatedAt)
-                .Select(r => new {
-                    r.Id, r.ProductId, r.UserId,
-                    UserName  = r.UserId,
-                    r.Rating, r.Comment,
-                    r.Images, r.IsVerifiedPurchase,
-                    r.CreatedAt,
-                    r.SellerReply, r.ReplyAt
-                })
                 .ToListAsync();
+
+            var reviews = rows.Select(r => new {
+                r.Id, r.ProductId, r.UserId,
+                UserName  = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
+                r.Rating, r.Comment,
+                images = r.Images != null
+                    ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>(),
+                r.IsVerifiedPurchase,
+                r.CreatedAt,
+                r.SellerReply, r.ReplyAt
+            });
 
             return Ok(reviews);
         }
@@ -64,6 +69,7 @@ namespace BaseCore.APIService.Controllers
             {
                 existing.Rating    = Math.Clamp(dto.Rating, 1, 5);
                 existing.Comment   = dto.Comment ?? existing.Comment;
+                existing.Images    = dto.Images != null ? string.Join(",", dto.Images.Take(5)) : existing.Images;
                 existing.CreatedAt = DateTime.Now;
                 await _db.SaveChangesAsync();
                 return Ok(existing);
@@ -75,6 +81,7 @@ namespace BaseCore.APIService.Controllers
                 UserId    = userId,
                 Rating    = Math.Clamp(dto.Rating, 1, 5),
                 Comment   = dto.Comment ?? "",
+                Images    = dto.Images != null ? string.Join(",", dto.Images.Take(5)) : null,
                 CreatedAt = DateTime.Now,
             };
             _db.Reviews.Add(review);
@@ -382,7 +389,7 @@ namespace BaseCore.APIService.Controllers
         }
     }
 
-    public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; } }
+    public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; }  public List<string>? Images { get; set; } }
     public class ReplyReviewDto { public string Reply { get; set; } = ""; }
     public class CreateReviewDto
     {
