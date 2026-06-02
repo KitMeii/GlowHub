@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  var CART_MAX  = 99;
-  var CART_WARN = 90;
-  var WL_MAX    = 99;
-  var WL_WARN   = 90;
+  var CART_MAX  = 129;
+  var CART_WARN = 120;
+  var WL_MAX    = 129;
+  var WL_WARN   = 120;
 
   /* ── Inject CSS once ──────────────────────────────────────── */
   (function injectCSS() {
