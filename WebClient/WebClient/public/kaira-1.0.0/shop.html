@@ -1148,12 +1148,10 @@
           '" class="prod-title">' +
           name +
           "</a>" +
-          '<span class="prod-price">' +
-          fmt(price) +
-          "</span>" +
-          (oldP
-            ? '<span class="prod-price-old">' + fmt(oldP) + "</span>"
-            : "") +
+          '<div class="prod-price-wrap">' +
+          '<span class="prod-price">' + fmt(price) + "</span>" +
+          (oldP ? '<span class="prod-price-old">' + fmt(oldP) + "</span>" : "") +
+          "</div>" +
           "</div>" +
           '<button class="btn-add-cart" onclick="addToCart(event,' +
           id +

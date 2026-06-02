@@ -247,29 +247,29 @@
                 <div class="form-section-title">
                   <i class="bi bi-truck me-2"></i>Phương Thức Vận Chuyển
                 </div>
-                <label class="ship-option selected" onclick="selectShip('standard',0,this)">
+                <label class="ship-option selected" onclick="selectShip('standard',this)">
                   <input type="radio" name="shipping" value="standard" checked />
                   <div>
                     <div class="ship-name">Giao Hàng Tiêu Chuẩn</div>
                     <div class="ship-desc">3–5 ngày làm việc · J&amp;T Express</div>
                   </div>
-                  <div class="ship-price" id="shipStdPrice">Miễn phí</div>
+                  <div class="ship-price" id="shipStdPrice">—</div>
                 </label>
-                <label class="ship-option" onclick="selectShip('express',30000,this)">
+                <label class="ship-option" onclick="selectShip('express',this)">
                   <input type="radio" name="shipping" value="express" />
                   <div>
                     <div class="ship-name">Giao Hàng Nhanh</div>
-                    <div class="ship-desc">1–2 ngày làm việc · GHN Express</div>
+                    <div class="ship-desc">1–2 ngày làm việc · GHN Express · +15.000₫/shop</div>
                   </div>
-                  <div class="ship-price">30.000 ₫</div>
+                  <div class="ship-price" id="shipExpressPrice">—</div>
                 </label>
-                <label class="ship-option" onclick="selectShip('same',50000,this)">
+                <label class="ship-option" onclick="selectShip('same',this)">
                   <input type="radio" name="shipping" value="same" />
                   <div>
                     <div class="ship-name">Giao Trong Ngày</div>
-                    <div class="ship-desc">Chỉ nội thành TP.HCM &amp; Hà Nội</div>
+                    <div class="ship-desc">Chỉ nội thành TP.HCM &amp; Hà Nội · +30.000₫/shop</div>
                   </div>
-                  <div class="ship-price">50.000 ₫</div>
+                  <div class="ship-price" id="shipSamePrice">—</div>
                 </label>
               </div>
 
@@ -427,7 +427,10 @@
               <div class="sum-row"><span>Tạm tính</span><span id="sumSubtotal">0 ₫</span></div>
               <div class="sum-row"><span>Phí vận chuyển</span><span id="sumShip">Miễn phí</span></div>
               <div class="sum-row" id="discountRow" style="display:none;color:var(--pink)">
-                <span>Giảm giá</span><span id="sumDiscount">-0 ₫</span>
+                <span>Giảm giá hệ thống</span><span id="sumDiscount">-0 ₫</span>
+              </div>
+              <div class="sum-row" id="shopDiscountRow" style="display:none;color:#f59e0b">
+                <span>Voucher shop</span><span id="sumShopDiscount">-0 ₫</span>
               </div>
               <div class="sum-total">
                 <span>Tổng cộng</span>
@@ -525,10 +528,14 @@
       var cartItems        = [];
       var currentStep      = 1;
       var shippingFee      = 0;
+      var baseShippingFee  = 0;   // standard fee from API (sum across all shops)
+      var numShopGroups    = 0;   // number of distinct shops (for per-shop surcharge)
       var shippingMethod   = 'standard';
       var selectedPay      = 'cod';
       var discountAmt      = 0;
       var appliedVoucher   = null;
+      var shopVouchers     = {};   // shopId → { code, discountAmt }
+      var shopVoucherTotal = 0;
       var allOrders        = [];
       var currentFilter    = 'all';
       var savedAddresses   = [];
@@ -584,7 +591,7 @@
       }
 
       function loadCartItems() {
-        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart';
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart';
         var raw = localStorage.getItem(key);
         cartItems = raw ? JSON.parse(raw) : [];
         if (!cartItems.length) {
@@ -651,11 +658,27 @@
               + 'Tạm tính: <strong style="color:var(--dark)">' + fmt(g.subtotal) + '</strong>'
               + (g.shippingFee > 0 ? ' &nbsp;+&nbsp; ship: <strong style="color:var(--dark)">' + fmt(g.shippingFee) + '</strong>' : '')
               + '</div>'
+              + (g.shopId ? (
+                  '<div style="padding:8px 14px;border-top:1px dashed #f0e8df;display:flex;align-items:center;gap:8px">'
+                + '<i class="bi bi-tag" style="color:var(--pink);font-size:14px"></i>'
+                + '<input id="svInput-' + g.shopId + '" type="text" placeholder="Mã voucher của ' + (g.shopName || 'shop') + '..." '
+                + 'style="flex:1;border:1px solid #e8ddd4;padding:5px 10px;font-size:12px;font-family:var(--font-body);outline:none" '
+                + 'onkeydown="if(event.key===\'Enter\')applyShopVoucher(\'' + g.shopId + '\',\'' + (g.shopName||'').replace(/'/g,"\\'") + '\',' + g.subtotal + ')" />'
+                + '<button onclick="applyShopVoucher(\'' + g.shopId + '\',\'' + (g.shopName||'').replace(/'/g,"\\'") + '\',' + g.subtotal + ')" '
+                + 'style="background:#111;color:#fff;border:none;padding:5px 12px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:var(--font-body)">Áp Dụng</button>'
+                + '</div>'
+                + '<div id="svOk-'  + g.shopId + '" style="display:none;padding:4px 14px;font-size:12px;color:#20c997;gap:6px;align-items:center">'
+                + '<i class="bi bi-check-circle-fill"></i><span></span></div>'
+                + '<div id="svErr-' + g.shopId + '" style="display:none;padding:4px 14px;font-size:12px;color:#ef4444"></div>'
+              ) : '')
               + '</div>';
           }).join('');
 
           if (res.totalShipping !== undefined) {
-            shippingFee = res.totalShipping;
+            baseShippingFee = res.totalShipping;
+            numShopGroups   = (res.groups || []).length;
+            shippingFee     = baseShippingFee;
+            _refreshShipMethodPrices();
             updateTotals();
           }
         }).catch(function () { /* keep flat list on error */ });
@@ -682,7 +705,8 @@
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
         var fee = shippingFee;
         if (shippingMethod === 'standard' && sub >= 500000) fee = 0;
-        var total = Math.max(0, sub + fee - discountAmt);
+        shopVoucherTotal = Object.values(shopVouchers).reduce(function (s, v) { return s + (v.discountAmt || 0); }, 0);
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal);
 
         document.getElementById('sumSubtotal').textContent = fmt(sub);
         document.getElementById('sumShip').textContent = fee > 0 ? fmt(fee) : 'Miễn phí';
@@ -694,6 +718,16 @@
           document.getElementById('sumDiscount').textContent = '-' + fmt(discountAmt);
         } else {
           document.getElementById('discountRow').style.display = 'none';
+        }
+        var shopDiscRow = document.getElementById('shopDiscountRow');
+        if (shopDiscRow) {
+          if (shopVoucherTotal > 0) {
+            shopDiscRow.style.display = 'flex';
+            var el = document.getElementById('sumShopDiscount');
+            if (el) el.textContent = '-' + fmt(shopVoucherTotal);
+          } else {
+            shopDiscRow.style.display = 'none';
+          }
         }
         document.getElementById('sumTotal').textContent = fmt(total);
       }
@@ -834,7 +868,12 @@
         previewEl.innerHTML = '<div style="font-size:12px;color:var(--gray)"><i class="bi bi-hourglass-split me-1"></i>Đang tính phí vận chuyển...</div>';
         Cart.getGrouped(provinceName).then(function (r) {
           if (!r || !r.groups || !r.groups.length) { previewEl.style.display = 'none'; return; }
-          var html = '<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#333"><i class="bi bi-truck me-1" style="color:var(--pink)"></i>Phí ship ước tính</div>';
+          baseShippingFee = r.totalShipping;
+          numShopGroups   = r.groups.length;
+          shippingFee     = baseShippingFee;
+          _refreshShipMethodPrices();
+          updateTotals();
+          var html = '<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#333"><i class="bi bi-truck me-1" style="color:var(--pink)"></i>Phí ship ước tính (tiêu chuẩn)</div>';
           r.groups.forEach(function (g) {
             html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed #eee">'
               + '<span style="color:#555"><i class="bi bi-shop me-1" style="color:var(--pink)"></i>' + (g.shopName || g.shopId) + '</span>'
@@ -957,16 +996,23 @@
           ? (addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', '))
           : '—';
         var addrName = addr ? (addr.name + ' — ' + addr.phone) : '—';
-        var shipLabels = { standard: 'Giao hàng tiêu chuẩn', express: 'Giao hàng nhanh (+30.000₫)', same: 'Giao trong ngày (+50.000₫)' };
+        var _expSurcharge  = numShopGroups * 15000;
+        var _sameSurcharge = numShopGroups * 30000;
+        var shipLabels = {
+          standard: 'Giao hàng tiêu chuẩn',
+          express:  'Giao hàng nhanh' + (_expSurcharge  > 0 ? ' (+' + fmt(_expSurcharge)  + ')' : ''),
+          same:     'Giao trong ngày' + (_sameSurcharge > 0 ? ' (+' + fmt(_sameSurcharge) + ')' : '')
+        };
         var payLabels  = { cod: 'COD (khi nhận hàng)', bank: 'Chuyển khoản ngân hàng', momo: 'Ví MoMo', zalopay: 'ZaloPay' };
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
         var fee = (shippingMethod === 'standard' && sub >= 500000) ? 0 : shippingFee;
-        var total = Math.max(0, sub + fee - discountAmt);
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal);
 
         var grid = '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
           + '<span style="color:var(--gray)">Người nhận:</span><strong>' + addrName + '</strong>'
           + '<span style="color:var(--gray)">Địa chỉ:</span><span>' + addrText + '</span>'
           + '<span style="color:var(--gray)">Thanh toán:</span><span>' + (payLabels[selectedPay] || selectedPay) + '</span>'
+          + '<span style="color:var(--gray)">Vận chuyển:</span><span>' + (shipLabels[shippingMethod] || shippingMethod) + '</span>'
           + '</div>';
 
         document.getElementById('confirmDetail').innerHTML = grid
@@ -974,6 +1020,8 @@
           + '<div style="display:grid;grid-template-columns:120px 1fr;gap:4px 12px;margin-top:8px">'
           + '<span style="color:var(--gray)">Tạm tính:</span><span>' + fmt(sub) + '</span>'
           + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
+          + '<span style="color:var(--gray)">Phí vận chuyển:</span><span>' + (fee === 0 ? 'Miễn phí' : fmt(fee)) + '</span>'
+          + (shopVoucherTotal ? '<span style="color:var(--gray)">Voucher shop:</span><span style="color:var(--pink)">-' + fmt(shopVoucherTotal) + '</span>' : '')
           + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px" id="confirmTotal">' + fmt(total) + '</strong>'
           + '</div>';
 
@@ -985,19 +1033,21 @@
             if (!grouped || !grouped.groups || !grouped.groups.length) {
               grpEl.style.display = 'none'; return;
             }
+            var perShopSurcharge = shippingMethod === 'express' ? 15000 : shippingMethod === 'same' ? 30000 : 0;
+            var totalSurcharge   = grouped.groups.length * perShopSurcharge;
             var html = '<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">'
               + '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Phí vận chuyển theo shop</div>';
             grouped.groups.forEach(function (g) {
               html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee">'
                 + '<span><i class="bi bi-shop" style="color:var(--pink);margin-right:4px"></i>' + (g.shopName || g.shopId) + '</span>'
-                + '<span style="font-weight:600">' + fmt(g.shippingFee) + '</span></div>';
+                + '<span style="font-weight:600">' + fmt(g.shippingFee + perShopSurcharge) + '</span></div>';
             });
             html += '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:6px 0;border-top:1px solid var(--border)">'
-              + '<span>Tổng ship</span><span>' + fmt(grouped.totalShipping) + '</span></div></div>';
+              + '<span>Tổng ship</span><span>' + fmt(grouped.totalShipping + totalSurcharge) + '</span></div></div>';
             grpEl.innerHTML = html;
-            // Update grand total
+            // Update grand total (apply all discounts)
             var grandTotal = document.getElementById('confirmTotal');
-            if (grandTotal) grandTotal.textContent = fmt(grouped.grandTotal - discountAmt);
+            if (grandTotal) grandTotal.textContent = fmt(Math.max(0, grouped.grandTotal - discountAmt - shopVoucherTotal));
           }).catch(function () {
             var grpEl = document.getElementById('confirmShopGroups');
             if (grpEl) grpEl.style.display = 'none';
@@ -1009,9 +1059,23 @@
       }
 
       // ── Ship / Pay ──
-      function selectShip(type, fee, el) {
+      // Cập nhật label giá các phương thức ship dựa trên baseShippingFee + surcharge thực tế
+      function _refreshShipMethodPrices() {
+        var sub = cartItems.reduce(function(s,i){return s+_itemPrice(i)*_itemQty(i);},0);
+        var stdEl  = document.getElementById('shipStdPrice');
+        var expEl  = document.getElementById('shipExpressPrice');
+        var sameEl = document.getElementById('shipSamePrice');
+        if (stdEl)  stdEl.textContent  = (sub >= 500000) ? 'Miễn phí' : fmt(baseShippingFee);
+        if (expEl)  expEl.textContent  = fmt(baseShippingFee + numShopGroups * 15000);
+        if (sameEl) sameEl.textContent = fmt(baseShippingFee + numShopGroups * 30000);
+      }
+
+      function selectShip(type, el) {
         shippingMethod = type;
-        shippingFee    = fee;
+        var surcharge  = type === 'express' ? numShopGroups * 15000
+                       : type === 'same'    ? numShopGroups * 30000
+                       : 0;
+        shippingFee    = baseShippingFee + surcharge;
         document.querySelectorAll('.ship-option').forEach(function (o) { o.classList.remove('selected'); });
         if (el) el.classList.add('selected');
         updateTotals();
@@ -1073,9 +1137,46 @@
         });
       }
 
+      // ── Voucher shop (per-shop) ──
+      function applyShopVoucher(shopId, shopName, subtotal) {
+        var inputEl = document.getElementById('svInput-' + shopId);
+        var code = inputEl ? inputEl.value.trim().toUpperCase() : '';
+        if (!code) { showToast('Vui lòng nhập mã voucher của ' + shopName + '!', 'err'); return; }
+        var okEl  = document.getElementById('svOk-'  + shopId);
+        var errEl = document.getElementById('svErr-' + shopId);
+        if (okEl)  okEl.style.display  = 'none';
+        if (errEl) errEl.style.display = 'none';
+
+        var doValidate = typeof Voucher !== 'undefined'
+          ? Voucher.validate(code, subtotal, shopId)
+          : Promise.resolve(null);
+
+        doValidate.then(function (res) {
+          if (res && res.valid) {
+            shopVouchers[shopId] = { code: code, discountAmt: res.discountAmount || 0 };
+            updateTotals();
+            if (okEl) {
+              okEl.style.display = 'flex';
+              var sp = okEl.querySelector('span');
+              if (sp) sp.textContent = 'Giảm ' + fmt(res.discountAmount || 0) + ' từ ' + shopName;
+            }
+            showToast('Áp dụng voucher shop thành công!');
+          } else {
+            delete shopVouchers[shopId];
+            updateTotals();
+            if (errEl) {
+              errEl.style.display = 'block';
+              errEl.textContent = (res && res.message) || 'Mã không hợp lệ hoặc không thuộc shop này';
+            }
+          }
+        }).catch(function () {
+          if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Không thể kiểm tra mã. Vui lòng thử lại.'; }
+        });
+      }
+
       // ── Sync localStorage cart → DB (backend checkout reads from DB, not body) ──
       function syncCartToDB() {
-        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart';
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart';
         var items = [];
         try { items = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
         if (!items.length) return Promise.resolve();
@@ -1118,6 +1219,11 @@
           ReceiverPhone:   addr.phone,
           PaymentMethod:   (selectedPay in payMap) ? payMap[selectedPay] : 0,
           VoucherCode:     appliedVoucher || null,
+          ShopVouchers:    Object.keys(shopVouchers).length
+            ? Object.keys(shopVouchers).reduce(function (obj, sid) {
+                obj[sid] = shopVouchers[sid].code; return obj;
+              }, {})
+            : null,
           ShippingMethod:  shippingMethod || 'standard'
         };
 
@@ -1130,7 +1236,7 @@
         }).then(function (result) {
           cartItems = [];
           if (typeof Cart !== 'undefined' && Cart.clear) Cart.clear();
-          localStorage.removeItem((typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart');
+          localStorage.removeItem((typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart');
 
           var orderId      = result && (result.orderId      || result.OrderId      || result.Id      || result.id   || '');
           var orderCode    = result && (result.orderCode    || result.OrderCode    || ('ORD-' + orderId));
@@ -1244,7 +1350,7 @@
           var finalAmt  = o.finalAmount || o.FinalAmount || o.totalAmount || o.TotalAmount || 0;
           var oid       = o.id || o.Id || o.orderId;
           var canCancel = status === 'PENDING';
-          var canRecv   = status === 'DELIVERED';
+          var canRecv   = status === 'SHIPPING';
 
           return '<div class="po-card">'
             + '<div class="po-card-hd">'

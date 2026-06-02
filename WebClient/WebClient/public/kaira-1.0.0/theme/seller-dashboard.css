@@ -461,7 +461,7 @@ input:checked + .toggle-slider:before {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.45) !important;
   z-index: 9999;
   display: none;
   align-items: flex-start;
@@ -469,10 +469,12 @@ input:checked + .toggle-slider:before {
   justify-content: center;
   padding: 24px;
   pointer-events: none;
+  opacity: 1 !important;
 }
 .modal-backdrop.show {
   display: flex;
   pointer-events: auto;
+  opacity: 1 !important;
 }
 .modal-box {
   background: #fff;
@@ -486,6 +488,7 @@ input:checked + .toggle-slider:before {
   margin: 0px;
   flex-shrink: 0;
   pointer-events: all;
+  opacity: 1 !important;
 }
 .modal-box.wide {
   max-width: 720px;

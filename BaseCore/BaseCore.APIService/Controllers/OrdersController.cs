@@ -472,7 +472,8 @@ namespace BaseCore.APIService.Controllers
                 decimal grandShipping  = 0m;
                 int subOrderSeq        = 1;
 
-                var subOrderResults = new List<object>();
+                var subOrderResults          = new List<object>();
+                decimal grandShopVoucherDiscount = 0m;
 
                 foreach (var group in shopGroups)
                 {
@@ -489,30 +490,57 @@ namespace BaseCore.APIService.Controllers
 
                     // Financial per shop group
                     decimal groupSubtotal = group.Sum(c => (c.Product!.DiscountPrice ?? c.Product.Price) * c.Quantity);
+
+                    // ── Áp dụng voucher của shop (nếu có) ──────────────
+                    decimal shopVoucherDisc    = 0m;
+                    string? appliedShopVoucher = null;
+                    if (hasShop && dto.ShopVouchers != null &&
+                        dto.ShopVouchers.TryGetValue(group.Key, out var svCode) &&
+                        !string.IsNullOrWhiteSpace(svCode))
+                    {
+                        var sv = await _db.Vouchers.FirstOrDefaultAsync(v =>
+                            v.Code == svCode.ToUpper() && v.IsActive &&
+                            v.ShopId == group.Key &&
+                            (!v.ExpiryDate.HasValue || v.ExpiryDate >= DateTime.UtcNow) &&
+                            (!v.StartDate.HasValue  || v.StartDate  <= DateTime.UtcNow) &&
+                            (!v.UsageLimit.HasValue || v.UsedCount  <  v.UsageLimit));
+                        if (sv != null && groupSubtotal >= sv.MinOrderAmount)
+                        {
+                            var d = sv.DiscountType == "percent"
+                                ? groupSubtotal * sv.DiscountValue / 100
+                                : sv.DiscountValue;
+                            if (sv.MaxDiscount.HasValue && d > sv.MaxDiscount.Value) d = sv.MaxDiscount.Value;
+                            shopVoucherDisc    = d;
+                            sv.UsedCount++;
+                            appliedShopVoucher = sv.Code;
+                        }
+                    }
+
                     decimal commRate      = shop?.CommissionRate > 0 ? shop!.CommissionRate : 10m;
-                    decimal productRev    = groupSubtotal;
+                    decimal productRev    = groupSubtotal - shopVoucherDisc;
                     decimal commAmt       = Math.Round(productRev * commRate / 100m, 2);
                     decimal sellerPayout  = productRev - commAmt;
-                    decimal groupFinal    = groupSubtotal + shipFee;
+                    decimal groupFinal    = groupSubtotal + shipFee - shopVoucherDisc;
 
                     // Tạo SubOrder chỉ khi sản phẩm thuộc về một shop hợp lệ
                     SubOrder? subOrder = null;
                     if (hasShop)
                     {
                         subOrder = new SubOrder {
-                            OrderId            = order.Id,
-                            ShopId             = shop!.Id,
-                            Status             = OrderStatus.Pending,
-                            TotalAmount        = groupSubtotal,
-                            ShippingFee        = shipFee,
-                            FinalAmount        = groupFinal,
-                            ProductRevenue     = productRev,
-                            CommissionRate     = commRate,
-                            CommissionAmount   = commAmt,
-                            SellerPayoutAmount = sellerPayout,
-                            PayoutStatus       = PayoutStatusValue.Pending,
-                            Note               = dto.Note,
-                            CreatedAt          = DateTime.UtcNow
+                            OrderId             = order.Id,
+                            ShopId              = shop!.Id,
+                            Status              = OrderStatus.Pending,
+                            TotalAmount         = groupSubtotal,
+                            ShippingFee         = shipFee,
+                            FinalAmount         = groupFinal,
+                            ProductRevenue      = productRev,
+                            CommissionRate      = commRate,
+                            CommissionAmount    = commAmt,
+                            SellerPayoutAmount  = sellerPayout,
+                            ShopVoucherDiscount = shopVoucherDisc,
+                            PayoutStatus        = PayoutStatusValue.Pending,
+                            Note                = dto.Note,
+                            CreatedAt           = DateTime.UtcNow
                         };
                         _db.SubOrders.Add(subOrder);
                         await _db.SaveChangesAsync();
@@ -547,19 +575,22 @@ namespace BaseCore.APIService.Controllers
                         product.SoldCount += cartItem.Quantity;
                     }
 
-                    grandSubtotal += groupSubtotal;
-                    grandShipping += shipFee;
-                    grandTotal    += groupFinal;
+                    grandSubtotal            += groupSubtotal;
+                    grandShipping            += shipFee;
+                    grandTotal               += groupFinal;
+                    grandShopVoucherDiscount += shopVoucherDisc;
 
                     if (hasShop && subOrder != null)
                     {
                         subOrderResults.Add(new {
-                            subOrderId   = subOrder.Id,
-                            shopId       = subOrder.ShopId,
-                            shopName     = shop!.ShopName ?? "GlowHub",
-                            subtotal     = groupSubtotal,
-                            shippingFee  = shipFee,
-                            finalAmount  = groupFinal
+                            subOrderId          = subOrder.Id,
+                            shopId              = subOrder.ShopId,
+                            shopName            = shop!.ShopName ?? "GlowHub",
+                            subtotal            = groupSubtotal,
+                            shippingFee         = shipFee,
+                            shopVoucherDiscount = shopVoucherDisc,
+                            appliedShopVoucher,
+                            finalAmount         = groupFinal
                         });
 
                         // Notify seller
@@ -574,10 +605,12 @@ namespace BaseCore.APIService.Controllers
                 }
 
                 // ── Cập nhật Order tổng ──────────────────────────────
-                order.TotalAmount   = grandSubtotal;
-                order.ShippingFee   = grandShipping;
-                order.FinalAmount   = grandTotal - systemVoucherDiscount;
-                order.Discount      = systemVoucherDiscount;
+                order.TotalAmount         = grandSubtotal;
+                order.ShippingFee         = grandShipping;
+                order.ShopVoucherDiscount = grandShopVoucherDiscount;
+                order.SystemVoucherDiscount = systemVoucherDiscount;
+                order.Discount            = systemVoucherDiscount + grandShopVoucherDiscount;
+                order.FinalAmount         = grandTotal - systemVoucherDiscount;
                 // ShopId = shop đầu tiên có hàng (backward compat)
                 order.ShopId        = shopGroups.FirstOrDefault(g => !string.IsNullOrEmpty(g.Key))?.First().Product?.ShopId;
 
@@ -597,14 +630,16 @@ namespace BaseCore.APIService.Controllers
                 await transaction.CommitAsync();
 
                 return Ok(new {
-                    message           = "Đặt hàng thành công!",
-                    orderId           = order.Id,
-                    orderCode         = order.OrderCode,
-                    totalAmount       = grandSubtotal,
-                    totalShipping     = grandShipping,
-                    discount          = systemVoucherDiscount,
-                    finalAmount       = order.FinalAmount,
-                    subOrders         = subOrderResults,
+                    message                  = "Đặt hàng thành công!",
+                    orderId                  = order.Id,
+                    orderCode                = order.OrderCode,
+                    totalAmount              = grandSubtotal,
+                    totalShipping            = grandShipping,
+                    discount                 = systemVoucherDiscount,
+                    shopVoucherDiscount      = grandShopVoucherDiscount,
+                    totalDiscount            = systemVoucherDiscount + grandShopVoucherDiscount,
+                    finalAmount              = order.FinalAmount,
+                    subOrders                = subOrderResults,
                     estimatedDelivery = DateTime.SpecifyKind(order.EstimatedDelivery!.Value, DateTimeKind.Utc),
                     appliedVoucher,
                     paymentMethod,
@@ -1165,8 +1200,9 @@ namespace BaseCore.APIService.Controllers
                     totalAmount     = s.TotalAmount,
                     shippingFee     = s.ShippingFee,
                     finalAmount     = s.FinalAmount,
-                    sellerPayout    = s.SellerPayoutAmount,
-                    trackingCode    = s.TrackingCode,
+                    sellerPayout        = s.SellerPayoutAmount,
+                    shopVoucherDiscount = s.ShopVoucherDiscount,
+                    trackingCode        = s.TrackingCode,
                     cancelReason    = s.CancelReason,
                     createdAt       = s.CreatedAt,
                     shippingAddress = s.Order.ShippingAddress,
@@ -1289,6 +1325,8 @@ namespace BaseCore.APIService.Controllers
         /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
         public int PaymentMethod { get; set; } = 0;
         public string? VoucherCode { get; set; }
+        /// <summary>Voucher riêng từng shop: key=shopId, value=voucherCode</summary>
+        public Dictionary<string, string>? ShopVouchers { get; set; }
         /// <summary>standard | express | same</summary>
         public string ShippingMethod { get; set; } = "standard";
     }

@@ -4,9 +4,9 @@
    ════════════════════════════════════════════════════════ */
 
 :root {
-  --flash-red:    #ef4444;
-  --flash-orange: #f97316;
-  --flash-grad:   linear-gradient(135deg, #ef4444 0%, #f97316 50%, #ec4899 100%);
+  --flash-red:    #d946a0;
+  --flash-orange: #f759ab;
+  --flash-grad:   linear-gradient(135deg, #be185d 0%, #d946a0 50%, #f759ab 100%);
 }
 
 /* ── CONFETTI BAR ── */

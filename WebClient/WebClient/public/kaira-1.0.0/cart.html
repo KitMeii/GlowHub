@@ -473,7 +473,7 @@
           const all = Array.isArray(data) ? data : (data.items || data.data || data.products || []);
           if (!all.length) { sec.style.display = "none"; return; }
 
-          const cartKey = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "glowhub_cart";
+          const cartKey = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
           const cartIds = new Set(
             JSON.parse(localStorage.getItem(cartKey) || "[]").map((x) => String(x.id || x.Id))
           );
@@ -550,7 +550,7 @@
       function clearAll() {
         if (!confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) return;
         if (typeof Cart !== "undefined") Cart.clear();
-        else localStorage.removeItem("glowhub_cart");
+        else localStorage.removeItem("gh_cart");
         appliedCoupon = null;
         render();
         toast("Đã xóa toàn bộ giỏ hàng", "error");
@@ -618,7 +618,7 @@
       // ══════════════════════════════════════════════
       //  LOCAL CART FALLBACK (if api.js Cart not loaded)
       // ══════════════════════════════════════════════
-      const CART_KEY = "glowhub_cart";
+      const CART_KEY = "gh_cart";
       function _localCart() {
         try {
           return JSON.parse(localStorage.getItem(CART_KEY) || "[]");

@@ -107,14 +107,15 @@ namespace BaseCore.APIService.Controllers
 
             var items = products.Select(p => {
                 avgRatings.TryGetValue(p.Id, out var rv);
-                var finalPrice = p.DiscountPrice ?? p.Price;
                 var disc = p.DiscountPrice.HasValue && p.Price > 0
                     ? (int)Math.Round((1 - (double)p.DiscountPrice.Value / (double)p.Price) * 100)
                     : 0;
                 return new {
-                    p.Id, p.Name, p.Price,
+                    id            = p.Id,
+                    name          = p.Name,
+                    price         = p.Price,
                     discountPrice = p.DiscountPrice,
-                    image = p.ImageUrl,
+                    image         = p.ImageUrl,
                     avgRating     = rv != null ? Math.Round(rv.avg, 1) : 0.0,
                     reviewCount   = rv?.cnt ?? 0,
                     soldCount     = p.SoldCount,
