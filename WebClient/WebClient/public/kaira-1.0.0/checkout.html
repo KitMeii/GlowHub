@@ -1047,7 +1047,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang xử lý...';
 
-        var payMap  = { cod: "COD", bank: "BANK", momo: "MOMO", vnpay: "VNPAY" };
+        var payMap  = { cod: 0, bank: 1, momo: 2, vnpay: 4 };
         var fullAddr = addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', ');
         var payload  = {
           ShippingAddress: fullAddr,
@@ -1055,9 +1055,9 @@
           Note:            document.getElementById('orderNote').value.trim(),
           ReceiverName:    addr.name,
           ReceiverPhone:   addr.phone,
-          PaymentMethod:   payMap[selectedPay] || "COD",
+          PaymentMethod:   (selectedPay in payMap) ? payMap[selectedPay] : 0,
           VoucherCode:     appliedVoucher || null,
-          ShippingMethod:  shippingMethod
+          ShippingMethod:  shippingMethod || 'standard'
         };
 
         Promise.resolve()
