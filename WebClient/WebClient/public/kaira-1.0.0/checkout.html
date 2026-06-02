@@ -584,7 +584,8 @@
       }
 
       function loadCartItems() {
-        var raw = localStorage.getItem('gh_cart');
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart';
+        var raw = localStorage.getItem(key);
         cartItems = raw ? JSON.parse(raw) : [];
         if (!cartItems.length) {
           showEmptyCart();
@@ -1067,7 +1068,7 @@
         }).then(function (result) {
           cartItems = [];
           if (typeof Cart !== 'undefined' && Cart.clear) Cart.clear();
-          localStorage.removeItem('gh_cart');
+          localStorage.removeItem((typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart');
 
           var orderId      = result && (result.orderId      || result.OrderId      || result.Id      || result.id   || '');
           var orderCode    = result && (result.orderCode    || result.OrderCode    || ('ORD-' + orderId));
