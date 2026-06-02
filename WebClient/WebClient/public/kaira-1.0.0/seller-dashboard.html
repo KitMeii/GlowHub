@@ -435,6 +435,30 @@
             <div class="quill-wrap">
               <div id="p-desc-editor"></div>
             </div>
+            <div class="desc-image-section">
+              <label class="field-label">ẢNH MINH HỌA (hiển thị trong mô tả)</label>
+              <p class="field-hint">Ảnh này sẽ hiển thị bên phải phần mô tả trên trang sản phẩm. Tỉ lệ khuyến nghị: 4:3 hoặc 1:1.</p>
+              <div class="desc-img-upload-area" id="descImgUploadArea">
+                <div class="desc-img-preview" id="descImgPreview">
+                  <img id="descImgPreviewSrc" src="" alt="Ảnh minh họa">
+                  <button type="button" class="desc-img-remove" id="btnRemoveDescImg" title="Xóa ảnh">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <label class="desc-img-upload-btn" for="descImgFileInput" id="descImgUploadLabel">
+                  <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>Chọn ảnh minh họa</span>
+                </label>
+                <input type="file" id="descImgFileInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+              </div>
+              <input type="hidden" id="descImgUrl" name="descImgUrl" value="">
+            </div>
           </div>
         </div>
         <div class="col-12">
@@ -654,6 +678,7 @@ let _notifInterval   = null;
 //  QUILL EDITOR + SPECS UI
 // ═══════════════════════════════════════════════════════════
 let _quill = null;
+let _descImgInited = false;
 
 function initQuill() {
   if (_quill) return;
@@ -681,6 +706,120 @@ function setDescription(html) {
   if (!_quill) { initQuill(); }
   if (!html) { _quill.setContents([]); return; }
   _quill.root.innerHTML = html;
+}
+
+function initDescImg() {
+  if (_descImgInited) return;
+  _descImgInited = true;
+
+  const fileInput    = document.getElementById('descImgFileInput');
+  const preview      = document.getElementById('descImgPreview');
+  const previewSrc   = document.getElementById('descImgPreviewSrc');
+  const uploadLabel  = document.getElementById('descImgUploadLabel');
+  const uploadArea   = document.getElementById('descImgUploadArea');
+  const urlInput     = document.getElementById('descImgUrl');
+  const removeBtn    = document.getElementById('btnRemoveDescImg');
+
+  fileInput.addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Ảnh phải nhỏ hơn 5MB', 'error');
+      this.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewSrc.src = e.target.result;
+      preview.style.display = 'block';
+      uploadLabel.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+
+    uploadArea.classList.add('uploading');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5001/api/upload/image', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: formData
+      });
+      if (!res.ok) throw new Error('Upload thất bại');
+      const data = await res.json();
+      const imageUrl = data.url || data.imageUrl || data.path || (data.data && data.data.url) || '';
+      if (!imageUrl) throw new Error('Server không trả về URL');
+      urlInput.value   = imageUrl;
+      previewSrc.src   = imageUrl;
+      showToast('Đã tải ảnh lên');
+    } catch(err) {
+      console.error('Upload desc image:', err);
+      showToast('Không thể tải ảnh lên. Vui lòng thử lại.', 'error');
+      previewSrc.src            = '';
+      preview.style.display     = 'none';
+      uploadLabel.style.display = 'flex';
+      urlInput.value            = '';
+      fileInput.value           = '';
+    } finally {
+      uploadArea.classList.remove('uploading');
+    }
+  });
+
+  removeBtn.addEventListener('click', function() {
+    preview.style.display     = 'none';
+    uploadLabel.style.display = 'flex';
+    urlInput.value            = '';
+    fileInput.value           = '';
+    previewSrc.src            = '';
+  });
+}
+
+function loadDescImageFromProduct(product) {
+  const preview     = document.getElementById('descImgPreview');
+  const previewSrc  = document.getElementById('descImgPreviewSrc');
+  const uploadLabel = document.getElementById('descImgUploadLabel');
+  const urlInput    = document.getElementById('descImgUrl');
+  const fileInput   = document.getElementById('descImgFileInput');
+
+  // Reset state
+  preview.style.display     = 'none';
+  uploadLabel.style.display = 'flex';
+  urlInput.value            = '';
+  fileInput.value           = '';
+  previewSrc.src            = '';
+
+  if (!product) return;
+  const desc = product.description || product.Description || '';
+  if (!desc) return;
+
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(desc, 'text/html');
+  const imgs   = doc.querySelectorAll('.desc-illustration-img');
+  if (imgs.length > 0) {
+    const src = imgs[imgs.length - 1].getAttribute('src');
+    if (src) {
+      urlInput.value            = src;
+      previewSrc.src            = src;
+      preview.style.display     = 'block';
+      uploadLabel.style.display = 'none';
+    }
+  }
+}
+
+function buildFinalDescription() {
+  const raw    = getDescription();
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(raw || '', 'text/html');
+  doc.querySelectorAll('.desc-illustration-img').forEach(img => img.remove());
+  let cleanDesc = doc.body.innerHTML.trim();
+  if (cleanDesc === '<p><br></p>') cleanDesc = '';
+
+  const imgUrl = (document.getElementById('descImgUrl')?.value || '').trim();
+  if (imgUrl) {
+    cleanDesc += '<img src="' + imgUrl + '" class="desc-illustration-img" style="max-width:100%;margin:20px 0;display:block" alt="Ảnh minh họa sản phẩm">';
+  }
+  return cleanDesc;
 }
 
 function addSpecRow(key, val) {
@@ -1106,6 +1245,7 @@ async function toggleProduct(id, checkbox) {
 
 function openProductModal(product = null) {
   initQuill();
+  initDescImg();
   _editingProductId = product ? (product.id || product.Id) : null;
   document.getElementById('productModalTitle').textContent = product ? 'Sửa Sản Phẩm' : 'Thêm Sản Phẩm';
   document.getElementById('p-name').value     = product?.name || product?.Name || '';
@@ -1117,6 +1257,7 @@ function openProductModal(product = null) {
   const catId = product?.categoryId || product?.CategoryId || '';
   document.getElementById('p-category').value = catId;
   setDescription(product?.description || product?.Description || '');
+  loadDescImageFromProduct(product);
   loadSpecsFromJSON(product?.specifications || product?.Specifications || null);
   previewProductImg();
   hideAlert('productAlertBox');
@@ -1137,7 +1278,7 @@ async function saveProduct() {
   const catId    = parseInt(document.getElementById('p-category').value);
   const discount = document.getElementById('p-discount').value ? parseFloat(document.getElementById('p-discount').value) : null;
   const image    = document.getElementById('p-image').value.trim();
-  const desc     = getDescription();
+  const desc     = buildFinalDescription();
   const isActive = document.getElementById('p-active').value === 'true';
 
   if (!name)            { showAlert('productAlertBox','Tên sản phẩm là bắt buộc'); return; }
