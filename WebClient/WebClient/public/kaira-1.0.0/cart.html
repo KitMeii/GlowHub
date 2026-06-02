@@ -210,30 +210,6 @@
         NEWUSER: { type: "fixed", value: 50000, label: "Giảm 50.000₫" },
       };
 
-      const SHIPPING_OPTS = [
-        {
-          id: "standard",
-          name: "Tiêu Chuẩn",
-          sub: "3–5 ngày • GHN / GHTK",
-          fee: 0,
-          free: true,
-        },
-        {
-          id: "express",
-          name: "Nhanh",
-          sub: "1–2 ngày • J&T Express",
-          fee: 25000,
-          free: false,
-        },
-        {
-          id: "sameday",
-          name: "Trong Ngày",
-          sub: "Nội thành trước 22:00",
-          fee: 60000,
-          free: false,
-        },
-      ];
-
       const SUGGESTIONS = [
         {
           id: 901,
@@ -265,7 +241,6 @@
       //  STATE
       // ══════════════════════════════════════════════
       let appliedCoupon = null;
-      let selectedShipping = SHIPPING_OPTS[0]; // default: standard (free)
 
       // ══════════════════════════════════════════════
       //  FORMAT
@@ -367,23 +342,6 @@
                         <div class="summary-body">
                           ${shipBarHTML}
                           ${renderSummaryLines(items)}
-                          <div class="shipping-options">
-                            <p>Phương Thức Vận Chuyển</p>
-                            ${SHIPPING_OPTS.map(
-                              (opt) => `
-                              <label class="shipping-opt">
-                                <input type="radio" name="shipping" value="${opt.id}"
-                                  ${opt.id === selectedShipping.id ? "checked" : ""}
-                                  onchange="selectShipping('${opt.id}')" />
-                                <div class="opt-label">
-                                  ${opt.name}
-                                  <div class="opt-sub">${opt.sub}</div>
-                                </div>
-                                <span class="opt-price ${opt.free ? "free" : ""}">${opt.free ? "Miễn phí" : fmt(opt.fee)}</span>
-                              </label>
-                            `,
-                            ).join("")}
-                          </div>
                           <a href="checkout.html" class="btn-checkout" onclick="saveCartToSession()">
                             Tiến Hành Thanh Toán →
                           </a>
@@ -489,7 +447,6 @@
           (s, i) => s + (i.price || 0) * (i.qty || 1),
           0,
         );
-        const shipFee = selectedShipping.fee;
         let discountAmt = 0;
 
         if (appliedCoupon) {
@@ -497,17 +454,9 @@
             discountAmt = Math.round((subtotal * appliedCoupon.value) / 100);
           else if (appliedCoupon.type === "fixed")
             discountAmt = appliedCoupon.value;
-          else if (appliedCoupon.type === "ship") discountAmt = shipFee;
         }
 
-        const isFreeShip =
-          shipFee === 0 || (appliedCoupon && appliedCoupon.type === "ship");
-        const total = Math.max(
-          0,
-          subtotal +
-            (isFreeShip ? 0 : shipFee) -
-            (appliedCoupon && appliedCoupon.type !== "ship" ? discountAmt : 0),
-        );
+        const total = Math.max(0, subtotal - discountAmt);
 
         return `
           <div class="summary-line">
@@ -516,14 +465,11 @@
           </div>
           <div class="summary-line shipping">
             <span class="label">Vận chuyển</span>
-            <span class="value ${isFreeShip ? "free" : ""}">
-              ${isFreeShip ? "Miễn phí" : fmt(shipFee)}
-            </span>
+            <span class="value" style="color:var(--gray);font-size:12px">Tính ở bước thanh toán</span>
           </div>
           ${
-            discountAmt > 0 && appliedCoupon.type !== "ship"
-              ? `
-            <div class="summary-line discount">
+            discountAmt > 0
+              ? `<div class="summary-line discount">
               <span class="label">Giảm giá (${appliedCoupon.label})</span>
               <span class="value">−${fmt(discountAmt)}</span>
             </div>`
@@ -651,40 +597,25 @@
         }
       }
 
-      function selectShipping(id) {
-        selectedShipping =
-          SHIPPING_OPTS.find((o) => o.id === id) || SHIPPING_OPTS[0];
-        renderSummaryOnly();
-      }
-
       /** Chỉ re-render phần tổng tiền (không rebuild toàn bộ) */
       function renderSummaryOnly() {
         const items =
           typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const summaryBox = document.querySelector(".summary-body");
-        if (!summaryBox) {
-          render();
-          return;
-        }
-        // Re-render only the summary lines (before shipping options)
-        const summaryLines = summaryBox.querySelector(".summary-total");
-        if (summaryLines) {
+        if (!summaryBox) { render(); return; }
+        const hasTotalLine = summaryBox.querySelector(".summary-total");
+        if (hasTotalLine) {
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = renderSummaryLines(items);
-          // Replace lines but keep shipping options + button
-          const existingLines = summaryBox.querySelectorAll(
-            ".summary-line, .summary-total",
-          );
-          existingLines.forEach((el) => el.remove());
-          const shippingSection = summaryBox.querySelector(".shipping-options");
-          summaryBox.insertBefore(tempDiv, shippingSection);
+          summaryBox.querySelectorAll(".summary-line, .summary-total").forEach((el) => el.remove());
+          const checkoutBtn = summaryBox.querySelector(".btn-checkout");
+          summaryBox.insertBefore(tempDiv, checkoutBtn || null);
         } else {
           render();
         }
       }
 
       function saveCartToSession() {
-        // Pass selected shipping to checkout page
         const items =
           typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const subtotal = items.reduce(
@@ -693,11 +624,7 @@
         );
         sessionStorage.setItem(
           "glowhub_checkout",
-          JSON.stringify({
-            shipping: selectedShipping,
-            coupon: appliedCoupon,
-            subtotal,
-          }),
+          JSON.stringify({ coupon: appliedCoupon, subtotal }),
         );
       }
 
