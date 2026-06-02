@@ -453,6 +453,21 @@
       </div>
     </footer>
 
+    <!-- Compare picker modal -->
+    <div class="cmp-picker-modal" id="comparePickerModal">
+      <div class="cmp-picker-overlay" onclick="window.closeComparePicker()"></div>
+      <div class="cmp-picker-box">
+        <div class="cmp-picker-head">
+          <span>Chọn sản phẩm để so sánh</span>
+          <button class="cmp-picker-close" onclick="window.closeComparePicker()">✕</button>
+        </div>
+        <div class="cmp-picker-search-wrap">
+          <input type="search" class="cmp-picker-input" id="comparePickerInput" placeholder="Tìm tên sản phẩm..." autocomplete="off" />
+        </div>
+        <div class="cmp-picker-results" id="comparePickerResults"></div>
+      </div>
+    </div>
+
     <!-- Toast -->
     <div id="ghToast"></div>
 
@@ -1228,10 +1243,14 @@
               '<button class="compare-slot-remove" onclick="window.removeFromCompare(\'' + String(item.id) + '\')">✕</button>' +
               '</div>';
           } else {
-            html += '<div class="compare-slot"></div>';
+            html += '<div class="compare-slot compare-slot-add" onclick="window.openComparePicker()" title="Thêm sản phẩm để so sánh">+</div>';
           }
         }
         slots.innerHTML = html;
+        const label = bar.querySelector('.compare-bar-label');
+        if (label) label.textContent = 'So sánh (' + compare.length + '/3)';
+        const goBtn = bar.querySelector('.compare-bar-go');
+        if (goBtn) goBtn.disabled = compare.length < 2;
         if (compare.length > 0) {
           bar.classList.add('visible');
         } else {
@@ -1258,7 +1277,80 @@
       };
 
       window.goCompare = function() {
+        const cmp = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+        if (cmp.length < 2) {
+          showToast('⚠️ Cần ít nhất 2 sản phẩm để so sánh', 'warn');
+          window.openComparePicker();
+          return;
+        }
         location.href = 'compare.html';
+      };
+
+      /* ── Compare picker ── */
+      window.openComparePicker = function() {
+        const modal = $('comparePickerModal');
+        if (!modal) return;
+        modal.classList.add('open');
+        const input = $('comparePickerInput');
+        if (input) { input.value = ''; input.focus(); }
+        _loadPickerProducts('');
+      };
+
+      window.closeComparePicker = function() {
+        const modal = $('comparePickerModal');
+        if (modal) modal.classList.remove('open');
+      };
+
+      function _loadPickerProducts(query) {
+        const results = $('comparePickerResults');
+        if (!results) return;
+        results.innerHTML = '<p class="cmp-picker-msg">Đang tải...</p>';
+        const url = API + '/api/products?' + (query ? 'search=' + encodeURIComponent(query) + '&' : '') + 'limit=10';
+        fetch(url)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            const list = Array.isArray(data) ? data : (data.products || data.items || data.data || []);
+            const compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+            const inCmp = compare.map(function(x) { return String(x.id); });
+            if (!list.length) {
+              results.innerHTML = '<p class="cmp-picker-msg">Không tìm thấy sản phẩm</p>';
+              return;
+            }
+            results.innerHTML = list.map(function(p) {
+              const pid   = String(p.Id || p.id);
+              const pname = p.Name || p.name || '';
+              const pprice= p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+              const pimg  = p.imageUrl || p.ImageUrl || '';
+              const done  = inCmp.includes(pid) || String(productId) === pid;
+              const safeName = pname.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+              const safeImg  = pimg.replace(/'/g,"\\'");
+              return '<div class="cmp-picker-item' + (done ? ' cmp-picker-item-done' : '') + '"' +
+                (done ? '' : ' onclick="window.addToCompareFromPicker(\'' + pid + '\',\'' + safeName + '\',' + pprice + ',\'' + safeImg + '\')"') + '>' +
+                '<img src="' + pimg + '" alt="" onerror="this.src=\'https://placehold.co/48x48/f8f5f0/ccc?text=G\'">' +
+                '<div class="cmp-picker-info">' +
+                '<p class="cmp-picker-name">' + pname + '</p>' +
+                '<p class="cmp-picker-price">' + fmt(pprice) + '</p>' +
+                '</div>' +
+                (done
+                  ? '<span class="cmp-picker-added">✓</span>'
+                  : '<span class="cmp-picker-add">+</span>') +
+                '</div>';
+            }).join('');
+          })
+          .catch(function() {
+            results.innerHTML = '<p class="cmp-picker-msg">Lỗi tải sản phẩm</p>';
+          });
+      }
+
+      window.addToCompareFromPicker = function(id, name, price, image) {
+        let compare = JSON.parse(localStorage.getItem('gh_compare') || '[]');
+        if (compare.length >= 3) return;
+        if (compare.find(function(x) { return String(x.id) === String(id); })) return;
+        compare.push({ id: id, name: name, price: price, image: image });
+        localStorage.setItem('gh_compare', JSON.stringify(compare));
+        updateCompareBar();
+        window.closeComparePicker();
+        showToast('✓ Đã thêm "' + name + '" vào so sánh', 'ok');
       };
 
       /* ── Toast ── */
@@ -1284,6 +1376,19 @@
       document.addEventListener('DOMContentLoaded', function() {
         loadProduct();
         updateCompareBar();
+        // Picker search debounce
+        const _pi = $('comparePickerInput');
+        if (_pi) {
+          let _pt;
+          _pi.addEventListener('input', function() {
+            clearTimeout(_pt);
+            _pt = setTimeout(function() { _loadPickerProducts(_pi.value.trim()); }, 300);
+          });
+        }
+        // Close picker on Escape
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') window.closeComparePicker();
+        });
       });
 
     })();
