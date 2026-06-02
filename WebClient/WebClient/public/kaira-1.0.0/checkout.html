@@ -1033,6 +1033,27 @@
         });
       }
 
+      // ── Sync localStorage cart → DB (backend checkout reads from DB, not body) ──
+      function syncCartToDB() {
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'glowhub_cart';
+        var items = [];
+        try { items = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+        if (!items.length) return Promise.resolve();
+
+        return apiFetch(PRODUCT_API, '/api/cart/clear', 'DELETE')
+          .catch(function () { return null; })
+          .then(function () {
+            var adds = items.map(function (item) {
+              var pid = parseInt(item.id || item.Id || 0, 10);
+              var qty = parseInt(item.qty || item.quantity || 1, 10);
+              if (!pid || qty < 1) return Promise.resolve();
+              return apiFetch(PRODUCT_API, '/api/cart/add', 'POST', { ProductId: pid, Quantity: qty })
+                .catch(function (e) { console.warn('[Cart sync] item', pid, 'failed:', e.message); });
+            });
+            return Promise.all(adds);
+          });
+      }
+
       // ── Place Order ──
       function placeOrder() {
         if (!cartItems.length) { showToast('Giỏ hàng trống!', 'err'); return; }
@@ -1061,6 +1082,7 @@
         };
 
         Promise.resolve()
+        .then(function () { return syncCartToDB(); })
         .then(function () {
           return typeof Order !== 'undefined'
             ? Order.checkout(payload)
