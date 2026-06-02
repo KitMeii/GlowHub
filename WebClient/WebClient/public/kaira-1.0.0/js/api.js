@@ -484,6 +484,39 @@ function _fmtMoney(n) {
 }
 
 // ============================================================
+//  PRODUCT IMAGE HELPERS
+//  ImageUrl trong DB có thể là:
+//   - JSON array string: '["url1","url2",...]' (sản phẩm nhiều ảnh)
+//   - Single URL string: 'https://...' (backward compatible)
+//   - Rỗng/null
+// ============================================================
+function parseProductImages(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.filter(Boolean);
+  const s = String(raw).trim();
+  if (!s) return [];
+  if (s.startsWith("[")) {
+    try {
+      const arr = JSON.parse(s);
+      if (Array.isArray(arr)) return arr.filter(Boolean);
+    } catch (_) {}
+  }
+  return [s];
+}
+
+function pickFirstImage(raw) {
+  const arr = parseProductImages(raw);
+  return arr.length ? arr[0] : "";
+}
+
+/** Lấy danh sách ảnh từ product object (xét cả PascalCase và camelCase) */
+function getProductImageList(p) {
+  if (!p) return [];
+  const raw = p.ImageUrl || p.imageUrl || p.Image || p.image || "";
+  return parseProductImages(raw);
+}
+
+// ============================================================
 //  TOAST HELPER
 // ============================================================
 function showGlobalToast(msg, type = "success") {
@@ -596,7 +629,7 @@ async function renderProductsOnIndex() {
       const id = p.Id || p.id;
       const name = p.Name || p.name || "Sản phẩm";
       const price = p.Price || p.price || 0;
-      const img = p.Image || p.image || p.ImageUrl || p.imageUrl || "";
+      const img = pickFirstImage(p.Image || p.image || p.ImageUrl || p.imageUrl || "");
       const isNew = p.IsNew || p.isNew;
       const sale = p.SalePercent || p.salePercent || p.discount;
 

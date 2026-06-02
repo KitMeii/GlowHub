@@ -2512,6 +2512,16 @@
             <div class="col-12">
               <div class="form-group-admin">
                 <label class="form-label-admin">Hình Ảnh Sản Phẩm</label>
+                <div
+                  style="
+                    font-size: 11px;
+                    color: #888;
+                    margin-bottom: 8px;
+                  "
+                >
+                  Có thể thêm nhiều ảnh. Ảnh đầu tiên sẽ là ảnh đại diện.
+                  Bấm vào một ảnh để đặt làm ảnh chính.
+                </div>
                 <!-- Tab chọn nguồn ảnh -->
                 <div
                   style="
@@ -2521,7 +2531,6 @@
                     border: 1px solid #e0e0e0;
                   "
                 >
-                  <!-- FIX: type="button" bắt buộc để không trigger submit -->
                   <button
                     type="button"
                     id="imgTabUrl"
@@ -2559,24 +2568,34 @@
                     📤 Tải lên
                   </button>
                 </div>
-                <!-- Tab URL -->
+                <!-- Tab URL: nhập + nút Thêm -->
                 <div id="imgPanelUrl">
-                  <input
-                    type="text"
-                    class="form-control-admin"
-                    id="productImage"
-                    placeholder="https://example.com/image.jpg"
-                    oninput="previewImageFromUrl(this.value)"
-                    style="margin-bottom: 8px"
-                  />
+                  <div style="display: flex; gap: 6px; margin-bottom: 8px">
+                    <input
+                      type="text"
+                      class="form-control-admin"
+                      id="productImageUrlInput"
+                      placeholder="https://example.com/image.jpg"
+                      style="flex: 1"
+                      onkeydown="if(event.key==='Enter'){event.preventDefault();addImageFromUrlInput();}"
+                    />
+                    <button
+                      type="button"
+                      class="btn-admin btn-primary-admin"
+                      onclick="addImageFromUrlInput()"
+                      style="white-space: nowrap"
+                    >
+                      + Thêm
+                    </button>
+                  </div>
                 </div>
                 <!-- Tab Upload -->
                 <div id="imgPanelUpload" style="display: none">
-                  <!-- FIX: type="button" bắt buộc -->
                   <input
                     type="file"
                     id="imgFileInput"
                     accept="image/*"
+                    multiple
                     style="display: none"
                   />
                   <button
@@ -2585,7 +2604,7 @@
                     class="btn-admin btn-outline-admin"
                     style="width: 100%"
                   >
-                    📤 Chọn ảnh từ máy
+                    📤 Chọn ảnh từ máy (có thể chọn nhiều)
                   </button>
                   <div
                     id="uploadProgress"
@@ -2617,9 +2636,11 @@
                     </div>
                   </div>
                 </div>
-                <!-- Preview -->
+                <!-- Hidden field: JSON array các URL -->
+                <input type="hidden" id="productImage" value="" />
+                <!-- Gallery preview -->
                 <div
-                  id="imgPreviewWrap"
+                  id="imgGalleryWrap"
                   style="margin-top: 10px; display: none"
                 >
                   <div
@@ -2628,57 +2649,17 @@
                       text-transform: uppercase;
                       letter-spacing: 1px;
                       color: #999;
-                      margin-bottom: 5px;
+                      margin-bottom: 8px;
                     "
                   >
-                    Xem Trước
-                  </div>
-                  <div style="position: relative; display: inline-block">
-                    <img
-                      id="imgPreview"
-                      src=""
-                      alt="preview"
-                      style="
-                        width: 120px;
-                        height: 150px;
-                        object-fit: cover;
-                        border: 1px solid #e0e0e0;
-                        display: block;
-                      "
-                    />
-                    <!-- FIX: type="button" bắt buộc -->
-                    <button
-                      type="button"
-                      onclick="clearImage()"
-                      style="
-                        position: absolute;
-                        top: -8px;
-                        right: -8px;
-                        width: 22px;
-                        height: 22px;
-                        border-radius: 50%;
-                        background: #ef4444;
-                        color: #fff;
-                        border: none;
-                        cursor: pointer;
-                        font-size: 13px;
-                        line-height: 1;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      "
-                    >
-                      ×
-                    </button>
+                    <span id="imgGalleryCount">0</span> ảnh — ảnh đầu là ảnh chính
                   </div>
                   <div
-                    id="imgPreviewUrl"
+                    id="imgGalleryList"
                     style="
-                      font-size: 11px;
-                      color: #666;
-                      margin-top: 4px;
-                      word-break: break-all;
-                      max-width: 300px;
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 8px;
                     "
                   ></div>
                 </div>
@@ -3876,9 +3857,10 @@
             const found = allCategories.find((c) => c.id == categoryId);
             if (found) categoryName = found.name;
           }
-          // Dùng resolveImageUrl để tự ghép PRODUCT_API cho URL relative (/uploads/...)
-          const imgSrc = imageUrl
-            ? resolveImageUrl(imageUrl)
+          // ImageUrl có thể là JSON array → lấy ảnh đầu làm thumbnail
+          const firstImg = parseProductImages(imageUrl)[0] || "";
+          const imgSrc = firstImg
+            ? resolveImageUrl(firstImg)
             : "https://placehold.co/42x42/f5f0ea/999?text=NO-IMG";
           html += `<tr>
             <td><div class="d-flex align-items-center gap-3">
@@ -3951,7 +3933,7 @@
           document.getElementById(id).value = "";
         });
         document.getElementById("productStatus").value = "true";
-        clearImagePreview();
+        setProductImages([]);
         if (allCategories.length === 0) await loadCategoriesForProduct();
         const catSelect = document.getElementById("productCategory");
         if (catSelect) {
@@ -3981,12 +3963,10 @@
           (p.isActive ?? p.IsActive) ? "true" : "false";
         document.getElementById("productDescription").value =
           p.description || p.Description || "";
-        // Normalize URL ảnh từ DB sang absolute để preview + save sau này đều OK
+        // Parse danh sách ảnh (JSON array hoặc single URL) → absolute URL
         const rawImg = p.imageUrl || p.ImageUrl || p.image || "";
-        const imageUrl = rawImg ? resolveImageUrl(rawImg) : "";
-        document.getElementById("productImage").value = imageUrl;
-        if (imageUrl) showImgPreview(imageUrl);
-        else clearImagePreview();
+        const imgs = parseProductImages(rawImg).map(resolveImageUrl);
+        setProductImages(imgs);
         if (allCategories.length === 0) await loadCategoriesForProduct();
         const catSelect = document.getElementById("productCategory");
         if (catSelect) {
@@ -4014,14 +3994,22 @@
         const isActive =
           document.getElementById("productStatus").value === "true";
         const description = document.getElementById("productDescription").value;
-        const image = document.getElementById("productImage").value;
-        if (image && image.startsWith("data:image")) {
+        // Lấy danh sách ảnh từ state gallery (đã được hidden field sync)
+        const images = productImageList.slice();
+        if (images.some((u) => u && u.startsWith("data:image"))) {
           showToast(
             "Không thể lưu ảnh dạng base64. Vui lòng upload lại hoặc nhập URL.",
             "error",
           );
           return;
         }
+        // Backend chỉ có 1 cột ImageUrl → serialize:
+        //  - 0 ảnh: ""
+        //  - 1 ảnh: giữ nguyên URL (tương thích ngược)
+        //  - >=2 ảnh: JSON array string
+        let imageField = "";
+        if (images.length === 1) imageField = images[0];
+        else if (images.length > 1) imageField = JSON.stringify(images);
         const btn = document.getElementById("saveProductBtn");
         btn.disabled = true;
         btn.innerText = "Đang lưu...";
@@ -4032,7 +4020,7 @@
           Stock: stock,
           IsActive: isActive,
           Description: description,
-          ImageUrl: image,
+          ImageUrl: imageField,
         };
         if (editingProductId && window._rowVersion)
           data.RowVersion = window._rowVersion;
@@ -6476,64 +6464,119 @@
       }
 
       function previewImageFromUrl(url) {
-        if (!url || !url.trim()) {
-          clearImagePreview();
+        // Giữ lại stub để các listener cũ (nếu có) không vỡ — không dùng nữa.
+      }
+
+      // ============================================================
+      //  MULTI-IMAGE GALLERY STATE
+      //  productImageList: array các absolute URL (ảnh đầu = ảnh chính)
+      // ============================================================
+      var productImageList = [];
+
+      // ImageUrl trong DB có thể là JSON array string hoặc 1 URL đơn → cùng parse về array
+      function parseProductImages(raw) {
+        if (!raw) return [];
+        if (Array.isArray(raw)) return raw.filter(Boolean);
+        const s = String(raw).trim();
+        if (!s) return [];
+        if (s.startsWith("[")) {
+          try {
+            const arr = JSON.parse(s);
+            if (Array.isArray(arr)) return arr.filter(Boolean);
+          } catch (_) {}
+        }
+        return [s];
+      }
+
+      function setProductImages(list) {
+        productImageList = Array.isArray(list)
+          ? list.filter((u) => u && String(u).trim()).map((u) => String(u).trim())
+          : [];
+        renderProductImages();
+      }
+
+      function addProductImage(url) {
+        if (!url) return;
+        const u = String(url).trim();
+        if (!u) return;
+        if (productImageList.includes(u)) {
+          showToast("Ảnh này đã có trong danh sách", "error");
           return;
         }
-        showImgPreview(url);
+        productImageList.push(u);
+        renderProductImages();
       }
 
-      function showImgPreview(url) {
+      function removeProductImage(index) {
+        if (index < 0 || index >= productImageList.length) return;
+        productImageList.splice(index, 1);
+        renderProductImages();
+      }
+
+      function setAsCoverImage(index) {
+        if (index <= 0 || index >= productImageList.length) return;
+        const [item] = productImageList.splice(index, 1);
+        productImageList.unshift(item);
+        renderProductImages();
+      }
+
+      function renderProductImages() {
+        const wrap = document.getElementById("imgGalleryWrap");
+        const list = document.getElementById("imgGalleryList");
+        const countEl = document.getElementById("imgGalleryCount");
+        const hidden = document.getElementById("productImage");
+        if (!wrap || !list) return;
+        if (productImageList.length === 0) {
+          wrap.style.display = "none";
+          list.innerHTML = "";
+          if (countEl) countEl.textContent = "0";
+          if (hidden) hidden.value = "";
+          return;
+        }
+        wrap.style.display = "block";
+        if (countEl) countEl.textContent = String(productImageList.length);
+        if (hidden)
+          hidden.value =
+            productImageList.length === 1
+              ? productImageList[0]
+              : JSON.stringify(productImageList);
+        list.innerHTML = productImageList
+          .map(
+            (url, i) => `
+            <div style="position:relative;width:96px">
+              <img src="${url}"
+                   alt="ảnh ${i + 1}"
+                   onclick="setAsCoverImage(${i})"
+                   title="${i === 0 ? "Ảnh chính" : "Bấm để đặt làm ảnh chính"}"
+                   style="width:96px;height:96px;object-fit:cover;
+                          border:2px solid ${i === 0 ? "#f759ab" : "#e0e0e0"};
+                          cursor:${i === 0 ? "default" : "pointer"};display:block"
+                   onerror="this.style.background='#fce4ec';this.alt='⚠'" />
+              ${
+                i === 0
+                  ? '<div style="position:absolute;left:0;bottom:0;background:#f759ab;color:#fff;font-size:9px;padding:2px 6px;letter-spacing:1px">CHÍNH</div>'
+                  : ""
+              }
+              <button type="button"
+                onclick="removeProductImage(${i})"
+                title="Xóa ảnh"
+                style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;
+                       border-radius:50%;background:#ef4444;color:#fff;border:none;
+                       cursor:pointer;font-size:12px;line-height:1;
+                       display:flex;align-items:center;justify-content:center">×</button>
+            </div>
+          `,
+          )
+          .join("");
+      }
+
+      function addImageFromUrlInput() {
+        const inp = document.getElementById("productImageUrlInput");
+        if (!inp) return;
+        const url = inp.value.trim();
         if (!url) return;
-        var wrap = document.getElementById("imgPreviewWrap");
-        var img = document.getElementById("imgPreview");
-        var lbl = document.getElementById("imgPreviewUrl");
-        if (wrap) wrap.style.display = "block";
-        if (img) {
-          // Khôi phục style preview phòng khi đã bị onerror trước đó set ẩn
-          img.style.display = "block";
-          img.style.background = "";
-          img.alt = "preview";
-          img.src = resolveImageUrl(url);
-          img.onerror = function () {
-            // KHÔNG ẩn wrap — vẫn cho user thấy URL đang lưu là gì
-            img.style.display = "none";
-            if (lbl) {
-              lbl.style.color = "#dc2626";
-              lbl.innerHTML =
-                "⚠ Không tải được ảnh từ URL này. Kiểm tra lại đường dẫn.<br><span style='color:#666'>" +
-                (img.src.length > 80
-                  ? img.src.substring(0, 80) + "…"
-                  : img.src) +
-                "</span>";
-            }
-          };
-          img.onload = function () {
-            if (lbl) {
-              lbl.style.color = "#666";
-              lbl.textContent =
-                url.length > 60 ? url.substring(0, 60) + "..." : url;
-            }
-          };
-        }
-        if (lbl) {
-          lbl.style.color = "#666";
-          lbl.textContent =
-            url.length > 60 ? url.substring(0, 60) + "..." : url;
-        }
-      }
-
-      function clearImagePreview() {
-        var wrap = document.getElementById("imgPreviewWrap");
-        var img = document.getElementById("imgPreview");
-        if (wrap) wrap.style.display = "none";
-        if (img) img.src = "";
-      }
-
-      function clearImage() {
-        var field = document.getElementById("productImage");
-        if (field) field.value = "";
-        clearImagePreview();
+        addProductImage(resolveImageUrl(url));
+        inp.value = "";
       }
 
       function uploadImageFile(file) {
@@ -6589,9 +6632,8 @@
               statusDiv.textContent = "✓ Tải lên thành công!";
               statusDiv.style.color = "#22c55e";
             }
-            // Lưu URL absolute vào input ẩn → saveProduct sẽ gửi cái này lên backend
-            document.getElementById("productImage").value = absUrl;
-            showImgPreview(absUrl);
+            // Thêm ảnh mới vào gallery (giữ các ảnh hiện có)
+            addProductImage(absUrl);
             setTimeout(() => {
               if (progress) progress.style.display = "none";
             }, 2000);
@@ -6663,7 +6705,7 @@
           });
           fileInput.addEventListener("change", function (e) {
             if (e.target.files && e.target.files.length) {
-              uploadImageFile(e.target.files[0]);
+              Array.from(e.target.files).forEach((f) => uploadImageFile(f));
               e.target.value = "";
             }
           });

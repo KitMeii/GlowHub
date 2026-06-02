@@ -1017,10 +1017,7 @@
         var price = p.Price || p.price || 0;
         var oldP = p.DiscountPrice || p.discountPrice || null;
         var img =
-          p.ImageUrl ||
-          p.imageUrl ||
-          p.Image ||
-          p.image ||
+          pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image) ||
           "images/product-item-1.jpg";
         var isNew = p.IsNew || p.isNew;
         var disc =
@@ -1079,10 +1076,7 @@
         var price = p.Price || p.price || 0;
         var oldP = p.DiscountPrice || p.discountPrice || null;
         var img =
-          p.ImageUrl ||
-          p.imageUrl ||
-          p.Image ||
-          p.image ||
+          pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image) ||
           "images/product-item-1.jpg";
         var desc = p.Description || p.description || "";
         var isNew = p.IsNew || p.isNew;
@@ -1234,10 +1228,7 @@
             var name = p.Name || p.name || "";
             var price = p.Price || p.price || 0;
             var img =
-              p.ImageUrl ||
-              p.imageUrl ||
-              p.Image ||
-              p.image ||
+              pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image) ||
               "images/product-item-1.jpg";
             var cat =
               (p.Category && (p.Category.Name || p.Category.name)) || "";

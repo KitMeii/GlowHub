@@ -1348,11 +1348,9 @@
               );
               const price = p.price || p.Price || 0;
               const img =
-                p.imageUrl ||
-                p.ImageUrl ||
-                p.image ||
-                p.Image ||
-                UNSPLASH_FALLBACK;
+                pickFirstImage(
+                  p.imageUrl || p.ImageUrl || p.image || p.Image,
+                ) || UNSPLASH_FALLBACK;
               const isNew = p.isNew || p.IsNew;
               const sale = p.salePercent || p.SalePercent || p.discount;
               return `
@@ -1626,11 +1624,9 @@
                   var name = p.Name || p.name || "SP";
                   var price = p.Price || p.price || 0;
                   var img =
-                    p.ImageUrl ||
-                    p.imageUrl ||
-                    p.Image ||
-                    p.image ||
-                    "images/product-item-1.jpg";
+                    pickFirstImage(
+                      p.ImageUrl || p.imageUrl || p.Image || p.image,
+                    ) || "images/product-item-1.jpg";
                   var isNew = p.IsNew || p.isNew;
                   var safeName = name.replace(/'/g, "&#39;");
                   var card = '<div class="col-6 col-md-3">';

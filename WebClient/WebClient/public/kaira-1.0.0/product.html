@@ -1279,12 +1279,11 @@
         const price = p.Price || p.price || 0;
         const oldPrice = p.DiscountPrice || p.discountPrice || null;
         const stock = p.Stock ?? p.stock ?? 0;
-        const img =
-          p.ImageUrl ||
-          p.imageUrl ||
-          p.Image ||
-          p.image ||
-          "images/product-item-1.jpg";
+        // Parse danh sách ảnh — hỗ trợ JSON array hoặc 1 URL đơn (backward compat)
+        const imgList = (typeof getProductImageList === "function"
+          ? getProductImageList(p)
+          : [p.ImageUrl || p.imageUrl || p.Image || p.image].filter(Boolean));
+        const img = imgList[0] || "images/product-item-1.jpg";
         const desc = p.Description || p.description || "";
         const cat =
           p.Category?.Name ||
@@ -1304,19 +1303,14 @@
         document.getElementById("mainImage").src = img;
         document.getElementById("mainImage").alt = name;
 
-        // Thumbnail gallery — use same image + placeholder extras
-        const thumbImgs = [
-          img,
-          "images/product-item-2.jpg",
-          "images/product-item-3.jpg",
-          "images/product-item-4.jpg",
-        ];
+        // Thumbnail gallery — chỉ render ảnh thật của sản phẩm
+        const thumbImgs = imgList.length > 0 ? imgList : [img];
         document.getElementById("thumbGallery").innerHTML = thumbImgs
           .map(
             (src, i) =>
               `<img loading="lazy" src="${src}" class="product-thumb ${i === 0 ? "active" : ""}" alt="ảnh ${i + 1}"
           onerror="this.src='images/product-item-1.jpg'"
-          onclick="switchMainImg(this,'${src}')" />`,
+          onclick="switchMainImg(this,'${src.replace(/'/g, "\\'")}')" />`,
           )
           .join("");
 
@@ -1406,8 +1400,8 @@
               name: p.Name || p.name,
               Price: p.Price || p.price,
               price: p.Price || p.price,
-              Image: p.ImageUrl || p.imageUrl || p.Image || p.image,
-              image: p.ImageUrl || p.imageUrl || p.Image || p.image,
+              Image: pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image),
+              image: pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image),
             },
             qty,
           );
@@ -1438,11 +1432,9 @@
               const name = p.Name || p.name || "Sản phẩm";
               const price = p.Price || p.price || 0;
               const img =
-                p.ImageUrl ||
-                p.imageUrl ||
-                p.Image ||
-                p.image ||
-                "images/product-item-1.jpg";
+                pickFirstImage(
+                  p.ImageUrl || p.imageUrl || p.Image || p.image,
+                ) || "images/product-item-1.jpg";
               return `
         <div class="col-6 col-md-3">
           <div class="related-card">
