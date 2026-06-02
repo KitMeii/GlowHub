@@ -47,7 +47,7 @@ namespace BaseCore.APIService.Controllers
         /// Create new category
         /// </summary>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CategoryDto dto)
         {
             var existing = await _categoryRepository.GetByNameAsync(dto.Name);
@@ -68,7 +68,7 @@ namespace BaseCore.APIService.Controllers
         /// Update category
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryDto dto)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
@@ -86,7 +86,7 @@ namespace BaseCore.APIService.Controllers
         /// Delete category
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);

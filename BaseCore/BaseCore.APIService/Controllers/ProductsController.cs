@@ -61,7 +61,7 @@ namespace BaseCore.APIService.Controllers
         /// Create new product (requires authentication)
         /// </summary>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
             // Validate category exists
@@ -89,7 +89,7 @@ namespace BaseCore.APIService.Controllers
         /// Update product (requires authentication)
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductUpdateDto dto)
         {
 
@@ -112,7 +112,7 @@ namespace BaseCore.APIService.Controllers
         /// Delete product (requires authentication)
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
@@ -133,7 +133,7 @@ namespace BaseCore.APIService.Controllers
             return Ok(products);
         }
         [HttpPost("upload-image")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             try
@@ -169,7 +169,7 @@ namespace BaseCore.APIService.Controllers
             }
         }
         [HttpGet("images")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetImages()
         {
             var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");

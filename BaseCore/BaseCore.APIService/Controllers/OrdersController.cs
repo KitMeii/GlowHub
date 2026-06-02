@@ -359,6 +359,33 @@ namespace BaseCore.APIService.Controllers
                 if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng." });
 
                 var oldStatus = order.Status;
+
+                // ★ STATE MACHINE: chỉ cho tiến đúng 1 bước, hoặc hủy (trừ đơn đã giao/đã hủy)
+                //   PENDING → CONFIRMED | CANCELLED
+                //   CONFIRMED → SHIPPING | CANCELLED
+                //   SHIPPING → COMPLETED | CANCELLED
+                //   COMPLETED & CANCELLED là terminal
+                var allowedNext = new Dictionary<string, string[]>
+                {
+                    { OrderStatus.Pending,   new[] { OrderStatus.Confirmed, OrderStatus.Cancelled } },
+                    { OrderStatus.Confirmed, new[] { OrderStatus.Shipping,  OrderStatus.Cancelled } },
+                    { OrderStatus.Shipping,  new[] { OrderStatus.Completed, OrderStatus.Cancelled } },
+                    { OrderStatus.Completed, Array.Empty<string>() },
+                    { OrderStatus.Cancelled, Array.Empty<string>() },
+                };
+                if (oldStatus != dto.Status)
+                {
+                    if (!allowedNext.TryGetValue(oldStatus ?? "", out var next)
+                        || !next.Contains(dto.Status))
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new
+                        {
+                            message = $"Không thể chuyển trạng thái từ '{oldStatus}' sang '{dto.Status}'."
+                        });
+                    }
+                }
+
                 order.Status = dto.Status;
                 order.UpdatedAt = DateTime.Now;
 
