@@ -210,32 +210,6 @@
         NEWUSER: { type: "fixed", value: 50000, label: "Giảm 50.000₫" },
       };
 
-      const SUGGESTIONS = [
-        {
-          id: 901,
-          name: "Serum Vitamin C",
-          price: 285000,
-          img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80",
-        },
-        {
-          id: 902,
-          name: "Toner Hoa Hồng",
-          price: 195000,
-          img: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80",
-        },
-        {
-          id: 903,
-          name: "Kem Chống Nắng",
-          price: 320000,
-          img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80",
-        },
-        {
-          id: 904,
-          name: "Son Lì Đỏ",
-          price: 145000,
-          img: "https://images.unsplash.com/photo-1586495777744-4e6232bf2263?w=400&q=80",
-        },
-      ];
 
       // ══════════════════════════════════════════════
       //  STATE
@@ -401,20 +375,22 @@
           .join("");
       }
 
+      function getProductImage(p) {
+        return p.imageUrl || p.ImageUrl || p.image || p.Image
+          || p.thumbnail || p.Thumbnail || p.img
+          || 'https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub';
+      }
+
       function renderItem(item) {
         const id = item.id || item.Id;
         const name = item.name || item.Name || "Sản phẩm";
         const price = item.price || item.Price || 0;
         const qty = item.qty || 1;
-        const img = item.image || item.Image || "";
+        const img = getProductImage(item);
         const cat = item.category || item.Category || "";
 
-        // Logic xử lý ảnh lỗi sạch hơn
-        const imgHTML = img
-          ? `<img loading="lazy" class="item-img" src="${img}" alt="${name}"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
-                   <div class="item-img-placeholder" style="display:none">🛍</div>`
-          : `<div class="item-img-placeholder">🛍</div>`;
+        const imgHTML = `<img loading="lazy" class="item-img" src="${img}" alt="${name}"
+                        onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" />`;
 
         return `
                 <div class="cart-item" id="item-row-${id}" data-id="${id}">
@@ -481,57 +457,67 @@
           </div>`;
       }
 
-      function renderSuggestions() {
+      async function loadSuggestedProducts() {
         const sec = document.getElementById("recently-section");
         const grid = document.getElementById("recently-grid");
         if (!sec || !grid) return;
-        sec.style.display = "block";
+        try {
+          const token = localStorage.getItem("token");
+          const headers = token ? { Authorization: "Bearer " + token } : {};
+          const res = await fetch(
+            "http://localhost:5001/api/products?pageSize=8&isActive=true",
+            { headers }
+          );
+          if (!res.ok) throw new Error(res.status);
+          const data = await res.json();
+          const all = Array.isArray(data) ? data : (data.items || data.data || data.products || []);
+          if (!all.length) { sec.style.display = "none"; return; }
 
-        // Mặc định dùng danh sách tĩnh
-        let prods = typeof SUGGESTIONS !== "undefined" ? SUGGESTIONS : [];
+          const cartKey = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "glowhub_cart";
+          const cartIds = new Set(
+            JSON.parse(localStorage.getItem(cartKey) || "[]").map((x) => String(x.id || x.Id))
+          );
+          const filtered = all.filter((p) => !cartIds.has(String(p.id || p.Id))).slice(0, 4);
+          if (!filtered.length) { sec.style.display = "none"; return; }
 
-        if (typeof Product !== "undefined" && Product.getAll) {
-          Product.getAll({ limit: 4, isActive: true })
-            .then((res) => {
-              const list = Array.isArray(res)
-                ? res
-                : res.data || res.items || [];
-              if (list.length > 0) {
-                grid.innerHTML = list
-                  .slice(0, 4)
-                  .map((p) => suggestionCard(p))
-                  .join("");
-              }
-            })
-            .catch(() => {
-              grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
-            });
-        } else {
-          grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
+          sec.style.display = "block";
+          grid.innerHTML = filtered.map((p) => suggestionCard(p)).join("");
+        } catch (e) {
+          console.warn("loadSuggestedProducts:", e);
+          sec.style.display = "none";
         }
       }
 
       function suggestionCard(p) {
         const id = p.Id || p.id;
-        const name = p.Name || p.name;
-        const price = p.Price || p.price;
-        const img = p.Image || p.image || p.img;
-
-        // Dùng JSON.stringify an toàn để truyền dữ liệu vào hàm quickAdd
-        const productData = JSON.stringify(p).replace(/"/g, "'");
+        const name = p.Name || p.name || "Sản phẩm";
+        const price = p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+        const origPrice = p.Price || p.price || 0;
+        const img = getProductImage(p);
 
         return `
-    <div class="recent-card">
+    <div class="recent-card" onclick="location.href='product.html?id=${id}'" style="cursor:pointer">
       <img loading="lazy" src="${img}" alt="${name}"
-           onerror="this.src='https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80'" />
+           onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" />
       <div class="recent-card-info">
         <div class="recent-card-name">${name}</div>
-        <div class="recent-card-price">${fmt(price)}</div>
-        <button class="recent-card-btn" onclick="quickAdd(${productData})">
+        <div class="recent-card-price">${fmt(price)}${price < origPrice ? `<span style="font-size:11px;color:#aaa;text-decoration:line-through;margin-left:6px">${fmt(origPrice)}</span>` : ""}</div>
+        <button class="recent-card-btn" onclick="event.stopPropagation();quickAddSuggest('${id}','${name.replace(/'/g, "&#39;")}',${price},'${img}')">
           + Thêm Vào Giỏ
         </button>
       </div>
     </div>`;
+      }
+
+      function quickAddSuggest(id, name, price, image) {
+        if (typeof Cart !== "undefined") {
+          Cart.add({ id, name, price, image, qty: 1 });
+        } else {
+          _localAdd({ id, name, price, image });
+        }
+        toast('Đã thêm "' + name + '" vào giỏ hàng');
+        render();
+        loadSuggestedProducts();
       }
       // ══════════════════════════════════════════════
       //  ACTIONS
@@ -628,14 +614,6 @@
         );
       }
 
-      function quickAdd(p) {
-        const prod =
-          typeof p === "string" ? JSON.parse(p.replace(/'/g, '"')) : p;
-        if (typeof Cart !== "undefined") Cart.add(prod);
-        else _localAdd(prod);
-        toast('Đã thêm "' + (prod.name || prod.Name) + '" vào giỏ hàng');
-        render();
-      }
 
       // ══════════════════════════════════════════════
       //  LOCAL CART FALLBACK (if api.js Cart not loaded)
@@ -683,19 +661,9 @@
       //  INIT
       // ══════════════════════════════════════════════
       document.addEventListener("DOMContentLoaded", function () {
-        // Render nav user if api.js loaded
         if (typeof renderNavUser === "function") renderNavUser();
-
         render();
-        renderSuggestions();
-
-        // If cart is not empty, don't show suggestions prominently
-        const items =
-          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
-        if (items.length > 0) {
-          const sec = document.getElementById("recently-section");
-          if (sec) sec.style.display = "block";
-        }
+        loadSuggestedProducts();
       });
     </script>
     <script src="js/gsap.js" defer></script>
