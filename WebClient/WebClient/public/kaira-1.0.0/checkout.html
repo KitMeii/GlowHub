@@ -611,6 +611,7 @@
             + '<p>Giỏ hàng trống. <a href="shop.html" style="color:var(--pink)">Tiếp tục mua sắm</a></p></div>';
           return;
         }
+        // Flat list shown immediately while grouped data loads
         el.innerHTML = cartItems.map(function (item) {
           return '<div class="cart-item-row">'
             + '<img src="' + _itemImg(item) + '" class="ci-img" onerror="this.src=\'https://placehold.co/52x64/f5f0ea/888?text=IMG\'">'
@@ -619,6 +620,45 @@
             + '<div class="ci-price">' + fmt(_itemPrice(item) * _itemQty(item)) + '</div>'
             + '</div>';
         }).join('');
+
+        if (typeof Cart === 'undefined' || !Cart.getGrouped) return;
+        var addr = selectedAddrId
+          ? savedAddresses.find(function (a) { return String(a.id) === String(selectedAddrId); })
+          : null;
+        var province = addr ? (addr.province || '') : '';
+
+        Cart.getGrouped(province).then(function (res) {
+          if (!res || !res.groups || !res.groups.length) return;
+          el.innerHTML = res.groups.map(function (g) {
+            var itemsHtml = (g.items || []).map(function (item) {
+              return '<div class="cart-item-row" style="padding:8px 0;border-bottom:1px solid #f5f0ea">'
+                + '<img src="' + (item.imageUrl || '') + '" class="ci-img" onerror="this.src=\'https://placehold.co/52x64/f5f0ea/888?text=IMG\'">'
+                + '<div style="flex:1;min-width:0">'
+                + '<div class="ci-name">' + (item.productName || 'Sản phẩm') + '</div>'
+                + '<div class="ci-qty" style="color:var(--gray);font-size:12px">x' + item.quantity + ' × ' + fmt(item.unitPrice) + '</div>'
+                + '</div>'
+                + '<div class="ci-price">' + fmt(item.subtotal) + '</div>'
+                + '</div>';
+            }).join('');
+            return '<div style="border:1px solid #f0e8df;border-radius:8px;margin-bottom:14px;overflow:hidden">'
+              + '<div style="background:#fdf6f0;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0e8df">'
+              + (g.shopLogo ? '<img src="' + g.shopLogo + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">' : '<i class="bi bi-shop" style="font-size:18px;color:var(--pink)"></i>')
+              + '<span style="font-size:13px;font-weight:600;flex:1">' + (g.shopName || 'Cửa hàng') + '</span>'
+              + '<span style="font-size:12px;color:var(--gray)">Ship: ' + (g.shippingFee > 0 ? fmt(g.shippingFee) : 'Miễn phí') + '</span>'
+              + '</div>'
+              + '<div style="padding:0 14px">' + itemsHtml + '</div>'
+              + '<div style="padding:8px 14px;text-align:right;font-size:13px;color:var(--gray)">'
+              + 'Tạm tính: <strong style="color:var(--dark)">' + fmt(g.subtotal) + '</strong>'
+              + (g.shippingFee > 0 ? ' &nbsp;+&nbsp; ship: <strong style="color:var(--dark)">' + fmt(g.shippingFee) + '</strong>' : '')
+              + '</div>'
+              + '</div>';
+          }).join('');
+
+          if (res.totalShipping !== undefined) {
+            shippingFee = res.totalShipping;
+            updateTotals();
+          }
+        }).catch(function () { /* keep flat list on error */ });
       }
 
       function renderSummaryItems() {
