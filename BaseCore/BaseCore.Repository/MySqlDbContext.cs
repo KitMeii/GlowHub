@@ -45,6 +45,7 @@ namespace BaseCore.Repository
         public DbSet<SubOrderItem> SubOrderItems { get; set; }
         public DbSet<CustomerWallet> CustomerWallets { get; set; }
         public DbSet<CustomerWalletTransaction> CustomerWalletTransactions { get; set; }
+        public DbSet<ShopFollow> ShopFollows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -608,6 +609,26 @@ namespace BaseCore.Repository
                       .WithMany()
                       .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure ShopFollow entity
+            modelBuilder.Entity<ShopFollow>(entity =>
+            {
+                entity.ToTable("ShopFollows");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.ShopId).HasMaxLength(450).IsRequired();
+                entity.HasIndex(e => new { e.UserId, e.ShopId }).IsUnique();
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Shop)
+                      .WithMany()
+                      .HasForeignKey(e => e.ShopId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Seed initial data

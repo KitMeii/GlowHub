@@ -357,6 +357,16 @@ const Shop = {
   async adminBan(id) {
     return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
   },
+
+  follow(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id + "/follow", "POST");
+  },
+  unfollow(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id + "/follow", "DELETE");
+  },
+  getFollowed() {
+    return apiFetch(PRODUCT_API, "/api/shops/followed", "GET");
+  },
 };
 
 // ============================================================

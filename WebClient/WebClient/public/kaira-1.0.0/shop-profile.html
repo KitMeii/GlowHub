@@ -710,9 +710,24 @@ function quickAddCart(id, name, price, img) {
 var _FOLLOW_KEY = 'gh_followed_shops';
 
 function initFollowBtn(shopId) {
+  // Optimistic init from localStorage
   var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
   _followed = list.some(function(s) { return String(s.id) === String(shopId); });
   _syncFollowBtn();
+
+  // Sync from DB if logged in
+  if (typeof Auth !== 'undefined' && Auth.isLoggedIn() && typeof Shop !== 'undefined' && Shop.getFollowed) {
+    Shop.getFollowed().then(function(res) {
+      var items = (res && res.items) || [];
+      _followed = items.some(function(s) { return String(s.shopId) === String(shopId); });
+      // Rebuild localStorage from DB state
+      var local = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]')
+        .filter(function(s) { return String(s.id) !== String(shopId); });
+      if (_followed) local.push({ id: shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+      localStorage.setItem(_FOLLOW_KEY, JSON.stringify(local));
+      _syncFollowBtn();
+    }).catch(function() {});
+  }
 }
 
 function _syncFollowBtn() {
@@ -734,16 +749,40 @@ function toggleFollow() {
     return;
   }
   var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
+  var wasFollowed = _followed;
   _followed = !_followed;
+  _syncFollowBtn();
+
   if (_followed) {
     list.push({ id: _shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+    localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
     showToast('♥ Đã theo dõi shop ' + ((_shopData && _shopData.shopName) || ''));
+    if (typeof Shop !== 'undefined' && Shop.follow) {
+      Shop.follow(_shopId).catch(function() {
+        // Rollback on error
+        _followed = wasFollowed;
+        _syncFollowBtn();
+        var l = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]')
+          .filter(function(s) { return String(s.id) !== String(_shopId); });
+        localStorage.setItem(_FOLLOW_KEY, JSON.stringify(l));
+        showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+      });
+    }
   } else {
     list = list.filter(function(s) { return String(s.id) !== String(_shopId); });
+    localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
     showToast('Đã bỏ theo dõi shop');
+    if (typeof Shop !== 'undefined' && Shop.unfollow) {
+      Shop.unfollow(_shopId).catch(function() {
+        // Rollback on error
+        _followed = wasFollowed;
+        _syncFollowBtn();
+        list.push({ id: _shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+        localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
+        showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+      });
+    }
   }
-  localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
-  _syncFollowBtn();
 }
 
 // ── CHAT ──

@@ -599,8 +599,32 @@
         if (tab === 'followed'  )                          { renderFollowedShops(); }
       }
 
+      var _followedShopsCache = null;
+
       function renderFollowedShops() {
-        var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+        var container = document.getElementById('followedShopsList');
+        if (!container) return;
+        container.innerHTML = '<div style="text-align:center;padding:32px;color:#aaa">Đang tải...</div>';
+
+        if (typeof Shop !== 'undefined' && Shop.getFollowed) {
+          Shop.getFollowed().then(function(res) {
+            var items = (res && res.items) || [];
+            _followedShopsCache = items;
+            // Sync localStorage
+            var local = items.map(function(s) { return { id: s.shopId, name: s.shopName, logo: s.logo }; });
+            localStorage.setItem('gh_followed_shops', JSON.stringify(local));
+            _renderFollowedList(items.map(function(s) { return { id: s.shopId, name: s.shopName, logo: s.logo }; }));
+          }).catch(function() {
+            var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+            _renderFollowedList(list);
+          });
+        } else {
+          var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+          _renderFollowedList(list);
+        }
+      }
+
+      function _renderFollowedList(list) {
         var container = document.getElementById('followedShopsList');
         if (!container) return;
         if (!list.length) {
@@ -609,7 +633,7 @@
         }
         container.innerHTML = list.map(function(s) {
           var avatar = s.logo
-            ? '<img src="' + s.logo + '" style="width:48px;height:48px;border-radius:50%;object-fit:cover">'
+            ? '<img src="' + s.logo + '" style="width:48px;height:48px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">'
             : '<div style="width:48px;height:48px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">' + (s.name||'S')[0].toUpperCase() + '</div>';
           return '<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border)">' +
             avatar +
@@ -621,10 +645,22 @@
       }
 
       function unfollowShop(shopId) {
-        var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
-        list = list.filter(function(s) { return String(s.id) !== String(shopId); });
-        localStorage.setItem('gh_followed_shops', JSON.stringify(list));
-        renderFollowedShops();
+        if (typeof Shop !== 'undefined' && Shop.unfollow) {
+          Shop.unfollow(shopId).then(function() {
+            var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]')
+              .filter(function(s) { return String(s.id) !== String(shopId); });
+            localStorage.setItem('gh_followed_shops', JSON.stringify(list));
+            _renderFollowedList(list);
+            showToast && showToast('Đã bỏ theo dõi shop');
+          }).catch(function() {
+            showToast && showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+          });
+        } else {
+          var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]')
+            .filter(function(s) { return String(s.id) !== String(shopId); });
+          localStorage.setItem('gh_followed_shops', JSON.stringify(list));
+          _renderFollowedList(list);
+        }
       }
 
       function showTabByHash() {
