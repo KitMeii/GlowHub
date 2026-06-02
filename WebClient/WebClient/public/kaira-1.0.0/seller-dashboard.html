@@ -1312,6 +1312,8 @@
       let _editingProductId = null;
       let _editingVoucherId = null;
       let _cancelOrderId = null;
+      let _cancelIsSubOrder = false;
+      let _subOrders = [];
       let _confirmFn = null;
       let _charts = {};
       let _productPage = 1;
@@ -2212,7 +2214,8 @@
           '<tr><td colspan="7" style="text-align:center;padding:24px"><div class="spinner-sm" style="margin:auto"></div></td></tr>';
         try {
           const res = await SellerOrder.getAll(_orderStatus, _orderPage);
-          renderOrders(res.items || []);
+          _subOrders = res.items || [];
+          renderOrders(_subOrders);
           renderPager(
             "orderPager",
             res.page,
@@ -2222,8 +2225,7 @@
               loadOrders();
             },
           );
-          // Update tab counts by loading all
-          updateOrderCounts(res.items || []);
+          updateOrderCounts(_subOrders);
         } catch (e) {
           tbody.innerHTML = `<tr><td colspan="7" class="empty-state">Lỗi: ${e.message}</td></tr>`;
         }
@@ -2271,25 +2273,25 @@
           .map((o) => {
             const [slabel, scls] = statusMap[o.status] || [o.status, ""];
             const itemsSummary =
-              o.items
-                ?.map((i) => `${i.productName} x${i.Quantity || i.quantity}`)
+              (o.items || [])
+                .map((i) => `${i.productName} x${i.quantity}`)
                 .slice(0, 2)
-                .join(", ") + (o.items?.length > 2 ? "..." : "");
+                .join(", ") + ((o.items || []).length > 2 ? "..." : "");
             let actions = "";
             if (o.status === "PENDING")
-              actions = `<button class="btn-dark btn-sm" onclick="confirmOrder(${o.orderId})">✅ Xác Nhận</button> <button class="btn-danger btn-sm" onclick="openCancelModal(${o.orderId})">❌ Hủy</button>`;
+              actions = `<button class="btn-dark btn-sm" onclick="confirmSubOrder(${o.subOrderId})">✅ Xác Nhận</button> <button class="btn-danger btn-sm" onclick="openCancelSubModal(${o.subOrderId})">❌ Hủy</button>`;
             if (o.status === "CONFIRMED")
-              actions = `<button class="btn-dark btn-sm" onclick="shipOrder(${o.orderId})">🚚 Giao Hàng</button>`;
+              actions = `<button class="btn-dark btn-sm" onclick="shipSubOrder(${o.subOrderId})">🚚 Giao Hàng</button>`;
             return `<tr>
-      <td style="font-weight:500">#${o.orderId}</td>
-      <td>${o.customerName}</td>
+      <td style="font-weight:500">${o.subOrderCode || ("#" + o.subOrderId)}</td>
+      <td>${o.customer?.name || ""}</td>
       <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${itemsSummary}">${itemsSummary}</td>
-      <td>${fmtMoney(o.totalAmount)}</td>
+      <td>${fmtMoney(o.finalAmount)}<div style="font-size:10px;color:#20c997">Thực nhận: ${fmtMoney(o.sellerPayout)}</div></td>
       <td><span class="status-badge ${scls}">${slabel}</span></td>
       <td style="font-size:11px">${fmtDate(o.createdAt)}</td>
       <td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">
         ${actions}
-        <button class="btn-outline btn-sm" onclick="viewOrder(${o.orderId})">Chi Tiết</button>
+        <button class="btn-outline btn-sm" onclick="viewSubOrder(${o.subOrderId})">Chi Tiết</button>
       </td>
     </tr>`;
           })
@@ -2421,6 +2423,14 @@
 
       function openCancelModal(orderId) {
         _cancelOrderId = orderId;
+        _cancelIsSubOrder = false;
+        document.getElementById("cancelReason").value = "";
+        openModal("cancelOrderModal");
+      }
+
+      function openCancelSubModal(subOrderId) {
+        _cancelOrderId = subOrderId;
+        _cancelIsSubOrder = true;
         document.getElementById("cancelReason").value = "";
         openModal("cancelOrderModal");
       }
@@ -2432,12 +2442,122 @@
           return;
         }
         try {
-          await SellerOrder.cancel(_cancelOrderId, reason);
+          if (_cancelIsSubOrder) {
+            await SellerOrder.cancelSub(_cancelOrderId, reason);
+          } else {
+            await SellerOrder.cancel(_cancelOrderId, reason);
+          }
           showToast("Đơn hàng đã bị hủy");
           closeModal("cancelOrderModal");
           loadOrders();
         } catch (e) {
           showToast(e.message, "error");
+        }
+      }
+
+      // ── SubOrder-specific actions (Orders tab) ──────────────────
+      async function confirmSubOrder(subOrderId) {
+        try {
+          await SellerOrder.confirmSub(subOrderId);
+          showToast("SubOrder đã được xác nhận");
+          closeModal("orderDetailModal");
+          loadOrders();
+        } catch (e) {
+          showToast(e.message, "error");
+        }
+      }
+
+      async function shipSubOrder(subOrderId) {
+        const tracking = prompt("Mã vận đơn (để trống nếu không có):") ?? "";
+        try {
+          await SellerOrder.shipSub(subOrderId, tracking || null);
+          showToast("SubOrder đang được giao");
+          closeModal("orderDetailModal");
+          loadOrders();
+        } catch (e) {
+          showToast(e.message, "error");
+        }
+      }
+
+      function viewSubOrder(subOrderId) {
+        const o = _subOrders.find(s => s.subOrderId === subOrderId);
+        if (!o) { showToast("Không tìm thấy đơn hàng", "error"); return; }
+        document.getElementById("odm-id").textContent = o.subOrderCode || ("#" + subOrderId);
+        document.getElementById("orderDetailBody").innerHTML =
+          '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
+        document.getElementById("orderDetailActions").innerHTML = "";
+        openModal("orderDetailModal");
+        renderSubOrderDetail(o);
+      }
+
+      function renderSubOrderDetail(o) {
+        const statusLabels = {
+          PENDING: "Chờ xác nhận", CONFIRMED: "Đã xác nhận",
+          SHIPPING: "Đang giao",   COMPLETED: "Hoàn thành", CANCELLED: "Đã hủy",
+        };
+        const statusCls = {
+          PENDING: "s-pending",   CONFIRMED: "s-confirmed",
+          SHIPPING: "s-shipping", COMPLETED: "s-completed", CANCELLED: "s-cancelled",
+        };
+        document.getElementById("orderDetailBody").innerHTML = `
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Khách Hàng</h6>
+        <div style="font-size:13px">
+          <div class="mb-1"><b>${o.customer?.name || "—"}</b></div>
+          <div class="mb-1">📞 ${o.customer?.phone || "—"}</div>
+          <div>✉️ ${o.customer?.email || "—"}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Giao Hàng</h6>
+        <div style="font-size:13px">
+          <div class="mb-1">📍 ${o.shippingAddress || "—"}</div>
+          <div class="mb-1">👤 ${o.receiverName || "—"}${o.receiverPhone ? " · " + o.receiverPhone : ""}</div>
+          ${o.trackingCode ? `<div class="mb-1">🚚 Mã VĐ: <b>${o.trackingCode}</b></div>` : ""}
+          ${o.cancelReason ? `<div class="mb-1" style="color:#ef4444">❌ Lý do hủy: ${o.cancelReason}</div>` : ""}
+        </div>
+      </div>
+    </div>
+    <hr/>
+    <h6 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Sản Phẩm</h6>
+    <div style="overflow-x:auto">
+      <table class="sd-table">
+        <thead><tr><th>Sản Phẩm</th><th>SL</th><th>Đơn Giá</th><th>Thành Tiền</th></tr></thead>
+        <tbody>
+          ${(o.items || []).map(i => `
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px">
+                <img src="${i.imageUrl || ""}" style="width:36px;height:44px;object-fit:cover;background:#f5f0ea" onerror="this.style.display='none'"/>
+                <span>${i.productName}</span>
+              </div></td>
+              <td>${i.quantity}</td>
+              <td>${fmtMoney(i.unitPrice)}</td>
+              <td>${fmtMoney(i.subtotal)}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <hr/>
+    <div style="text-align:right;font-size:13px">
+      <div class="mb-1">Tạm tính: ${fmtMoney(o.totalAmount)}</div>
+      <div class="mb-1">Phí vận chuyển: ${fmtMoney(o.shippingFee)}</div>
+      <div style="font-size:16px;font-weight:600;color:var(--pink)">Tổng đơn: ${fmtMoney(o.finalAmount)}</div>
+      <div style="font-size:12px;color:#20c997;margin-top:4px">Thực nhận sau hoa hồng: <b>${fmtMoney(o.sellerPayout)}</b></div>
+    </div>
+    <hr/>
+    <div>Trạng thái: <span class="status-badge ${statusCls[o.status] || ""}">${statusLabels[o.status] || o.status}</span>
+      <span style="font-size:11px;color:#aaa;margin-left:8px">Đơn mẹ: ${o.orderCode || ("#" + o.orderId)}</span>
+    </div>`;
+
+        const actDiv = document.getElementById("orderDetailActions");
+        actDiv.innerHTML = `<button class="btn-outline" onclick="closeModal('orderDetailModal')">Đóng</button>`;
+        if (o.status === "PENDING") {
+          actDiv.innerHTML += `
+      <button class="btn-dark" onclick="confirmSubOrder(${o.subOrderId})">✅ Xác Nhận</button>
+      <button class="btn-danger" onclick="closeModal('orderDetailModal');openCancelSubModal(${o.subOrderId})">❌ Hủy Đơn</button>`;
+        } else if (o.status === "CONFIRMED") {
+          actDiv.innerHTML += `<button class="btn-dark" onclick="shipSubOrder(${o.subOrderId})">🚚 Giao Hàng</button>`;
         }
       }
 

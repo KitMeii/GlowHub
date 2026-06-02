@@ -404,11 +404,20 @@ const SellerProduct = {
 //  SELLER ORDER MODULE
 // ============================================================
 const SellerOrder = {
+  // Orders tab — SubOrder endpoints
   getAll(status = "", page = 1, limit = 10) {
     const qs = new URLSearchParams({ page, limit });
     if (status) qs.set("status", status);
-    return apiFetch(PRODUCT_API, "/api/orders/shop?" + qs.toString(), "GET");
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
   },
+  confirmSub(id) { return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT"); },
+  shipSub(id, trackingCode) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { TrackingCode: trackingCode || null });
+  },
+  cancelSub(id, reason) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { Reason: reason });
+  },
+  // Overview / legacy — parent order endpoints
   getDetail(id)  { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id, "GET"); },
   confirm(id)    { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/confirm", "PUT"); },
   ship(id, trackingCode) {
