@@ -191,7 +191,9 @@ namespace BaseCore.APIService.Controllers
 
             var productIds = await GetShopProductIdsAsync(shop!.Id);
 
-            var query = _db.Reviews.Include(r => r.Product)
+            var query = _db.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
                 .Where(r => productIds.Contains(r.ProductId));
 
             if (rating.HasValue)  query = query.Where(r => r.Rating == rating.Value);
@@ -208,10 +210,12 @@ namespace BaseCore.APIService.Controllers
                     productName  = r.Product != null ? r.Product.Name     : "",
                     productImage = r.Product != null ? r.Product.ImageUrl : "",
                     customerId   = r.UserId,
-                    customerName = r.UserId,
+                    customerName = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
                     r.Rating,
                     r.Comment,
-                    images              = r.Images,
+                    images = r.Images != null
+                        ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                        : new List<string>(),
                     createdAt           = r.CreatedAt,
                     sellerReply         = r.SellerReply,
                     replyAt             = r.ReplyAt,
