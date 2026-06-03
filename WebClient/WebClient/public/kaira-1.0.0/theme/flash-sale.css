@@ -244,17 +244,18 @@
 
 .fs-price-wrap {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
   margin-bottom: 10px;
-  flex-wrap: wrap;
-  min-height: 2.4em;
+  min-height: 3.2em;
 }
 
 .fs-price-original {
   font-size: 12px;
   color: var(--gray);
   text-decoration: line-through;
+  display: block;
+  min-height: 1.4em;
 }
 
 .fs-price-sale {
@@ -262,6 +263,7 @@
   font-weight: 700;
   color: var(--flash-red);
   font-family: "Jost", sans-serif;
+  display: block;
 }
 
 /* ── PROGRESS BAR ── */
