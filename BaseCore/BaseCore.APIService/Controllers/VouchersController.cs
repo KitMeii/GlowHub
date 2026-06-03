@@ -30,6 +30,7 @@ namespace BaseCore.APIService.Controllers
         {
             var now = DateTime.UtcNow;
             var vouchers = await _db.Vouchers
+                .Include(v => v.Shop)
                 .Where(v => v.IsActive &&
                     (!v.ExpiryDate.HasValue || v.ExpiryDate >= now) &&
                     (!v.StartDate.HasValue  || v.StartDate  <= now) &&
@@ -46,6 +47,7 @@ namespace BaseCore.APIService.Controllers
                     v.ExpiryDate,
                     v.StartDate,
                     v.ShopId,
+                    shopName = v.Shop != null ? v.Shop.ShopName : null,
                     remainingUsage = v.UsageLimit.HasValue ? v.UsageLimit - v.UsedCount : (int?)null,
                     voucherType = v.ShopId == null ? "system" : "shop"
                 })
