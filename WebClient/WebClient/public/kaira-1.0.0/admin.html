@@ -662,7 +662,7 @@
       <div class="adm-card">
         <div class="adm-table-wrap">
           <table class="adm-table" id="commissionShopsTable">
-            <thead><tr><th>Shop</th><th>Tỷ Lệ</th><th>Doanh Thu SP</th><th>Hoa Hồng</th><th>Net Seller</th><th>Số Dư Ví</th><th>Đã Nhận</th><th>Đơn</th></tr></thead>
+            <thead><tr><th>Shop</th><th>Tỷ Lệ</th><th>Doanh Thu SP</th><th>Hoa Hồng</th><th>Net Seller</th><th>Số Dư Ví</th><th>Đã Nhận</th><th>Đơn</th><th>Thao Tác</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -1770,6 +1770,9 @@
       const tbody = document.querySelector('#commissionShopsTable tbody');
       tbody.innerHTML = (d.items || []).map(s => {
         const n = v => norm(s, v);
+        const sid     = n('shopId')   ?? n('ShopId')   ?? '';
+        const sname   = (n('shopName') ?? n('ShopName') ?? '').replace(/'/g, "\\'");
+        const pending = n('pendingPayout') ?? n('PendingPayout') ?? 0;
         return `<tr>
           <td><strong>${n('shopName') ?? n('ShopName') ?? ''}</strong></td>
           <td>${n('commissionRate') ?? n('CommissionRate') ?? 0}%</td>
@@ -1779,8 +1782,9 @@
           <td style="color:var(--pink);font-weight:600">${fmt(n('walletBalance') ?? n('WalletBalance') ?? 0)}</td>
           <td class="text-success">${fmt(n('totalEarned') ?? n('TotalEarned') ?? 0)}</td>
           <td>${n('orderCount') ?? n('OrderCount') ?? 0}</td>
+          <td><button class="adm-btn adm-btn-sm adm-btn-primary" onclick="openPayoutModal('${sid}','${sname}',${pending})">💸 Giải Ngân</button></td>
         </tr>`;
-      }).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
+      }).join('') || '<tr><td colspan="9" class="adm-empty">Chưa có dữ liệu</td></tr>';
       buildPagination('commissionShopsPagination', page, d.totalPages, 'loadCommissionShops');
     } catch(e) { toast('Lỗi tải shops: ' + e.message, 'error'); }
   }
