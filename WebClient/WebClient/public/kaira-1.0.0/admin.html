@@ -1794,13 +1794,39 @@
   // ────────────────────────────────────────────
   // SETTINGS
   // ────────────────────────────────────────────
+  // Win-1252 bytes 0x80-0x9F → Unicode code points (reverse: codePoint → byte)
+  const _w1252 = {8364:0x80,8218:0x82,402:0x83,8222:0x84,8230:0x85,8224:0x86,8225:0x87,710:0x88,8240:0x89,352:0x8A,8249:0x8B,338:0x8C,381:0x8E,8216:0x91,8217:0x92,8220:0x93,8221:0x94,8226:0x95,8211:0x96,8212:0x97,732:0x98,8482:0x99,353:0x9A,8250:0x9B,339:0x9C,382:0x9E,376:0x9F};
   function tryFixMojibake(s) {
-    if (!s || !/[\x80-\xFF]/.test(s)) return s;
+    if (!s) return s;
+    const chars = [...s];
+    const hasHigh = chars.some(c => { const n = c.charCodeAt(0); return (n >= 0x80 && n <= 0xFF) || _w1252[n] !== undefined; });
+    if (!hasHigh) return s;
     try {
-      const bytes = Uint8Array.from([...s].map(c => c.charCodeAt(0)));
+      const bytes = Uint8Array.from(chars.map(c => {
+        const n = c.charCodeAt(0);
+        if (n <= 0x7F) return n;
+        if (n >= 0x80 && n <= 0xFF) return n;
+        return _w1252[n] ?? 0x3F;
+      }));
       return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
     } catch(e) { return s; }
   }
+
+  const SETTING_LABELS = {
+    'topbar_text':'Thanh thông báo','topbar_visible':'Hiện thị thanh thông báo','topbar_bg_color':'Màu nền thanh thông báo',
+    'hero_label':'Nhãn hero','hero_title':'Tiêu đề hero','hero_desc':'Mô tả hero','hero_bg_color':'Màu nền hero',
+    'new_arrivals_title':'Tiêu đề section hàng mới','new_arrivals_sub':'Mô tả section hàng mới',
+    'best_sellers_title':'Tiêu đề section bán chạy','best_sellers_sub':'Mô tả section bán chạy',
+    'promo_title':'Tiêu đề promo banner','promo_desc':'Mô tả promo banner','promo_image_url':'Ảnh promo banner',
+    'promo_bg_from':'Màu gradient promo (từ)','promo_bg_to':'Màu gradient promo (đến)',
+    'show_new_arrivals':'Hiện thị section Hàng Mới','show_best_sellers':'Hiện thị section Bán Chạy',
+    'show_categories':'Hiện thị section Danh Mục','show_promo_banner':'Hiện thị promo banner',
+    'seo_title':'Tiêu đề trang','seo_description':'Meta description','seo_keywords':'Keywords',
+    'store_name':'Tên cửa hàng','store_phone':'Hotline','store_email':'Email hỗ trợ',
+    'store_address':'Địa chỉ','footer_desc':'Mô tả footer','copyright_text':'Copyright',
+    'default_commission_rate':'Hoa hồng mặc định (%)','commission_rate':'Hoa hồng mặc định (%)',
+    'order_cancel_time':'Thời gian hủy đơn (phút)','cancel_time':'Thời gian hủy đơn (phút)',
+  };
 
   async function loadSettings() {
     try {
@@ -1814,11 +1840,15 @@
       el.innerHTML = Object.entries(groups).map(([group, items]) => `
         <div class="adm-settings-group">
           <div class="adm-settings-group-title">${tryFixMojibake(group)}</div>
-          ${items.map(s => `
+          ${items.map(s => {
+            const label = SETTING_LABELS[s.key] || tryFixMojibake(s.label || s.key);
+            const value = tryFixMojibake(s.value || '');
+            return `
             <div class="adm-setting-row">
-              <label class="adm-label">${tryFixMojibake(s.label || s.key)}</label>
-              <input class="adm-input" data-key="${s.key}" value="${s.value||''}" placeholder="${s.key}" />
-            </div>`).join('')}
+              <label class="adm-label">${label}</label>
+              <input class="adm-input" data-key="${s.key}" value="${value}" placeholder="${s.key}" />
+            </div>`;
+          }).join('')}
         </div>`).join('');
     } catch(e) { toast('Lỗi tải cài đặt: ' + e.message, 'error'); }
   }
