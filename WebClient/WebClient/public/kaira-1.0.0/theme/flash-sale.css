@@ -161,6 +161,8 @@
   transition: transform 0.25s var(--ease-std), box-shadow 0.25s var(--ease-std);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .fs-card:hover {
@@ -222,6 +224,9 @@
 
 .fs-card-body {
   padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .fs-card-name {
@@ -234,14 +239,16 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 2.8em;
 }
 
 .fs-price-wrap {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   margin-bottom: 10px;
   flex-wrap: wrap;
+  min-height: 2.4em;
 }
 
 .fs-price-original {
@@ -259,6 +266,7 @@
 
 /* ── PROGRESS BAR ── */
 .fs-progress-wrap {
+  margin-top: auto;
   margin-bottom: 12px;
 }
 
