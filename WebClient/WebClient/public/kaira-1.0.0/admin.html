@@ -1229,8 +1229,26 @@
   let _productsPage = 1;
   async function loadProducts(page=1) {
     _productsPage = page;
-    const search   = document.getElementById('productSearch')?.value || '';
-    const catId    = document.getElementById('productCategory')?.value || '';
+    const search = document.getElementById('productSearch')?.value || '';
+    const sel    = document.getElementById('productCategory');
+
+    // Repopulate category dropdown on every tab open (page === 1)
+    if (page === 1 && sel) {
+      const savedVal = sel.value;
+      while (sel.options.length > 1) sel.remove(1);
+      try {
+        const cats = await Admin.getCategories();
+        (Array.isArray(cats) ? cats : (cats.items || [])).map(norm).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value       = c.id ?? c.Id ?? '';
+          opt.textContent = c.name ?? c.Name ?? '';
+          sel.appendChild(opt);
+        });
+        if (savedVal) sel.value = savedVal;
+      } catch(e) { /* silent — filter still works without category list */ }
+    }
+
+    const catId = sel?.value || '';
     try {
       const d = await Product.getAll({ page, pageSize: 20, keyword: search || undefined, categoryId: catId || undefined });
       const items = (d.items || d).map(norm);
