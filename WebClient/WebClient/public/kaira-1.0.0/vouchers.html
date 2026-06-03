@@ -292,7 +292,6 @@
 
       return `
       <div class="vo-card" id="sv-${v.Code}" style="${expired ? 'opacity:0.55;' : ''}">
-        <button class="vo-btn-delete" onclick="unsaveVoucher(this,'${v.Code}')" title="Xóa khỏi danh sách">🗑</button>
         <div class="vo-card-stripe system"></div>
         <div class="vo-card-body">
           <span class="vo-card-type-badge">${expired ? '<span style="color:var(--error)">Đã Hết Hạn</span>' : '<i class="bi bi-bookmark-fill" style="color:var(--success)"></i> Đã Lưu'}</span>
@@ -303,6 +302,7 @@
               <span class="vo-card-code">${v.Code}</span>
               ${!expired ? `<button class="vo-btn-copy-icon" onclick="copyCode(this,'${v.Code}')" title="Sao chép mã">${ICON_COPY}</button>` : ""}
             </div>
+            <button class="vo-btn-delete" onclick="unsaveVoucher(this,'${v.Code}')">✕ Bỏ Lưu</button>
           </div>
         </div>
       </div>`;
