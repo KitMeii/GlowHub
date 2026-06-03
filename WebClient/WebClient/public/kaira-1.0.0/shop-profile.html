@@ -164,6 +164,15 @@
   </div>
 </div>
 
+<!-- SHOP VOUCHERS -->
+<div class="sp-vouchers" id="shopVoucherSection" style="display:none">
+  <div class="sp-vouchers-header">
+    <span class="sp-vouchers-title">🏷 Voucher Của Shop</span>
+    <a class="sp-vouchers-more" id="shopVouchersMoreLink" href="vouchers.html">Xem tất cả →</a>
+  </div>
+  <div class="sp-vouchers-grid" id="shopVoucherGrid"></div>
+</div>
+
 <!-- FILTER BAR -->
 <div class="sp-filter-wrap">
   <div class="sp-filter-inner" id="filterBar">
@@ -328,6 +337,7 @@
 // @ts-nocheck
 var _shopId      = null;
 var _shopData    = null;
+var _svSavedIds  = new Set(); // IDs of vouchers already saved by user
 var _currentPage = 1;
 var _currentCat  = null;   // stores categoryId (int) or null
 var _currentSort = 'newest';
@@ -383,6 +393,7 @@ function loadShopProfile() {
     loadProducts();
     loadReviewStats();
     loadReviews();
+    loadShopVouchers();
   }).catch(function() {
     document.getElementById('shopName').textContent = 'Shop không tồn tại';
     showToast('Không thể tải thông tin shop', 'error');
@@ -913,6 +924,118 @@ function buildStars(avg) {
     html += s <= Math.floor(avg) ? '★' : (s - 0.5 <= avg ? '⭑' : '☆');
   }
   return html;
+}
+
+// ── SHOP VOUCHER SECTION ──────────────────────────────────
+function _svFmt(n) { return new Intl.NumberFormat('vi-VN').format(n) + '₫'; }
+function _svFmtK(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'tr';
+  if (n >= 1000)    return (n / 1000).toFixed(0) + 'k';
+  return _svFmt(n);
+}
+
+function renderShopVoucherCard(v) {
+  var isShip = v.DiscountType === 'freeship' ||
+               (v.Code && v.Code.includes('SHIP')) ||
+               (v.Description && /freeship|vận chuyển/i.test(v.Description));
+  var label = isShip ? 'FREESHIP'
+            : v.DiscountType === 'percent' ? '-' + v.DiscountValue + '%'
+            : '-' + _svFmtK(v.DiscountValue);
+  var minLine = v.MinOrderAmount > 0
+    ? 'Đơn ' + _svFmtK(v.MinOrderAmount)
+    : 'Mọi đơn hàng';
+  var descLine = v.Description ? v.Description : v.Code;
+  var isSaved = _svSavedIds.has(v.Id);
+  var btn = '';
+  if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+    btn = isSaved
+      ? '<button class="sp-vc-btn saved" disabled>✓ Đã Lưu</button>'
+      : '<button class="sp-vc-btn" onclick="saveShopVoucher(this,\'' + v.Code + '\',' + v.Id + ')">Lưu</button>';
+  }
+  return '<div class="sp-vc-card" id="spvc-' + v.Id + '">' +
+    '<div class="sp-vc-discount">' + label + '</div>' +
+    '<div class="sp-vc-label">' + escHtml(descLine) + '</div>' +
+    '<div class="sp-vc-min">' + minLine + '</div>' +
+    '<div class="sp-vc-code">' + v.Code + '</div>' +
+    btn +
+    '</div>';
+}
+
+function loadShopVouchers() {
+  // Fetch saved voucher IDs first (if logged in), then public list
+  var savedPromise = (typeof Auth !== 'undefined' && Auth.isLoggedIn())
+    ? fetch(PRODUCT_API + '/api/vouchers/my', {
+        headers: { Authorization: 'Bearer ' + Auth.getToken() }
+      }).then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; })
+    : Promise.resolve([]);
+
+  var publicPromise = fetch(PRODUCT_API + '/api/vouchers/public')
+    .then(function(r){ return r.ok ? r.json() : []; })
+    .catch(function(){ return []; });
+
+  Promise.all([savedPromise, publicPromise]).then(function(results) {
+    var saved  = results[0];
+    var all    = results[1];
+
+    // Populate saved IDs
+    saved.forEach(function(cv) {
+      var v = cv.voucher || cv;
+      if (v && v.Id) _svSavedIds.add(v.Id);
+    });
+
+    // Filter to this shop only
+    var shopVouchers = all.filter(function(v) {
+      return String(v.ShopId) === String(_shopId);
+    });
+
+    if (!shopVouchers.length) return; // keep section hidden
+
+    var section = document.getElementById('shopVoucherSection');
+    var grid    = document.getElementById('shopVoucherGrid');
+    var moreLink = document.getElementById('shopVouchersMoreLink');
+
+    var display = shopVouchers.slice(0, 3);
+    grid.innerHTML = display.map(renderShopVoucherCard).join('');
+
+    if (shopVouchers.length > 3 && moreLink) {
+      moreLink.href = 'vouchers.html?tab=shop';
+      moreLink.style.display = '';
+    } else if (moreLink) {
+      moreLink.style.display = 'none';
+    }
+
+    section.style.display = '';
+  });
+}
+
+function saveShopVoucher(btn, code, id) {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    location.href = 'login.html';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '...';
+  fetch(PRODUCT_API + '/api/vouchers/save/' + code, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + Auth.getToken() }
+  }).then(function(r) {
+    if (r.ok) {
+      _svSavedIds.add(id);
+      btn.classList.add('saved');
+      btn.textContent = '✓ Đã Lưu';
+      showToast && showToast('Đã lưu voucher ' + code + '!');
+    } else {
+      return r.json().then(function(d) {
+        showToast && showToast(d.message || 'Không thể lưu voucher', false);
+        btn.disabled = false;
+        btn.textContent = 'Lưu';
+      });
+    }
+  }).catch(function() {
+    showToast && showToast('Lỗi kết nối', false);
+    btn.disabled = false;
+    btn.textContent = 'Lưu';
+  });
 }
 
 function formatSold(n) {
