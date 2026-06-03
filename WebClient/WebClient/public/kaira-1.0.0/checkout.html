@@ -421,11 +421,22 @@
                   <i class="bi bi-check-circle-fill"></i><span></span>
                 </div>
                 <div class="voucher-err" id="voucherErr"></div>
+                <div id="shipVoucherRow" style="display:none; margin-top:8px; padding:8px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; font-size:12px; align-items:center; gap:8px;">
+                  <i class="bi bi-truck" style="color:#1d4ed8; flex-shrink:0"></i>
+                  <span id="shipVoucherLabel" style="flex:1; color:#1d4ed8">—</span>
+                  <button onclick="removeShipVoucher()" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:11px;padding:0">✕</button>
+                </div>
               </div>
+
+              <!-- Shop Breakdown (dynamically populated) -->
+              <div id="shopBreakdown"></div>
 
               <!-- Totals -->
               <div class="sum-row"><span>Tạm tính</span><span id="sumSubtotal">0 ₫</span></div>
               <div class="sum-row"><span>Phí vận chuyển</span><span id="sumShip">Miễn phí</span></div>
+              <div class="sum-row" id="shipDiscountRow" style="display:none;color:#1d4ed8">
+                <span>Voucher vận chuyển</span><span id="sumShipDiscount">-0 ₫</span>
+              </div>
               <div class="sum-row" id="discountRow" style="display:none;color:var(--pink)">
                 <span>Giảm giá hệ thống</span><span id="sumDiscount">-0 ₫</span>
               </div>
@@ -536,6 +547,8 @@
       var appliedVoucher   = null;
       var shopVouchers     = {};   // shopId → { code, discountAmt }
       var shopVoucherTotal = 0;
+      var appliedShipVoucher  = null;  // ship voucher code (from cart or modal)
+      var _cartGrouped        = null;  // result of Cart.getGrouped(), used for per-shop breakdown
       var allOrders        = [];
       var currentFilter    = 'all';
       var savedAddresses   = [];
@@ -566,6 +579,22 @@
               okEl.querySelector('span').textContent = cv.label || ('Giảm ' + fmt(discountAmt));
               okEl.style.display = 'flex';
             }
+            updateTotals();
+          } catch (_) {}
+        })();
+
+        // Restore ship voucher from cart page
+        (function () {
+          try {
+            var sv = localStorage.getItem('gh_applied_ship_voucher');
+            if (!sv) return;
+            var parsed = JSON.parse(sv);
+            if (!parsed || !parsed.code) return;
+            appliedShipVoucher = parsed.code;
+            var row = document.getElementById('shipVoucherRow');
+            var lbl = document.getElementById('shipVoucherLabel');
+            if (row) row.style.display = 'flex';
+            if (lbl) lbl.textContent = parsed.code + ' — ' + (parsed.description || 'Giảm phí vận chuyển');
             updateTotals();
           } catch (_) {}
         })();
@@ -657,6 +686,7 @@
 
         Cart.getGrouped(province).then(function (res) {
           if (!res || !res.groups || !res.groups.length) return;
+          _cartGrouped = res;
           el.innerHTML = res.groups.map(function (g) {
             var itemsHtml = (g.items || []).map(function (item) {
               return '<div class="cart-item-row" style="padding:8px 0;border-bottom:1px solid #f5f0ea">'
@@ -702,6 +732,26 @@
             _refreshShipMethodPrices();
             updateTotals();
           }
+
+          // Auto-fill saved shop vouchers into each shop's input
+          if (typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn()) {
+            fetch(PRODUCT_API + '/api/vouchers/my', {
+              headers: { 'Authorization': 'Bearer ' + (Auth.getToken ? Auth.getToken() : '') }
+            }).then(function(r2) { return r2.ok ? r2.json() : []; })
+            .then(function(savedList) {
+              (savedList || []).filter(function(cv) { return cv.voucher && !cv.IsUsed; })
+              .forEach(function(cv) {
+                var v = cv.voucher;
+                if (!v.ShopId) return;
+                var inp = document.getElementById('svInput-' + v.ShopId);
+                if (inp && !inp.value && !shopVouchers[v.ShopId]) {
+                  inp.value = v.Code;
+                  inp.style.color = '#22c55e';
+                  inp.title = 'Voucher đã lưu — nhấn Áp Dụng để kích hoạt';
+                }
+              });
+            }).catch(function() {});
+          }
         }).catch(function () { /* keep flat list on error */ });
       }
 
@@ -727,7 +777,14 @@
         var fee = shippingFee;
         if (shippingMethod === 'standard' && sub >= 500000) fee = 0;
         shopVoucherTotal = Object.values(shopVouchers).reduce(function (s, v) { return s + (v.discountAmt || 0); }, 0);
-        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal);
+
+        // Ship discount estimate (actual computed server-side)
+        var shipDiscAmt = 0;
+        if (appliedShipVoucher && fee > 0) {
+          shipDiscAmt = fee; // conservative: assume full freeship
+        }
+
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal - shipDiscAmt);
 
         document.getElementById('sumSubtotal').textContent = fmt(sub);
         document.getElementById('sumShip').textContent = fee > 0 ? fmt(fee) : 'Miễn phí';
@@ -750,6 +807,34 @@
             shopDiscRow.style.display = 'none';
           }
         }
+        var shipDiscRow = document.getElementById('shipDiscountRow');
+        if (shipDiscRow) {
+          if (shipDiscAmt > 0) {
+            shipDiscRow.style.display = 'flex';
+            var sde = document.getElementById('sumShipDiscount');
+            if (sde) sde.textContent = '-' + fmt(shipDiscAmt) + ' (ước tính)';
+          } else {
+            shipDiscRow.style.display = 'none';
+          }
+        }
+
+        // Per-shop breakdown
+        var shopBreakdownEl = document.getElementById('shopBreakdown');
+        if (shopBreakdownEl && _cartGrouped && _cartGrouped.groups && _cartGrouped.groups.length >= 1) {
+          var bkHtml = '';
+          _cartGrouped.groups.forEach(function(g) {
+            if (!g.shopId) return;
+            var shopD = (shopVouchers[g.shopId] && shopVouchers[g.shopId].discountAmt) || 0;
+            bkHtml += '<div style="background:#fdf6f0;border:1px solid #f3e4d5;border-radius:4px;padding:8px 12px;margin-bottom:6px;font-size:12px">';
+            bkHtml += '<div style="font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px"><i class="bi bi-shop" style="color:var(--pink)"></i>' + (g.shopName || 'Shop') + '</div>';
+            bkHtml += '<div style="display:flex;justify-content:space-between;color:#555"><span>Tạm tính:</span><span>' + fmt(g.subtotal) + '</span></div>';
+            if (shopD > 0) bkHtml += '<div style="display:flex;justify-content:space-between;color:#f59e0b"><span>Voucher shop:</span><span>-' + fmt(shopD) + '</span></div>';
+            bkHtml += '<div style="display:flex;justify-content:space-between;color:#555"><span>Phí ship:</span><span>' + fmt(g.shippingFee) + '</span></div>';
+            bkHtml += '</div>';
+          });
+          shopBreakdownEl.innerHTML = bkHtml;
+        }
+
         document.getElementById('sumTotal').textContent = fmt(total);
       }
 
@@ -1155,6 +1240,14 @@
         }
       }
 
+      function removeShipVoucher() {
+        appliedShipVoucher = null;
+        localStorage.removeItem('gh_applied_ship_voucher');
+        var row = document.getElementById('shipVoucherRow');
+        if (row) row.style.display = 'none';
+        updateTotals();
+      }
+
       // ── Voucher shop (per-shop) ──
       function applyShopVoucher(shopId, shopName, subtotal) {
         var inputEl = document.getElementById('svInput-' + shopId);
@@ -1237,6 +1330,7 @@
           ReceiverPhone:   addr.phone,
           PaymentMethod:   (selectedPay in payMap) ? payMap[selectedPay] : 0,
           VoucherCode:     appliedVoucher || null,
+          ShipVoucherCode: appliedShipVoucher || null,
           ShopVouchers:    Object.keys(shopVouchers).length
             ? Object.keys(shopVouchers).reduce(function (obj, sid) {
                 obj[sid] = shopVouchers[sid].code; return obj;
@@ -1512,11 +1606,12 @@
     </div>
 
     <script>
-    var _coVpVouchers = [];
-    var _coVpSaved    = [];
-    var _coVpSelected = null;
-    var _coVpLoaded   = false;
-    var _coVpShopId   = null;   // shopId of selected voucher, read by applyVoucher()
+    var _coVpVouchers     = [];
+    var _coVpSaved        = [];
+    var _coVpSelectedShip = null;
+    var _coVpSelectedDisc = null;
+    var _coVpLoaded       = false;
+    var _coVpShopId       = null;
 
     function openCoVoucherPicker() {
       document.getElementById("coVoucherPickerBackdrop").classList.add("show");
@@ -1565,18 +1660,21 @@
 
     function coVpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function coVpDiscLabel(v) {
-      if (_coIsShip(v)) return "Miễn phí vận chuyển";
+      if (_coIsShip(v)) return "Miễn/giảm phí vận chuyển";
       return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${coVpFmt(v.DiscountValue)}`;
     }
 
     function coVpItem(v, isSaved, isShip) {
-      var sel = _coVpSelected && _coVpSelected.Code === v.Code;
+      var isSelShip = isShip  && _coVpSelectedShip && _coVpSelectedShip.Code === v.Code;
+      var isSelDisc = !isShip && _coVpSelectedDisc && _coVpSelectedDisc.Code === v.Code;
+      var isSel = isSelShip || isSelDisc;
+      var typeClass = isShip ? "co-vp-ship-item" : "co-vp-disc-item";
       var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
-                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)"
-                   : "";
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)" : "";
       var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
+      var onclick = isShip ? `coVpSelectShip(this,'${v.Code}')` : `coVpSelectDisc(this,'${v.Code}')`;
       return `
-        <div class="vo-modal-voucher-item ${sel ? 'selected' : ''}" onclick="coVpSelect(this,'${v.Code}')">
+        <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
           <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
           <div class="vo-mvi-info">
             <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.Description || v.Code}</div>
@@ -1609,11 +1707,11 @@
       var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
 
       if (allShip.length) {
-        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển</div>`;
+        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển <span style="font-size:9px;color:#6b7280">(chọn 1)</span></div>`;
         html += allShip.map(v => coVpItem(v, savedCodes.has(v.Code), true)).join("");
       }
       if (allDisc.length) {
-        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá</div>`;
+        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá <span style="font-size:9px;color:#6b7280">(chọn 1)</span></div>`;
         html += allDisc.map(v => coVpItem(v, savedCodes.has(v.Code), false)).join("");
       }
       if (!html) {
@@ -1623,20 +1721,45 @@
       el.innerHTML = html;
     }
 
-    function coVpSelect(el, code) {
-      document.querySelectorAll("#co-vp-list .vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
+    function coVpSelectShip(el, code) {
+      document.querySelectorAll(".co-vp-ship-item").forEach(e => e.classList.remove("selected"));
+      if (_coVpSelectedShip && _coVpSelectedShip.Code === code) { _coVpSelectedShip = null; return; }
       el.classList.add("selected");
-      _coVpSelected = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
+      _coVpSelectedShip = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
+    }
+
+    function coVpSelectDisc(el, code) {
+      document.querySelectorAll(".co-vp-disc-item").forEach(e => e.classList.remove("selected"));
+      if (_coVpSelectedDisc && _coVpSelectedDisc.Code === code) { _coVpSelectedDisc = null; return; }
+      el.classList.add("selected");
+      _coVpSelectedDisc = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
     }
 
     async function applyCoPickedVoucher() {
-      if (!_coVpSelected) { closeCoVoucherPicker(); return; }
-      var inp = document.getElementById("voucherInput");
-      if (inp) {
-        inp.value = _coVpSelected.Code;
-        _coVpShopId = _coVpSelected.ShopId !== undefined ? _coVpSelected.ShopId : null;
-        closeCoVoucherPicker();
-        if (typeof applyVoucher === "function") await applyVoucher();
+      closeCoVoucherPicker();
+
+      // Apply ship voucher
+      if (_coVpSelectedShip) {
+        appliedShipVoucher = _coVpSelectedShip.Code;
+        localStorage.setItem('gh_applied_ship_voucher', JSON.stringify({
+          code: _coVpSelectedShip.Code,
+          description: _coVpSelectedShip.Description || 'Giảm phí vận chuyển'
+        }));
+        var row = document.getElementById('shipVoucherRow');
+        var lbl = document.getElementById('shipVoucherLabel');
+        if (row) row.style.display = 'flex';
+        if (lbl) lbl.textContent = _coVpSelectedShip.Code + ' — ' + (_coVpSelectedShip.Description || 'Giảm phí vận chuyển');
+        updateTotals();
+      }
+
+      // Apply discount voucher
+      if (_coVpSelectedDisc) {
+        var inp = document.getElementById("voucherInput");
+        if (inp) {
+          inp.value = _coVpSelectedDisc.Code;
+          _coVpShopId = _coVpSelectedDisc.ShopId !== undefined ? _coVpSelectedDisc.ShopId : null;
+          if (typeof applyVoucher === "function") await applyVoucher();
+        }
       }
     }
     </script>
