@@ -124,6 +124,8 @@ namespace BaseCore.Entities
         public List<OrderDetail> OrderDetails { get; set; } = new();
 
         public List<OrderStatusHistory> StatusHistory { get; set; } = new();
+
+        public List<SubOrder> SubOrders { get; set; } = new();
     }
 
     ///<summary>Hằng số trạng thái đơn hàng - dùng chung toàn bộ hệ thống </summary>

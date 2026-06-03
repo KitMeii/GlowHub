@@ -140,7 +140,7 @@ namespace BaseCore.APIService.Controllers
                 status                = order.Status,
                 totalAmount           = order.TotalAmount,
                 shippingFee           = order.ShippingFee,
-                discount              = order.Discount,
+                discount              = order.SystemVoucherDiscount + order.ShopVoucherDiscount + order.FreeshipDiscount,
                 systemVoucherDiscount = order.SystemVoucherDiscount,
                 shopVoucherDiscount   = order.ShopVoucherDiscount,
                 freeshipDiscount      = order.FreeshipDiscount,
