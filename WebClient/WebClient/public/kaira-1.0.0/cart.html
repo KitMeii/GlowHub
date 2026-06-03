@@ -426,10 +426,13 @@
         let discountAmt = 0;
 
         if (appliedCoupon) {
-          if (appliedCoupon.type === "percent")
+          if (appliedCoupon.discountAmount !== undefined) {
+            discountAmt = appliedCoupon.discountAmount;
+          } else if (appliedCoupon.type === "percent") {
             discountAmt = Math.round((subtotal * appliedCoupon.value) / 100);
-          else if (appliedCoupon.type === "fixed")
+          } else if (appliedCoupon.type === "fixed") {
             discountAmt = appliedCoupon.value;
+          }
         }
 
         const total = Math.max(0, subtotal - discountAmt);
@@ -556,7 +559,7 @@
         toast("Đã xóa toàn bộ giỏ hàng", "error");
       }
 
-      function applyCoupon() {
+      async function applyCoupon() {
         const input = document.getElementById("coupon-input");
         const msg = document.getElementById("coupon-msg");
         if (!input || !msg) return;
@@ -568,18 +571,44 @@
           return;
         }
 
-        if (COUPONS[code]) {
-          appliedCoupon = { ...COUPONS[code], code };
-          msg.textContent = "✓ " + COUPONS[code].label + " đã được áp dụng!";
-          msg.className = "coupon-msg ok";
-          input.disabled = true;
-          toast("Áp dụng mã " + code + " thành công!");
-          renderSummaryOnly();
-        } else {
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const subtotal = items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+
+        try {
+          const token = typeof Auth !== "undefined" && Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+          const headers = { "Content-Type": "application/json" };
+          if (token) headers["Authorization"] = "Bearer " + token;
+
+          const res = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ code, orderAmount: subtotal })
+          });
+          const data = await res.json();
+
+          if (data.valid) {
+            appliedCoupon = {
+              code,
+              type: data.discountType,
+              value: data.discountValue,
+              discountAmount: data.discountAmount,
+              label: data.message
+            };
+            msg.textContent = "✓ " + data.message;
+            msg.className = "coupon-msg ok";
+            input.disabled = true;
+            toast("Áp dụng mã " + code + " thành công!");
+            renderSummaryOnly();
+          } else {
+            appliedCoupon = null;
+            msg.textContent = "✕ " + (data.message || "Mã giảm giá không hợp lệ");
+            msg.className = "coupon-msg error";
+            toast(data.message || "Mã giảm giá không hợp lệ", "error");
+          }
+        } catch (e) {
           appliedCoupon = null;
-          msg.textContent = "✕ Mã giảm giá không hợp lệ hoặc đã hết hạn";
+          msg.textContent = "✕ Lỗi kết nối. Vui lòng thử lại.";
           msg.className = "coupon-msg error";
-          toast("Mã giảm giá không hợp lệ", "error");
         }
       }
 
@@ -692,9 +721,10 @@
     </div>
 
     <script>
-    var _vpVouchers   = [];
-    var _vpSelected   = null;
-    var _vpLoaded     = false;
+    var _vpVouchers = [];   // public vouchers
+    var _vpSaved    = [];   // saved voucher objects (unwrapped from CustomerVoucher)
+    var _vpSelected = null;
+    var _vpLoaded   = false;
 
     function openVoucherPicker() {
       var bd = document.getElementById("voucherPickerBackdrop");
@@ -708,65 +738,97 @@
     }
 
     async function loadVoucherPicker() {
+      var list = document.getElementById("vp-list");
       try {
-        var res = await fetch("/api/vouchers/public");
+        var res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) _vpVouchers = await res.json();
+
+        if (typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn()) {
+          try {
+            var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { "Authorization": "Bearer " + Auth.getToken() }
+            });
+            if (res2.ok) {
+              var raw = await res2.json();
+              _vpSaved = raw.filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
+            }
+          } catch (_) {}
+        }
+
         _vpLoaded = true;
-        vpRender(_vpVouchers);
-      } catch(_) {
-        document.getElementById("vp-list").innerHTML =
-          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+        vpRender(_vpVouchers, _vpSaved);
+      } catch (_) {
+        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
       }
     }
 
     function vpFilter() {
       var q = (document.getElementById("vp-search").value || "").toLowerCase();
-      var filtered = q ? _vpVouchers.filter(v =>
-        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
-      ) : _vpVouchers;
-      vpRender(filtered);
+      var fp = q ? _vpVouchers.filter(v => (v.Code || "").toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q)) : _vpVouchers;
+      var fs = q ? _vpSaved.filter(v => (v.Code || "").toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q)) : _vpSaved;
+      vpRender(fp, fs);
     }
 
     function vpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function vpDiscLabel(v) {
-      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${vpFmt(v.discountValue)}`;
+      return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${vpFmt(v.DiscountValue)}`;
     }
 
-    function vpRender(list) {
+    function vpItem(v, isSaved) {
+      var sel = _vpSelected && _vpSelected.Code === v.Code;
+      return `
+        <div class="vo-modal-voucher-item ${sel ? 'selected' : ''}" onclick="vpSelect(this,'${v.Code}')">
+          <div class="vo-mvi-icon" style="${isSaved ? 'background:linear-gradient(135deg,#22c55e,#16a34a)' : ''}">
+            <i class="bi bi-${isSaved ? 'bookmark-fill' : 'ticket-perforated-fill'}"></i>
+          </div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.Description || v.Code}</div>
+            <div class="vo-mvi-sub">
+              ${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
+              ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.Code}</div>
+        </div>`;
+    }
+
+    function vpRender(publicList, savedList) {
       var el = document.getElementById("vp-list");
-      if (!list.length) {
+      savedList = savedList || [];
+      var html = "";
+
+      if (savedList.length) {
+        html += '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;">★ Voucher Đã Lưu</div>';
+        html += savedList.map(v => vpItem(v, true)).join("");
+      }
+
+      if (publicList.length) {
+        if (savedList.length) {
+          html += '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);padding:12px 0 6px;border-bottom:1px solid var(--border);margin:8px 0 8px;">Voucher Công Khai</div>';
+        }
+        html += publicList.map(v => vpItem(v, false)).join("");
+      }
+
+      if (!html) {
         el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
         return;
       }
-      el.innerHTML = list.map(v => `
-        <div class="vo-modal-voucher-item ${_vpSelected && _vpSelected.code === v.code ? 'selected' : ''}"
-             onclick="vpSelect(this,'${v.code}')">
-          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-          <div class="vo-mvi-info">
-            <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.description || v.code}</div>
-            <div class="vo-mvi-sub">
-              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
-              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
-            </div>
-          </div>
-          <div class="vo-mvi-code">${v.code}</div>
-        </div>
-      `).join("");
+      el.innerHTML = html;
     }
 
     function vpSelect(el, code) {
       document.querySelectorAll(".vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
       el.classList.add("selected");
-      _vpSelected = _vpVouchers.find(v => v.code === code) || { code };
+      _vpSelected = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
     }
 
-    function applyPickedVoucher() {
+    async function applyPickedVoucher() {
       if (!_vpSelected) { closeVoucherPicker(); return; }
       var inp = document.getElementById("coupon-input");
       if (inp) {
-        inp.value = _vpSelected.code;
+        inp.value = _vpSelected.Code;
         closeVoucherPicker();
-        if (typeof applyCoupon === "function") applyCoupon();
+        if (typeof applyCoupon === "function") await applyCoupon();
       }
     }
     </script>
