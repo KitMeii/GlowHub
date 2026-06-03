@@ -628,6 +628,11 @@ const Cart = {
     const idx = items.findIndex((i) => (i.id || i.Id) == id);
     if (idx > -1) {
       items[idx].qty = (items[idx].qty || 1) + qty;
+      // Upgrade shopId/shopName on existing items if previously missing
+      if (!items[idx].shopId   && (product.shopId   || product.ShopId))
+        items[idx].shopId   = product.shopId   || product.ShopId;
+      if (!items[idx].shopName && (product.shopName || product.ShopName))
+        items[idx].shopName = product.shopName || product.ShopName;
     } else {
       items.push({
         id: id,
