@@ -174,6 +174,11 @@ const Auth = {
     return !!localStorage.getItem("token") && !!localStorage.getItem("user");
   },
 
+  /** Lấy token hiện tại */
+  getToken() {
+    return localStorage.getItem("token");
+  },
+
   /** Kiểm tra admin */
   isAdmin() {
     const u = this.getCurrentUser();
