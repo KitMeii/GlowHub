@@ -1124,6 +1124,8 @@
           (p.Category && (p.Category.Name || p.Category.name)) ||
           p.CategoryName ||
           "";
+        var shopId   = p.ShopId   || p.shopId   || "";
+        var shopName = (p.ShopName || p.shopName || "").replace(/'/g, "&#39;");
         return (
           '<div class="product-card" data-id="' +
           id +
@@ -1161,7 +1163,7 @@
           price +
           ",'" +
           img +
-          "')\">Thêm Vào Giỏ</button>" +
+          "','" + shopId + "','" + shopName + "')\">Thêm Vào Giỏ</button>" +
           '<button class="btn-compare-card" onclick="event.preventDefault();compareToggle(' + id + ",'" + name.replace(/'/g, "\\'") + "','" + img + "','" + fmt(price) + "\')" +
           ' title="So sánh"><i class="bi bi-bar-chart-line"></i> So Sánh</button>' +
           "</div>"
@@ -1181,6 +1183,8 @@
           "images/product-item-1.jpg";
         var desc = p.Description || p.description || "";
         var isNew = p.IsNew || p.isNew;
+        var shopId   = p.ShopId   || p.shopId   || "";
+        var shopName = (p.ShopName || p.shopName || "").replace(/'/g, "\\'");
         return (
           '<div style="display:flex;gap:0;background:#fff;border:1px solid var(--border);overflow:hidden;transition:.2s" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.08)\'" onmouseout="this.style.boxShadow=\'none\'">' +
           '<div style="position:relative;width:140px;flex-shrink:0">' +
@@ -1219,7 +1223,7 @@
           price +
           ",'" +
           img +
-          "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Jost',sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +
+          "','" + shopId + "','" + shopName + "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Jost',sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +
           "</div></div></div>"
         );
       }
@@ -1828,9 +1832,9 @@
       }
 
       // ── CART ──
-      function addToCart(e, id, name, price, img) {
+      function addToCart(e, id, name, price, img, shopId, shopName) {
         e.stopPropagation();
-        Cart.add({ id: id, name: name, price: price, image: img });
+        Cart.add({ id: id, name: name, price: price, image: img, shopId: shopId || "", shopName: shopName || "" });
         showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
       }
 

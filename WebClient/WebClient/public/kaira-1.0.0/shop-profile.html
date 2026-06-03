@@ -719,7 +719,11 @@ function toggleWish(productId, btn) {
 // ── CART ──
 function quickAddCart(id, name, price, img) {
   if (typeof Cart !== 'undefined') {
-    Cart.add({id:id, name:name, price:price, image:img});
+    Cart.add({
+      id: id, name: name, price: price, image: img,
+      shopId:   _shopId || "",
+      shopName: (_shopData && _shopData.shopName) || ""
+    });
     showToast('✓ Đã thêm "' + name + '" vào giỏ');
   }
 }
