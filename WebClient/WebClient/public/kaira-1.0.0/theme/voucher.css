@@ -170,6 +170,7 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   margin-bottom: 48px;
+  align-items: stretch;
 }
 
 /* ── VOUCHER CARD ── */
@@ -201,6 +202,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 0;
 }
 
 .vo-card-type-badge {
@@ -246,7 +248,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: auto;
   padding-top: 10px;
   border-top: 1px dashed var(--border);
 }
