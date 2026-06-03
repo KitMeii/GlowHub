@@ -1112,7 +1112,8 @@
         var payLabels  = { cod: 'COD (khi nhận hàng)', bank: 'Chuyển khoản ngân hàng', momo: 'Ví MoMo', zalopay: 'ZaloPay' };
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
         var fee = (shippingMethod === 'standard' && sub >= 500000) ? 0 : shippingFee;
-        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal);
+        var shipDiscAmt = (appliedShipVoucher && fee > 0) ? fee : 0;
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal - shipDiscAmt);
 
         var grid = '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
           + '<span style="color:var(--gray)">Người nhận:</span><strong>' + addrName + '</strong>'
@@ -1128,6 +1129,7 @@
           + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
           + '<span style="color:var(--gray)">Phí vận chuyển:</span><span>' + (fee === 0 ? 'Miễn phí' : fmt(fee)) + '</span>'
           + (shopVoucherTotal ? '<span style="color:var(--gray)">Voucher shop:</span><span style="color:var(--pink)">-' + fmt(shopVoucherTotal) + '</span>' : '')
+          + (shipDiscAmt ? '<span style="color:var(--gray)">Voucher ship:</span><span style="color:#1d4ed8">-' + fmt(shipDiscAmt) + '</span>' : '')
           + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px" id="confirmTotal">' + fmt(total) + '</strong>'
           + '</div>';
 
