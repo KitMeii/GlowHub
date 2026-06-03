@@ -473,7 +473,7 @@
       </div>
     </div>
     <div class="adm-modal-backdrop" id="fsModalBackdrop" onclick="closeFsModal()"></div>
-    <div class="adm-modal" id="fsModal">
+    <div class="adm-modal" id="fsModal" style="max-width:640px">
       <div class="adm-modal-head" id="fsModalTitle">Tạo Flash Sale</div>
       <div style="padding:20px">
         <input type="hidden" id="fsId" />
@@ -489,6 +489,18 @@
             <input class="adm-input" type="datetime-local" id="fsEnd" />
           </div>
         </div>
+
+        <!-- Product management — only visible when editing an existing flash sale -->
+        <div id="fsProductSection" style="display:none;margin-top:16px">
+          <div style="font-weight:600;font-size:13px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:8px">Sản Phẩm Flash Sale</div>
+          <div id="fsProductList" style="max-height:200px;overflow-y:auto;margin-bottom:10px"></div>
+          <label class="adm-label">Thêm Sản Phẩm</label>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <input class="adm-input" id="fsProductSearch" placeholder="Tìm tên sản phẩm..." oninput="searchFsProducts()" style="flex:1" />
+          </div>
+          <div id="fsProductSearchResults" style="max-height:160px;overflow-y:auto;margin-top:4px;border:1px solid #e5e7eb;border-radius:6px;display:none"></div>
+        </div>
+
         <div class="d-flex gap-2 mt-3">
           <button class="adm-btn adm-btn-primary" onclick="saveFs()">Lưu</button>
           <button class="adm-btn" onclick="closeFsModal()">Hủy</button>
@@ -1370,6 +1382,10 @@
         <div class="text-end" style="font-size:14px;line-height:2">
           <div>Tạm Tính: ${fmt(o.totalAmount)}</div>
           <div>Phí Ship: ${fmt(o.shippingFee)}</div>
+          ${(() => {
+            const shopDisc = subOrders.reduce((s, so) => s + (so.shopVoucherDiscount||0), 0);
+            return shopDisc > 0 ? `<div>Voucher Shop: <span style="color:#ef4444">-${fmt(shopDisc)}</span></div>` : '';
+          })()}
           ${(o.systemVoucherDiscount||0)>0 ? `<div>Voucher Hệ Thống: <span style="color:#ef4444">-${fmt(o.systemVoucherDiscount)}</span></div>` : ''}
           ${(o.freeshipDiscount||0)>0 ? `<div>Voucher Freeship: <span style="color:#ef4444">-${fmt(o.freeshipDiscount)}</span></div>` : ''}
           <div><strong class="fs-5">Thành Tiền: ${fmt(o.finalAmount)}</strong></div>
@@ -1586,18 +1602,90 @@
     document.getElementById('fsModalBackdrop').style.display = 'block';
     document.getElementById('fsModal').classList.add('open');
   };
-  window.editFs = function(id, name, start, end) {
+  window.editFs = async function(id, name, start, end) {
     document.getElementById('fsId').value    = id;
     document.getElementById('fsName').value  = name;
     document.getElementById('fsStart').value = toLocalDT(start);
     document.getElementById('fsEnd').value   = toLocalDT(end);
     document.getElementById('fsModalTitle').textContent = 'Sửa Flash Sale';
+    document.getElementById('fsProductSection').style.display = 'block';
+    document.getElementById('fsProductSearch').value = '';
+    document.getElementById('fsProductSearchResults').style.display = 'none';
     document.getElementById('fsModalBackdrop').style.display = 'block';
     document.getElementById('fsModal').classList.add('open');
+    await loadFsProducts(id);
   };
+
+  async function loadFsProducts(saleId) {
+    const el = document.getElementById('fsProductList');
+    el.innerHTML = '<div class="adm-spinner-wrap" style="padding:8px"><div class="adm-spinner"></div></div>';
+    try {
+      const d = norm(await Admin.getFlashSaleDetail(saleId));
+      const products = (d.products || []).map(norm);
+      if (!products.length) { el.innerHTML = '<div style="color:#6b7280;font-size:12px;padding:6px 0">Chưa có sản phẩm</div>'; return; }
+      el.innerHTML = products.map(p => `
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6">
+          <img src="${p.image||''}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;flex-shrink:0" onerror="this.onerror=null;this.src='https://placehold.co/36x36'" />
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+            <div style="font-size:12px;color:#6b7280">Gốc: ${fmt(p.originalPrice)} → Sale: <strong style="color:#ef4444">${fmt(p.salePrice)}</strong> (-${p.discountPercent||0}%)</div>
+          </div>
+          <button class="adm-btn adm-btn-sm adm-btn-err" onclick="removeFsProduct(${saleId},${p.productId})"><i class="bi bi-trash"></i></button>
+        </div>`).join('');
+    } catch(e) { el.innerHTML = '<div style="color:#ef4444;font-size:12px">' + e.message + '</div>'; }
+  }
+
+  window.removeFsProduct = async function(saleId, productId) {
+    if (!confirm('Xóa sản phẩm khỏi flash sale?')) return;
+    try {
+      await Admin.removeFlashSaleProduct(saleId, productId);
+      toast('Đã xóa sản phẩm');
+      await loadFsProducts(saleId);
+    } catch(e) { toast(e.message, 'error'); }
+  };
+
+  let _fsSearchTimer = null;
+  window.searchFsProducts = function() {
+    clearTimeout(_fsSearchTimer);
+    _fsSearchTimer = setTimeout(async () => {
+      const kw = document.getElementById('fsProductSearch').value.trim();
+      const res = document.getElementById('fsProductSearchResults');
+      if (!kw) { res.style.display = 'none'; return; }
+      try {
+        const d = await Product.getAll({ keyword: kw, pageSize: 8 });
+        const items = (d.items || d || []).map(norm);
+        if (!items.length) { res.innerHTML = '<div style="padding:8px;font-size:12px;color:#6b7280">Không tìm thấy</div>'; res.style.display = 'block'; return; }
+        const saleId = document.getElementById('fsId').value;
+        res.innerHTML = items.map(p => `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;hover:background:#f9fafb" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <img src="${p.imageUrl||''}" style="width:30px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0" onerror="this.onerror=null;this.src='https://placehold.co/30x30'" />
+            <div style="flex:1;font-size:13px">${p.name} — <span style="color:#6b7280">${fmt(p.price)}</span></div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" placeholder="%" min="1" max="99" style="width:52px;padding:2px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" id="disc_${p.id}" value="10" />
+              <button class="adm-btn adm-btn-sm adm-btn-ok" onclick="addFsProduct(${saleId},${p.id})"><i class="bi bi-plus"></i></button>
+            </div>
+          </div>`).join('');
+        res.style.display = 'block';
+      } catch(e) { res.innerHTML = '<div style="padding:8px;font-size:12px;color:#ef4444">' + e.message + '</div>'; res.style.display = 'block'; }
+    }, 350);
+  };
+
+  window.addFsProduct = async function(saleId, productId) {
+    const discInput = document.getElementById('disc_' + productId);
+    const pct = parseFloat(discInput?.value || 10);
+    try {
+      await Admin.addFlashSaleProduct(saleId, { productId, discountPercent: pct, quantity: 100 });
+      toast('Đã thêm sản phẩm vào flash sale');
+      document.getElementById('fsProductSearch').value = '';
+      document.getElementById('fsProductSearchResults').style.display = 'none';
+      await loadFsProducts(saleId);
+    } catch(e) { toast(e.message, 'error'); }
+  };
+
   window.closeFsModal = function() {
     document.getElementById('fsModalBackdrop').style.display = 'none';
     document.getElementById('fsModal').classList.remove('open');
+    document.getElementById('fsProductSection').style.display = 'none';
   };
   window.saveFs = async function() {
     const id    = document.getElementById('fsId').value;
