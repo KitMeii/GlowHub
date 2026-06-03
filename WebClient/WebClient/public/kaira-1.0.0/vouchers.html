@@ -406,6 +406,11 @@
 
         var stripeClass = v.voucherType === "shop" ? "shop" : "system";
 
+        var shopLine =
+          v.voucherType === "shop" && v.shopName
+            ? `<div class="vo-card-shop-name">🏪 ${v.shopName}</div>`
+            : "";
+
         var expiry = v.ExpiryDate
           ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
           : "Không giới hạn";
@@ -437,6 +442,7 @@
         <div class="vo-card-stripe ${stripeClass}"></div>
         <div class="vo-card-body">
           ${typeBadge}
+          ${shopLine}
           <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">
             ${v.MaxDiscount ? `Giảm đến ${fmt(v.MaxDiscount)} · ` : ""}Hết hạn: ${expiry}
@@ -541,9 +547,30 @@
             empty.style.display = "";
             return;
           }
-          grid.innerHTML = items
-            .map((v) => renderCard(v, _savedIds.has(v.id)))
-            .join("");
+          if (_currentTab === "shop") {
+            var shopMap = new Map();
+            items.forEach(function (v) {
+              var key = v.ShopId || "__none__";
+              if (!shopMap.has(key))
+                shopMap.set(key, {
+                  name: v.shopName || v.ShopId || "Shop",
+                  vouchers: [],
+                });
+              shopMap.get(key).vouchers.push(v);
+            });
+            var html = "";
+            shopMap.forEach(function (group) {
+              html += `<div class="vo-shop-group-header">🏪 ${group.name}</div>`;
+              html += group.vouchers
+                .map((v) => renderCard(v, _savedIds.has(v.Id)))
+                .join("");
+            });
+            grid.innerHTML = html;
+          } else {
+            grid.innerHTML = items
+              .map((v) => renderCard(v, _savedIds.has(v.Id)))
+              .join("");
+          }
         }
 
         empty.style.display = "none";
