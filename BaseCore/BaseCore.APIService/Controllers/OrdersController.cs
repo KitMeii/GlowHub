@@ -918,6 +918,7 @@ namespace BaseCore.APIService.Controllers
             var order = await _db.Orders
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails).ThenInclude(od => od.Product).ThenInclude(p => p == null ? null : p.Shop)
+                .Include(o => o.SubOrders).ThenInclude(so => so.Shop)
                 .Include(o => o.StatusHistory)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -955,6 +956,27 @@ namespace BaseCore.APIService.Controllers
                     unitPrice   = od.UnitPrice,
                     subtotal    = od.UnitPrice * od.Quantity
                 }),
+                systemVoucherDiscount = order.SystemVoucherDiscount,
+                freeshipDiscount      = order.FreeshipDiscount,
+                subOrders = order.SubOrders
+                    .OrderBy(so => so.ShopId)
+                    .Select(so => new {
+                        shopId              = so.ShopId,
+                        shopName            = so.Shop != null ? so.Shop.ShopName : so.ShopId,
+                        status              = so.Status,
+                        totalAmount         = so.TotalAmount,
+                        shippingFee         = so.ShippingFee,
+                        shopVoucherDiscount = so.ShopVoucherDiscount,
+                        finalAmount         = so.FinalAmount,
+                        items = order.OrderDetails
+                            .Where(od => od.Product != null && od.Product.ShopId == so.ShopId)
+                            .Select(od => new {
+                                productName = od.Product!.Name,
+                                qty         = od.Quantity,
+                                unitPrice   = od.UnitPrice,
+                                subtotal    = od.UnitPrice * od.Quantity
+                            })
+                    }),
                 statusHistory = order.StatusHistory
                     .OrderBy(h => h.ChangedAt)
                     .Select(h => new {
