@@ -742,7 +742,16 @@
 
         document.getElementById("vo-skeleton").style.display = "none";
         updateBadges();
-        filterVouchers();
+
+        // Auto-switch to tab from ?tab= query param (e.g. from shop-profile "Xem tất cả")
+        var tabParam = new URLSearchParams(location.search).get("tab");
+        if (tabParam) {
+          var tabBtn = document.querySelector('.vo-tab-btn[data-tab="' + tabParam + '"]');
+          if (tabBtn) switchTab(tabParam, tabBtn);
+          else filterVouchers();
+        } else {
+          filterVouchers();
+        }
       });
     </script>
     <script src="js/navbar.js" defer></script>
