@@ -1263,7 +1263,7 @@
       const tbody = document.querySelector('#productsTable tbody');
       tbody.innerHTML = items.map(p => `
         <tr>
-          <td><img src="${p.imageUrl||''}" style="width:40px;height:40px;object-fit:cover;border-radius:4px" onerror="this.src='https://via.placeholder.com/40'" /></td>
+          <td><img src="${p.imageUrl||''}" style="width:40px;height:40px;object-fit:cover;border-radius:4px" onerror="this.onerror=null;this.src='https://placehold.co/40x40'" /></td>
           <td>${p.name}</td>
           <td>${fmt(p.discountPrice||p.price)}</td>
           <td class="${p.stock<10?'text-danger fw-bold':''}">${p.stock}</td>
