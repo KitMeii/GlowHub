@@ -1705,7 +1705,12 @@
       }
 
       var allShip = [...savedList.filter(_coIsShip), ...publicList.filter(_coIsShip)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
-      var allDisc = [...savedList.filter(v=>!_coIsShip(v)), ...publicList.filter(v=>!_coIsShip(v))].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var _coCartShopIds = new Set(
+        (_cartGrouped && _cartGrouped.groups ? _cartGrouped.groups : []).map(function(g){return g.shopId;}).filter(Boolean)
+      );
+      var allDisc = [...savedList.filter(v=>!_coIsShip(v)), ...publicList.filter(v=>!_coIsShip(v))]
+        .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
+        .filter(v => !v.ShopId || _coCartShopIds.has(v.ShopId));
       allShip.sort(sortBest); allDisc.sort(sortBest);
 
       var html = "";

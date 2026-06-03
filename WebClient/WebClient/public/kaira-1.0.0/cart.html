@@ -832,7 +832,11 @@
       }
 
       var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
-      var allDisc = [...savedList.filter(v=>!_isShipV(v)), ...publicList.filter(v=>!_isShipV(v))].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var _cartItemsNow = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+      var _cartShopIds = new Set(_cartItemsNow.map(i => i.shopId || i.ShopId).filter(Boolean));
+      var allDisc = [...savedList.filter(v=>!_isShipV(v)), ...publicList.filter(v=>!_isShipV(v))]
+        .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
+        .filter(v => !v.ShopId || _cartShopIds.has(v.ShopId));
       allShip.sort(sortBest); allDisc.sort(sortBest);
 
       var html = "";
