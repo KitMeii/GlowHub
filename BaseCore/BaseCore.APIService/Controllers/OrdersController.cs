@@ -264,20 +264,38 @@ namespace BaseCore.APIService.Controllers
             if (order.Status != OrderStatus.Shipping)
                 return BadRequest(new { message = "Chỉ xác nhận nhận hàng khi đơn đang giao" });
 
-            order.Status       = OrderStatus.Delivered;
-            order.PayoutStatus = PayoutStatusValue.WaitingRelease;
-            order.UpdatedAt    = DateTime.UtcNow;
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                order.Status       = OrderStatus.Delivered;
+                order.PayoutStatus = PayoutStatusValue.WaitingRelease;
+                order.UpdatedAt    = DateTime.UtcNow;
 
-            _db.OrderStatusHistories.Add(new OrderStatusHistory {
-                OrderId   = orderId,
-                Status    = OrderStatus.Delivered,
-                Note      = "Khách xác nhận đã nhận hàng",
-                ChangedBy = userId,
-                ChangedAt = DateTime.UtcNow
-            });
+                _db.OrderStatusHistories.Add(new OrderStatusHistory {
+                    OrderId   = orderId,
+                    Status    = OrderStatus.Delivered,
+                    Note      = "Khách xác nhận đã nhận hàng",
+                    ChangedBy = userId,
+                    ChangedAt = DateTime.UtcNow
+                });
 
-            await _db.SaveChangesAsync();
-            return Ok(new { message = "Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm." });
+                // Sync all SubOrders so seller sees DELIVERED + WaitingRelease
+                await _db.SubOrders
+                    .Where(s => s.OrderId == orderId)
+                    .ExecuteUpdateAsync(s =>
+                        s.SetProperty(x => x.Status,      OrderStatus.Delivered)
+                         .SetProperty(x => x.PayoutStatus, PayoutStatusValue.WaitingRelease)
+                         .SetProperty(x => x.UpdatedAt,   DateTime.UtcNow));
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                return Ok(new { message = "Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm." });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         /// <summary>GET /api/orders/my/{orderId}/track — Timeline 4 bước</summary>
@@ -510,6 +528,7 @@ namespace BaseCore.APIService.Controllers
                 decimal grandTotal     = 0m;
                 decimal grandSubtotal  = 0m;
                 decimal grandShipping  = 0m;
+                decimal grandSellerPayout = 0m;
                 int subOrderSeq        = 1;
 
                 var subOrderResults          = new List<object>();
@@ -619,6 +638,7 @@ namespace BaseCore.APIService.Controllers
                     grandShipping            += shipFee;
                     grandTotal               += groupFinal;
                     grandShopVoucherDiscount += shopVoucherDisc;
+                    grandSellerPayout        += sellerPayout;
 
                     if (hasShop && subOrder != null)
                     {
@@ -661,15 +681,15 @@ namespace BaseCore.APIService.Controllers
                 }
 
                 // ── Cập nhật Order tổng ──────────────────────────────
-                order.TotalAmount         = grandSubtotal;
-                order.ShippingFee         = grandShipping;
-                order.ShopVoucherDiscount = grandShopVoucherDiscount;
+                order.TotalAmount           = grandSubtotal;
+                order.ShippingFee           = grandShipping;
+                order.ShopVoucherDiscount   = grandShopVoucherDiscount;
                 order.SystemVoucherDiscount = systemVoucherDiscount;
                 order.FreeshipDiscount      = freeshipDiscount;
                 order.Discount              = systemVoucherDiscount + grandShopVoucherDiscount + freeshipDiscount;
                 order.FinalAmount           = grandTotal - systemVoucherDiscount - freeshipDiscount;
-                // ShopId = shop đầu tiên có hàng (backward compat)
-                order.ShopId        = shopGroups.FirstOrDefault(g => !string.IsNullOrEmpty(g.Key))?.First().Product?.ShopId;
+                order.SellerPayoutAmount    = grandSellerPayout;
+                order.ShopId               = null; // order spans multiple shops
 
                 // Xóa giỏ hàng
                 _db.CartItems.RemoveRange(cartItems);
@@ -1015,6 +1035,19 @@ namespace BaseCore.APIService.Controllers
             return (shop, null);
         }
 
+        // Sync parent Order.Status from all its SubOrders (SubOrder is source of truth per shop)
+        private void SyncOrderStatus(Order order)
+        {
+            var statuses = order.SubOrders.Select(s => s.Status).ToList();
+            if (!statuses.Any()) return;
+            if (statuses.All(s => s == OrderStatus.Delivered))
+                order.Status = OrderStatus.Delivered;
+            else if (statuses.Any(s => s == OrderStatus.Shipping))
+                order.Status = OrderStatus.Shipping;
+            else if (statuses.Any(s => s == OrderStatus.Confirmed))
+                order.Status = OrderStatus.Confirmed;
+        }
+
         // GET /api/orders/shop?status=&page=1&limit=10
         [HttpGet("shop")]
         [Authorize(Roles = RoleConstant.Seller)]
@@ -1301,6 +1334,12 @@ namespace BaseCore.APIService.Controllers
 
             sub.Status    = OrderStatus.Confirmed;
             sub.UpdatedAt = DateTime.UtcNow;
+
+            var order = await _db.Orders
+                .Include(o => o.SubOrders)
+                .FirstOrDefaultAsync(o => o.Id == sub.OrderId);
+            if (order != null) { SyncOrderStatus(order); order.UpdatedAt = DateTime.UtcNow; }
+
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã xác nhận SubOrder" });
         }
@@ -1321,6 +1360,18 @@ namespace BaseCore.APIService.Controllers
             sub.Status       = OrderStatus.Shipping;
             sub.TrackingCode = dto?.TrackingCode;
             sub.UpdatedAt    = DateTime.UtcNow;
+
+            var order = await _db.Orders
+                .Include(o => o.SubOrders)
+                .FirstOrDefaultAsync(o => o.Id == sub.OrderId);
+            if (order != null)
+            {
+                SyncOrderStatus(order);
+                var shippingCount = order.SubOrders.Count(s => s.Status == OrderStatus.Shipping);
+                order.TrackingCode = shippingCount <= 1 ? dto?.TrackingCode : "Nhiều đơn vị vận chuyển";
+                order.UpdatedAt    = DateTime.UtcNow;
+            }
+
             await _db.SaveChangesAsync();
             return Ok(new { message = "SubOrder đang được giao" });
         }
