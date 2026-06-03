@@ -505,6 +505,12 @@
       <h1 class="adm-page-title">Vouchers</h1>
       <button class="adm-btn adm-btn-primary" onclick="openVoucherModal()"><i class="bi bi-plus-lg"></i> Tạo Voucher</button>
     </div>
+    <div class="adm-filters">
+      <select class="adm-select" id="voucherShopFilter" onchange="loadVouchers()">
+        <option value="">Tất Cả</option>
+        <option value="__system__">🏷️ Hệ Thống</option>
+      </select>
+    </div>
     <div class="adm-card">
       <div class="adm-table-wrap">
         <table class="adm-table" id="vouchersTable">
@@ -1623,10 +1629,37 @@
   // ────────────────────────────────────────────
   async function loadVouchers() {
     try {
-      const vouchers = await Admin.getVouchers();
-      const tbody = document.querySelector('#vouchersTable tbody');
-      const now = new Date();
-      tbody.innerHTML = vouchers.map(norm).map(v => {
+      const sel = document.getElementById('voucherShopFilter');
+
+      // Repopulate shop options on every call (refresh when shops change)
+      if (sel) {
+        const savedVal = sel.value;
+        while (sel.options.length > 2) sel.remove(2); // keep "Tất Cả" + "Hệ Thống"
+        try {
+          const shopData = await Admin.getShopStats('limit=100');
+          const shopList = shopData.items || shopData || [];
+          shopList.map(norm).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value       = s.id ?? s.shopId ?? '';
+            opt.textContent = '🏪 ' + (s.shopName ?? s.name ?? s.id ?? '');
+            sel.appendChild(opt);
+          });
+          if (savedVal) sel.value = savedVal;
+        } catch(e) { /* silent — filter still works without shop list */ }
+      }
+
+      const filterVal = sel?.value || '';
+      const vouchers  = await Admin.getVouchers();
+      const tbody     = document.querySelector('#vouchersTable tbody');
+      const now       = new Date();
+
+      const filtered = vouchers.map(norm).filter(v => {
+        if (!filterVal)               return true;
+        if (filterVal === '__system__') return !v.shopId;
+        return v.shopId === filterVal;
+      });
+
+      tbody.innerHTML = filtered.map(v => {
         const expired = v.expiryDate && new Date(v.expiryDate) < now;
         return `
         <tr>
