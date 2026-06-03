@@ -2303,7 +2303,12 @@
       }
 
       async function viewOrder(orderId) {
-        document.getElementById("odm-id").textContent = "#" + orderId;
+        const _sName = (_shopInfo && (_shopInfo.ShopName || _shopInfo.shopName)) || "GlowHub";
+        const _sLabel = "ORD-" + String(orderId).padStart(6, "0");
+        const _nameEl = document.getElementById("odm-shop-name");
+        const _lblEl  = document.getElementById("odm-sub-label");
+        if (_nameEl) _nameEl.textContent = _sName;
+        if (_lblEl)  _lblEl.textContent  = _sLabel;
         document.getElementById("orderDetailBody").innerHTML =
           '<div class="d-flex justify-content-center py-4"><div class="spinner-sm"></div></div>';
         document.getElementById("orderDetailActions").innerHTML = "";

@@ -84,6 +84,7 @@ namespace BaseCore.APIService.Controllers
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
                 .Include(o => o.User)
+                .Include(o => o.SubOrders)
                 .Where(o => o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
                 .ToListAsync();
 
@@ -105,17 +106,20 @@ namespace BaseCore.APIService.Controllers
             var totalProducts  = productIds.Count;
             var lowStockCount  = await _db.Products.CountAsync(p => p.ShopId == shopId && p.Stock < 10 && p.IsActive);
 
-            // Recent 5 orders
+            // Recent 5 orders — amount is this shop's sub-order only
             var recentOrders = shopOrders
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
                 .Select(o => new
                 {
-                    orderId      = o.Id,
-                    customer     = o.User?.Name ?? o.UserId,
-                    totalAmount  = o.TotalAmount,
-                    status       = o.Status,
-                    createdAt    = o.OrderDate
+                    orderId     = o.Id,
+                    customer    = o.User?.Name ?? o.UserId,
+                    totalAmount = o.SubOrders.FirstOrDefault(s => s.ShopId == shopId)?.FinalAmount
+                                  ?? o.OrderDetails
+                                       .Where(od => productIds.Contains(od.ProductId))
+                                       .Sum(od => od.UnitPrice * od.Quantity),
+                    status      = o.Status,
+                    createdAt   = o.OrderDate
                 });
 
             // Top 5 products by sold count
