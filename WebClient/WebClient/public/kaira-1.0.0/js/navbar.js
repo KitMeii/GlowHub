@@ -222,9 +222,50 @@
   }
 
   /* ─────────────────────────────────
+     Tracking Nav (auth-gated, injected)
+  ───────────────────────────────── */
+  function injectTrackingNav() {
+    // Desktop gh-menu — insert <li> after vouchers <li>
+    var menu = document.querySelector('.gh-menu');
+    if (menu && !menu.querySelector('.gh-track-li')) {
+      var lis = menu.querySelectorAll('li');
+      var vLi = null;
+      for (var i = 0; i < lis.length; i++) {
+        if (lis[i].querySelector('a[href="vouchers.html"]')) { vLi = lis[i]; break; }
+      }
+      if (vLi) {
+        var li = document.createElement('li');
+        li.className = 'gh-track-li';
+        li.style.display = 'none';
+        var la = document.createElement('a');
+        la.href = 'order-tracking.html';
+        la.setAttribute('data-page', 'order-tracking');
+        la.textContent = 'Theo Dõi Đơn';
+        li.appendChild(la);
+        vLi.parentNode.insertBefore(li, vLi.nextSibling);
+      }
+    }
+    // Mobile gh-drawer-nav — insert <a> after vouchers <a>
+    var drawer = document.querySelector('.gh-drawer-nav');
+    if (drawer && !drawer.querySelector('.gh-track-li')) {
+      var vA = drawer.querySelector('a[href="vouchers.html"]');
+      if (vA) {
+        var da = document.createElement('a');
+        da.className = 'gh-track-li';
+        da.href = 'order-tracking.html';
+        da.setAttribute('data-page', 'order-tracking');
+        da.style.display = 'none';
+        da.textContent = 'Theo Dõi Đơn';
+        vA.parentNode.insertBefore(da, vA.nextSibling);
+      }
+    }
+  }
+
+  /* ─────────────────────────────────
      User Menu (100% từ localStorage)
   ───────────────────────────────── */
   function initUser() {
+    injectTrackingNav();
     var token   = getToken();
     var user    = getUser();
     var loginBtn  = $('ghLoginBtn');
@@ -246,6 +287,7 @@
 
     if (loginBtn) loginBtn.style.display = 'none';
     if (userWrap) userWrap.style.display = 'flex';
+    $$('.gh-track-li').forEach(function(el) { el.style.display = ''; });
 
     var name     = user.name || user.Name || user.username || user.UserName || user.FullName || user.fullName || '';
     var role     = user.role || user.Role || (user.roles && user.roles[0]) || (user.userType === 1 ? 'Admin' : 'User');
