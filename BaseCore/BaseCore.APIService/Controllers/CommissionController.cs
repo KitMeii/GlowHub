@@ -31,27 +31,34 @@ namespace BaseCore.APIService.Controllers
         [HttpGet("summary")]
         public async Task<IActionResult> GetSummary()
         {
-            var completedOrders = await _db.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.ShopId != null)
+            // SubOrder is source of truth for per-shop financials
+            var completedSubs = await _db.SubOrders
+                .Include(s => s.Order)
+                .Where(s => s.Order.Status == OrderStatus.Completed)
                 .ToListAsync();
 
             var wallets = await _db.SellerWallets
                 .Include(w => w.Shop)
                 .ToListAsync();
 
-            var totalRevenue    = completedOrders.Sum(o => o.ProductRevenue);
-            var totalCommission = completedOrders.Sum(o => o.CommissionAmount);
-            var totalNetSellers = completedOrders.Sum(o => o.SellerPayoutAmount);
+            var totalRevenue    = completedSubs.Sum(s => s.ProductRevenue);
+            var totalCommission = completedSubs.Sum(s => s.CommissionAmount);
+            var totalNetSellers = completedSubs.Sum(s => s.SellerPayoutAmount);
             var totalPaidOut    = wallets.Sum(w => w.TotalWithdrawn);
             var totalReleased   = wallets.Sum(w => w.TotalEarned);
 
-            var pendingRelease = await _db.Orders
-                .Where(o => o.PayoutStatus == PayoutStatusValue.WaitingRelease)
-                .SumAsync(o => o.SellerPayoutAmount);
+            var pendingRelease = await _db.SubOrders
+                .Where(s => s.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                .SumAsync(s => s.SellerPayoutAmount);
 
-            var byShop = completedOrders
-                .Where(o => o.ShopId != null)
-                .GroupBy(o => o.ShopId!)
+            // Admin net profit = commission - system-level discounts (stored on Order)
+            var systemDiscounts = await _db.Orders
+                .Where(o => o.Status == OrderStatus.Completed)
+                .SumAsync(o => o.SystemVoucherDiscount + o.FreeshipDiscount);
+            var adminNetProfit = totalCommission - systemDiscounts;
+
+            var byShop = completedSubs
+                .GroupBy(s => s.ShopId!)
                 .Select(g => {
                     var wallet = wallets.FirstOrDefault(w => w.ShopId == g.Key);
                     return new {
@@ -59,9 +66,9 @@ namespace BaseCore.APIService.Controllers
                         shopName         = wallet?.Shop?.ShopName ?? g.Key,
                         logo             = wallet?.Shop?.Logo,
                         commissionRate   = g.First().CommissionRate,
-                        totalRevenue     = g.Sum(o => o.ProductRevenue),
-                        commissionAmount = g.Sum(o => o.CommissionAmount),
-                        netRevenue       = g.Sum(o => o.SellerPayoutAmount),
+                        totalRevenue     = g.Sum(s => s.ProductRevenue),
+                        commissionAmount = g.Sum(s => s.CommissionAmount),
+                        netRevenue       = g.Sum(s => s.SellerPayoutAmount),
                         walletBalance    = wallet?.Balance ?? 0m,
                         totalEarned      = wallet?.TotalEarned ?? 0m,
                         totalWithdrawn   = wallet?.TotalWithdrawn ?? 0m
@@ -69,10 +76,6 @@ namespace BaseCore.APIService.Controllers
                 })
                 .OrderByDescending(x => x.totalRevenue)
                 .Take(20);
-
-            // Admin net profit: commission - systemVoucher - freeship
-            var adminNetProfit = completedOrders.Sum(o =>
-                o.CommissionAmount - o.SystemVoucherDiscount - o.FreeshipDiscount);
 
             return Ok(new {
                 totalRevenue,
@@ -112,32 +115,42 @@ namespace BaseCore.APIService.Controllers
 
             var shopIds = shops.Select(s => s.Id).ToList();
 
-            var orders = await _db.Orders
-                .Where(o => o.Status == OrderStatus.Completed
-                         && o.ShopId != null
-                         && shopIds.Contains(o.ShopId!)
-                         && o.OrderDate >= fromDate && o.OrderDate < toDate)
+            // Use SubOrders as source of truth for per-shop financials
+            var subOrders = await _db.SubOrders
+                .Include(s => s.Order)
+                .Where(s => shopIds.Contains(s.ShopId!)
+                         && s.Order.OrderDate >= fromDate && s.Order.OrderDate < toDate
+                         && s.Order.Status != OrderStatus.Cancelled)
                 .ToListAsync();
 
             var wallets = await _db.SellerWallets
                 .Where(w => shopIds.Contains(w.ShopId))
                 .ToListAsync();
 
+            // Pending payout per shop (WaitingRelease SubOrders)
+            var pendingMap = await _db.SubOrders
+                .Where(s => shopIds.Contains(s.ShopId!) && s.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { ShopId = g.Key, Amount = g.Sum(s => s.SellerPayoutAmount) })
+                .ToListAsync();
+            var pendingByShop = pendingMap.ToDictionary(x => x.ShopId, x => x.Amount);
+
             var result = shops.Select(shop => {
-                var shopOrders = orders.Where(o => o.ShopId == shop.Id).ToList();
-                var wallet     = wallets.FirstOrDefault(w => w.ShopId == shop.Id);
+                var shopSubs = subOrders.Where(s => s.ShopId == shop.Id).ToList();
+                var wallet   = wallets.FirstOrDefault(w => w.ShopId == shop.Id);
                 return new {
                     shopId           = shop.Id,
                     shopName         = shop.ShopName,
                     logo             = shop.Logo,
                     commissionRate   = shop.CommissionRate,
-                    revenue          = shopOrders.Sum(o => o.ProductRevenue),
-                    commissionAmount = shopOrders.Sum(o => o.CommissionAmount),
-                    netRevenue       = shopOrders.Sum(o => o.SellerPayoutAmount),
+                    revenue          = shopSubs.Sum(s => s.ProductRevenue),
+                    commissionAmount = shopSubs.Sum(s => s.CommissionAmount),
+                    netRevenue       = shopSubs.Sum(s => s.SellerPayoutAmount),
                     walletBalance    = wallet?.Balance ?? 0m,
                     totalEarned      = wallet?.TotalEarned ?? 0m,
                     totalWithdrawn   = wallet?.TotalWithdrawn ?? 0m,
-                    orderCount       = shopOrders.Count
+                    pendingPayout    = pendingByShop.TryGetValue(shop.Id, out var pp) ? pp : 0m,
+                    orderCount       = shopSubs.Select(s => s.OrderId).Distinct().Count()
                 };
             }).ToList();
 
