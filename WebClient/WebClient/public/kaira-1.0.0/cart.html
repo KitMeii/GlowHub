@@ -216,6 +216,7 @@
       // ══════════════════════════════════════════════
       let appliedCoupon = null;
       let appliedShipCoupon = null;
+      let _shopVouchers = {}; // shopId → { code, discountAmount, shopName }
 
       // ══════════════════════════════════════════════
       //  FORMAT
@@ -446,7 +447,15 @@
           }
         }
 
-        const total = Math.max(0, subtotal - discountAmt);
+        const shopDiscountTotal = Object.values(_shopVouchers).reduce((s, v) => s + (v.discountAmount || 0), 0);
+        const shopDiscountLines = Object.values(_shopVouchers)
+          .filter(sv => sv.discountAmount > 0)
+          .map(sv => `<div class="summary-line discount">
+            <span class="label">🏪 ${sv.shopName || 'Shop'} (${sv.code})</span>
+            <span class="value">−${fmt(sv.discountAmount)}</span>
+          </div>`).join('');
+
+        const total = Math.max(0, subtotal - discountAmt - shopDiscountTotal);
 
         return `
           <div class="summary-line">
@@ -466,6 +475,7 @@
             </div>`
               : ""
           }
+          ${shopDiscountLines}
           <div class="summary-total">
             <span class="label">Tổng Cộng</span>
             <span class="value">${fmt(total)}</span>
@@ -706,9 +716,65 @@
       // ══════════════════════════════════════════════
       document.addEventListener("DOMContentLoaded", function () {
         if (typeof renderNavUser === "function") renderNavUser();
+        // Restore persisted shop vouchers before first render
+        try {
+          var _svStored = localStorage.getItem("gh_shop_vouchers");
+          if (_svStored) _shopVouchers = JSON.parse(_svStored) || {};
+        } catch (_) {}
         render();
         loadSuggestedProducts();
+        autoApplyShopVouchers();
       });
+
+      async function autoApplyShopVouchers() {
+        if (typeof Auth === "undefined" || !Auth.isLoggedIn || !Auth.isLoggedIn()) return;
+        try {
+          const token = Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+          const res = await fetch(PRODUCT_API + "/api/vouchers/my", {
+            headers: { "Authorization": "Bearer " + token }
+          });
+          if (!res.ok) return;
+          const myList = await res.json();
+          const shopSaved = myList
+            .filter(cv => !cv.IsUsed && cv.voucher && cv.voucher.ShopId)
+            .map(cv => cv.voucher);
+          if (!shopSaved.length) return;
+
+          const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+          const groups = _groupByShop(items).filter(g => g.shopId !== "__none__");
+          if (!groups.length) return;
+
+          const existingMap = JSON.parse(localStorage.getItem("gh_shop_vouchers") || "{}");
+          let changed = false;
+
+          for (const group of groups) {
+            if (existingMap[group.shopId]) continue; // already have one (manual or prior auto)
+            const candidates = shopSaved.filter(v => v.ShopId === group.shopId);
+            if (!candidates.length) continue;
+            candidates.sort((a, b) => (b.DiscountValue || 0) - (a.DiscountValue || 0));
+            const best = candidates[0];
+            try {
+              const shopSubtotal = group.items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+              const valRes = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                body: JSON.stringify({ code: best.Code, orderAmount: shopSubtotal, shopId: group.shopId })
+              });
+              const data = await valRes.json();
+              if (data.valid) {
+                _shopVouchers[group.shopId] = { code: best.Code, discountAmount: data.discountAmount, shopName: group.shopName };
+                existingMap[group.shopId] = { code: best.Code, discountAmount: data.discountAmount, shopName: group.shopName };
+                changed = true;
+              }
+            } catch (_) {}
+          }
+
+          if (changed) {
+            localStorage.setItem("gh_shop_vouchers", JSON.stringify(existingMap));
+            renderSummaryOnly();
+          }
+        } catch (_) {}
+      }
     </script>
     <script src="js/gsap.js" defer></script>
 
