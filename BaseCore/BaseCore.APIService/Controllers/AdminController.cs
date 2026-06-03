@@ -81,19 +81,23 @@ namespace BaseCore.APIService.Controllers
                     createdAt = DateTime.SpecifyKind(o.OrderDate, DateTimeKind.Utc)
                 });
 
-            // Top 5 shops by revenue
-            var shopRevenue = new List<object>();
-            var shops = await _db.Shops.Where(s => s.Status == ShopStatus.Active).ToListAsync();
-            foreach (var shop in shops.Take(10))
-            {
-                var shopProductIds = await _db.Products.Where(p => p.ShopId == shop.Id).Select(p => p.Id).ToListAsync();
-                if (!shopProductIds.Any()) continue;
-                var rev = allOrders
-                    .Where(o => o.Status == OrderStatus.Completed && o.OrderDetails.Any(od => shopProductIds.Contains(od.ProductId)))
-                    .Sum(o => o.OrderDetails.Where(od => shopProductIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
-                shopRevenue.Add(new { shopId = shop.Id, shopName = shop.ShopName, revenue = rev });
-            }
-            var topShops = shopRevenue.OrderByDescending(x => ((dynamic)x).revenue).Take(5);
+            // Top 5 shops by revenue — SubOrders as source of truth
+            var topShopRevData = await _db.SubOrders
+                .Where(s => s.ShopId != null && s.Order.Status == OrderStatus.Completed)
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { shopId = g.Key, revenue = g.Sum(s => s.ProductRevenue) })
+                .OrderByDescending(x => x.revenue)
+                .Take(5)
+                .ToListAsync();
+            var topShopIds  = topShopRevData.Select(x => x.shopId).ToList();
+            var topShopDict = await _db.Shops
+                .Where(s => topShopIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, s => s.ShopName);
+            var topShops = topShopRevData.Select(x => new {
+                shopId   = x.shopId,
+                shopName = topShopDict.TryGetValue(x.shopId, out var sn) ? sn : x.shopId,
+                revenue  = x.revenue
+            });
 
             return Ok(new {
                 users = new { total = totalUsers, sellers = totalSellers, admins = totalAdmins, newToday = newUsersToday },
