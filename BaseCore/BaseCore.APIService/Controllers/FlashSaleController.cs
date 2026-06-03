@@ -258,6 +258,65 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { message = "Đã xóa flash sale" });
         }
 
+        /// <summary>POST /api/flashsale/{id}/products — Thêm sản phẩm vào flash sale (Admin)</summary>
+        [HttpPost("{id:int}/products")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddProduct(int id, [FromBody] AddFlashSaleProductDto dto)
+        {
+            var sale = await _db.FlashSales.FindAsync(id);
+            if (sale == null) return NotFound(new { message = "Không tìm thấy flash sale" });
+
+            var product = await _db.Products.FindAsync(dto.ProductId);
+            if (product == null) return NotFound(new { message = "Không tìm thấy sản phẩm" });
+
+            var existing = await _db.FlashSaleProducts
+                .FirstOrDefaultAsync(p => p.FlashSaleId == id && p.ProductId == dto.ProductId && p.IsActive);
+            if (existing != null) return BadRequest(new { message = "Sản phẩm đã có trong flash sale" });
+
+            var salePrice = dto.DiscountPercent > 0
+                ? Math.Round(product.Price * (1 - dto.DiscountPercent / 100m), 0)
+                : dto.SalePrice > 0 ? dto.SalePrice : product.Price;
+            var qty = dto.Quantity > 0 ? dto.Quantity : 100;
+
+            var fsp = new FlashSaleProduct {
+                FlashSaleId       = id,
+                ProductId         = dto.ProductId,
+                SalePrice         = salePrice,
+                OriginalPrice     = product.Price,
+                Quantity          = qty,
+                RemainingQuantity = qty,
+                SoldCount         = 0,
+                IsActive          = true
+            };
+            _db.FlashSaleProducts.Add(fsp);
+            await _db.SaveChangesAsync();
+
+            return Ok(new {
+                id              = fsp.Id,
+                productId       = fsp.ProductId,
+                name            = product.Name,
+                image           = product.ImageUrl,
+                originalPrice   = fsp.OriginalPrice,
+                salePrice       = fsp.SalePrice,
+                discountPercent = dto.DiscountPercent,
+                quantity        = qty
+            });
+        }
+
+        /// <summary>DELETE /api/flashsale/{id}/products/{productId} — Xóa sản phẩm khỏi flash sale (Admin)</summary>
+        [HttpDelete("{id:int}/products/{productId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveProduct(int id, int productId)
+        {
+            var fsp = await _db.FlashSaleProducts
+                .FirstOrDefaultAsync(p => p.FlashSaleId == id && p.ProductId == productId);
+            if (fsp == null) return NotFound(new { message = "Không tìm thấy sản phẩm trong flash sale" });
+
+            _db.FlashSaleProducts.Remove(fsp);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xóa sản phẩm khỏi flash sale" });
+        }
+
         /// <summary>PUT /api/flashsale/{id}/toggle — Bật/tắt flash sale (Admin)</summary>
         [HttpPut("{id:int}/toggle")]
         [Authorize(Roles = "Admin")]
@@ -443,6 +502,14 @@ namespace BaseCore.APIService.Controllers
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public bool? IsActive { get; set; }
+    }
+
+    public class AddFlashSaleProductDto
+    {
+        public int ProductId { get; set; }
+        public decimal SalePrice { get; set; }
+        public decimal DiscountPercent { get; set; }
+        public int Quantity { get; set; }
     }
 
     public class BuyFlashSaleDto

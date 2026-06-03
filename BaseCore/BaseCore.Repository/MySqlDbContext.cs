@@ -437,7 +437,7 @@ namespace BaseCore.Repository
                 entity.Property(e => e.Action).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.UserId).HasMaxLength(450);
                 entity.Property(e => e.UserName).HasMaxLength(256);
-                entity.Property(e => e.EntityType).HasMaxLength(100);
+                entity.Property(e => e.EntityType).HasColumnName("Entity").HasMaxLength(100);
                 entity.Property(e => e.EntityId).HasMaxLength(450);
                 entity.Property(e => e.IpAddress).HasMaxLength(50);
             });

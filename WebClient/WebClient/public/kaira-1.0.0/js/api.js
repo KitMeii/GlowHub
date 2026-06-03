@@ -1471,6 +1471,9 @@ const Admin = {
   getFlashSales(qs) {
     return apiFetch(PRODUCT_API, "/api/flashsale/admin/list" + (qs ? "?" + qs : ""), "GET");
   },
+  getFlashSaleDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "GET");
+  },
   createFlashSale(data) {
     return apiFetch(PRODUCT_API, "/api/flashsale", "POST", data);
   },
@@ -1482,6 +1485,12 @@ const Admin = {
   },
   toggleFlashSale(id) {
     return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/toggle", "PUT");
+  },
+  addFlashSaleProduct(id, data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products", "POST", data);
+  },
+  removeFlashSaleProduct(id, productId) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products/" + productId, "DELETE");
   },
 
   // ── Vouchers ──
