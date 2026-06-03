@@ -1794,6 +1794,14 @@
   // ────────────────────────────────────────────
   // SETTINGS
   // ────────────────────────────────────────────
+  function tryFixMojibake(s) {
+    if (!s || !/[\x80-\xFF]/.test(s)) return s;
+    try {
+      const bytes = Uint8Array.from([...s].map(c => c.charCodeAt(0)));
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch(e) { return s; }
+  }
+
   async function loadSettings() {
     try {
       const settings = await Admin.getConfig();
@@ -1805,10 +1813,10 @@
 
       el.innerHTML = Object.entries(groups).map(([group, items]) => `
         <div class="adm-settings-group">
-          <div class="adm-settings-group-title">${group}</div>
+          <div class="adm-settings-group-title">${tryFixMojibake(group)}</div>
           ${items.map(s => `
             <div class="adm-setting-row">
-              <label class="adm-label">${s.label || s.key}</label>
+              <label class="adm-label">${tryFixMojibake(s.label || s.key)}</label>
               <input class="adm-input" data-key="${s.key}" value="${s.value||''}" placeholder="${s.key}" />
             </div>`).join('')}
         </div>`).join('');
