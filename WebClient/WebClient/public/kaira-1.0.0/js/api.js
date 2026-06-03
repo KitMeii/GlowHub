@@ -647,6 +647,8 @@ const Cart = {
           product.Category ||
           product.category ||
           "",
+        shopId:   product.shopId   || product.ShopId   || "",
+        shopName: product.shopName || product.ShopName || "",
         qty: qty,
       });
     }
@@ -980,6 +982,8 @@ async function renderProductsOnIndex() {
       var isNew = p.IsNew || p.isNew;
       var sale = p.SalePercent || p.salePercent || p.discount || 0;
       var sn = name.replace(/'/g, "&#39;");
+      var shopId = p.ShopId || p.shopId || "";
+      var shopName = (p.ShopName || p.shopName || "").replace(/'/g, "&#39;");
 
       var badgeHtml = isNew
         ? '<span class="badge-new">Mới</span>'
@@ -1001,7 +1005,7 @@ async function renderProductsOnIndex() {
           <span class="product-price">${_fmtMoney(price)}</span>
         </div>
         <button class="btn-add-cart"
-          data-id="${id}" data-name="${sn}" data-price="${price}" data-img="${img}"
+          data-id="${id}" data-name="${sn}" data-price="${price}" data-img="${img}" data-shop-id="${shopId}" data-shop-name="${shopName}"
           onclick="event.stopPropagation();addToCartFromCard(this)">
           Thêm Vào Giỏ
         </button>
@@ -1009,6 +1013,18 @@ async function renderProductsOnIndex() {
     </div>`;
     })
     .join("");
+}
+
+/** Handler cho nút add-to-cart được render bằng JS (có data attributes) */
+function addToCartFromCard(btn) {
+  var id = btn.dataset.id || btn.dataset.productId;
+  var name = btn.dataset.name || "Sản phẩm";
+  var price = parseFloat(btn.dataset.price) || 0;
+  var img = btn.dataset.img || "";
+  var shopId = btn.dataset.shopId || "";
+  var shopName = btn.dataset.shopName || "";
+  Cart.add({ id: id, name: name, price: price, image: img, shopId: shopId, shopName: shopName });
+  if (typeof showGlobalToast !== "undefined") showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
 }
 
 /** Gắn sự kiện cho các nút tĩnh trong HTML (khi API chưa sẵn sàng) */
@@ -1036,8 +1052,10 @@ function _attachStaticCartButtons() {
         (card && card.dataset && card.dataset.productId
           ? card.dataset.productId
           : null) || Date.now();
+      const shopId = (card && card.dataset.shopId) || btn.dataset.shopId || "";
+      const shopName = (card && card.dataset.shopName) || btn.dataset.shopName || "";
 
-      Cart.add({ id, name, price, image: img });
+      Cart.add({ id, name, price, image: img, shopId, shopName });
       showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
     });
   });

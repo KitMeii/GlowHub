@@ -723,8 +723,43 @@
         } catch (_) {}
         render();
         loadSuggestedProducts();
+        resolveShopNames();
         autoApplyShopVouchers();
       });
+
+      async function resolveShopNames() {
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const groups = _groupByShop(items);
+        const needsLookup = groups.filter(g => g.shopId !== "__none__" && !g.shopName);
+        if (!needsLookup.length) return;
+
+        let changed = false;
+        for (const group of needsLookup) {
+          try {
+            const res = await fetch(PRODUCT_API + "/api/shops/" + group.shopId + "/profile");
+            if (!res.ok) continue;
+            const data = await res.json();
+            const name = data.shopName || data.ShopName || "";
+            if (!name) continue;
+            // Patch shopName into every matching item in localStorage
+            const allItems = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+            let modified = false;
+            allItems.forEach(function (i) {
+              if ((i.shopId || i.ShopId) === group.shopId && !i.shopName) {
+                i.shopName = name;
+                modified = true;
+              }
+            });
+            if (modified) {
+              const key = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
+              localStorage.setItem(key, JSON.stringify(allItems));
+              changed = true;
+            }
+          } catch (_) {}
+        }
+
+        if (changed) render();
+      }
 
       async function autoApplyShopVouchers() {
         if (typeof Auth === "undefined" || !Auth.isLoggedIn || !Auth.isLoggedIn()) return;
