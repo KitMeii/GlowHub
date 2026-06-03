@@ -296,7 +296,7 @@
       <input class="adm-input" id="orderSearch" placeholder="Mã đơn, tên khách, SĐT..." oninput="loadOrders()" />
       <select class="adm-select" id="orderStatus" onchange="loadOrders()">
         <option value="">Tất Cả</option>
-        <option value="PENDING">Chờ Xác Nhận</option>
+        <option value="PENDING">Chờ Xử Lý</option>
         <option value="CONFIRMED">Đã Xác Nhận</option>
         <option value="SHIPPING">Đang Giao</option>
         <option value="DELIVERED">Đã Giao</option>
@@ -992,9 +992,17 @@
     'COMPLETED': 'adm-badge-ok',
     'CANCELLED': 'adm-badge-err'
   };
+  const STATUS_LABEL = {
+    'PENDING':   'Chờ Xử Lý',
+    'CONFIRMED': 'Đã Xác Nhận',
+    'SHIPPING':  'Đang Giao',
+    'DELIVERED': 'Đã Giao',
+    'COMPLETED': 'Hoàn Thành',
+    'CANCELLED': 'Đã Hủy'
+  };
   function statusBadge(s) {
     const cls = STATUS_BADGE[s] || 'adm-badge-info';
-    return `<span class="adm-badge ${cls}">${s}</span>`;
+    return `<span class="adm-badge ${cls}">${STATUS_LABEL[s] || s}</span>`;
   }
 
   function shopStatusText(n) {
@@ -1306,6 +1314,35 @@
   window.viewOrder = async function(id) {
     try {
       const o = await Admin.getOrderDetail(id);
+
+      // Build per-shop breakdown from SubOrders (if available), else group by shopName
+      const subOrders = o.subOrders || [];
+      let shopSection = '';
+      if (subOrders.length) {
+        shopSection = subOrders.map(so => `
+          <div style="border:1px solid #e5e7eb;border-radius:8px;margin-bottom:12px;overflow:hidden">
+            <div style="background:#f9fafb;padding:8px 14px;font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center">
+              <span>🏪 ${so.shopName || so.shopId || '—'}</span>
+              <span>${statusBadge(so.status || o.status)}</span>
+            </div>
+            <table class="adm-table" style="margin:0">
+              <thead><tr><th>Sản Phẩm</th><th>SL</th><th>Đơn Giá</th><th>Thành Tiền</th></tr></thead>
+              <tbody>${(so.items || []).map(i => `<tr>
+                <td>${i.productName}</td><td>${i.qty}</td><td>${fmt(i.unitPrice)}</td><td>${fmt(i.subtotal)}</td>
+              </tr>`).join('')}</tbody>
+            </table>
+            <div style="padding:8px 14px;text-align:right;font-size:13px;border-top:1px solid #e5e7eb;line-height:1.8">
+              ${(so.shopVoucherDiscount||0)>0 ? `<div>Voucher shop: <span style="color:#ef4444">-${fmt(so.shopVoucherDiscount)}</span></div>` : ''}
+              <div>Tạm tính: <strong>${fmt(so.totalAmount)}</strong></div>
+            </div>
+          </div>`).join('');
+      } else {
+        shopSection = `<table class="adm-table">
+          <thead><tr><th>Sản Phẩm</th><th>Shop</th><th>SL</th><th>Đơn Giá</th><th>Thành Tiền</th></tr></thead>
+          <tbody>${(o.items||[]).map(i=>`<tr><td>${i.productName}</td><td>${i.shopName||'—'}</td><td>${i.qty}</td><td>${fmt(i.unitPrice)}</td><td>${fmt(i.subtotal)}</td></tr>`).join('')}</tbody>
+        </table>`;
+      }
+
       const html = `
         <div class="row g-3">
           <div class="col-md-6">
@@ -1322,21 +1359,20 @@
           </div>
         </div>
         <hr>
-        <table class="adm-table">
-          <thead><tr><th>Sản Phẩm</th><th>Shop</th><th>SL</th><th>Đơn Giá</th><th>Thành Tiền</th></tr></thead>
-          <tbody>${o.items.map(i=>`<tr><td>${i.productName}</td><td>${i.shopName||'—'}</td><td>${i.qty}</td><td>${fmt(i.unitPrice)}</td><td>${fmt(i.subtotal)}</td></tr>`).join('')}</tbody>
-        </table>
+        ${shopSection}
         <hr>
-        <div class="text-end">
-          <strong>Tổng HH:</strong> ${fmt(o.totalAmount)}<br>
-          <strong>Phí Ship:</strong> ${fmt(o.shippingFee)}<br>
-          <strong class="fs-5">Thành Tiền: ${fmt(o.finalAmount)}</strong>
+        <div class="text-end" style="font-size:14px;line-height:2">
+          <div>Tạm Tính: ${fmt(o.totalAmount)}</div>
+          <div>Phí Ship: ${fmt(o.shippingFee)}</div>
+          ${(o.systemVoucherDiscount||0)>0 ? `<div>Voucher Hệ Thống: <span style="color:#ef4444">-${fmt(o.systemVoucherDiscount)}</span></div>` : ''}
+          ${(o.freeshipDiscount||0)>0 ? `<div>Voucher Freeship: <span style="color:#ef4444">-${fmt(o.freeshipDiscount)}</span></div>` : ''}
+          <div><strong class="fs-5">Thành Tiền: ${fmt(o.finalAmount)}</strong></div>
         </div>
         <div class="mt-3">
           <label class="adm-label">Cập Nhật Trạng Thái</label>
           <div class="d-flex gap-2 mt-1">
             <select class="adm-select" id="detailStatusSel">
-              ${['PENDING','CONFIRMED','SHIPPING','DELIVERED','COMPLETED','CANCELLED'].map(s=>`<option value="${s}"${s===o.status?' selected':''}>${s}</option>`).join('')}
+              ${['PENDING','CONFIRMED','SHIPPING','DELIVERED','COMPLETED','CANCELLED'].map(s=>`<option value="${s}"${s===o.status?' selected':''}>${STATUS_LABEL[s]||s}</option>`).join('')}
             </select>
             <button class="adm-btn adm-btn-primary" onclick="updateOrderStatus(${id}, document.getElementById('detailStatusSel').value)">Cập Nhật</button>
           </div>
