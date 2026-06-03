@@ -435,6 +435,18 @@ namespace BaseCore.APIService.Controllers
                     }
                 }
 
+                // ── Tìm freeship voucher (áp dụng sau khi tính xong tổng ship) ──
+                Voucher? shipVoucherEntity = null;
+                if (!string.IsNullOrWhiteSpace(dto.ShipVoucherCode))
+                {
+                    shipVoucherEntity = await _db.Vouchers.FirstOrDefaultAsync(v =>
+                        v.Code == dto.ShipVoucherCode.ToUpper() && v.IsActive &&
+                        v.ShopId == null &&
+                        (!v.ExpiryDate.HasValue || v.ExpiryDate >= DateTime.UtcNow) &&
+                        (!v.StartDate.HasValue  || v.StartDate  <= DateTime.UtcNow) &&
+                        (!v.UsageLimit.HasValue || v.UsedCount  < v.UsageLimit));
+                }
+
                 // ── Tạo parent Order ─────────────────────────────────
                 var paymentMethod = dto.PaymentMethod switch {
                     1 => "BANK", 2 => "MOMO", 3 => "ZALOPAY", 4 => "VNPAY", _ => "COD"
@@ -604,13 +616,30 @@ namespace BaseCore.APIService.Controllers
                     }
                 }
 
+                // ── Áp dụng freeship voucher ──────────────────────────────
+                if (shipVoucherEntity != null)
+                {
+                    var subtotalForShip = cartItems.Sum(c => (c.Product!.DiscountPrice ?? c.Product.Price) * c.Quantity);
+                    if (subtotalForShip >= shipVoucherEntity.MinOrderAmount)
+                    {
+                        var disc = shipVoucherEntity.DiscountType == "percent"
+                            ? grandShipping * shipVoucherEntity.DiscountValue / 100
+                            : shipVoucherEntity.DiscountValue;
+                        if (shipVoucherEntity.MaxDiscount.HasValue && disc > shipVoucherEntity.MaxDiscount.Value)
+                            disc = shipVoucherEntity.MaxDiscount.Value;
+                        freeshipDiscount = Math.Min(disc, grandShipping);
+                        shipVoucherEntity.UsedCount++;
+                    }
+                }
+
                 // ── Cập nhật Order tổng ──────────────────────────────
                 order.TotalAmount         = grandSubtotal;
                 order.ShippingFee         = grandShipping;
                 order.ShopVoucherDiscount = grandShopVoucherDiscount;
                 order.SystemVoucherDiscount = systemVoucherDiscount;
-                order.Discount            = systemVoucherDiscount + grandShopVoucherDiscount;
-                order.FinalAmount         = grandTotal - systemVoucherDiscount;
+                order.FreeshipDiscount      = freeshipDiscount;
+                order.Discount              = systemVoucherDiscount + grandShopVoucherDiscount + freeshipDiscount;
+                order.FinalAmount           = grandTotal - systemVoucherDiscount - freeshipDiscount;
                 // ShopId = shop đầu tiên có hàng (backward compat)
                 order.ShopId        = shopGroups.FirstOrDefault(g => !string.IsNullOrEmpty(g.Key))?.First().Product?.ShopId;
 
@@ -637,7 +666,9 @@ namespace BaseCore.APIService.Controllers
                     totalShipping            = grandShipping,
                     discount                 = systemVoucherDiscount,
                     shopVoucherDiscount      = grandShopVoucherDiscount,
-                    totalDiscount            = systemVoucherDiscount + grandShopVoucherDiscount,
+                    freeshipDiscount         = freeshipDiscount,
+                    appliedShipVoucher       = shipVoucherEntity?.Code,
+                    totalDiscount            = systemVoucherDiscount + grandShopVoucherDiscount + freeshipDiscount,
                     finalAmount              = order.FinalAmount,
                     subOrders                = subOrderResults,
                     estimatedDelivery = DateTime.SpecifyKind(order.EstimatedDelivery!.Value, DateTimeKind.Utc),
@@ -1325,6 +1356,8 @@ namespace BaseCore.APIService.Controllers
         /// <summary>0=COD, 1=Bank, 2=MoMo, 3=ZaloPay</summary>
         public int PaymentMethod { get; set; } = 0;
         public string? VoucherCode { get; set; }
+        /// <summary>Voucher giảm/miễn phí vận chuyển</summary>
+        public string? ShipVoucherCode { get; set; }
         /// <summary>Voucher riêng từng shop: key=shopId, value=voucherCode</summary>
         public Dictionary<string, string>? ShopVouchers { get; set; }
         /// <summary>standard | express | same</summary>
