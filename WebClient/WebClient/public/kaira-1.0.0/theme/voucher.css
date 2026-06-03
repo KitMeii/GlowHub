@@ -490,6 +490,15 @@
 }
 .vo-modal-voucher-item:hover { border-color: var(--pink); background: var(--pink-soft); }
 .vo-modal-voucher-item.selected { border-color: var(--pink); background: var(--pink-soft); }
+.vo-modal-voucher-item .vo-mvi-tick {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  line-height: 0;
+  pointer-events: none;
+}
+.vo-modal-voucher-item.selected .vo-mvi-tick { display: block; }
 
 .vo-modal-voucher-item .vo-mvi-icon {
   width: 36px;

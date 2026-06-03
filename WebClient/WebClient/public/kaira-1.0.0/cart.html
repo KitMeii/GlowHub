@@ -804,6 +804,7 @@
       var onclick = isShip ? `vpSelectShip(this,'${v.Code}')` : `vpSelectDisc(this,'${v.Code}')`;
       return `
         <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
+          <div class="vo-mvi-tick"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="11" fill="#16a34a"/><polyline points="5,12 10,17 19,7" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
           <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
           <div class="vo-mvi-info">
             <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.Description || v.Code}</div>
