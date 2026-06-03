@@ -599,6 +599,22 @@
           } catch (_) {}
         })();
 
+        // Restore per-shop vouchers persisted from cart page
+        (function () {
+          try {
+            var shv = localStorage.getItem('gh_shop_vouchers');
+            if (!shv) return;
+            var map = JSON.parse(shv);
+            if (!map || typeof map !== 'object') return;
+            Object.keys(map).forEach(function (sid) {
+              var entry = map[sid];
+              if (!entry || !entry.code) return;
+              shopVouchers[sid] = { code: entry.code, discountAmt: entry.discountAmount || 0 };
+            });
+            if (Object.keys(shopVouchers).length) updateTotals();
+          } catch (_) {}
+        })();
+
         var tab = new URLSearchParams(location.search).get('tab');
         if (tab) switchTab(tab);
       });
@@ -752,6 +768,26 @@
               });
             }).catch(function() {});
           }
+          // Pre-fill inputs from gh_shop_vouchers (persisted from cart page)
+          try {
+            var _cartShopV = JSON.parse(localStorage.getItem('gh_shop_vouchers') || '{}');
+            Object.keys(_cartShopV).forEach(function(sid) {
+              var entry = _cartShopV[sid];
+              if (!entry || !entry.code) return;
+              var inp = document.getElementById('svInput-' + sid);
+              if (inp && !inp.value) {
+                inp.value = entry.code;
+                inp.style.color = '#22c55e';
+                inp.disabled = true;
+                inp.title = 'Voucher từ giỏ hàng — đã áp dụng';
+              }
+              var okEl = document.getElementById('svOk-' + sid);
+              if (okEl) {
+                okEl.querySelector('span').textContent = entry.code + ' — Giảm ' + fmt(entry.discountAmount || 0);
+                okEl.style.display = 'flex';
+              }
+            });
+          } catch (_) {}
         }).catch(function () { /* keep flat list on error */ });
       }
 

@@ -898,17 +898,46 @@
         }
       }
 
-      // Apply discount voucher via API validate
+      // Apply discount voucher
       if (_vpSelectedDisc) {
-        const inp = document.getElementById("coupon-input");
-        if (inp) {
-          inp.value = _vpSelectedDisc.Code;
-          if (typeof applyCoupon === "function")
-            await applyCoupon(_vpSelectedDisc.ShopId !== undefined ? _vpSelectedDisc.ShopId : null);
+        if (_vpSelectedDisc.ShopId) {
+          await _applyShopVoucherFromPicker(_vpSelectedDisc);
+        } else {
+          const inp = document.getElementById("coupon-input");
+          if (inp) {
+            inp.value = _vpSelectedDisc.Code;
+            if (typeof applyCoupon === "function") await applyCoupon(null);
+          }
         }
       }
 
       renderSummaryOnly();
+    }
+
+    async function _applyShopVoucherFromPicker(v) {
+      try {
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const shopItems = items.filter(i => (i.shopId || i.ShopId) === v.ShopId);
+        const shopSubtotal = shopItems.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+        const token = typeof Auth !== "undefined" && Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+        const res = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+          method: "POST", headers,
+          body: JSON.stringify({ code: v.Code, orderAmount: shopSubtotal, shopId: v.ShopId })
+        });
+        const data = await res.json();
+        if (data.valid) {
+          _shopVouchers[v.ShopId] = { code: v.Code, discountAmount: data.discountAmount, shopName: v.shopName || "" };
+          const savedMap = JSON.parse(localStorage.getItem("gh_shop_vouchers") || "{}");
+          savedMap[v.ShopId] = { code: v.Code, discountAmount: data.discountAmount, shopName: v.shopName || "" };
+          localStorage.setItem("gh_shop_vouchers", JSON.stringify(savedMap));
+          toast("✓ Voucher shop " + v.Code + " áp dụng thành công!");
+          renderSummaryOnly();
+        } else {
+          toast(data.message || "Voucher không hợp lệ", "error");
+        }
+      } catch (e) { toast("Lỗi kết nối", "error"); }
     }
     </script>
     <script src="js/navbar.js" defer></script>
