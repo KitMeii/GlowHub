@@ -225,8 +225,8 @@
 
     // ── Render card ────────────────────────────────────
     function discountLabel(v) {
-      if (v.discountType === "percent") return `-${v.discountValue}%`;
-      return `-${fmt(v.discountValue)}`;
+      if (v.DiscountType === "percent") return `-${v.DiscountValue}%`;
+      return `-${fmt(v.DiscountValue)}`;
     }
 
     function renderCard(v, isSaved) {
@@ -236,42 +236,42 @@
 
       var stripeClass = v.voucherType === "shop" ? "shop" : "system";
 
-      var expiry = v.expiryDate
-        ? new Date(v.expiryDate).toLocaleDateString("vi-VN")
+      var expiry = v.ExpiryDate
+        ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
         : "Không giới hạn";
 
-      var minOrder = v.minOrderAmount > 0
-        ? `<span class="vo-card-meta-chip">Đơn tối thiểu ${fmt(v.minOrderAmount)}</span>` : "";
+      var minOrder = v.MinOrderAmount > 0
+        ? `<span class="vo-card-meta-chip">Đơn tối thiểu ${fmt(v.MinOrderAmount)}</span>` : "";
 
-      var maxDisc = v.maxDiscount
-        ? `<span class="vo-card-meta-chip">Giảm tối đa ${fmt(v.maxDiscount)}</span>` : "";
+      var maxDisc = v.MaxDiscount
+        ? `<span class="vo-card-meta-chip">Giảm tối đa ${fmt(v.MaxDiscount)}</span>` : "";
 
       var remain = v.remainingUsage != null
         ? `<span class="vo-card-meta-chip warn">Còn ${v.remainingUsage} lượt</span>` : "";
 
-      var alreadySaved = _savedIds.has(v.id);
+      var alreadySaved = _savedIds.has(v.Id);
       var saveBtn = "";
       if (isLoggedIn()) {
         saveBtn = alreadySaved
           ? `<button class="vo-btn-save saved" disabled>✓ Đã Lưu</button>`
-          : `<button class="vo-btn-save" onclick="saveVoucher(this,'${v.code}',${v.id})">Lưu</button>`;
+          : `<button class="vo-btn-save" onclick="saveVoucher(this,'${v.Code}',${v.Id})">Lưu</button>`;
       }
 
       return `
-      <div class="vo-card" id="vc-${v.id}">
+      <div class="vo-card" id="vc-${v.Id}">
         <div class="vo-card-stripe ${stripeClass}"></div>
         <div class="vo-card-body">
           ${typeBadge}
-          <div class="vo-card-title">${discountLabel(v)} — ${v.description || v.code}</div>
+          <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">
-            ${v.maxDiscount ? `Giảm đến ${fmt(v.maxDiscount)} · ` : ""}Hết hạn: ${expiry}
+            ${v.MaxDiscount ? `Giảm đến ${fmt(v.MaxDiscount)} · ` : ""}Hết hạn: ${expiry}
           </div>
           <div class="vo-card-meta">
             ${minOrder}${maxDisc}${remain}
           </div>
           <div class="vo-card-code-row">
-            <span class="vo-card-code">${v.code}</span>
-            <button class="vo-btn-copy" onclick="copyCode(this,'${v.code}')">
+            <span class="vo-card-code">${v.Code}</span>
+            <button class="vo-btn-copy" onclick="copyCode(this,'${v.Code}')">
               <i class="bi bi-clipboard"></i> Sao Chép
             </button>
             ${saveBtn}
@@ -282,21 +282,21 @@
 
     function renderSavedCard(cv) {
       var v = cv.voucher || cv;
-      var expiry = v.expiryDate
-        ? new Date(v.expiryDate).toLocaleDateString("vi-VN")
+      var expiry = v.ExpiryDate
+        ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
         : "Không giới hạn";
-      var expired = v.isExpired || (v.expiryDate && new Date(v.expiryDate) < new Date());
+      var expired = v.isExpired || (v.ExpiryDate && new Date(v.ExpiryDate) < new Date());
 
       return `
       <div class="vo-card" style="${expired ? 'opacity:0.55;' : ''}">
         <div class="vo-card-stripe system"></div>
         <div class="vo-card-body">
           <span class="vo-card-type-badge">${expired ? '<span style="color:var(--error)">Đã Hết Hạn</span>' : '<i class="bi bi-bookmark-fill" style="color:var(--success)"></i> Đã Lưu'}</span>
-          <div class="vo-card-title">${discountLabel(v)} — ${v.description || v.code}</div>
+          <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">Hết hạn: ${expiry}</div>
           <div class="vo-card-code-row">
-            <span class="vo-card-code">${v.code}</span>
-            ${!expired ? `<button class="vo-btn-copy" onclick="copyCode(this,'${v.code}')"><i class="bi bi-clipboard"></i> Sao Chép</button>` : ""}
+            <span class="vo-card-code">${v.Code}</span>
+            ${!expired ? `<button class="vo-btn-copy" onclick="copyCode(this,'${v.Code}')"><i class="bi bi-clipboard"></i> Sao Chép</button>` : ""}
           </div>
         </div>
       </div>`;
@@ -329,7 +329,7 @@
         items = _savedVouchers;
         if (q) items = items.filter(cv => {
           var v = cv.voucher || cv;
-          return v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q);
+          return v.Code.toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q);
         });
         if (items.length === 0) { grid.style.display = "none"; empty.style.display = ""; return; }
         grid.innerHTML = items.map(renderSavedCard).join("");
@@ -338,7 +338,7 @@
         if (_currentTab === "system") items = items.filter(v => v.voucherType === "system");
         if (_currentTab === "shop")   items = items.filter(v => v.voucherType === "shop");
         if (q) items = items.filter(v =>
-          v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q));
+          v.Code.toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q));
         if (items.length === 0) { grid.style.display = "none"; empty.style.display = ""; return; }
         grid.innerHTML = items.map(v => renderCard(v, _savedIds.has(v.id))).join("");
       }
@@ -432,7 +432,7 @@
           if (res.ok) {
             _savedVouchers = await res.json();
             _savedVouchers.forEach(cv => {
-              if (cv.voucher) _savedIds.add(cv.voucher.id);
+              if (cv.voucher) _savedIds.add(cv.voucher.Id);
             });
           }
         } catch(_) {}
