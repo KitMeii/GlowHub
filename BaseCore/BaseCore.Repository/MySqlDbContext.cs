@@ -583,7 +583,7 @@ namespace BaseCore.Repository
                 entity.Property(e => e.Note).HasMaxLength(500);
 
                 entity.HasOne(e => e.Order)
-                      .WithMany()
+                      .WithMany(o => o.SubOrders)
                       .HasForeignKey(e => e.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
 
