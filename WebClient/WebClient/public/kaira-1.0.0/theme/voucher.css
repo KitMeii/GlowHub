@@ -253,6 +253,13 @@
   border-top: 1px dashed var(--border);
 }
 
+.vo-code-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
 .vo-card-code {
   font-family: monospace;
   font-size: 14px;
@@ -261,26 +268,30 @@
   color: var(--dark);
   flex: 1;
   background: var(--cream);
-  padding: 6px 10px;
+  padding: 6px 32px 6px 10px;
   border-radius: 2px;
   user-select: all;
 }
 
-.vo-btn-copy {
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  background: #fff;
-  font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.vo-btn-copy-icon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: all 0.18s;
-  color: var(--dark);
-  white-space: nowrap;
+  padding: 4px;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: color 0.18s;
+  line-height: 0;
 }
-.vo-btn-copy:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
-.vo-btn-copy.copied { background: var(--success); color: #fff; border-color: var(--success); }
+.vo-btn-copy-icon:hover { color: var(--dark); }
+.vo-btn-copy-icon.copied { color: var(--success); }
 
 .vo-btn-save {
   padding: 6px 12px;
@@ -576,5 +587,5 @@ footer.vo-footer a:hover { color: var(--pink); }
 }
 @media (max-width: 480px) {
   .vo-card-code-row { flex-wrap: wrap; gap: 6px; }
-  .vo-card-code { width: 100%; }
+  .vo-code-wrap { width: 100%; }
 }
