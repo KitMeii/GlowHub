@@ -3224,34 +3224,60 @@
           el.innerHTML = '<div class="empty-state">Chưa có đánh giá nào</div>';
           return;
         }
-        el.innerHTML = items
-          .map((r) => {
-            const stars = "⭐".repeat(r.rating || r.Rating || 0);
-            const replyHtml = r.sellerReply
-              ? `<div class="review-reply-box"><div class="review-reply-label">Phản Hồi Của Shop</div>${r.sellerReply}</div>`
-              : `<div class="mt-2">
-          <textarea id="reply-ta-${r.reviewId}" class="form-control" rows="2" maxlength="500" placeholder="Nhập phản hồi (tối đa 500 ký tự)..."></textarea>
-          <button class="btn-pink btn-sm mt-1" onclick="submitReply(${r.reviewId})">Gửi Phản Hồi</button>
-        </div>`;
-            const verifiedHtml = r.isVerifiedPurchase
-              ? '<span class="badge-verified ms-1">✓ Đã mua</span>'
-              : "";
-            return `<div class="review-card" id="review-${r.reviewId}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-size:13px;font-weight:500">${r.customerName || r.customerId || "Khách hàng"} ${verifiedHtml}</div>
-          <div style="font-size:11px;color:#aaa">${fmtDate(r.createdAt)}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="stars-display" style="font-size:16px">${stars}</div>
-          <div style="font-size:11px;color:#888">${r.productName || ""}</div>
-        </div>
-      </div>
-      <div style="font-size:13px;color:#333;line-height:1.6">${r.comment || r.Comment || "(Không có nội dung)"}</div>
-      ${replyHtml}
-    </div>`;
-          })
-          .join("");
+        el.innerHTML = items.map((r) => {
+          const rating = r.rating || r.Rating || 0;
+          const starsHtml = Array.from({length: 5}, (_, i) =>
+            `<span style="color:${i < rating ? '#f59e0b' : '#ddd'};font-size:15px">★</span>`
+          ).join("");
+
+          const verifiedHtml = r.isVerifiedPurchase
+            ? '<span class="badge-verified ms-1">✓ Đã mua</span>' : "";
+
+          // images may be array (new API) or comma string (legacy)
+          const imgList = Array.isArray(r.images)
+            ? r.images
+            : (r.images ? String(r.images).split(",").map(s => s.trim()).filter(Boolean) : []);
+          const imagesHtml = imgList.length
+            ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+                ${imgList.map(url =>
+                  `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #eee;cursor:pointer"
+                    onclick="window.open('${url}','_blank')" onerror="this.style.display='none'" />`
+                ).join("")}
+              </div>` : "";
+
+          const replyHtml = r.sellerReply
+            ? `<div class="review-reply-box"><div class="review-reply-label">Phản Hồi Của Shop</div>${r.sellerReply}</div>`
+            : `<div class="mt-2">
+                <textarea id="reply-ta-${r.reviewId}" class="form-control" rows="2" maxlength="500" placeholder="Nhập phản hồi (tối đa 500 ký tự)..."></textarea>
+                <button class="btn-pink btn-sm mt-1" onclick="submitReply(${r.reviewId})">Gửi Phản Hồi</button>
+              </div>`;
+
+          const productHtml = (r.productName || r.productImage)
+            ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9f6f3;border-radius:6px;margin-bottom:10px">
+                ${r.productImage ? `<img src="${r.productImage}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'" />` : ""}
+                <div style="font-size:12px;font-weight:600;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.productName || ""}</div>
+              </div>` : "";
+
+          const uName = r.customerName || "Khách hàng";
+          const initial = uName.trim().split(" ").pop()?.[0]?.toUpperCase() || "K";
+
+          return `<div class="review-card" id="review-${r.reviewId}">
+            ${productHtml}
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0">${initial}</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">
+                  <div style="font-size:13px;font-weight:500">${uName} ${verifiedHtml}</div>
+                  <div style="font-size:11px;color:#aaa">${fmtDate(r.createdAt)}</div>
+                </div>
+                <div style="margin-top:3px">${starsHtml}</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:#333;line-height:1.6;margin-bottom:4px">${r.comment || r.Comment || "(Không có nội dung)"}</div>
+            ${imagesHtml}
+            ${replyHtml}
+          </div>`;
+        }).join("");
       }
 
       function renderRecentReviews(items) {
