@@ -215,6 +215,7 @@
       //  STATE
       // ══════════════════════════════════════════════
       let appliedCoupon = null;
+      let appliedShipCoupon = null;
 
       // ══════════════════════════════════════════════
       //  FORMAT
@@ -291,6 +292,7 @@
                             </button>
                           </div>
                           <div class="coupon-msg" id="coupon-msg"></div>
+                          <div class="coupon-msg ok" id="ship-coupon-display" style="display:none"></div>
                         </div>
                         <a href="index.html" class="continue-link">← Tiếp Tục Mua Sắm</a>
                       </div>`;
@@ -336,6 +338,15 @@
           if (inp) {
             inp.value = appliedCoupon.code;
             inp.disabled = true;
+          }
+        }
+
+        // Restore ship coupon state
+        if (appliedShipCoupon) {
+          const shipDisp = document.getElementById("ship-coupon-display");
+          if (shipDisp) {
+            shipDisp.textContent = "✓ Ship: " + appliedShipCoupon.code + " — sẽ giảm phí vận chuyển khi thanh toán";
+            shipDisp.style.display = "block";
           }
         }
       }
@@ -446,6 +457,7 @@
             <span class="label">Vận chuyển</span>
             <span class="value" style="color:var(--gray);font-size:12px">Tính ở bước thanh toán</span>
           </div>
+          ${appliedShipCoupon ? `<div class="summary-line" style="color:#1d4ed8"><span class="label"><i class="bi bi-truck"></i> Voucher ship (${appliedShipCoupon.code})</span><span class="value">Áp dụng ở bước TT</span></div>` : ""}
           ${
             discountAmt > 0
               ? `<div class="summary-line discount">
@@ -724,10 +736,11 @@
     </div>
 
     <script>
-    var _vpVouchers = [];
-    var _vpSaved    = [];
-    var _vpSelected = null;
-    var _vpLoaded   = false;
+    var _vpVouchers     = [];
+    var _vpSaved        = [];
+    var _vpSelectedShip = null;   // independently selected ship voucher
+    var _vpSelectedDisc = null;   // independently selected discount voucher
+    var _vpLoaded       = false;
 
     function openVoucherPicker() {
       document.getElementById("voucherPickerBackdrop").classList.add("show");
@@ -749,9 +762,8 @@
             var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
               headers: { "Authorization": "Bearer " + Auth.getToken() }
             });
-            if (res2.ok) {
+            if (res2.ok)
               _vpSaved = (await res2.json()).filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
-            }
           } catch (_) {}
         }
         _vpLoaded = true;
@@ -777,18 +789,21 @@
 
     function vpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function vpDiscLabel(v) {
-      if (_isShipV(v)) return "Miễn phí vận chuyển";
+      if (_isShipV(v)) return "Miễn/giảm phí vận chuyển";
       return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${vpFmt(v.DiscountValue)}`;
     }
 
     function vpItem(v, isSaved, isShip) {
-      var sel = _vpSelected && _vpSelected.Code === v.Code;
+      var isSelShip = isShip  && _vpSelectedShip && _vpSelectedShip.Code === v.Code;
+      var isSelDisc = !isShip && _vpSelectedDisc && _vpSelectedDisc.Code === v.Code;
+      var isSel = isSelShip || isSelDisc;
+      var typeClass = isShip ? "vp-ship-item" : "vp-disc-item";
       var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
-                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)"
-                   : "";
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)" : "";
       var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
+      var onclick = isShip ? `vpSelectShip(this,'${v.Code}')` : `vpSelectDisc(this,'${v.Code}')`;
       return `
-        <div class="vo-modal-voucher-item ${sel ? 'selected' : ''}" onclick="vpSelect(this,'${v.Code}')">
+        <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
           <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
           <div class="vo-mvi-info">
             <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.Description || v.Code}</div>
@@ -808,32 +823,26 @@
       var savedCodes = new Set(savedList.map(v => v.Code));
 
       function sortBest(a, b) {
-        var aS = savedCodes.has(a.Code) ? 1 : 0;
-        var bS = savedCodes.has(b.Code) ? 1 : 0;
+        var aS = savedCodes.has(a.Code) ? 1 : 0, bS = savedCodes.has(b.Code) ? 1 : 0;
         if (aS !== bS) return bS - aS;
         return (b.DiscountValue || 0) - (a.DiscountValue || 0);
       }
 
-      var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)];
-      var allDisc = [...savedList.filter(v => !_isShipV(v)), ...publicList.filter(v => !_isShipV(v))];
-      // dedupe by Code
-      allShip = allShip.filter((v, i, a) => a.findIndex(x => x.Code === v.Code) === i);
-      allDisc = allDisc.filter((v, i, a) => a.findIndex(x => x.Code === v.Code) === i);
-      allShip.sort(sortBest);
-      allDisc.sort(sortBest);
+      var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var allDisc = [...savedList.filter(v=>!_isShipV(v)), ...publicList.filter(v=>!_isShipV(v))].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      allShip.sort(sortBest); allDisc.sort(sortBest);
 
       var html = "";
       var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
 
       if (allShip.length) {
-        html += `<div style="${secStyle}color:#1d4ed8;"><i class="bi bi-truck"></i> Voucher Vận Chuyển</div>`;
+        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển <span style="font-size:9px;color:#6b7280;font-weight:400">(chọn 1)</span></div>`;
         html += allShip.map(v => vpItem(v, savedCodes.has(v.Code), true)).join("");
       }
       if (allDisc.length) {
-        html += `<div style="${secStyle}${allShip.length ? 'margin-top:14px;' : ''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá</div>`;
+        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá <span style="font-size:9px;color:#6b7280;font-weight:400">(chọn 1)</span></div>`;
         html += allDisc.map(v => vpItem(v, savedCodes.has(v.Code), false)).join("");
       }
-
       if (!html) {
         el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
         return;
@@ -841,21 +850,58 @@
       el.innerHTML = html;
     }
 
-    function vpSelect(el, code) {
-      document.querySelectorAll(".vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
+    function vpSelectShip(el, code) {
+      document.querySelectorAll(".vp-ship-item").forEach(e => e.classList.remove("selected"));
+      if (_vpSelectedShip && _vpSelectedShip.Code === code) {
+        _vpSelectedShip = null; // toggle off
+        return;
+      }
       el.classList.add("selected");
-      _vpSelected = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
+      _vpSelectedShip = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
+    }
+
+    function vpSelectDisc(el, code) {
+      document.querySelectorAll(".vp-disc-item").forEach(e => e.classList.remove("selected"));
+      if (_vpSelectedDisc && _vpSelectedDisc.Code === code) {
+        _vpSelectedDisc = null; // toggle off
+        return;
+      }
+      el.classList.add("selected");
+      _vpSelectedDisc = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
     }
 
     async function applyPickedVoucher() {
-      if (!_vpSelected) { closeVoucherPicker(); return; }
-      var inp = document.getElementById("coupon-input");
-      if (inp) {
-        inp.value = _vpSelected.Code;
-        closeVoucherPicker();
-        if (typeof applyCoupon === "function")
-          await applyCoupon(_vpSelected.ShopId !== undefined ? _vpSelected.ShopId : null);
+      closeVoucherPicker();
+
+      // Apply ship voucher (store directly, validate server-side at checkout)
+      if (_vpSelectedShip) {
+        appliedShipCoupon = {
+          code:     _vpSelectedShip.Code,
+          type:     _vpSelectedShip.DiscountType || "freeship",
+          value:    _vpSelectedShip.DiscountValue || 0,
+          shopId:   null,
+          description: _vpSelectedShip.Description || "",
+          label:    "Giảm/miễn phí vận chuyển"
+        };
+        localStorage.setItem("gh_applied_ship_voucher", JSON.stringify(appliedShipCoupon));
+        const shipDisp = document.getElementById("ship-coupon-display");
+        if (shipDisp) {
+          shipDisp.textContent = "✓ Ship: " + appliedShipCoupon.code + " — sẽ giảm phí vận chuyển khi thanh toán";
+          shipDisp.style.display = "block";
+        }
       }
+
+      // Apply discount voucher via API validate
+      if (_vpSelectedDisc) {
+        const inp = document.getElementById("coupon-input");
+        if (inp) {
+          inp.value = _vpSelectedDisc.Code;
+          if (typeof applyCoupon === "function")
+            await applyCoupon(_vpSelectedDisc.ShopId !== undefined ? _vpSelectedDisc.ShopId : null);
+        }
+      }
+
+      renderSummaryOnly();
     }
     </script>
     <script src="js/navbar.js" defer></script>
