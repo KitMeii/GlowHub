@@ -1745,14 +1745,14 @@
 
   async function loadCommission() {
     try {
-      const s = await Admin.getCommissionSummary();
-      const n = v => norm(s, v);
-      document.getElementById('com-revenue').textContent    = fmt(n('totalRevenue')    ?? n('TotalRevenue'));
-      document.getElementById('com-commission').textContent = fmt(n('totalCommission') ?? n('TotalCommission'));
-      document.getElementById('com-profit').textContent     = fmt(n('adminNetProfit')  ?? n('AdminNetProfit'));
-      document.getElementById('com-net').textContent        = fmt(n('totalNetToSellers') ?? n('TotalNetToSellers'));
-      document.getElementById('com-released').textContent   = fmt(n('totalReleased')   ?? n('TotalReleased'));
-      document.getElementById('com-pending').textContent    = fmt(n('pendingRelease')  ?? n('PendingRelease'));
+      const raw = await Admin.getCommissionSummary();
+      const s   = norm(raw);
+      document.getElementById('com-revenue').textContent    = fmt(s.totalRevenue      ?? 0);
+      document.getElementById('com-commission').textContent = fmt(s.totalCommission   ?? 0);
+      document.getElementById('com-profit').textContent     = fmt(s.adminNetProfit    ?? 0);
+      document.getElementById('com-net').textContent        = fmt(s.totalNetToSellers ?? 0);
+      document.getElementById('com-released').textContent   = fmt(s.totalReleased     ?? 0);
+      document.getElementById('com-pending').textContent    = fmt(s.pendingRelease    ?? 0);
     } catch(e) { toast('Lỗi tải hoa hồng: ' + e.message, 'error'); }
     loadCommissionShops();
   }
@@ -1769,19 +1769,19 @@
       const d = await Admin.getCommissionShops(params.toString());
       const tbody = document.querySelector('#commissionShopsTable tbody');
       tbody.innerHTML = (d.items || []).map(s => {
-        const n = v => norm(s, v);
-        const sid     = n('shopId')   ?? n('ShopId')   ?? '';
-        const sname   = (n('shopName') ?? n('ShopName') ?? '').replace(/'/g, "\\'");
-        const pending = n('pendingPayout') ?? n('PendingPayout') ?? 0;
+        const ns      = norm(s);
+        const sid     = ns.shopId      ?? '';
+        const sname   = (ns.shopName   ?? '').replace(/'/g, "\\'");
+        const pending = ns.pendingPayout ?? 0;
         return `<tr>
-          <td><strong>${n('shopName') ?? n('ShopName') ?? ''}</strong></td>
-          <td>${n('commissionRate') ?? n('CommissionRate') ?? 0}%</td>
-          <td>${fmt(n('revenue') ?? n('Revenue') ?? 0)}</td>
-          <td class="text-purple fw-bold">${fmt(n('commissionAmount') ?? n('CommissionAmount') ?? 0)}</td>
-          <td>${fmt(n('netRevenue') ?? n('NetRevenue') ?? 0)}</td>
-          <td style="color:var(--pink);font-weight:600">${fmt(n('walletBalance') ?? n('WalletBalance') ?? 0)}</td>
-          <td class="text-success">${fmt(n('totalEarned') ?? n('TotalEarned') ?? 0)}</td>
-          <td>${n('orderCount') ?? n('OrderCount') ?? 0}</td>
+          <td><strong>${ns.shopName         ?? ''}</strong></td>
+          <td>${ns.commissionRate           ?? 0}%</td>
+          <td>${fmt(ns.revenue              ?? 0)}</td>
+          <td class="text-purple fw-bold">${fmt(ns.commissionAmount ?? 0)}</td>
+          <td>${fmt(ns.netRevenue           ?? 0)}</td>
+          <td style="color:var(--pink);font-weight:600">${fmt(ns.walletBalance ?? 0)}</td>
+          <td class="text-success">${fmt(ns.totalEarned    ?? 0)}</td>
+          <td>${ns.orderCount               ?? 0}</td>
           <td><button class="adm-btn adm-btn-sm adm-btn-primary" onclick="openPayoutModal('${sid}','${sname}',${pending})">💸 Giải Ngân</button></td>
         </tr>`;
       }).join('') || '<tr><td colspan="9" class="adm-empty">Chưa có dữ liệu</td></tr>';
@@ -1848,24 +1848,24 @@
   // ────────────────────────────────────────────
   async function loadWalletAdmin() {
     try {
-      const d = await AdminWallet.getOverview();
-      const n = v => norm(d, v);
-      document.getElementById('wa-total-balance').textContent  = fmt(n('totalBalance')         ?? n('TotalBalance'));
-      document.getElementById('wa-pending').textContent        = fmt(n('pendingReleaseAmount') ?? n('PendingReleaseAmount')) + ` (${n('pendingReleaseCount') ?? n('PendingReleaseCount') ?? 0} đơn)`;
-      document.getElementById('wa-total-earned').textContent   = fmt(n('totalEarned')          ?? n('TotalEarned'));
-      document.getElementById('wa-total-withdrawn').textContent= fmt(n('totalWithdrawn')       ?? n('TotalWithdrawn'));
+      const raw = await AdminWallet.getOverview();
+      const d   = norm(raw);
+      document.getElementById('wa-total-balance').textContent  = fmt(d.totalBalance         ?? 0);
+      document.getElementById('wa-pending').textContent        = fmt(d.pendingReleaseAmount ?? 0) + ` (${d.pendingReleaseCount ?? 0} đơn)`;
+      document.getElementById('wa-total-earned').textContent   = fmt(d.totalEarned          ?? 0);
+      document.getElementById('wa-total-withdrawn').textContent= fmt(d.totalWithdrawn       ?? 0);
 
-      const wallets = n('wallets') ?? n('Wallets') ?? [];
+      const wallets = d.wallets ?? [];
       const tbody   = document.querySelector('#walletAdminTable tbody');
       tbody.innerHTML = wallets.map(w => {
-        const wn = v => norm(w, v);
+        const nw = norm(w);
         return `<tr>
-          <td><strong>${wn('shopName') ?? wn('ShopName') ?? ''}</strong></td>
-          <td style="color:var(--pink);font-weight:600">${fmt(wn('balance') ?? wn('Balance') ?? 0)}</td>
-          <td class="text-success">${fmt(wn('totalEarned') ?? wn('TotalEarned') ?? 0)}</td>
-          <td>${fmt(wn('totalWithdrawn') ?? wn('TotalWithdrawn') ?? 0)}</td>
-          <td style="color:#ef4444">${fmt(wn('totalRefunded') ?? wn('TotalRefunded') ?? 0)}</td>
-          <td><small class="text-muted">${fmtDate(wn('updatedAt') ?? wn('UpdatedAt'))}</small></td>
+          <td><strong>${nw.shopName      ?? ''}</strong></td>
+          <td style="color:var(--pink);font-weight:600">${fmt(nw.balance       ?? 0)}</td>
+          <td class="text-success">${fmt(nw.totalEarned   ?? 0)}</td>
+          <td>${fmt(nw.totalWithdrawn    ?? 0)}</td>
+          <td style="color:#ef4444">${fmt(nw.totalRefunded ?? 0)}</td>
+          <td><small class="text-muted">${fmtDate(nw.updatedAt)}</small></td>
         </tr>`;
       }).join('') || '<tr><td colspan="6" class="adm-empty">Chưa có dữ liệu</td></tr>';
 
@@ -1873,9 +1873,10 @@
       const shopSel = document.getElementById('waTxShop');
       if (shopSel && shopSel.options.length <= 1) {
         wallets.forEach(w => {
+          const nw  = norm(w);
           const opt = document.createElement('option');
-          opt.value       = norm(w, 'shopId') ?? norm(w, 'ShopId') ?? '';
-          opt.textContent = norm(w, 'shopName') ?? norm(w, 'ShopName') ?? opt.value;
+          opt.value       = nw.shopId   ?? '';
+          opt.textContent = nw.shopName ?? opt.value;
           shopSel.appendChild(opt);
         });
       }
@@ -1892,18 +1893,18 @@
       const tbody = document.querySelector('#walletAdminTxTable tbody');
       const TX_LABEL = { EARNING:'Nhận tiền', REFUND:'Hoàn trả', WITHDRAWAL:'Rút tiền', ADJUSTMENT:'Điều chỉnh' };
       tbody.innerHTML = (d.items || []).map(t => {
-        const n = v => norm(t, v);
-        const type = n('type') ?? n('Type') ?? '';
+        const nt   = norm(t);
+        const type = nt.type ?? '';
         const color = type === 'EARNING' ? '#10b981' : type === 'REFUND' ? '#ef4444' : '#666';
         return `<tr>
-          <td>${n('shopName') ?? n('ShopName') ?? ''}</td>
+          <td>${nt.shopName     ?? ''}</td>
           <td><span style="color:${color};font-weight:600">${TX_LABEL[type] || type}</span></td>
-          <td style="color:${color};font-weight:600">${fmt(n('amount') ?? n('Amount') ?? 0)}</td>
-          <td><small>${fmt(n('balanceBefore') ?? n('BalanceBefore') ?? 0)}</small></td>
-          <td><small>${fmt(n('balanceAfter') ?? n('BalanceAfter') ?? 0)}</small></td>
-          <td>${n('orderId') ?? n('OrderId') ? '#' + (n('orderId') ?? n('OrderId')) : '—'}</td>
-          <td><small>${n('note') ?? n('Note') ?? '—'}</small></td>
-          <td><small>${fmtDate(n('createdAt') ?? n('CreatedAt'))}</small></td>
+          <td style="color:${color};font-weight:600">${fmt(nt.amount        ?? 0)}</td>
+          <td><small>${fmt(nt.balanceBefore ?? 0)}</small></td>
+          <td><small>${fmt(nt.balanceAfter  ?? 0)}</small></td>
+          <td>${nt.orderId ? '#' + nt.orderId : '—'}</td>
+          <td><small>${nt.note              ?? '—'}</small></td>
+          <td><small>${fmtDate(nt.createdAt)}</small></td>
         </tr>`;
       }).join('') || '<tr><td colspan="8" class="adm-empty">Chưa có dữ liệu</td></tr>';
       buildPagination('walletAdminTxPager', page, d.totalPages || 1, 'loadWalletAdminTx');

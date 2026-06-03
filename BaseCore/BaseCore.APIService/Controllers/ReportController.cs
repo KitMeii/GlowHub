@@ -45,20 +45,21 @@ namespace BaseCore.APIService.Controllers
             var dateFrom = (from ?? DateTime.UtcNow.AddDays(-30)).Date;
             var dateTo   = (to   ?? DateTime.UtcNow).Date.AddDays(1);
 
-            var orders = await _db.Orders
-                .Where(o => o.ShopId == shop!.Id
-                    && o.OrderDate >= dateFrom && o.OrderDate < dateTo
-                    && o.Status != OrderStatus.Cancelled)
+            var subOrders = await _db.SubOrders
+                .Include(s => s.Order)
+                .Where(s => s.ShopId == shop!.Id
+                    && s.Order.OrderDate >= dateFrom && s.Order.OrderDate < dateTo
+                    && s.Order.Status != OrderStatus.Cancelled)
                 .ToListAsync();
 
-            var grouped = orders
-                .GroupBy(o => o.OrderDate.Date)
+            var grouped = subOrders
+                .GroupBy(s => s.Order.OrderDate.Date)
                 .Select(g => new {
                     date        = g.Key.ToString("yyyy-MM-dd"),
-                    totalOrders = g.Count(),
-                    revenue     = g.Sum(o => o.ProductRevenue),
-                    commission  = g.Sum(o => o.CommissionAmount),
-                    netRevenue  = g.Sum(o => o.SellerPayoutAmount)
+                    totalOrders = g.Select(s => s.OrderId).Distinct().Count(),
+                    revenue     = g.Sum(s => s.ProductRevenue),
+                    commission  = g.Sum(s => s.CommissionAmount),
+                    netRevenue  = g.Sum(s => s.SellerPayoutAmount)
                 })
                 .ToDictionary(x => x.date);
 
@@ -139,14 +140,14 @@ namespace BaseCore.APIService.Controllers
 
             var productCount = await _db.Products.CountAsync(p => p.ShopId == shop!.Id);
 
-            var completedOrders = await _db.Orders
-                .Where(o => o.ShopId == shop!.Id && o.Status == OrderStatus.Completed)
+            var completedSubs = await _db.SubOrders
+                .Where(s => s.ShopId == shop!.Id && s.Order.Status == OrderStatus.Completed)
                 .ToListAsync();
 
-            var totalRevenue    = completedOrders.Sum(o => o.ProductRevenue);
-            var totalCommission = completedOrders.Sum(o => o.CommissionAmount);
-            var totalNet        = completedOrders.Sum(o => o.SellerPayoutAmount);
-            var orderCount      = completedOrders.Count;
+            var totalRevenue    = completedSubs.Sum(s => s.ProductRevenue);
+            var totalCommission = completedSubs.Sum(s => s.CommissionAmount);
+            var totalNet        = completedSubs.Sum(s => s.SellerPayoutAmount);
+            var orderCount      = completedSubs.Select(s => s.OrderId).Distinct().Count();
             var avgOrderValue   = orderCount > 0 ? Math.Round(totalRevenue / orderCount, 0) : 0m;
 
             var wallet = await _db.SellerWallets.FindAsync(shop!.Id);
@@ -169,9 +170,9 @@ namespace BaseCore.APIService.Controllers
                 totalNetRevenue = totalNet,
                 topCategory     = topCategoryData?.category ?? "—",
                 walletBalance   = wallet?.Balance ?? 0m,
-                walletPending   = await _db.Orders
-                    .Where(o => o.ShopId == shop.Id && o.PayoutStatus == PayoutStatusValue.WaitingRelease)
-                    .SumAsync(o => o.SellerPayoutAmount)
+                walletPending   = await _db.SubOrders
+                    .Where(s => s.ShopId == shop!.Id && s.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                    .SumAsync(s => s.SellerPayoutAmount)
             });
         }
     }

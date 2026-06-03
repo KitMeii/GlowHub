@@ -414,20 +414,27 @@ namespace BaseCore.APIService.Controllers
                 .Take(limit)
                 .ToListAsync();
 
-            var allOrders = await _db.Orders
-                .Include(o => o.OrderDetails)
-                .ToListAsync();
+            var shopIds = shops.Select(s => s.Id).ToList();
+
+            // SubOrders as source of truth for per-shop revenue
+            var subRevMap = await _db.SubOrders
+                .Where(s => shopIds.Contains(s.ShopId!) && s.Order.Status == OrderStatus.Completed)
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { shopId = g.Key, revenue = g.Sum(s => s.ProductRevenue) })
+                .ToDictionaryAsync(x => x.shopId, x => x.revenue);
+
+            var subOrderCountMap = await _db.SubOrders
+                .Where(s => shopIds.Contains(s.ShopId!))
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { shopId = g.Key, count = g.Select(s => s.OrderId).Distinct().Count() })
+                .ToDictionaryAsync(x => x.shopId, x => x.count);
 
             var result = new List<object>();
             foreach (var shop in shops)
             {
-                var productIds  = await _db.Products.Where(p => p.ShopId == shop.Id).Select(p => p.Id).ToListAsync();
-                var productCount = productIds.Count;
-                var shopOrders  = allOrders.Where(o => o.OrderDetails.Any(od => productIds.Contains(od.ProductId))).ToList();
-                var orderCount  = shopOrders.Count;
-                var revenue     = shopOrders
-                    .Where(o => o.Status == "COMPLETED")
-                    .Sum(o => o.OrderDetails.Where(od => productIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
+                var productCount = await _db.Products.CountAsync(p => p.ShopId == shop.Id);
+                var revenue    = subRevMap.TryGetValue(shop.Id, out var rev) ? rev : 0m;
+                var orderCount = subOrderCountMap.TryGetValue(shop.Id, out var cnt) ? cnt : 0;
 
                 result.Add(new {
                     shop.Id,
