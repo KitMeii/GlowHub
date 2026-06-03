@@ -291,7 +291,8 @@
       var expired = v.isExpired || (v.ExpiryDate && new Date(v.ExpiryDate) < new Date());
 
       return `
-      <div class="vo-card" style="${expired ? 'opacity:0.55;' : ''}">
+      <div class="vo-card" id="sv-${v.Code}" style="${expired ? 'opacity:0.55;' : ''}">
+        <button class="vo-btn-delete" onclick="unsaveVoucher(this,'${v.Code}')" title="Xóa khỏi danh sách">🗑</button>
         <div class="vo-card-stripe system"></div>
         <div class="vo-card-body">
           <span class="vo-card-type-badge">${expired ? '<span style="color:var(--error)">Đã Hết Hạn</span>' : '<i class="bi bi-bookmark-fill" style="color:var(--success)"></i> Đã Lưu'}</span>
@@ -394,6 +395,57 @@
         showToast("Lỗi kết nối", false);
         btn.disabled = false;
         btn.textContent = "Lưu";
+      }
+    }
+
+    // ── Unsave voucher ─────────────────────────────────
+    async function unsaveVoucher(btn, code) {
+      btn.disabled = true;
+      try {
+        const res = await fetch(PRODUCT_API + "/api/vouchers/unsave/" + code, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + Auth.getToken() }
+        });
+        if (!res.ok) {
+          var data = await res.json().catch(() => ({}));
+          showToast(data.message || "Không thể xóa voucher", false);
+          btn.disabled = false;
+          return;
+        }
+        // Remove card from DOM
+        var card = document.getElementById("sv-" + code);
+        if (card) card.remove();
+
+        // Update state
+        _savedVouchers = _savedVouchers.filter(cv => {
+          var v = cv.voucher || cv;
+          return v.Code !== code;
+        });
+        // Remove from _savedIds
+        _savedIds.forEach(id => {
+          var match = _savedVouchers.find(cv => (cv.voucher || cv).Id === id);
+          if (!match) {
+            // find original to remove
+          }
+        });
+        // Re-sync _savedIds from updated _savedVouchers
+        _savedIds.clear();
+        _savedVouchers.forEach(cv => { if (cv.voucher) _savedIds.add(cv.voucher.Id); });
+
+        // Update badge
+        var badge = document.getElementById("badge-saved");
+        badge.textContent = Math.max(0, parseInt(badge.textContent || "0") - 1);
+
+        // Show empty state if no more saved vouchers
+        if (_savedVouchers.length === 0 && _currentTab === "saved") {
+          document.getElementById("vo-grid").style.display = "none";
+          document.getElementById("vo-empty").style.display = "";
+        }
+
+        showToast("Đã xóa voucher " + code + " khỏi danh sách");
+      } catch (e) {
+        showToast("Lỗi kết nối", false);
+        btn.disabled = false;
       }
     }
 

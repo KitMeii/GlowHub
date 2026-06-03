@@ -119,6 +119,26 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { message = "Đã lưu voucher thành công", code = voucher.Code });
         }
 
+        /// <summary>DELETE /api/vouchers/unsave/{code} — Xóa voucher đã lưu khỏi tài khoản</summary>
+        [HttpDelete("unsave/{code}")]
+        [Authorize]
+        public async Task<IActionResult> Unsave(string code)
+        {
+            var userId = GetUserId()!;
+
+            var cv = await _db.CustomerVouchers
+                .Include(x => x.Voucher)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.Voucher.Code == code.ToUpper());
+
+            if (cv == null)
+                return NotFound(new { message = "Không tìm thấy voucher đã lưu" });
+
+            _db.CustomerVouchers.Remove(cv);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Đã xóa voucher khỏi danh sách" });
+        }
+
         /// <summary>
         /// POST /api/Vouchers/validate — Kiểm tra mã giảm giá (user)
         /// Body: { "code": "GLOW10", "orderAmount": 500000, "shopId": "..." }
