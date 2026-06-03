@@ -234,7 +234,7 @@ body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-colo
 .sp-vouchers-more:hover{text-decoration:underline}
 .sp-vouchers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(max-width:600px){.sp-vouchers-grid{grid-template-columns:1fr}}
-.sp-vc-card{border:1.5px dashed #f9a8d4;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:#fff9fc;position:relative}
+.sp-vc-card{border:1.5px dashed #f9a8d4;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:#fff9fc;position:relative;cursor:default;user-select:none}
 .sp-vc-discount{font-size:20px;font-weight:700;color:var(--pink);line-height:1.1}
 .sp-vc-label{font-size:11px;color:var(--gray);letter-spacing:0.3px}
 .sp-vc-min{font-size:10px;color:#6b7280;letter-spacing:0.3px}
