@@ -165,12 +165,16 @@
 </div>
 
 <!-- SHOP VOUCHERS -->
-<div class="sp-vouchers" id="shopVoucherSection" style="display:none">
+<div class="sp-vouchers" id="shopVoucherSection">
   <div class="sp-vouchers-header">
     <span class="sp-vouchers-title">🏷 Voucher Của Shop</span>
-    <a class="sp-vouchers-more" id="shopVouchersMoreLink" href="vouchers.html">Xem tất cả →</a>
+    <a class="sp-vouchers-more" id="shopVouchersMoreLink" href="vouchers.html" style="display:none">Xem tất cả →</a>
   </div>
-  <div class="sp-vouchers-grid" id="shopVoucherGrid"></div>
+  <div class="sp-vouchers-grid" id="shopVoucherGrid">
+    <div class="sp-vc-skel"></div>
+    <div class="sp-vc-skel"></div>
+    <div class="sp-vc-skel"></div>
+  </div>
 </div>
 
 <!-- FILTER BAR -->
@@ -988,11 +992,14 @@ function loadShopVouchers() {
       return String(v.ShopId) === String(_shopId);
     });
 
-    if (!shopVouchers.length) return; // keep section hidden
-
-    var section = document.getElementById('shopVoucherSection');
-    var grid    = document.getElementById('shopVoucherGrid');
+    var section  = document.getElementById('shopVoucherSection');
+    var grid     = document.getElementById('shopVoucherGrid');
     var moreLink = document.getElementById('shopVouchersMoreLink');
+
+    if (!shopVouchers.length) {
+      section.style.display = 'none'; // hide only after we know there are none
+      return;
+    }
 
     var display = shopVouchers.slice(0, 3);
     grid.innerHTML = display.map(renderShopVoucherCard).join('');
@@ -1000,11 +1007,7 @@ function loadShopVouchers() {
     if (shopVouchers.length > 3 && moreLink) {
       moreLink.href = 'vouchers.html?tab=shop';
       moreLink.style.display = '';
-    } else if (moreLink) {
-      moreLink.style.display = 'none';
     }
-
-    section.style.display = '';
   });
 }
 
