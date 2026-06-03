@@ -401,15 +401,10 @@
       function renderCard(v, isSaved) {
         var typeBadge =
           v.voucherType === "shop"
-            ? '<span class="vo-card-type-badge"><i class="bi bi-shop"></i> Shop Voucher</span>'
+            ? `<span class="vo-card-type-badge"><i class="bi bi-shop"></i> ${v.shopName || "Shop Voucher"}</span>`
             : '<span class="vo-card-type-badge"><i class="bi bi-stars"></i> Hệ Thống</span>';
 
         var stripeClass = v.voucherType === "shop" ? "shop" : "system";
-
-        var shopLine =
-          v.voucherType === "shop" && v.shopName
-            ? `<div class="vo-card-shop-name">🏪 ${v.shopName}</div>`
-            : "";
 
         var expiry = v.ExpiryDate
           ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
@@ -442,7 +437,6 @@
         <div class="vo-card-stripe ${stripeClass}"></div>
         <div class="vo-card-body">
           ${typeBadge}
-          ${shopLine}
           <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">
             ${v.MaxDiscount ? `Giảm đến ${fmt(v.MaxDiscount)} · ` : ""}Hết hạn: ${expiry}
@@ -553,7 +547,7 @@
               var key = v.ShopId || "__none__";
               if (!shopMap.has(key))
                 shopMap.set(key, {
-                  name: v.shopName || v.ShopId || "Shop",
+                  name: v.shopName || "Shop Voucher",
                   vouchers: [],
                 });
               shopMap.get(key).vouchers.push(v);
@@ -644,42 +638,32 @@
             btn.disabled = false;
             return;
           }
-          // Remove card from DOM
-          var card = document.getElementById("sv-" + code);
-          if (card) card.remove();
-
-          // Update state
-          _savedVouchers = _savedVouchers.filter((cv) => {
-            var v = cv.voucher || cv;
-            return v.Code !== code;
-          });
-          // Remove from _savedIds
-          _savedIds.forEach((id) => {
-            var match = _savedVouchers.find(
-              (cv) => (cv.voucher || cv).Id === id,
-            );
-            if (!match) {
-              // find original to remove
+          // Re-fetch saved list from API → ensures full sync across all tabs
+          try {
+            const myRes = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { Authorization: "Bearer " + Auth.getToken() },
+            });
+            if (myRes.ok) {
+              _savedVouchers = await myRes.json();
+              _savedIds.clear();
+              _savedVouchers.forEach((cv) => {
+                if (cv.voucher) _savedIds.add(cv.voucher.Id);
+              });
             }
-          });
-          // Re-sync _savedIds from updated _savedVouchers
-          _savedIds.clear();
-          _savedVouchers.forEach((cv) => {
-            if (cv.voucher) _savedIds.add(cv.voucher.Id);
-          });
-
-          // Update badge
-          var badge = document.getElementById("badge-saved");
-          badge.textContent = Math.max(
-            0,
-            parseInt(badge.textContent || "0") - 1,
-          );
-
-          // Show empty state if no more saved vouchers
-          if (_savedVouchers.length === 0 && _currentTab === "saved") {
-            document.getElementById("vo-grid").style.display = "none";
-            document.getElementById("vo-empty").style.display = "";
+          } catch (_) {
+            // fallback: manually remove from local state
+            _savedVouchers = _savedVouchers.filter(
+              (cv) => (cv.voucher || cv).Code !== code,
+            );
+            _savedIds.clear();
+            _savedVouchers.forEach((cv) => {
+              if (cv.voucher) _savedIds.add(cv.voucher.Id);
+            });
           }
+
+          // Re-render current tab with fresh state
+          updateBadges();
+          filterVouchers();
 
           showToast("Đã xóa voucher " + code + " khỏi danh sách");
         } catch (e) {

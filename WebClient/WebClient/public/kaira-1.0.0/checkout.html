@@ -1673,13 +1673,15 @@
                    : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)" : "";
       var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
       var onclick = isShip ? `coVpSelectShip(this,'${v.Code}')` : `coVpSelectDisc(this,'${v.Code}')`;
+      var shopTag = !isShip && v.ShopId && v.shopName
+        ? `<span style="color:#f97316;font-weight:600">🏪 ${v.shopName}</span> · ` : '';
       return `
         <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
           <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
           <div class="vo-mvi-info">
             <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.Description || v.Code}</div>
             <div class="vo-mvi-sub">
-              ${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
+              ${shopTag}${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
               ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
               ${isSaved ? ' · <span style="color:#22c55e">Đã lưu</span>' : ''}
             </div>
