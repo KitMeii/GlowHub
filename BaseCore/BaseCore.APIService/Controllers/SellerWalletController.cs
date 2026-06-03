@@ -56,12 +56,12 @@ namespace BaseCore.APIService.Controllers
 
             var wallet = await GetOrCreateWalletAsync(shop!.Id);
 
-            var pendingPayout = await _db.Orders
-                .Where(o => o.ShopId == shop.Id && o.PayoutStatus == PayoutStatusValue.WaitingRelease)
-                .SumAsync(o => o.SellerPayoutAmount);
+            var pendingPayout = await _db.SubOrders
+                .Where(s => s.ShopId == shop.Id && s.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                .SumAsync(s => s.SellerPayoutAmount);
 
-            var waitingCount = await _db.Orders
-                .CountAsync(o => o.ShopId == shop.Id && o.PayoutStatus == PayoutStatusValue.WaitingRelease);
+            var waitingCount = await _db.SubOrders
+                .CountAsync(s => s.ShopId == shop.Id && s.PayoutStatus == PayoutStatusValue.WaitingRelease);
 
             return Ok(new {
                 shopId         = shop.Id,
@@ -158,10 +158,10 @@ namespace BaseCore.APIService.Controllers
                 })
                 .ToListAsync();
 
-            var pendingCount  = await _db.Orders.CountAsync(o => o.PayoutStatus == PayoutStatusValue.WaitingRelease);
-            var pendingAmount = await _db.Orders
-                .Where(o => o.PayoutStatus == PayoutStatusValue.WaitingRelease)
-                .SumAsync(o => o.SellerPayoutAmount);
+            var pendingCount  = await _db.SubOrders.CountAsync(s => s.PayoutStatus == PayoutStatusValue.WaitingRelease);
+            var pendingAmount = await _db.SubOrders
+                .Where(s => s.PayoutStatus == PayoutStatusValue.WaitingRelease)
+                .SumAsync(s => s.SellerPayoutAmount);
 
             return Ok(new {
                 wallets,
@@ -173,15 +173,15 @@ namespace BaseCore.APIService.Controllers
             });
         }
 
-        /// <summary>POST /api/admin/wallet/release-payouts — Giải ngân WAITING_RELEASE → RELEASED</summary>
+        /// <summary>POST /api/admin/wallet/release-payouts — Giải ngân WAITING_RELEASE → RELEASED (SubOrder-based)</summary>
         [HttpPost("release-payouts")]
         public async Task<IActionResult> ReleasePayouts()
         {
-            var orders = await _db.Orders
-                .Where(o => o.PayoutStatus == PayoutStatusValue.WaitingRelease)
+            var subOrders = await _db.SubOrders
+                .Where(s => s.PayoutStatus == PayoutStatusValue.WaitingRelease && s.ShopId != null)
                 .ToListAsync();
 
-            if (!orders.Any())
+            if (!subOrders.Any())
                 return Ok(new { message = "Không có đơn nào đang chờ giải ngân", released = 0, amount = 0m });
 
             await using var tx = await _db.Database.BeginTransactionAsync();
@@ -190,33 +190,54 @@ namespace BaseCore.APIService.Controllers
                 int     releasedCount  = 0;
                 decimal releasedAmount = 0m;
 
-                foreach (var order in orders)
+                // Group by shop and credit each wallet once per batch
+                foreach (var shopGroup in subOrders.GroupBy(s => s.ShopId!))
                 {
-                    if (string.IsNullOrEmpty(order.ShopId)) continue;
+                    var wallet         = await GetOrCreateWalletAsync(shopGroup.Key);
+                    var runningBalance = wallet.Balance;
 
-                    var wallet = await GetOrCreateWalletAsync(order.ShopId);
-                    var before = wallet.Balance;
-                    var after  = before + order.SellerPayoutAmount;
+                    foreach (var sub in shopGroup)
+                    {
+                        var before = runningBalance;
+                        var after  = before + sub.SellerPayoutAmount;
 
-                    wallet.Balance      = after;
-                    wallet.TotalEarned += order.SellerPayoutAmount;
+                        _db.WalletTransactions.Add(new WalletTransaction {
+                            ShopId        = sub.ShopId,
+                            OrderId       = sub.OrderId,
+                            Type          = WalletTransactionType.Earning,
+                            Amount        = sub.SellerPayoutAmount,
+                            BalanceBefore = before,
+                            BalanceAfter  = after,
+                            Note          = $"Giải ngân {sub.SubOrderCode ?? ("SUB-" + sub.Id.ToString("D6"))}",
+                            CreatedAt     = DateTime.UtcNow
+                        });
+
+                        sub.PayoutStatus = PayoutStatusValue.Released;
+                        runningBalance   = after;
+                        releasedCount++;
+                        releasedAmount  += sub.SellerPayoutAmount;
+                    }
+
+                    wallet.Balance      = runningBalance;
+                    wallet.TotalEarned += shopGroup.Sum(s => s.SellerPayoutAmount);
                     wallet.UpdatedAt    = DateTime.UtcNow;
+                }
 
-                    _db.WalletTransactions.Add(new WalletTransaction {
-                        ShopId        = order.ShopId,
-                        OrderId       = order.Id,
-                        Type          = WalletTransactionType.Earning,
-                        Amount        = order.SellerPayoutAmount,
-                        BalanceBefore = before,
-                        BalanceAfter  = after,
-                        Note          = $"Giải ngân đơn {order.OrderCode ?? ("ORD-" + order.Id.ToString("D6"))}",
-                        CreatedAt     = DateTime.UtcNow
-                    });
-
-                    order.PayoutStatus    = PayoutStatusValue.Released;
-                    order.WalletReleaseAt = DateTime.UtcNow;
-                    releasedCount++;
-                    releasedAmount += order.SellerPayoutAmount;
+                // Mark parent Order Released when all its SubOrders are now Released
+                var batchSubIds = subOrders.Select(s => s.Id).ToHashSet();
+                foreach (var orderId in subOrders.Select(s => s.OrderId).Distinct())
+                {
+                    var allSubs     = await _db.SubOrders.Where(s => s.OrderId == orderId).ToListAsync();
+                    var allReleased = allSubs.All(s => batchSubIds.Contains(s.Id) || s.PayoutStatus == PayoutStatusValue.Released);
+                    if (allReleased)
+                    {
+                        var parentOrder = await _db.Orders.FindAsync(orderId);
+                        if (parentOrder != null)
+                        {
+                            parentOrder.PayoutStatus    = PayoutStatusValue.Released;
+                            parentOrder.WalletReleaseAt = DateTime.UtcNow;
+                        }
+                    }
                 }
 
                 await _db.SaveChangesAsync();
@@ -227,7 +248,7 @@ namespace BaseCore.APIService.Controllers
                     new { releasedCount, releasedAmount });
 
                 return Ok(new {
-                    message  = $"Đã giải ngân {releasedCount} đơn hàng",
+                    message  = $"Đã giải ngân {releasedCount} sub-đơn hàng",
                     released = releasedCount,
                     amount   = releasedAmount
                 });
