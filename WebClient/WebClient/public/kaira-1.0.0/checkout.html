@@ -549,6 +549,27 @@
         loadCartItems();
         loadAddresses();
 
+        // Restore voucher carried over from cart.html
+        (function () {
+          try {
+            var saved = localStorage.getItem('gh_applied_voucher');
+            if (!saved) return;
+            var cv = JSON.parse(saved);
+            if (!cv || !cv.code) return;
+            discountAmt    = cv.discountAmount || 0;
+            appliedVoucher = cv.code;
+            _coVpShopId    = cv.shopId || null;
+            var inp = document.getElementById('voucherInput');
+            if (inp) { inp.value = cv.code; inp.disabled = true; }
+            var okEl = document.getElementById('voucherOk');
+            if (okEl) {
+              okEl.querySelector('span').textContent = cv.label || ('Giảm ' + fmt(discountAmt));
+              okEl.style.display = 'flex';
+            }
+            updateTotals();
+          } catch (_) {}
+        })();
+
         var tab = new URLSearchParams(location.search).get('tab');
         if (tab) switchTab(tab);
       });
@@ -1091,7 +1112,7 @@
       }
 
       // ── Voucher ──
-      function applyVoucher() {
+      async function applyVoucher() {
         var code = document.getElementById('voucherInput').value.trim().toUpperCase();
         if (!code) { showToast('Vui lòng nhập mã giảm giá!', 'err'); return; }
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
@@ -1099,42 +1120,39 @@
         var errEl = document.getElementById('voucherErr');
         okEl.style.display = 'none'; errEl.style.display = 'none';
 
-        var doValidate = typeof Voucher !== 'undefined'
-          ? Voucher.validate(code, sub)
-          : Promise.resolve(null);
+        var shopId = typeof _coVpShopId !== 'undefined' ? _coVpShopId : null;
 
-        doValidate.then(function (res) {
-          if (res && res.valid) {
-            discountAmt    = res.discountAmount || 0;
+        try {
+          var token = typeof Auth !== 'undefined' && Auth.getToken ? Auth.getToken() : localStorage.getItem('token');
+          var headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+
+          var res = await fetch(PRODUCT_API + '/api/vouchers/validate', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ code: code, orderAmount: sub, shopId: shopId })
+          });
+          var data = await res.json();
+
+          if (data.valid) {
+            discountAmt    = data.discountAmount || 0;
             appliedVoucher = code;
             updateTotals();
-            okEl.querySelector('span').textContent = res.message || 'Áp dụng thành công!';
+            okEl.querySelector('span').textContent = data.message || 'Áp dụng thành công!';
             okEl.style.display = 'flex';
             showToast('Áp dụng mã giảm giá thành công!');
-          } else if (res) {
-            errEl.textContent  = res.message || 'Mã không hợp lệ';
+            localStorage.setItem('gh_applied_voucher', JSON.stringify({ code: code, discountAmount: discountAmt, label: data.message, shopId: shopId }));
+          } else {
+            errEl.textContent  = data.message || 'Mã không hợp lệ';
             errEl.style.display = 'block';
             discountAmt = 0; appliedVoucher = null; updateTotals();
-          } else {
-            var demos = { GLOW10: { pct: 10 }, FREESHIP: { fixed: 30000 }, GLOW50K: { fixed: 50000 } };
-            var d = demos[code];
-            if (d) {
-              discountAmt    = d.fixed || Math.round(sub * d.pct / 100);
-              appliedVoucher = code;
-              updateTotals();
-              okEl.querySelector('span').textContent = 'Giảm ' + fmt(discountAmt);
-              okEl.style.display = 'flex';
-              showToast('Áp dụng mã thành công!');
-            } else {
-              errEl.textContent = 'Mã không hợp lệ hoặc đã hết hạn';
-              errEl.style.display = 'block';
-              discountAmt = 0; appliedVoucher = null; updateTotals();
-            }
+            localStorage.removeItem('gh_applied_voucher');
           }
-        }).catch(function () {
+          _coVpShopId = null;
+        } catch (e) {
           errEl.textContent = 'Không thể kiểm tra mã. Vui lòng thử lại.';
           errEl.style.display = 'block';
-        });
+        }
       }
 
       // ── Voucher shop (per-shop) ──
@@ -1495,8 +1513,10 @@
 
     <script>
     var _coVpVouchers = [];
+    var _coVpSaved    = [];
     var _coVpSelected = null;
     var _coVpLoaded   = false;
+    var _coVpShopId   = null;   // shopId of selected voucher, read by applyVoucher()
 
     function openCoVoucherPicker() {
       document.getElementById("coVoucherPickerBackdrop").classList.add("show");
@@ -1509,65 +1529,114 @@
     }
 
     async function loadCoVoucherPicker() {
+      var list = document.getElementById("co-vp-list");
       try {
-        var res = await fetch("/api/vouchers/public");
+        var res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) _coVpVouchers = await res.json();
+        if (typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn()) {
+          try {
+            var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { "Authorization": "Bearer " + Auth.getToken() }
+            });
+            if (res2.ok)
+              _coVpSaved = (await res2.json()).filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
+          } catch (_) {}
+        }
         _coVpLoaded = true;
-        coVpRender(_coVpVouchers);
-      } catch(_) {
-        document.getElementById("co-vp-list").innerHTML =
-          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+        coVpRender(_coVpVouchers, _coVpSaved);
+      } catch (_) {
+        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
       }
+    }
+
+    function _coIsShip(v) {
+      return (v.DiscountType || "").toLowerCase() === "freeship"
+        || (v.Code || "").toUpperCase().includes("SHIP")
+        || (v.Description || "").toLowerCase().includes("freeship")
+        || (v.Description || "").toLowerCase().includes("vận chuyển");
     }
 
     function coVpFilter() {
       var q = (document.getElementById("co-vp-search").value || "").toLowerCase();
-      var filtered = q ? _coVpVouchers.filter(v =>
-        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
-      ) : _coVpVouchers;
-      coVpRender(filtered);
+      var fp = q ? _coVpVouchers.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _coVpVouchers;
+      var fs = q ? _coVpSaved.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _coVpSaved;
+      coVpRender(fp, fs);
     }
 
     function coVpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function coVpDiscLabel(v) {
-      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${coVpFmt(v.discountValue)}`;
+      if (_coIsShip(v)) return "Miễn phí vận chuyển";
+      return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${coVpFmt(v.DiscountValue)}`;
     }
 
-    function coVpRender(list) {
+    function coVpItem(v, isSaved, isShip) {
+      var sel = _coVpSelected && _coVpSelected.Code === v.Code;
+      var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)"
+                   : "";
+      var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
+      return `
+        <div class="vo-modal-voucher-item ${sel ? 'selected' : ''}" onclick="coVpSelect(this,'${v.Code}')">
+          <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.Description || v.Code}</div>
+            <div class="vo-mvi-sub">
+              ${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
+              ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
+              ${isSaved ? ' · <span style="color:#22c55e">Đã lưu</span>' : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.Code}</div>
+        </div>`;
+    }
+
+    function coVpRender(publicList, savedList) {
       var el = document.getElementById("co-vp-list");
-      if (!list.length) {
+      savedList = savedList || [];
+      var savedCodes = new Set(savedList.map(v => v.Code));
+
+      function sortBest(a, b) {
+        var aS = savedCodes.has(a.Code) ? 1 : 0, bS = savedCodes.has(b.Code) ? 1 : 0;
+        if (aS !== bS) return bS - aS;
+        return (b.DiscountValue || 0) - (a.DiscountValue || 0);
+      }
+
+      var allShip = [...savedList.filter(_coIsShip), ...publicList.filter(_coIsShip)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var allDisc = [...savedList.filter(v=>!_coIsShip(v)), ...publicList.filter(v=>!_coIsShip(v))].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      allShip.sort(sortBest); allDisc.sort(sortBest);
+
+      var html = "";
+      var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
+
+      if (allShip.length) {
+        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển</div>`;
+        html += allShip.map(v => coVpItem(v, savedCodes.has(v.Code), true)).join("");
+      }
+      if (allDisc.length) {
+        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá</div>`;
+        html += allDisc.map(v => coVpItem(v, savedCodes.has(v.Code), false)).join("");
+      }
+      if (!html) {
         el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
         return;
       }
-      el.innerHTML = list.map(v => `
-        <div class="vo-modal-voucher-item ${_coVpSelected && _coVpSelected.code === v.code ? 'selected' : ''}"
-             onclick="coVpSelect(this,'${v.code}')">
-          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-          <div class="vo-mvi-info">
-            <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.description || v.code}</div>
-            <div class="vo-mvi-sub">
-              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
-              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
-            </div>
-          </div>
-          <div class="vo-mvi-code">${v.code}</div>
-        </div>
-      `).join("");
+      el.innerHTML = html;
     }
 
     function coVpSelect(el, code) {
       document.querySelectorAll("#co-vp-list .vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
       el.classList.add("selected");
-      _coVpSelected = _coVpVouchers.find(v => v.code === code) || { code };
+      _coVpSelected = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
     }
 
-    function applyCoPickedVoucher() {
+    async function applyCoPickedVoucher() {
       if (!_coVpSelected) { closeCoVoucherPicker(); return; }
       var inp = document.getElementById("voucherInput");
       if (inp) {
-        inp.value = _coVpSelected.code;
+        inp.value = _coVpSelected.Code;
+        _coVpShopId = _coVpSelected.ShopId !== undefined ? _coVpSelected.ShopId : null;
         closeCoVoucherPicker();
-        if (typeof applyVoucher === "function") applyVoucher();
+        if (typeof applyVoucher === "function") await applyVoucher();
       }
     }
     </script>

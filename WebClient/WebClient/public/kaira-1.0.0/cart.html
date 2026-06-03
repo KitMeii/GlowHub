@@ -559,7 +559,7 @@
         toast("Đã xóa toàn bộ giỏ hàng", "error");
       }
 
-      async function applyCoupon() {
+      async function applyCoupon(shopIdOverride) {
         const input = document.getElementById("coupon-input");
         const msg = document.getElementById("coupon-msg");
         if (!input || !msg) return;
@@ -573,6 +573,7 @@
 
         const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const subtotal = items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+        const shopId = shopIdOverride !== undefined ? shopIdOverride : null;
 
         try {
           const token = typeof Auth !== "undefined" && Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
@@ -582,13 +583,13 @@
           const res = await fetch(PRODUCT_API + "/api/vouchers/validate", {
             method: "POST",
             headers,
-            body: JSON.stringify({ code, orderAmount: subtotal })
+            body: JSON.stringify({ code, orderAmount: subtotal, shopId })
           });
           const data = await res.json();
 
           if (data.valid) {
             appliedCoupon = {
-              code,
+              code, shopId,
               type: data.discountType,
               value: data.discountValue,
               discountAmount: data.discountAmount,
@@ -599,8 +600,10 @@
             input.disabled = true;
             toast("Áp dụng mã " + code + " thành công!");
             renderSummaryOnly();
+            localStorage.setItem("gh_applied_voucher", JSON.stringify(appliedCoupon));
           } else {
             appliedCoupon = null;
+            localStorage.removeItem("gh_applied_voucher");
             msg.textContent = "✕ " + (data.message || "Mã giảm giá không hợp lệ");
             msg.className = "coupon-msg error";
             toast(data.message || "Mã giảm giá không hợp lệ", "error");
@@ -721,14 +724,13 @@
     </div>
 
     <script>
-    var _vpVouchers = [];   // public vouchers
-    var _vpSaved    = [];   // saved voucher objects (unwrapped from CustomerVoucher)
+    var _vpVouchers = [];
+    var _vpSaved    = [];
     var _vpSelected = null;
     var _vpLoaded   = false;
 
     function openVoucherPicker() {
-      var bd = document.getElementById("voucherPickerBackdrop");
-      bd.classList.add("show");
+      document.getElementById("voucherPickerBackdrop").classList.add("show");
       document.body.style.overflow = "hidden";
       if (!_vpLoaded) loadVoucherPicker();
     }
@@ -742,19 +744,16 @@
       try {
         var res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) _vpVouchers = await res.json();
-
         if (typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn()) {
           try {
             var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
               headers: { "Authorization": "Bearer " + Auth.getToken() }
             });
             if (res2.ok) {
-              var raw = await res2.json();
-              _vpSaved = raw.filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
+              _vpSaved = (await res2.json()).filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
             }
           } catch (_) {}
         }
-
         _vpLoaded = true;
         vpRender(_vpVouchers, _vpSaved);
       } catch (_) {
@@ -762,30 +761,41 @@
       }
     }
 
+    function _isShipV(v) {
+      return (v.DiscountType || "").toLowerCase() === "freeship"
+        || (v.Code || "").toUpperCase().includes("SHIP")
+        || (v.Description || "").toLowerCase().includes("freeship")
+        || (v.Description || "").toLowerCase().includes("vận chuyển");
+    }
+
     function vpFilter() {
       var q = (document.getElementById("vp-search").value || "").toLowerCase();
-      var fp = q ? _vpVouchers.filter(v => (v.Code || "").toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q)) : _vpVouchers;
-      var fs = q ? _vpSaved.filter(v => (v.Code || "").toLowerCase().includes(q) || (v.Description || "").toLowerCase().includes(q)) : _vpSaved;
+      var fp = q ? _vpVouchers.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _vpVouchers;
+      var fs = q ? _vpSaved.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _vpSaved;
       vpRender(fp, fs);
     }
 
     function vpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function vpDiscLabel(v) {
+      if (_isShipV(v)) return "Miễn phí vận chuyển";
       return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${vpFmt(v.DiscountValue)}`;
     }
 
-    function vpItem(v, isSaved) {
+    function vpItem(v, isSaved, isShip) {
       var sel = _vpSelected && _vpSelected.Code === v.Code;
+      var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)"
+                   : "";
+      var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
       return `
         <div class="vo-modal-voucher-item ${sel ? 'selected' : ''}" onclick="vpSelect(this,'${v.Code}')">
-          <div class="vo-mvi-icon" style="${isSaved ? 'background:linear-gradient(135deg,#22c55e,#16a34a)' : ''}">
-            <i class="bi bi-${isSaved ? 'bookmark-fill' : 'ticket-perforated-fill'}"></i>
-          </div>
+          <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
           <div class="vo-mvi-info">
             <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.Description || v.Code}</div>
             <div class="vo-mvi-sub">
               ${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
               ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
+              ${isSaved ? ' · <span style="color:#22c55e">Đã lưu</span>' : ''}
             </div>
           </div>
           <div class="vo-mvi-code">${v.Code}</div>
@@ -795,18 +805,33 @@
     function vpRender(publicList, savedList) {
       var el = document.getElementById("vp-list");
       savedList = savedList || [];
-      var html = "";
+      var savedCodes = new Set(savedList.map(v => v.Code));
 
-      if (savedList.length) {
-        html += '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;">★ Voucher Đã Lưu</div>';
-        html += savedList.map(v => vpItem(v, true)).join("");
+      function sortBest(a, b) {
+        var aS = savedCodes.has(a.Code) ? 1 : 0;
+        var bS = savedCodes.has(b.Code) ? 1 : 0;
+        if (aS !== bS) return bS - aS;
+        return (b.DiscountValue || 0) - (a.DiscountValue || 0);
       }
 
-      if (publicList.length) {
-        if (savedList.length) {
-          html += '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);padding:12px 0 6px;border-bottom:1px solid var(--border);margin:8px 0 8px;">Voucher Công Khai</div>';
-        }
-        html += publicList.map(v => vpItem(v, false)).join("");
+      var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)];
+      var allDisc = [...savedList.filter(v => !_isShipV(v)), ...publicList.filter(v => !_isShipV(v))];
+      // dedupe by Code
+      allShip = allShip.filter((v, i, a) => a.findIndex(x => x.Code === v.Code) === i);
+      allDisc = allDisc.filter((v, i, a) => a.findIndex(x => x.Code === v.Code) === i);
+      allShip.sort(sortBest);
+      allDisc.sort(sortBest);
+
+      var html = "";
+      var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
+
+      if (allShip.length) {
+        html += `<div style="${secStyle}color:#1d4ed8;"><i class="bi bi-truck"></i> Voucher Vận Chuyển</div>`;
+        html += allShip.map(v => vpItem(v, savedCodes.has(v.Code), true)).join("");
+      }
+      if (allDisc.length) {
+        html += `<div style="${secStyle}${allShip.length ? 'margin-top:14px;' : ''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá</div>`;
+        html += allDisc.map(v => vpItem(v, savedCodes.has(v.Code), false)).join("");
       }
 
       if (!html) {
@@ -828,7 +853,8 @@
       if (inp) {
         inp.value = _vpSelected.Code;
         closeVoucherPicker();
-        if (typeof applyCoupon === "function") await applyCoupon();
+        if (typeof applyCoupon === "function")
+          await applyCoupon(_vpSelected.ShopId !== undefined ? _vpSelected.ShopId : null);
       }
     }
     </script>
