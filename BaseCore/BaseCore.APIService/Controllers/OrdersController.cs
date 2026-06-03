@@ -116,6 +116,7 @@ namespace BaseCore.APIService.Controllers
 
             var order = await _db.Orders
                 .Include(o => o.OrderDetails).ThenInclude(od => od.Product).ThenInclude(p => p == null ? null : p.Shop)
+                .Include(o => o.SubOrders).ThenInclude(s => s.Items).ThenInclude(i => i.Product)
                 .Include(o => o.StatusHistory)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
 
@@ -127,26 +128,53 @@ namespace BaseCore.APIService.Controllers
                 .Select(s => new { shopId = s!.Id, shopName = s.ShopName, logo = s.Logo })
                 .FirstOrDefault();
 
+            // Build shopId → shopName map from already-loaded OrderDetails
+            var shopNameMap = order.OrderDetails
+                .Where(od => od.Product?.Shop != null && od.Product.ShopId != null)
+                .GroupBy(od => od.Product!.ShopId!)
+                .ToDictionary(g => g.Key, g => g.First().Product!.Shop!.ShopName ?? "");
+
             return Ok(new {
-                orderId          = order.Id,
-                orderCode        = order.OrderCode ?? ("ORD-" + order.Id.ToString("D6")),
-                status           = order.Status,
-                totalAmount      = order.TotalAmount,
-                shippingFee      = order.ShippingFee,
-                discount         = 0m,
-                finalAmount      = order.FinalAmount > 0 ? order.FinalAmount : order.TotalAmount + order.ShippingFee,
-                createdAt        = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc),
-                updatedAt        = order.UpdatedAt != null ? (DateTime?)DateTime.SpecifyKind(order.UpdatedAt.Value, DateTimeKind.Utc) : null,
-                shippingAddress  = order.ShippingAddress,
-                receiverName     = order.ReceiverName,
-                receiverPhone    = order.ReceiverPhone,
-                trackingCode     = order.TrackingCode,
-                cancelReason     = order.CancelReason,
-                estimatedDelivery = order.EstimatedDelivery != null ? (DateTime?)DateTime.SpecifyKind(order.EstimatedDelivery.Value, DateTimeKind.Utc) : null,
-                paymentMethod    = order.PaymentMethod,
-                paymentStatus    = order.PaymentStatus,
-                note             = order.Note,
+                orderId               = order.Id,
+                orderCode             = order.OrderCode ?? ("ORD-" + order.Id.ToString("D6")),
+                status                = order.Status,
+                totalAmount           = order.TotalAmount,
+                shippingFee           = order.ShippingFee,
+                discount              = order.Discount,
+                systemVoucherDiscount = order.SystemVoucherDiscount,
+                shopVoucherDiscount   = order.ShopVoucherDiscount,
+                freeshipDiscount      = order.FreeshipDiscount,
+                finalAmount           = order.FinalAmount > 0 ? order.FinalAmount : order.TotalAmount + order.ShippingFee,
+                createdAt             = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc),
+                updatedAt             = order.UpdatedAt != null ? (DateTime?)DateTime.SpecifyKind(order.UpdatedAt.Value, DateTimeKind.Utc) : null,
+                shippingAddress       = order.ShippingAddress,
+                receiverName          = order.ReceiverName,
+                receiverPhone         = order.ReceiverPhone,
+                trackingCode          = order.TrackingCode,
+                cancelReason          = order.CancelReason,
+                estimatedDelivery     = order.EstimatedDelivery != null ? (DateTime?)DateTime.SpecifyKind(order.EstimatedDelivery.Value, DateTimeKind.Utc) : null,
+                paymentMethod         = order.PaymentMethod,
+                paymentStatus         = order.PaymentStatus,
+                note                  = order.Note,
                 shopInfo,
+                subOrders = order.SubOrders.OrderBy(s => s.Id).Select(s => new {
+                    subOrderId          = s.Id,
+                    shopId              = s.ShopId,
+                    shopName            = s.ShopId != null && shopNameMap.TryGetValue(s.ShopId, out var sn) ? sn : "",
+                    totalAmount         = s.TotalAmount,
+                    shippingFee         = s.ShippingFee,
+                    shopVoucherDiscount = s.ShopVoucherDiscount,
+                    finalAmount         = s.FinalAmount,
+                    status              = s.Status,
+                    items = s.Items.Select(i => new {
+                        productId   = i.ProductId,
+                        productName = i.Product != null ? i.Product.Name : "",
+                        imageUrl    = i.Product != null ? i.Product.ImageUrl : "",
+                        qty         = i.Quantity,
+                        unitPrice   = i.UnitPrice,
+                        subtotal    = i.UnitPrice * i.Quantity
+                    })
+                }),
                 items = order.OrderDetails.Select(od => new {
                     productId   = od.ProductId,
                     productName = od.Product?.Name ?? "",
