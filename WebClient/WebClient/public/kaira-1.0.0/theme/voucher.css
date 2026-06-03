@@ -490,15 +490,31 @@
 }
 .vo-modal-voucher-item:hover { border-color: var(--pink); background: var(--pink-soft); }
 .vo-modal-voucher-item.selected { border-color: var(--pink); background: var(--pink-soft); }
-.vo-modal-voucher-item .vo-mvi-tick {
-  display: none;
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  line-height: 0;
+.vo-modal-voucher-item .vo-mvi-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  position: relative;
+  margin-left: 4px;
+  transition: border-color 0.18s;
   pointer-events: none;
 }
-.vo-modal-voucher-item.selected .vo-mvi-tick { display: block; }
+.vo-modal-voucher-item .vo-mvi-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.18s;
+}
+.vo-modal-voucher-item.selected .vo-mvi-radio { border-color: var(--pink); }
+.vo-modal-voucher-item.selected .vo-mvi-radio::after { background: var(--pink); }
 
 .vo-modal-voucher-item .vo-mvi-icon {
   width: 36px;
