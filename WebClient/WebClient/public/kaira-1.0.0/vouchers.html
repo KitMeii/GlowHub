@@ -367,7 +367,7 @@
       btn.disabled = true;
       btn.textContent = "Đang lưu...";
       try {
-        const res = await fetch("/api/vouchers/save/" + code, {
+        const res = await fetch(PRODUCT_API + "/api/vouchers/save/" + code, {
           method: "POST",
           headers: { "Authorization": "Bearer " + Auth.getToken() }
         });
@@ -417,7 +417,7 @@
 
       // Load public vouchers
       try {
-        const res = await fetch("/api/vouchers/public");
+        const res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) {
           _allVouchers = await res.json();
         }
@@ -426,7 +426,7 @@
       // Load saved vouchers if logged in
       if (isLoggedIn()) {
         try {
-          const res = await fetch("/api/vouchers/my", {
+          const res = await fetch(PRODUCT_API + "/api/vouchers/my", {
             headers: { "Authorization": "Bearer " + Auth.getToken() }
           });
           if (res.ok) {
