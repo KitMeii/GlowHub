@@ -309,6 +309,23 @@
 .vo-btn-save:hover  { background: var(--pink-hover); }
 .vo-btn-save.saved  { background: var(--success); cursor: default; }
 
+.vo-btn-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--gray);
+  padding: 4px 5px;
+  border-radius: 2px;
+  transition: color 0.18s, background 0.18s;
+  z-index: 2;
+  line-height: 1;
+}
+.vo-btn-delete:hover { color: var(--error, #ef4444); background: #fff1f2; }
+
 /* Notch cutout (decorative) */
 .vo-card::before,
 .vo-card::after {
