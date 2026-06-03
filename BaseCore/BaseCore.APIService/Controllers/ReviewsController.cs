@@ -201,27 +201,31 @@ namespace BaseCore.APIService.Controllers
             if (replied == false) query = query.Where(r => r.SellerReply == null);
 
             var total = await query.CountAsync();
-            var items = await query
+            // Materialize with Include active, then project in memory.
+            // EF Core ignores .Include() inside .Select() projections,
+            // so r.User would be null if we projected directly in the query.
+            var rows = await query
                 .OrderByDescending(r => r.CreatedAt)
                 .Skip((page - 1) * limit)
                 .Take(limit)
-                .Select(r => new {
-                    reviewId     = r.Id,
-                    productName  = r.Product != null ? r.Product.Name     : "",
-                    productImage = r.Product != null ? r.Product.ImageUrl : "",
-                    customerId   = r.UserId,
-                    customerName = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
-                    r.Rating,
-                    r.Comment,
-                    images = r.Images != null
-                        ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
-                        : new List<string>(),
-                    createdAt           = r.CreatedAt,
-                    sellerReply         = r.SellerReply,
-                    replyAt             = r.ReplyAt,
-                    isVerifiedPurchase  = r.IsVerifiedPurchase
-                })
                 .ToListAsync();
+
+            var items = rows.Select(r => new {
+                reviewId     = r.Id,
+                productName  = r.Product != null ? r.Product.Name     : "",
+                productImage = r.Product != null ? r.Product.ImageUrl : "",
+                customerId   = r.UserId,
+                customerName = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
+                rating       = r.Rating,
+                comment      = r.Comment,
+                images = r.Images != null
+                    ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>(),
+                createdAt          = r.CreatedAt,
+                sellerReply        = r.SellerReply,
+                replyAt            = r.ReplyAt,
+                isVerifiedPurchase = r.IsVerifiedPurchase
+            }).ToList();
 
             return Ok(new {
                 total,
