@@ -357,8 +357,10 @@
         const map = {};
         items.forEach(function (item) {
           const sid = item.shopId || item.ShopId || "__none__";
-          const sname = item.shopName || item.ShopName || "Shop";
+          const sname = item.shopName || item.ShopName || "";
           if (!map[sid]) map[sid] = { shopId: sid, shopName: sname, items: [] };
+          // Upgrade to a better (non-empty) name if available from any item in the group
+          else if (!map[sid].shopName && sname) map[sid].shopName = sname;
           map[sid].items.push(item);
         });
         return Object.values(map);
@@ -379,7 +381,7 @@
               `<div style="display:flex;align-items:center;justify-content:space-between;` +
               `padding:10px 14px;margin:12px 0 4px;background:#fdf6f0;border-left:3px solid var(--pink);` +
               `border-radius:0 8px 8px 0;font-size:13px;font-weight:600;color:#333">` +
-              `<span><i class="bi bi-shop" style="color:var(--pink);margin-right:6px"></i>${g.shopName}</span>` +
+              `<span><i class="bi bi-shop" style="color:var(--pink);margin-right:6px"></i>${g.shopName || 'Shop'}</span>` +
               `<span style="font-weight:400;color:var(--gray)">Tạm tính: ${fmt(groupSub)}</span></div>` +
               g.items.map((item) => renderItem(item)).join("")
             );
@@ -729,8 +731,16 @@
 
       async function resolveShopNames() {
         const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
-        const groups = _groupByShop(items);
-        const needsLookup = groups.filter(g => g.shopId !== "__none__" && !g.shopName);
+        // Remove junk items (price=0 with default name from old addToCartFromCard fallback)
+        const cleanItems = items.filter(i => !(i.name === "Sản phẩm" && (i.price || 0) === 0));
+        if (cleanItems.length < items.length) {
+          const key = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
+          localStorage.setItem(key, JSON.stringify(cleanItems));
+        }
+
+        const groups = _groupByShop(cleanItems);
+        // Needs lookup: has a real shopId but shopName is empty (new _groupByShop no longer sets "Shop" as default)
+        const needsLookup = groups.filter(g => g.shopId && g.shopId !== "__none__" && !g.shopName);
         if (!needsLookup.length) return;
 
         let changed = false;
@@ -741,7 +751,6 @@
             const data = await res.json();
             const name = data.shopName || data.ShopName || "";
             if (!name) continue;
-            // Patch shopName into every matching item in localStorage
             const allItems = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
             let modified = false;
             allItems.forEach(function (i) {
