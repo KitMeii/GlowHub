@@ -491,30 +491,28 @@
 .vo-modal-voucher-item:hover { border-color: var(--pink); background: var(--pink-soft); }
 .vo-modal-voucher-item.selected { border-color: var(--pink); background: var(--pink-soft); }
 .vo-modal-voucher-item .vo-mvi-radio {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid #d1d5db;
   flex-shrink: 0;
   position: relative;
-  margin-left: 4px;
-  transition: border-color 0.18s;
+  margin-left: 6px;
   pointer-events: none;
+  overflow: visible;
 }
-.vo-modal-voucher-item .vo-mvi-radio::after {
-  content: '';
+.vo-modal-voucher-item .vo-mvi-radio::after { content: none; }
+.vo-modal-voucher-item .vo-mvi-radio svg {
+  display: none;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: transparent;
-  transition: background 0.18s;
+  width: 22px;
+  height: 22px;
 }
-.vo-modal-voucher-item.selected .vo-mvi-radio { border-color: var(--pink); }
-.vo-modal-voucher-item.selected .vo-mvi-radio::after { background: var(--pink); }
+.vo-modal-voucher-item.selected .vo-mvi-radio { border-color: transparent; }
+.vo-modal-voucher-item.selected .vo-mvi-radio svg { display: block; }
 
 .vo-modal-voucher-item .vo-mvi-icon {
   width: 36px;
