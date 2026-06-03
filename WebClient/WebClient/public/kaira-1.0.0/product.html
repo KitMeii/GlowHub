@@ -319,7 +319,7 @@
 
           <!-- 6–7. Action group -->
           <div class="prd-actions-group">
-            <button class="btn-add-cart" id="btnAddCart">
+            <button class="btn-add-cart" id="btnAddCart" data-cart-bound="1">
               <svg
                 viewBox="0 0 24 24"
                 width="16"
@@ -957,6 +957,8 @@
                     name: name,
                     price: currentPrice,
                     image: imageUrl,
+                    shopId: norm(product, "shopId", "ShopId") || "",
+                    shopName: norm(product, "shopName", "ShopName") || "",
                     qty: qty,
                   });
                 } else {
