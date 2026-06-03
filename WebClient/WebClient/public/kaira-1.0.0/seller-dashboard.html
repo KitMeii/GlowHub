@@ -2671,18 +2671,18 @@
             (v) => `
     <tr>
       <td>
-        <code style="background:#f5f0ea;padding:2px 6px;border-radius:2px;font-size:12px">${v.code}</code>
-        <button onclick="navigator.clipboard.writeText('${v.code}').then(()=>showToast('Đã copy'))" style="background:none;border:none;cursor:pointer;font-size:12px" title="Copy">📋</button>
+        <code style="background:#f5f0ea;padding:2px 6px;border-radius:2px;font-size:12px">${v.Code}</code>
+        <button onclick="navigator.clipboard.writeText('${v.Code}').then(()=>showToast('Đã copy'))" style="background:none;border:none;cursor:pointer;font-size:12px" title="Copy">📋</button>
       </td>
-      <td>${v.discountType === "percent" ? "Phần trăm" : "Cố định"}</td>
-      <td>${v.discountType === "percent" ? v.discountValue + "%" : fmtMoney(v.discountValue)}</td>
-      <td>${fmtMoney(v.minOrderAmount)}</td>
-      <td>${v.usedCount} / ${v.maxUsage || "∞"}</td>
-      <td style="font-size:11px">${v.expiryDate ? fmtDate(v.expiryDate) : "—"}</td>
+      <td>${v.DiscountType === "percent" ? "Phần trăm" : "Cố định"}</td>
+      <td>${v.DiscountType === "percent" ? v.DiscountValue + "%" : fmtMoney(v.DiscountValue)}</td>
+      <td>${fmtMoney(v.MinOrderAmount)}</td>
+      <td>${v.UsedCount} / ${v.maxUsage || "∞"}</td>
+      <td style="font-size:11px">${v.ExpiryDate ? fmtDate(v.ExpiryDate) : "—"}</td>
       <td>${statusHtml(v.statusLabel)}</td>
       <td>
         <button class="btn-outline btn-sm" onclick="editVoucher(${JSON.stringify(v).replace(/"/g, "&quot;")})">✏️</button>
-        <button class="btn-danger btn-sm" onclick="deleteVoucher(${v.id},'${v.code}')" style="margin-left:4px">🗑️</button>
+        <button class="btn-danger btn-sm" onclick="deleteVoucher(${v.Id},'${v.Code}')" style="margin-left:4px">🗑️</button>
       </td>
     </tr>`,
           )
@@ -2690,20 +2690,20 @@
       }
 
       function openVoucherModal(v = null) {
-        _editingVoucherId = v ? v.id : null;
+        _editingVoucherId = v ? v.Id : null;
         document.getElementById("voucherModalTitle").textContent = v
           ? "Sửa Voucher"
           : "Tạo Voucher";
-        document.getElementById("v-code").value = v?.code || "";
-        document.getElementById("v-type").value = v?.discountType || "percent";
-        document.getElementById("v-value").value = v?.discountValue || "";
-        document.getElementById("v-min").value = v?.minOrderAmount || 0;
+        document.getElementById("v-code").value = v?.Code || "";
+        document.getElementById("v-type").value = v?.DiscountType || "percent";
+        document.getElementById("v-value").value = v?.DiscountValue || "";
+        document.getElementById("v-min").value = v?.MinOrderAmount || 0;
         document.getElementById("v-max-usage").value = v?.maxUsage || "";
-        document.getElementById("v-start").value = v?.startDate
-          ? v.startDate.slice(0, 10)
+        document.getElementById("v-start").value = v?.StartDate
+          ? v.StartDate.slice(0, 10)
           : "";
-        document.getElementById("v-end").value = v?.expiryDate
-          ? v.expiryDate.slice(0, 10)
+        document.getElementById("v-end").value = v?.ExpiryDate
+          ? v.ExpiryDate.slice(0, 10)
           : "";
         hideAlert("voucherAlertBox");
         openModal("voucherModal");
