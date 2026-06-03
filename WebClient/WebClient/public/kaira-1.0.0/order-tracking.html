@@ -434,14 +434,17 @@
       document.getElementById("res-payment").textContent = "—";
       document.getElementById("res-total").textContent = "—";
 
-      // Fetch full detail for extra fields
+      // Fetch full detail for extra fields + shop-grouped items
       Order.getDetail(data.orderId).then(detail => {
         document.getElementById("res-receiver").textContent = detail.receiverName || "—";
         document.getElementById("res-phone").textContent    = detail.receiverPhone || "—";
         document.getElementById("res-address").textContent  = detail.shippingAddress || "—";
         document.getElementById("res-payment").textContent  = PAYMENT_LABEL[detail.paymentMethod] || "COD";
         document.getElementById("res-total").textContent    = fmt(detail.finalAmount || detail.totalAmount || 0);
-      }).catch(() => {});
+        renderDetailItems(detail);
+      }).catch(() => {
+        document.getElementById("items-list").innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">Không tải được sản phẩm</div>';
+      });
 
       // Tracking code
       if (data.trackingCode) {
@@ -476,11 +479,9 @@
       // Timeline
       renderTimeline(data.timeline, data.isCancelled, data.cancelReason);
 
-      // Items
-      if (data.items && data.items.length > 0) {
-        show("items-section");
-        renderItems(data.items);
-      }
+      // Items — populated via getDetail callback above
+      show("items-section");
+      document.getElementById("items-list").innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">Đang tải sản phẩm...</div>';
     }
 
     // ─────────────────────────────────────────────────────────
@@ -549,22 +550,65 @@
     }
 
     // ─────────────────────────────────────────────────────────
-    // Items
+    // Items — shop-grouped with summary
     // ─────────────────────────────────────────────────────────
-    function renderItems(items) {
+    function renderDetailItems(o) {
       const list = document.getElementById("items-list");
-      list.innerHTML = items.map(item => `
-        <div class="order-item-row">
-          <img class="oi-img" src="${item.imageUrl || 'https://via.placeholder.com/52x62'}"
-               alt="${item.productName}" loading="lazy"
-               onerror="this.src='https://via.placeholder.com/52x62'" />
-          <div class="oi-info">
-            <div class="oi-name">${item.productName}</div>
-            <div class="oi-qty">x${item.qty}</div>
-          </div>
-          <div class="oi-price">${fmt(item.unitPrice * item.qty)}</div>
-        </div>
-      `).join("");
+      const ph = "https://placehold.co/48x48/f5f0ea/888?text=IMG";
+      const fmtMoney = n => (n == null ? "—" : new Intl.NumberFormat("vi-VN").format(n) + " ₫");
+
+      const subOrders = o.subOrders || [];
+      let shopSectionsHtml = "";
+
+      if (subOrders.length > 0) {
+        shopSectionsHtml = subOrders.map(so => {
+          const soItemsHtml = (so.items || []).map(i =>
+            `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">
+              <img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</div>
+                <div style="font-size:12px;color:#888;margin-top:2px">×${i.qty || 1} · ${fmtMoney(i.unitPrice)}</div>
+              </div>
+              <div style="font-size:13px;font-weight:600;flex-shrink:0">${fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1)))}</div>
+            </div>`
+          ).join("");
+          return `<div style="margin-bottom:14px;border:1px solid #ede8e2;border-radius:6px;overflow:hidden">
+            <div style="background:#f9f6f3;padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.5px">🏪 ${so.shopName || "Shop"}</div>
+            <div style="padding:0 14px">${soItemsHtml}</div>
+            <div style="padding:8px 14px;background:#fafaf8;border-top:1px solid #ede8e2;font-size:12px">
+              <div style="display:flex;justify-content:space-between;color:#666;margin-bottom:2px"><span>Tạm tính shop</span><span>${fmtMoney(so.totalAmount)}</span></div>
+              ${so.shopVoucherDiscount > 0 ? `<div style="display:flex;justify-content:space-between;color:#f759ab;margin-bottom:2px"><span>Voucher shop</span><span>−${fmtMoney(so.shopVoucherDiscount)}</span></div>` : ""}
+              <div style="display:flex;justify-content:space-between;color:#666"><span>Phí vận chuyển</span><span>+${fmtMoney(so.shippingFee)}</span></div>
+            </div>
+          </div>`;
+        }).join("");
+      } else {
+        shopSectionsHtml = (o.items || []).map(i =>
+          `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">
+            <img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</div>
+              <div style="font-size:12px;color:#888;margin-top:2px">×${i.qty || i.quantity || 1} · ${fmtMoney(i.unitPrice)}</div>
+            </div>
+            <div style="font-size:13px;font-weight:600;flex-shrink:0">${fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1)))}</div>
+          </div>`
+        ).join("");
+      }
+
+      const sysDisc  = o.systemVoucherDiscount || 0;
+      const shopDisc = o.shopVoucherDiscount   || 0;
+      const shipDisc = o.freeshipDiscount      || 0;
+      const summaryHtml =
+        `<div style="border-top:2px solid #ede8e2;padding-top:12px;margin-top:16px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#666">Tạm tính</span><span>${fmtMoney(o.totalAmount)}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#666">Phí vận chuyển</span><span>+${fmtMoney(o.shippingFee)}</span></div>
+          ${shopDisc > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:#f759ab"><span>Voucher shop</span><span>−${fmtMoney(shopDisc)}</span></div>` : ""}
+          ${sysDisc  > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:#f759ab"><span>Voucher hệ thống</span><span>−${fmtMoney(sysDisc)}</span></div>` : ""}
+          ${shipDisc > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:#f759ab"><span>Voucher freeship</span><span>−${fmtMoney(shipDisc)}</span></div>` : ""}
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#f759ab;margin-top:8px;padding-top:8px;border-top:1px solid #ede8e2"><span>Thanh toán</span><span>${fmtMoney(o.finalAmount)}</span></div>
+        </div>`;
+
+      list.innerHTML = shopSectionsHtml + summaryHtml;
     }
 
     // ─────────────────────────────────────────────────────────
