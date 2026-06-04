@@ -302,6 +302,15 @@
         `<td>${p.categoryName || p.CategoryName || "—"}</td>`
       ).join(""));
 
+      // --- description row ---
+      var descRow = row("Mô Tả", products.map(p => {
+        var desc = p.Description || p.description || "";
+        var content = desc
+          ? `<div style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.6;color:var(--dark)">${desc}</div>`
+          : `<span style="color:var(--gray);font-style:italic">Chưa có mô tả</span>`;
+        return `<td>${content}</td>`;
+      }).join(""));
+
       // --- reviews count row ---
       var rvRow = row("Số Đánh Giá", products.map((p, i) => {
         var rv = p.totalReviews || 0;
@@ -331,6 +340,7 @@
             ${soldRow}
             ${stockRow}
             ${catRow}
+            ${descRow}
             ${rvRow}
             ${ctaRow}
           </tbody>
