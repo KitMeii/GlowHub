@@ -562,11 +562,15 @@
               style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px"
               onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">⭐ Đánh Giá Sản Phẩm</a></div>`
           : "";
+        const _imgEl = pid ? `<a href="product.html?id=${pid}" target="_blank"><img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" /></a>`
+                           : `<img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />`;
+        const _nameEl = pid ? `<a href="product.html?id=${pid}" target="_blank" style="color:inherit;text-decoration:none;font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</a>`
+                            : `<div style="font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</div>`;
         return `<div style="border-bottom:1px solid #f5f4f2">
           <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
-            <img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />
+            ${_imgEl}
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</div>
+              ${_nameEl}
               <div style="font-size:12px;color:#888;margin-top:2px">×${i.qty || i.quantity || 1} · ${fmtMoney(i.unitPrice)}</div>
             </div>
             <div style="font-size:13px;font-weight:600;flex-shrink:0">${fmtMoney(i.subtotal || (i.unitPrice * (i.qty || i.quantity || 1)))}</div>

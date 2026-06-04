@@ -199,7 +199,7 @@
       }));
 
       // preserve URL order
-      products = _ids.map(id => products.find(p => (p.Id || p.id) === id)).filter(Boolean);
+      products = _ids.map(id => products.find(p => String(p.Id ?? p.id) === String(id))).filter(Boolean);
 
       document.getElementById("cmp-skeleton").style.display = "none";
 
