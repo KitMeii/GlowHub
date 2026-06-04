@@ -421,6 +421,20 @@ namespace BaseCore.APIService.Controllers
             }
         }
 
+        /// <summary>GET /api/orders/my/check-purchased/{productId} — kiểm tra user đã mua sản phẩm chưa</summary>
+        [HttpGet("my/check-purchased/{productId:int}")]
+        [Authorize]
+        public async Task<IActionResult> CheckPurchased(int productId)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var hasPurchased = await _db.SubOrderItems
+                .AnyAsync(i => i.SubOrder.Order.UserId == userId && i.ProductId == productId);
+
+            return Ok(new { hasPurchased });
+        }
+
         // ─────────────────────────────────────────────────────────
         // LEGACY — kept for backward compat
         // ─────────────────────────────────────────────────────────

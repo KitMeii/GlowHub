@@ -1033,19 +1033,28 @@
           if (subOrders.length > 0) {
             var allShopsDelivered = subOrders.every(function(so) { return (so.status||'').toUpperCase() === 'DELIVERED'; });
             var allDeliveredBanner = allShopsDelivered
-              ? '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:14px;text-align:center;font-size:13px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng từ tất cả shop!</div>'
+              ? '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:14px;text-align:center;font-size:13px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng! Hãy đánh giá để giúp người mua khác nhé!</div>'
               : '';
             shopSectionsHtml = allDeliveredBanner + subOrders.map(function(so) {
               var soStatus = (so.status || '').toUpperCase();
               var soLabel  = subStatusLabel[soStatus] || soStatus;
               var soItemsHtml = (so.items || []).map(function(i) {
-                return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
-                  '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
-                  '<div style="flex:1;min-width:0">' +
-                    '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>' +
-                    '<div style="font-size:12px;color:#888;margin-top:2px">×' + (i.qty || 1) + ' · ' + fmtMoney(i.unitPrice) + '</div>' +
+                var pid = i.productId || i.ProductId || '';
+                var reviewBtn = (soStatus === 'DELIVERED' && pid)
+                  ? '<div style="padding:5px 0 3px 0"><a href="product.html?id=' + pid + '#reviews" ' +
+                    'style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px" ' +
+                    'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">⭐ Đánh Giá Sản Phẩm</a></div>'
+                  : '';
+                return '<div style="border-bottom:1px solid #f5f4f2">' +
+                  '<div style="display:flex;align-items:center;gap:12px;padding:10px 0">' +
+                    '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
+                    '<div style="flex:1;min-width:0">' +
+                      '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>' +
+                      '<div style="font-size:12px;color:#888;margin-top:2px">×' + (i.qty || 1) + ' · ' + fmtMoney(i.unitPrice) + '</div>' +
+                    '</div>' +
+                    '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
                   '</div>' +
-                  '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
+                  reviewBtn +
                   '</div>';
               }).join('');
               var confirmBtn = soStatus === 'SHIPPING'
