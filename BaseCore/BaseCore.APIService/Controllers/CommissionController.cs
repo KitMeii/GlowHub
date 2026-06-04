@@ -31,21 +31,15 @@ namespace BaseCore.APIService.Controllers
         [HttpGet("summary")]
         public async Task<IActionResult> GetSummary()
         {
-            // SubOrder is source of truth for per-shop financials
-            var completedSubs = await _db.SubOrders
-                .Include(s => s.Order)
-                .Where(s => s.Order.Status == OrderStatus.Completed)
-                .ToListAsync();
+            // SubOrder is source of truth for per-shop financials — aggregate directly in DB
+            var subsQuery = _db.SubOrders.Where(s => s.Order.Status == OrderStatus.Completed);
 
-            var wallets = await _db.SellerWallets
-                .Include(w => w.Shop)
-                .ToListAsync();
+            var totalRevenue    = await subsQuery.SumAsync(s => s.ProductRevenue);
+            var totalCommission = await subsQuery.SumAsync(s => s.CommissionAmount);
+            var totalNetSellers = await subsQuery.SumAsync(s => s.SellerPayoutAmount);
 
-            var totalRevenue    = completedSubs.Sum(s => s.ProductRevenue);
-            var totalCommission = completedSubs.Sum(s => s.CommissionAmount);
-            var totalNetSellers = completedSubs.Sum(s => s.SellerPayoutAmount);
-            var totalPaidOut    = wallets.Sum(w => w.TotalWithdrawn);
-            var totalReleased   = wallets.Sum(w => w.TotalEarned);
+            var totalPaidOut  = await _db.SellerWallets.SumAsync(w => w.TotalWithdrawn);
+            var totalReleased = await _db.SellerWallets.SumAsync(w => w.TotalEarned);
 
             var pendingRelease = await _db.SubOrders
                 .Where(s => s.PayoutStatus == PayoutStatusValue.WaitingRelease)
@@ -57,25 +51,43 @@ namespace BaseCore.APIService.Controllers
                 .SumAsync(o => o.SystemVoucherDiscount + o.FreeshipDiscount);
             var adminNetProfit = totalCommission - systemDiscounts;
 
-            var byShop = completedSubs
+            // byShop: GROUP BY in DB → join wallet info only for top 20 shops
+            var byShopAgg = await subsQuery
+                .Where(s => s.ShopId != null)
                 .GroupBy(s => s.ShopId!)
-                .Select(g => {
-                    var wallet = wallets.FirstOrDefault(w => w.ShopId == g.Key);
-                    return new {
-                        shopId           = g.Key,
-                        shopName         = wallet?.Shop?.ShopName ?? g.Key,
-                        logo             = wallet?.Shop?.Logo,
-                        commissionRate   = g.First().CommissionRate,
-                        totalRevenue     = g.Sum(s => s.ProductRevenue),
-                        commissionAmount = g.Sum(s => s.CommissionAmount),
-                        netRevenue       = g.Sum(s => s.SellerPayoutAmount),
-                        walletBalance    = wallet?.Balance ?? 0m,
-                        totalEarned      = wallet?.TotalEarned ?? 0m,
-                        totalWithdrawn   = wallet?.TotalWithdrawn ?? 0m
-                    };
+                .Select(g => new {
+                    shopId           = g.Key,
+                    commissionRate   = g.Max(s => s.CommissionRate),
+                    totalRevenue     = g.Sum(s => s.ProductRevenue),
+                    commissionAmount = g.Sum(s => s.CommissionAmount),
+                    netRevenue       = g.Sum(s => s.SellerPayoutAmount)
                 })
                 .OrderByDescending(x => x.totalRevenue)
-                .Take(20);
+                .Take(20)
+                .ToListAsync();
+
+            var topShopIds = byShopAgg.Select(x => x.shopId).ToList();
+            var wallets = await _db.SellerWallets
+                .Include(w => w.Shop)
+                .Where(w => topShopIds.Contains(w.ShopId))
+                .ToListAsync();
+            var walletDict = wallets.ToDictionary(w => w.ShopId);
+
+            var byShop = byShopAgg.Select(x => {
+                walletDict.TryGetValue(x.shopId, out var wallet);
+                return new {
+                    shopId           = x.shopId,
+                    shopName         = wallet?.Shop?.ShopName ?? x.shopId,
+                    logo             = wallet?.Shop?.Logo,
+                    x.commissionRate,
+                    x.totalRevenue,
+                    x.commissionAmount,
+                    x.netRevenue,
+                    walletBalance    = wallet?.Balance ?? 0m,
+                    totalEarned      = wallet?.TotalEarned ?? 0m,
+                    totalWithdrawn   = wallet?.TotalWithdrawn ?? 0m
+                };
+            });
 
             return Ok(new {
                 totalRevenue,
