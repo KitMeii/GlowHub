@@ -42,35 +42,38 @@ namespace BaseCore.APIService.Controllers
             var totalProducts  = await _db.Products.CountAsync();
             var activeProducts = await _db.Products.CountAsync(p => p.IsActive);
 
-            // Order stats
-            var allOrders = await _db.Orders
-                .Include(o => o.OrderDetails)
+            // Order stats — aggregate directly in DB, no full-table RAM load
+            var totalOrders     = await _db.Orders.CountAsync();
+            var todayOrders     = await _db.Orders.CountAsync(o => o.OrderDate >= today && o.OrderDate < today.AddDays(1));
+            var pendingOrders   = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
+            var completedOrders = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
+            var cancelledOrders = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Cancelled);
+
+            // Revenue — SumAsync directly on DB
+            var completedQ   = _db.Orders.Where(o => o.Status == OrderStatus.Completed);
+            var totalRevenue  = await completedQ.SumAsync(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
+            var todayRevenue  = await completedQ
+                .Where(o => o.OrderDate >= today && o.OrderDate < today.AddDays(1))
+                .SumAsync(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
+            var monthRevenue  = await completedQ
+                .Where(o => o.OrderDate >= monthStart)
+                .SumAsync(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
+
+            // Revenue chart — load only 7-day window with minimal projection, group in C#
+            var chartData = await _db.Orders
+                .Where(o => o.OrderDate >= last7 && o.OrderDate < today.AddDays(1))
+                .Select(o => new { o.OrderDate, o.Status, amount = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount })
                 .ToListAsync();
-
-            var totalOrders    = allOrders.Count;
-            var todayOrders    = allOrders.Count(o => o.OrderDate.Date == today);
-            var pendingOrders  = allOrders.Count(o => o.Status == OrderStatus.Pending);
-            var completedOrders = allOrders.Count(o => o.Status == OrderStatus.Completed);
-            var cancelledOrders = allOrders.Count(o => o.Status == OrderStatus.Cancelled);
-
-            // Revenue — chỉ đơn COMPLETED
-            var totalRevenue   = allOrders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
-            var todayRevenue   = allOrders.Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date == today).Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
-            var monthRevenue   = allOrders.Where(o => o.Status == OrderStatus.Completed && o.OrderDate >= monthStart).Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
-
-            // Revenue chart — last 7 days
             var revenueChart = Enumerable.Range(0, 7).Select(i =>
             {
-                var day = today.AddDays(-6 + i);
-                var dayRev = allOrders
-                    .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date == day)
-                    .Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
-                var dayOrders = allOrders.Count(o => o.OrderDate.Date == day);
-                return new { date = day.ToString("yyyy-MM-dd"), revenue = dayRev, orders = dayOrders };
+                var day      = today.AddDays(-6 + i);
+                var daySlice = chartData.Where(o => o.OrderDate.Date == day).ToList();
+                var dayRev   = daySlice.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.amount);
+                return new { date = day.ToString("yyyy-MM-dd"), revenue = dayRev, orders = daySlice.Count };
             });
 
-            // Recent 10 orders
-            var recentOrders = allOrders
+            // Recent 10 orders — TOP N directly from DB
+            var recentOrders = await _db.Orders
                 .OrderByDescending(o => o.OrderDate)
                 .Take(10)
                 .Select(o => new {
@@ -78,8 +81,9 @@ namespace BaseCore.APIService.Controllers
                     orderCode = o.OrderCode ?? ("ORD-" + o.Id.ToString("D6")),
                     status    = o.Status,
                     amount    = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount,
-                    createdAt = DateTime.SpecifyKind(o.OrderDate, DateTimeKind.Utc)
-                });
+                    createdAt = o.OrderDate
+                })
+                .ToListAsync();
 
             // Top 5 shops by revenue — SubOrders as source of truth
             var topShopRevData = await _db.SubOrders
@@ -128,10 +132,16 @@ namespace BaseCore.APIService.Controllers
                 ? t.ToUniversalTime().Date
                 : DateTime.UtcNow.Date;
 
+            // Load only needed columns for the date range — avoids full entity hydration
             var orders = await _db.Orders
                 .Where(o => o.Status == OrderStatus.Completed
-                         && o.OrderDate.Date >= fromDate
-                         && o.OrderDate.Date <= toDate)
+                         && o.OrderDate >= fromDate
+                         && o.OrderDate < toDate.AddDays(1))
+                .Select(o => new {
+                    o.OrderDate,
+                    o.PaymentMethod,
+                    amount = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount
+                })
                 .ToListAsync();
 
             var days = (toDate - fromDate).Days + 1;
@@ -139,17 +149,16 @@ namespace BaseCore.APIService.Controllers
             {
                 var day = fromDate.AddDays(i);
                 var dayOrders = orders.Where(o => o.OrderDate.Date == day).ToList();
-                var revenue = dayOrders.Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
-                return new { date = day.ToString("yyyy-MM-dd"), orders = dayOrders.Count, revenue };
+                return new { date = day.ToString("yyyy-MM-dd"), orders = dayOrders.Count, revenue = dayOrders.Sum(o => o.amount) };
             });
 
-            var totalRevenue = orders.Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount);
+            var totalRevenue = orders.Sum(o => o.amount);
             var totalOrders  = orders.Count;
 
             // Group by payment method
             var byPayment = orders
                 .GroupBy(o => o.PaymentMethod)
-                .Select(g => new { method = g.Key, count = g.Count(), revenue = g.Sum(o => o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount) });
+                .Select(g => new { method = g.Key, count = g.Count(), revenue = g.Sum(o => o.amount) });
 
             return Ok(new {
                 from = fromDate.ToString("yyyy-MM-dd"),

@@ -140,14 +140,13 @@ namespace BaseCore.APIService.Controllers
 
             var productCount = await _db.Products.CountAsync(p => p.ShopId == shop!.Id);
 
-            var completedSubs = await _db.SubOrders
-                .Where(s => s.ShopId == shop!.Id && s.Order.Status == OrderStatus.Completed)
-                .ToListAsync();
+            var shopId    = shop!.Id;
+            var subsQuery = _db.SubOrders.Where(s => s.ShopId == shopId && s.Order.Status == OrderStatus.Completed);
 
-            var totalRevenue    = completedSubs.Sum(s => s.ProductRevenue);
-            var totalCommission = completedSubs.Sum(s => s.CommissionAmount);
-            var totalNet        = completedSubs.Sum(s => s.SellerPayoutAmount);
-            var orderCount      = completedSubs.Select(s => s.OrderId).Distinct().Count();
+            var totalRevenue    = await subsQuery.SumAsync(s => s.ProductRevenue);
+            var totalCommission = await subsQuery.SumAsync(s => s.CommissionAmount);
+            var totalNet        = await subsQuery.SumAsync(s => s.SellerPayoutAmount);
+            var orderCount      = await subsQuery.Select(s => s.OrderId).Distinct().CountAsync();
             var avgOrderValue   = orderCount > 0 ? Math.Round(totalRevenue / orderCount, 0) : 0m;
 
             var wallet = await _db.SellerWallets.FindAsync(shop!.Id);
