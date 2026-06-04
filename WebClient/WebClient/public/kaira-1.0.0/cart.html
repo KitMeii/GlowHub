@@ -403,14 +403,14 @@
         const img = getProductImage(item);
         const cat = item.category || item.Category || "";
 
-        const imgHTML = `<a href="product.html?id=${id}" target="_blank" style="flex-shrink:0"><img loading="lazy" class="item-img" src="${img}" alt="${name}"
+        const imgHTML = `<a href="product.html?id=${id}" style="flex-shrink:0"><img loading="lazy" class="item-img" src="${img}" alt="${name}"
                         onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" /></a>`;
 
         return `
                 <div class="cart-item" id="item-row-${id}" data-id="${id}">
                   ${imgHTML}
                   <div class="item-info">
-                    <a href="product.html?id=${id}" target="_blank" class="item-name">${name}</a>
+                    <a href="product.html?id=${id}" class="item-name">${name}</a>
                     ${cat ? `<div class="item-cat">${cat}</div>` : ""}
                   </div>
                   <div class="item-price-col">
