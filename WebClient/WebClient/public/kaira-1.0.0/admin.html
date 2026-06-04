@@ -210,6 +210,21 @@
           </svg>
           Thống Kê
         </a>
+        <div class="nav-section-title">Nội Dung Website</div>
+        <a class="nav-item-link" data-page="banners">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+          Banners
+        </a>
+        <a class="nav-item-link" data-page="featured">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          Sản phẩm nổi bật
+        </a>
         <div class="nav-section-title">Hệ Thống</div>
         <a href="#" class="nav-item-link" data-page="settings">
           <svg
@@ -226,6 +241,13 @@
             />
           </svg>
           Cấu hình
+        </a>
+        <a class="nav-item-link" data-page="roles">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          Phân quyền
         </a>
         <!-- FIX: Dùng data-page thay vì href để tránh navigate thật -->
         <a class="nav-item-link" data-href="index.html">
@@ -1512,6 +1534,117 @@
             </div>
           </div>
         </div>
+
+        <!-- BANNERS -->
+        <div class="page-section" id="page-banners">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title-text">Quản lý Banners</div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn-admin btn-outline-admin" onclick="loadBanners()">🔄 Tải lại</button>
+                <button type="button" class="btn-admin btn-primary-admin" onclick="openBannerModal()">+ Thêm Banner</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:50px">ID</th>
+                    <th>Ảnh</th>
+                    <th>Tiêu đề</th>
+                    <th>Link</th>
+                    <th style="width:70px">Thứ tự</th>
+                    <th style="width:90px">Trạng thái</th>
+                    <th style="width:90px">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="bannerTable">
+                  <tr><td colspan="7" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center p-4">
+              <span style="font-size:13px;color:#6b7280" id="bannerCount">--</span>
+              <button type="button" class="btn-admin btn-outline-admin" onclick="saveBannerOrder()">💾 Lưu thứ tự</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEATURED PRODUCTS -->
+        <div class="page-section" id="page-featured">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title-text">Sản phẩm nổi bật</div>
+              <div class="d-flex gap-2">
+                <select class="form-control-admin" id="featuredSectionFilter" onchange="loadFeaturedProducts()" style="width:180px">
+                  <option value="">📂 Tất cả section</option>
+                  <option value="new_arrivals">Hàng mới về</option>
+                  <option value="best_sellers">Bán chạy</option>
+                  <option value="hero_slider">Hero Slider</option>
+                </select>
+                <button type="button" class="btn-admin btn-outline-admin" onclick="loadFeaturedProducts()">🔄 Tải lại</button>
+                <button type="button" class="btn-admin btn-primary-admin" onclick="openFeaturedModal()">+ Thêm sản phẩm</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:50px">ID</th>
+                    <th>Sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th style="width:120px">Section</th>
+                    <th style="width:80px">Thứ tự</th>
+                    <th style="width:80px">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="featuredTable">
+                  <tr><td colspan="7" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center p-4">
+              <span style="font-size:13px;color:#6b7280" id="featuredCount">--</span>
+              <button type="button" class="btn-admin btn-outline-admin" onclick="saveFeaturedOrder()">💾 Lưu thứ tự</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROLES -->
+        <div class="page-section" id="page-roles">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title-text">Phân quyền hệ thống</div>
+              <button type="button" class="btn-admin btn-outline-admin" onclick="loadRoles()">🔄 Tải lại</button>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Tên Role</th>
+                    <th>Mô tả</th>
+                    <th style="width:100px">UserType</th>
+                    <th style="width:120px">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="roleTable">
+                  <tr><td colspan="5" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="section-card mt-4" id="permissionCard" style="display:none">
+            <div class="section-header">
+              <div class="section-title-text">🔑 Chi tiết quyền: <span id="permissionRoleName" style="color:var(--pink)"></span></div>
+            </div>
+            <div style="padding:24px" id="permissionDetail">
+              <div class="text-center py-3 text-muted">Chọn một Role để xem chi tiết quyền</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -2156,6 +2289,107 @@
           >
             Xóa
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER MODAL -->
+    <div class="modal-overlay" id="bannerModal">
+      <div class="modal-box" style="max-width:600px">
+        <div class="modal-header">
+          <div class="modal-title" id="bannerModalTitle">Thêm Banner</div>
+          <button class="btn-close-modal" onclick="closeModal('bannerModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="bannerId" />
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Tiêu đề *</label>
+                <input type="text" class="form-control-admin" id="bannerTitle" placeholder="Tiêu đề banner" />
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Phụ đề</label>
+                <input type="text" class="form-control-admin" id="bannerSubtitle" placeholder="Phụ đề (tuỳ chọn)" />
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="form-group-admin">
+                <label class="form-label-admin">URL Ảnh *</label>
+                <input type="text" class="form-control-admin" id="bannerImageUrl" placeholder="https://..." />
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Màu nền</label>
+                <input type="color" id="bannerBgColor" value="#f759ab" style="width:100%;height:42px;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer" />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Link URL</label>
+                <input type="text" class="form-control-admin" id="bannerLinkUrl" placeholder="/san-pham hoặc https://..." />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Nút (text)</label>
+                <input type="text" class="form-control-admin" id="bannerButtonText" placeholder="VD: Mua ngay" />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-admin">
+                <label class="form-label-admin">Thứ tự</label>
+                <input type="number" class="form-control-admin" id="bannerSortOrder" value="0" min="0" />
+              </div>
+            </div>
+            <div class="col-6">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:28px">
+                <input type="checkbox" id="bannerIsActive" checked />
+                <span style="font-size:13px">Đang kích hoạt</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-admin btn-outline-admin" onclick="closeModal('bannerModal')">Hủy</button>
+          <button type="button" class="btn-admin btn-primary-admin" onclick="saveBanner()" id="saveBannerBtn">Lưu Banner</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURED PRODUCT MODAL -->
+    <div class="modal-overlay" id="featuredModal">
+      <div class="modal-box" style="max-width:500px">
+        <div class="modal-header">
+          <div class="modal-title">Thêm sản phẩm nổi bật</div>
+          <button class="btn-close-modal" onclick="closeModal('featuredModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group-admin">
+            <label class="form-label-admin">Sản phẩm *</label>
+            <select class="form-control-admin" id="featuredProductId">
+              <option value="">-- Chọn sản phẩm --</option>
+            </select>
+          </div>
+          <div class="form-group-admin">
+            <label class="form-label-admin">Section *</label>
+            <select class="form-control-admin" id="featuredSection">
+              <option value="new_arrivals">Hàng mới về</option>
+              <option value="best_sellers">Bán chạy</option>
+              <option value="hero_slider">Hero Slider</option>
+            </select>
+          </div>
+          <div class="form-group-admin">
+            <label class="form-label-admin">Thứ tự</label>
+            <input type="number" class="form-control-admin" id="featuredSortOrder" value="0" min="0" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-admin btn-outline-admin" onclick="closeModal('featuredModal')">Hủy</button>
+          <button type="button" class="btn-admin btn-primary-admin" onclick="saveFeaturedProduct()">Lưu</button>
         </div>
       </div>
     </div>

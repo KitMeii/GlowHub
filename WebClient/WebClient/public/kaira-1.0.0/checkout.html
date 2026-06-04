@@ -1,707 +1,664 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <title>Thanh Toán & Tài Khoản - GlowHub</title>
+    <title>Thanh Toán & Tài Khoản — GlowHub</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="css/vendor.css" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Marcellus&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/glowhub-theme.css" />
+
     <style>
-      body { font-family: "Jost", sans-serif; background: #fffdf9; color: #111; }
-      .page-header { background: #111; color: #fff; padding: 50px 0 30px; }
-      .page-header h1 { font-family: "Marcellus", serif; letter-spacing: 3px; margin: 0; }
-      .breadcrumb-light { color: rgba(255,255,255,0.6); font-size: 13px; letter-spacing: 1px; }
-      .breadcrumb-light a { color: rgba(255,255,255,0.85); text-decoration: none; }
-
-      .tab-bar { background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 50; }
-      .tab-link { display: inline-block; padding: 18px 28px; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: #999; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
-      .tab-link.active { color: #f759ab; border-bottom-color: #f759ab; }
-      .tab-link:hover { color: #111; }
-
-      .card-box { background: #fff; border: 1px solid #eee; padding: 28px; margin-bottom: 24px; }
-      .card-title-x { font-family: "Marcellus", serif; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0; }
-      .form-label-x { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #555; margin-bottom: 6px; display: block; }
-      .form-control-x { border-radius: 0; padding: 12px; border: 1px solid #ddd; font-size: 14px; width: 100%; transition: 0.2s; }
-      .form-control-x:focus { outline: none; border-color: #f759ab; box-shadow: 0 0 0 3px rgba(247,89,171,0.1); }
-
-      .radio-card { border: 1px solid #ddd; padding: 14px 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-      .radio-card:hover { border-color: #f759ab; }
-      .radio-card.active { border-color: #f759ab; background: #fff0f8; }
-      .radio-card input { accent-color: #f759ab; }
-
-      .btn-pink { background: #f759ab; color: #fff; border: none; padding: 14px 28px; text-transform: uppercase; letter-spacing: 2px; font-size: 13px; font-weight: 600; transition: 0.2s; cursor: pointer; }
-      .btn-pink:hover { background: #d94a8f; }
-      .btn-pink:disabled { opacity: 0.6; cursor: not-allowed; }
-      .btn-outline-x { background: transparent; color: #111; border: 1px solid #ddd; padding: 12px 24px; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; cursor: pointer; transition: 0.2s; }
-      .btn-outline-x:hover { border-color: #111; }
-      .btn-link-x { background: none; border: none; color: #f759ab; cursor: pointer; font-size: 13px; padding: 0; }
-
-      .badge-status { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-      .badge-pending    { background: #fef3c7; color: #92400e; }
-      .badge-confirmed  { background: #dbeafe; color: #1e40af; }
-      .badge-shipping   { background: #ede9fe; color: #5b21b6; }
-      .badge-completed  { background: #d1fae5; color: #065f46; }
-      .badge-cancelled  { background: #fee2e2; color: #991b1b; }
-
-      .order-row td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
-      .order-row { border-bottom: 1px solid #f0f0f0; }
-      .order-row:hover { background: #fafafa; }
-
-      .summary-line { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-      .summary-line.total { font-size: 18px; font-weight: 700; padding-top: 14px; margin-top: 8px; border-top: 1px solid #eee; }
-      .summary-line.total .v { color: #f759ab; }
-
-      .timeline-item { position: relative; padding-left: 28px; margin-bottom: 16px; }
-      .timeline-item:before { content:""; position:absolute; left:8px; top:6px; width:12px; height:12px; border-radius:50%; background:#f759ab; }
-      .timeline-line { position: absolute; left: 13px; top: 18px; bottom: -8px; width: 2px; background: #fbcfe8; }
-
-      .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-      .spinner-x { width: 32px; height: 32px; border: 3px solid #f0f0f0; border-top-color: #f759ab; border-radius: 50%; animation: sp 0.8s linear infinite; margin: 30px auto; }
-      @keyframes sp { to { transform: rotate(360deg); } }
-
-      .modal-x { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px; }
-      .modal-x.show { display:flex; }
-      .modal-x-body { background:#fff; max-width:780px; width:100%; max-height:90vh; overflow-y:auto; }
-      .modal-x-head { padding:20px 28px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; }
-      .modal-x-close { background:none; border:none; font-size:24px; cursor:pointer; color:#999; }
+      .gh-pm__option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--gh-border);
+        border-radius: var(--gh-radius);
+        cursor: pointer;
+        margin-bottom: 8px;
+        transition: all .2s;
+      }
+      .gh-pm__option:hover { border-color: var(--gh-primary); }
+      .gh-pm__option input[type=radio] {
+        accent-color: var(--gh-primary);
+        margin: 0;
+      }
+      .gh-pm__option:has(input:checked) {
+        border-color: var(--gh-primary);
+        background: var(--gh-primary-soft);
+      }
+      .gh-pm__icon {
+        width: 40px; height: 40px;
+        background: var(--gh-surface);
+        border-radius: var(--gh-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .gh-order-row {
+        cursor: pointer;
+        transition: background .2s;
+      }
+      .gh-order-row:hover { background: var(--gh-surface); }
+      .gh-order-row td { padding: 14px 12px; font-size: 14px; }
+      .gh-account-form .gh-input,
+      .gh-account-form .gh-textarea {
+        margin-bottom: var(--gh-s3);
+      }
     </style>
   </head>
+
   <body>
-    <header class="py-3 border-bottom bg-white">
-      <div class="container d-flex align-items-center justify-content-between">
-        <a href="index.html" class="text-decoration-none">
-          <h2 class="text-black m-0" style="letter-spacing: 4px; font-family: 'Marcellus', serif">GLOWHUB</h2>
-        </a>
-        <div class="d-flex align-items-center gap-3">
-          <a href="shop.html" class="text-decoration-none text-dark small" style="letter-spacing:1px">Cửa hàng</a>
-          <a href="cart.html" class="position-relative text-decoration-none text-dark">
-            🛒 <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background:#f759ab;font-size:10px">0</span>
-          </a>
-          <div id="nav-user-area"></div>
-        </div>
+    <div id="gh-layout-header"></div>
+
+    <header class="gh-page-header">
+      <div class="container">
+        <div class="gh-breadcrumb"><a href="index.html">Trang Chủ</a><span class="sep">/</span><span id="bc-current">Thanh Toán</span></div>
+        <h1 id="page-title">Thanh Toán</h1>
       </div>
     </header>
 
-    <section class="page-header text-center">
+    <main class="gh-section">
       <div class="container">
-        <div class="breadcrumb-light mb-2"><a href="index.html">TRANG CHỦ</a> / TÀI KHOẢN</div>
-        <h1 id="pageTitle">THANH TOÁN</h1>
-      </div>
-    </section>
+        <ul class="gh-tabs" role="tablist">
+          <li><button class="gh-tabs__btn active" data-tab="checkout">🛒 Thanh Toán</button></li>
+          <li><button class="gh-tabs__btn" data-tab="orders">📦 Đơn Hàng Của Tôi</button></li>
+          <li><button class="gh-tabs__btn" data-tab="account">👤 Tài Khoản</button></li>
+        </ul>
 
-    <nav class="tab-bar">
-      <div class="container">
-        <span class="tab-link" data-tab="checkout">Đặt Hàng</span>
-        <span class="tab-link" data-tab="orders">Đơn Hàng Của Tôi</span>
-        <span class="tab-link" data-tab="account">Tài Khoản</span>
-      </div>
-    </nav>
-
-    <main class="container py-5">
-
-      <!-- ─────────── TAB CHECKOUT ─────────── -->
-      <section id="tab-checkout" class="tab-pane">
-        <div class="row g-4">
-          <div class="col-lg-8">
-            <div class="card-box">
-              <div class="card-title-x">1. Thông tin nhận hàng</div>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label-x">Họ và tên *</label>
-                  <input type="text" id="co-name" class="form-control-x" required>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label-x">Số điện thoại *</label>
-                  <input type="tel" id="co-phone" class="form-control-x" required>
-                </div>
-                <div class="col-md-12">
-                  <label class="form-label-x">Email</label>
-                  <input type="email" id="co-email" class="form-control-x">
-                </div>
-                <div class="col-md-12">
-                  <label class="form-label-x">Địa chỉ nhận hàng *</label>
-                  <textarea id="co-address" class="form-control-x" rows="2" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" required></textarea>
-                </div>
-                <div class="col-md-12">
-                  <label class="form-label-x">Ghi chú (tùy chọn)</label>
-                  <textarea id="co-note" class="form-control-x" rows="2" placeholder="Ghi chú đơn hàng (ví dụ: giao giờ hành chính)"></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-box">
-              <div class="card-title-x">2. Phương thức vận chuyển</div>
-              <div id="shipOptions">
-                <label class="radio-card active"><input type="radio" name="ship" value="standard" data-fee="0" checked>
-                  <div class="flex-grow-1">
-                    <div style="font-weight:600">Giao hàng tiêu chuẩn</div>
-                    <div style="font-size:12px;color:#888">3-5 ngày làm việc</div>
-                  </div>
-                  <div style="color:#f759ab;font-weight:600">Miễn phí</div>
-                </label>
-                <label class="radio-card"><input type="radio" name="ship" value="express" data-fee="25000">
-                  <div class="flex-grow-1">
-                    <div style="font-weight:600">Giao nhanh</div>
-                    <div style="font-size:12px;color:#888">1-2 ngày làm việc</div>
-                  </div>
-                  <div style="color:#f759ab;font-weight:600">25.000 ₫</div>
-                </label>
-                <label class="radio-card"><input type="radio" name="ship" value="sameday" data-fee="60000">
-                  <div class="flex-grow-1">
-                    <div style="font-weight:600">Giao trong ngày</div>
-                    <div style="font-size:12px;color:#888">Trước 22:00 cùng ngày</div>
-                  </div>
-                  <div style="color:#f759ab;font-weight:600">60.000 ₫</div>
-                </label>
-              </div>
-            </div>
-
-            <div class="card-box">
-              <div class="card-title-x">3. Phương thức thanh toán</div>
-              <div id="payOptions">
-                <label class="radio-card active"><input type="radio" name="pay" value="COD" checked>
-                  <div class="flex-grow-1"><div style="font-weight:600">COD - Thanh toán khi nhận hàng</div></div>
-                </label>
-                <label class="radio-card"><input type="radio" name="pay" value="BANK">
-                  <div class="flex-grow-1"><div style="font-weight:600">Chuyển khoản ngân hàng</div></div>
-                </label>
-                <label class="radio-card"><input type="radio" name="pay" value="MOMO">
-                  <div class="flex-grow-1"><div style="font-weight:600">Ví MoMo</div></div>
-                </label>
-                <label class="radio-card"><input type="radio" name="pay" value="VNPAY">
-                  <div class="flex-grow-1"><div style="font-weight:600">VNPay</div></div>
-                </label>
-              </div>
-            </div>
+        <!-- ========== TAB CHECKOUT ========== -->
+        <section id="tab-checkout" class="gh-tab-panel">
+          <div id="checkout-empty" class="gh-empty-state" style="display:none">
+            <div class="gh-empty-state__icon">🛒</div>
+            <div class="gh-empty-state__title">Giỏ hàng đang trống</div>
+            <a href="shop.html" class="gh-btn gh-btn--primary gh-mt-s3">Đi Đến Cửa Hàng</a>
           </div>
 
-          <div class="col-lg-4">
-            <div class="card-box" style="position:sticky;top:80px">
-              <div class="card-title-x">Đơn hàng của bạn</div>
-              <div id="checkoutItems" style="max-height:280px;overflow-y:auto;margin-bottom:14px"></div>
+          <div class="row g-5" id="checkout-body">
+            <!-- LEFT: form -->
+            <div class="col-lg-7">
+              <div class="gh-card">
+                <h3 class="gh-card__title">Thông Tin Nhận Hàng</h3>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="gh-label">Họ và tên *</label>
+                    <input id="co-name" class="gh-input" required />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="gh-label">Số điện thoại *</label>
+                    <input id="co-phone" class="gh-input" required />
+                  </div>
+                  <div class="col-12">
+                    <label class="gh-label">Email</label>
+                    <input id="co-email" type="email" class="gh-input" />
+                  </div>
+                  <div class="col-12">
+                    <label class="gh-label">Địa chỉ giao hàng *</label>
+                    <textarea id="co-address" class="gh-textarea" required placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="gh-label">Ghi chú (tùy chọn)</label>
+                    <textarea id="co-note" class="gh-textarea" placeholder="Ghi chú thêm cho người giao hàng..."></textarea>
+                  </div>
+                </div>
+              </div>
 
-              <div class="mb-3">
-                <label class="form-label-x">Mã giảm giá</label>
+              <div class="gh-card gh-mt-s4">
+                <h3 class="gh-card__title">Phương Thức Thanh Toán</h3>
+                <label class="gh-pm__option">
+                  <input type="radio" name="payment" value="COD" checked />
+                  <span class="gh-pm__icon">💵</span>
+                  <div>
+                    <div style="font-weight:600">Thanh Toán Khi Nhận Hàng (COD)</div>
+                    <small class="gh-text-muted">Thanh toán bằng tiền mặt khi nhận hàng</small>
+                  </div>
+                </label>
+                <label class="gh-pm__option">
+                  <input type="radio" name="payment" value="BANK" />
+                  <span class="gh-pm__icon">🏦</span>
+                  <div>
+                    <div style="font-weight:600">Chuyển Khoản Ngân Hàng</div>
+                    <small class="gh-text-muted">Chuyển khoản qua ngân hàng</small>
+                  </div>
+                </label>
+                <label class="gh-pm__option">
+                  <input type="radio" name="payment" value="MOMO" />
+                  <span class="gh-pm__icon">🟣</span>
+                  <div>
+                    <div style="font-weight:600">Ví MoMo</div>
+                    <small class="gh-text-muted">Thanh toán qua ví điện tử MoMo</small>
+                  </div>
+                </label>
+                <label class="gh-pm__option">
+                  <input type="radio" name="payment" value="VNPAY" />
+                  <span class="gh-pm__icon">💳</span>
+                  <div>
+                    <div style="font-weight:600">VNPay</div>
+                    <small class="gh-text-muted">Thanh toán qua cổng VNPay</small>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- RIGHT: summary -->
+            <div class="col-lg-5">
+              <div class="gh-card" style="position:sticky;top:96px">
+                <h3 class="gh-card__title">Đơn Hàng Của Bạn</h3>
+                <div id="checkout-items"></div>
+
+                <hr/>
+                <div class="d-flex justify-content-between mb-2"><span class="gh-text-muted">Tạm tính</span><span id="co-subtotal">0 ₫</span></div>
+                <div class="d-flex justify-content-between mb-2" id="co-discount-row" style="display:none"><span class="gh-text-muted">Giảm giá</span><span class="gh-text-danger" id="co-discount">0 ₫</span></div>
+                <div class="d-flex justify-content-between mb-2"><span class="gh-text-muted">Phí vận chuyển</span><span id="co-ship">30.000 ₫</span></div>
+                <hr/>
+                <div class="d-flex justify-content-between" style="font-size:18px"><b>Tổng cộng</b><b class="gh-text-primary" id="co-total">0 ₫</b></div>
+
+                <hr/>
+                <label class="gh-label">Mã giảm giá</label>
                 <div class="d-flex gap-2">
-                  <input type="text" id="voucherInput" class="form-control-x" placeholder="Nhập mã" style="flex:1">
-                  <button type="button" class="btn-outline-x" id="btnApplyVoucher">Áp dụng</button>
+                  <input id="co-voucher" class="gh-input" placeholder="Nhập mã" />
+                  <button class="gh-btn gh-btn--outline gh-btn--sm" id="co-apply-voucher">Áp Dụng</button>
                 </div>
-                <div id="voucherMsg" style="font-size:12px;margin-top:6px"></div>
+                <div id="co-voucher-msg" class="mt-2" style="font-size:13px"></div>
+
+                <button id="place-order-btn" class="gh-btn gh-btn--primary gh-btn--block gh-btn--lg gh-mt-s5">Đặt Hàng Ngay</button>
               </div>
-
-              <div class="summary-line"><span>Tạm tính</span><span id="sumSubtotal">0 ₫</span></div>
-              <div class="summary-line"><span>Phí vận chuyển</span><span id="sumShip">0 ₫</span></div>
-              <div class="summary-line" id="sumDiscountRow" style="display:none;color:#16a34a"><span>Giảm giá</span><span id="sumDiscount">−0 ₫</span></div>
-              <div class="summary-line total"><span>Tổng</span><span class="v" id="sumTotal">0 ₫</span></div>
-
-              <button type="button" class="btn-pink w-100 mt-3" id="btnPlaceOrder">Đặt hàng</button>
-              <a href="cart.html" class="btn-link-x mt-2 d-block text-center">← Quay lại giỏ hàng</a>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ─────────── TAB ORDERS ─────────── -->
-      <section id="tab-orders" class="tab-pane" style="display:none">
-        <div class="card-box">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="card-title-x m-0" style="border:none;padding:0">Đơn hàng của tôi</div>
-            <button type="button" class="btn-outline-x" id="btnRefreshOrders">↻ Làm mới</button>
-          </div>
-          <div id="ordersWrap"></div>
-        </div>
-      </section>
-
-      <!-- ─────────── TAB ACCOUNT ─────────── -->
-      <section id="tab-account" class="tab-pane" style="display:none">
-        <div class="row g-4">
-          <div class="col-lg-6">
-            <div class="card-box">
-              <div class="card-title-x">Thông tin cá nhân</div>
-              <div class="mb-3">
-                <label class="form-label-x">Tên đăng nhập</label>
-                <input type="text" id="acc-username" class="form-control-x" readonly style="background:#f5f5f5">
-              </div>
-              <div class="mb-3">
-                <label class="form-label-x">Họ và tên</label>
-                <input type="text" id="acc-name" class="form-control-x">
-              </div>
-              <div class="mb-3">
-                <label class="form-label-x">Email</label>
-                <input type="email" id="acc-email" class="form-control-x">
-              </div>
-              <div class="mb-3">
-                <label class="form-label-x">Số điện thoại</label>
-                <input type="tel" id="acc-phone" class="form-control-x">
-              </div>
-              <button type="button" class="btn-pink" id="btnSaveProfile">Lưu thay đổi</button>
+        <!-- ========== TAB ORDERS ========== -->
+        <section id="tab-orders" class="gh-tab-panel" style="display:none">
+          <div class="gh-card">
+            <h3 class="gh-card__title">Đơn Hàng Của Tôi</h3>
+            <div id="orders-list-host">
+              <div class="text-center text-muted py-4">Đang tải...</div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="card-box">
-              <div class="card-title-x">Đổi mật khẩu</div>
-              <div class="mb-3">
-                <label class="form-label-x">Mật khẩu hiện tại</label>
-                <input type="password" id="acc-oldPass" class="form-control-x">
+        </section>
+
+        <!-- ========== TAB ACCOUNT ========== -->
+        <section id="tab-account" class="gh-tab-panel" style="display:none">
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <div class="gh-card gh-account-form">
+                <h3 class="gh-card__title">Thông Tin Cá Nhân</h3>
+                <label class="gh-label">Tài khoản</label>
+                <input id="acc-username" class="gh-input" readonly />
+                <label class="gh-label">Họ và tên</label>
+                <input id="acc-name" class="gh-input" />
+                <label class="gh-label">Email</label>
+                <input id="acc-email" type="email" class="gh-input" />
+                <label class="gh-label">Số điện thoại</label>
+                <input id="acc-phone" class="gh-input" />
+                <button class="gh-btn gh-btn--primary" id="save-account-btn">Lưu Thay Đổi</button>
               </div>
-              <div class="mb-3">
-                <label class="form-label-x">Mật khẩu mới (≥ 6 ký tự)</label>
-                <input type="password" id="acc-newPass" class="form-control-x">
+            </div>
+            <div class="col-lg-5">
+              <div class="gh-card gh-account-form">
+                <h3 class="gh-card__title">Đổi Mật Khẩu</h3>
+                <label class="gh-label">Mật khẩu hiện tại</label>
+                <input id="pw-old" type="password" class="gh-input" />
+                <label class="gh-label">Mật khẩu mới</label>
+                <input id="pw-new" type="password" class="gh-input" />
+                <label class="gh-label">Xác nhận mật khẩu mới</label>
+                <input id="pw-confirm" type="password" class="gh-input" />
+                <button class="gh-btn gh-btn--outline" id="change-password-btn">Đổi Mật Khẩu</button>
               </div>
-              <div class="mb-3">
-                <label class="form-label-x">Xác nhận mật khẩu mới</label>
-                <input type="password" id="acc-confirmPass" class="form-control-x">
-              </div>
-              <button type="button" class="btn-pink" id="btnChangePass">Đổi mật khẩu</button>
             </div>
           </div>
-        </div>
-      </section>
-
+        </section>
+      </div>
     </main>
 
-    <div class="modal-x" id="orderDetailModal">
-      <div class="modal-x-body">
-        <div class="modal-x-head">
-          <div style="font-family:'Marcellus',serif;letter-spacing:2px;font-size:16px">CHI TIẾT ĐƠN <span id="odmId" style="color:#f759ab"></span></div>
-          <button class="modal-x-close" id="odmClose">×</button>
+    <!-- Order detail modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title gh-brand" style="font-size:1.1rem">Chi Tiết Đơn Hàng</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="order-detail-body">
+            Đang tải...
+          </div>
         </div>
-        <div style="padding:24px" id="odmBody"></div>
       </div>
     </div>
 
-    <footer class="py-4 border-top text-center" style="background:#111;color:#999;font-size:12px">
-      <div class="container">© GLOWHUB · Một phần mềm thương mại điện tử mỹ phẩm</div>
-    </footer>
+    <div id="gh-layout-footer"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+
     <script>
-      function activateTab(name) {
-        ["checkout", "orders", "account"].forEach((n) => {
-          const tab = document.getElementById("tab-" + n);
-          const link = document.querySelector(`.tab-link[data-tab="${n}"]`);
-          if (tab) tab.style.display = n === name ? "" : "none";
-          if (link) link.classList.toggle("active", n === name);
-        });
-        const title = name === "orders" ? "ĐƠN HÀNG CỦA TÔI" : name === "account" ? "TÀI KHOẢN" : "THANH TOÁN";
-        document.getElementById("pageTitle").textContent = title;
-        if (window.location.hash !== "#" + name) {
-          history.replaceState(null, "", "#" + name);
-        }
-        if (name === "orders") loadOrders();
-        if (name === "account") loadAccount();
-        if (name === "checkout") renderCheckoutSummary();
-      }
-      document.querySelectorAll(".tab-link").forEach((el) => {
-        el.addEventListener("click", () => activateTab(el.dataset.tab));
-      });
+      const VOUCHER_KEY = 'gh_voucher';
+      let SHIP_FEE = 30000;
+      let coVoucher = null;
+      let coItems = [];
 
-      // ───────── CHECKOUT ─────────
-      let _items = [];
-      let _appliedVoucher = null;
-
-      async function renderCheckoutSummary() {
-        const wrap = document.getElementById("checkoutItems");
-        _items = await Cart.getItemsAsync();
-        if (!_items || _items.length === 0) {
-          wrap.innerHTML = '<div class="text-muted text-center py-3">Giỏ hàng trống. <a href="shop.html">Mua sắm →</a></div>';
-          updateSummary();
-          return;
-        }
-        wrap.innerHTML = _items.map((i) => `
-          <div class="d-flex gap-2 align-items-center pb-2 mb-2" style="border-bottom:1px solid #f5f5f5">
-            <img src="${i.image||'https://via.placeholder.com/48'}" style="width:48px;height:48px;object-fit:cover;border-radius:4px" />
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:500" class="text-truncate">${i.name}</div>
-              <div style="font-size:12px;color:#888">${_fmtMoney(i.price)} × ${i.qty}</div>
-            </div>
-            <div style="font-size:13px;font-weight:600">${_fmtMoney(i.price*i.qty)}</div>
-          </div>
-        `).join("");
-        updateSummary();
+      function _extractList(res) {
+        if (!res) return [];
+        if (Array.isArray(res)) return res;
+        if (Array.isArray(res.items)) return res.items;
+        if (Array.isArray(res.data)) return res.data;
+        return [];
       }
 
-      function getShipFee() {
-        const r = document.querySelector('input[name="ship"]:checked');
-        return r ? parseInt(r.dataset.fee, 10) || 0 : 0;
-      }
-      function getPay() {
-        const r = document.querySelector('input[name="pay"]:checked');
-        return r ? r.value : "COD";
-      }
-
-      function updateSummary() {
-        const subtotal = _items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
-        const ship = getShipFee();
-        const discount = _appliedVoucher ? _appliedVoucher.discountAmount : 0;
-        const total = Math.max(0, subtotal - discount + ship);
-        document.getElementById("sumSubtotal").textContent = _fmtMoney(subtotal);
-        document.getElementById("sumShip").textContent = _fmtMoney(ship);
-        document.getElementById("sumDiscount").textContent = "−" + _fmtMoney(discount);
-        document.getElementById("sumDiscountRow").style.display = discount > 0 ? "" : "none";
-        document.getElementById("sumTotal").textContent = _fmtMoney(total);
+      function _statusLabel(s) {
+        const map = {
+          PENDING:   ['Chờ xác nhận',  'pending'],
+          CONFIRMED: ['Đã xác nhận',   'confirmed'],
+          SHIPPING:  ['Đang giao',     'shipping'],
+          COMPLETED: ['Hoàn thành',    'completed'],
+          CANCELLED: ['Đã hủy',        'cancelled'],
+        };
+        const [label, cls] = map[String(s || '').toUpperCase()] || [s || '—', ''];
+        return `<span class="gh-status-pill gh-status-pill--${cls}">${label}</span>`;
       }
 
-      document.querySelectorAll('input[name="ship"]').forEach((r) => {
-        r.addEventListener("change", () => {
-          document.querySelectorAll("#shipOptions .radio-card").forEach((el) => el.classList.remove("active"));
-          r.closest(".radio-card").classList.add("active");
-          updateSummary();
-        });
-      });
-      document.querySelectorAll('input[name="pay"]').forEach((r) => {
-        r.addEventListener("change", () => {
-          document.querySelectorAll("#payOptions .radio-card").forEach((el) => el.classList.remove("active"));
-          r.closest(".radio-card").classList.add("active");
-        });
-      });
-
-      document.getElementById("btnApplyVoucher").addEventListener("click", async () => {
-        if (!Auth.isLoggedIn()) {
-          showGlobalToast("Vui lòng đăng nhập để áp dụng voucher", "error");
-          return;
-        }
-        const code = document.getElementById("voucherInput").value.trim();
-        const msg = document.getElementById("voucherMsg");
-        if (!code) { msg.textContent = ""; _appliedVoucher = null; updateSummary(); return; }
-        const subtotal = _items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+      async function loadShippingFee() {
         try {
-          const res = await Voucher.validate(code, subtotal);
-          if (res.valid) {
-            _appliedVoucher = {
-              code,
-              discountAmount: res.discountAmount,
-              discountType: res.discountType,
-              discountValue: res.discountValue,
-            };
-            msg.style.color = "#16a34a";
-            msg.textContent = "✓ " + (res.message || "Áp dụng thành công");
-            sessionStorage.setItem("glowhub_voucher", JSON.stringify({ code }));
+          const settings = await SiteSettings.getAll('shipping');
+          const list = _extractList(settings);
+          const fee = list.find(s => (s.Key || s.key) === 'default_fee');
+          if (fee) SHIP_FEE = parseInt(fee.Value || fee.value) || SHIP_FEE;
+        } catch (_) {}
+      }
+
+      // ========== CHECKOUT TAB ==========
+      async function renderCheckout() {
+        coItems = await Cart.getItemsAsync();
+        const host = document.getElementById('checkout-items');
+
+        if (!coItems.length) {
+          document.getElementById('checkout-body').style.display = 'none';
+          document.getElementById('checkout-empty').style.display = 'block';
+          return;
+        }
+        document.getElementById('checkout-body').style.display = '';
+        document.getElementById('checkout-empty').style.display = 'none';
+
+        host.innerHTML = coItems.map(i => {
+          return `
+            <div class="d-flex gap-2 align-items-center mb-2">
+              <img src="${i.image || ''}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:4px;background:var(--gh-surface)" onerror="this.style.visibility='hidden'"/>
+              <div class="flex-grow-1" style="font-size:13px">
+                <div style="font-weight:500">${(i.name || '').slice(0, 40)}</div>
+                <small class="gh-text-muted">${i.qty} × ${_fmtMoney(i.price)}</small>
+              </div>
+              <div style="font-weight:600">${_fmtMoney(i.qty * i.price)}</div>
+            </div>
+          `;
+        }).join('');
+
+        recalc();
+      }
+
+      function recalc() {
+        const subtotal = coItems.reduce((s, i) => s + i.price * i.qty, 0);
+        const discount = coVoucher ? Math.min(coVoucher.discount || 0, subtotal) : 0;
+        const ship = coItems.length ? SHIP_FEE : 0;
+        const total = Math.max(0, subtotal - discount + ship);
+
+        document.getElementById('co-subtotal').textContent = _fmtMoney(subtotal);
+        document.getElementById('co-ship').textContent = _fmtMoney(ship);
+        document.getElementById('co-total').textContent = _fmtMoney(total);
+        const dRow = document.getElementById('co-discount-row');
+        if (discount > 0) {
+          dRow.style.display = '';
+          document.getElementById('co-discount').textContent = '− ' + _fmtMoney(discount);
+        } else {
+          dRow.style.display = 'none';
+        }
+      }
+
+      async function applyCoVoucher() {
+        const code = document.getElementById('co-voucher').value.trim().toUpperCase();
+        const msgEl = document.getElementById('co-voucher-msg');
+        if (!code) return;
+        const subtotal = coItems.reduce((s, i) => s + i.price * i.qty, 0);
+        try {
+          const r = await Voucher.validate(code, subtotal);
+          if (r && (r.valid || r.Valid)) {
+            coVoucher = { code, discount: r.discountAmount || r.DiscountAmount || 0 };
+            localStorage.setItem(VOUCHER_KEY, JSON.stringify(coVoucher));
+            msgEl.style.color = 'var(--gh-success)';
+            msgEl.textContent = r.message || 'Áp dụng thành công!';
+            recalc();
           } else {
-            _appliedVoucher = null;
-            msg.style.color = "#dc2626";
-            msg.textContent = "✕ " + (res.message || "Không hợp lệ");
-            sessionStorage.removeItem("glowhub_voucher");
+            coVoucher = null;
+            localStorage.removeItem(VOUCHER_KEY);
+            msgEl.style.color = 'var(--gh-danger)';
+            msgEl.textContent = r?.message || r?.Message || 'Mã không hợp lệ';
+            recalc();
           }
         } catch (err) {
-          _appliedVoucher = null;
-          msg.style.color = "#dc2626";
-          msg.textContent = "✕ " + err.message;
+          msgEl.style.color = 'var(--gh-danger)';
+          msgEl.textContent = err.message || 'Lỗi kiểm tra mã';
         }
-        updateSummary();
-      });
+      }
 
-      (function prefillVoucher() {
+      async function preFillCheckout() {
         try {
-          const saved = JSON.parse(sessionStorage.getItem("glowhub_voucher") || "null");
-          if (saved && saved.code) {
-            document.getElementById("voucherInput").value = saved.code;
-            setTimeout(() => document.getElementById("btnApplyVoucher").click(), 600);
-          }
+          const me = await Account.getMe();
+          document.getElementById('co-name').value  = me.Name || me.name || '';
+          document.getElementById('co-email').value = me.Email || me.email || '';
+          document.getElementById('co-phone').value = me.Phone || me.phone || '';
         } catch (_) {}
-      })();
+      }
 
-      document.getElementById("btnPlaceOrder").addEventListener("click", async () => {
-        if (!Auth.isLoggedIn()) {
-          window.location.href = "login.html?redirect=checkout.html";
-          return;
-        }
-        if (!_items || _items.length === 0) {
-          showGlobalToast("Giỏ hàng trống", "error");
-          return;
-        }
-        const name = document.getElementById("co-name").value.trim();
-        const phone = document.getElementById("co-phone").value.trim();
-        const email = document.getElementById("co-email").value.trim();
-        const address = document.getElementById("co-address").value.trim();
-        const note = document.getElementById("co-note").value.trim();
+      async function placeOrder() {
+        const name    = document.getElementById('co-name').value.trim();
+        const phone   = document.getElementById('co-phone').value.trim();
+        const email   = document.getElementById('co-email').value.trim();
+        const address = document.getElementById('co-address').value.trim();
+        const note    = document.getElementById('co-note').value.trim();
+        const payment = document.querySelector('input[name=payment]:checked').value;
+
         if (!name || !phone || !address) {
-          showGlobalToast("Vui lòng nhập đầy đủ Họ tên, SĐT và Địa chỉ", "error");
+          showGlobalToast('Vui lòng nhập đủ họ tên, SĐT và địa chỉ', 'error');
+          return;
+        }
+        if (!coItems.length) {
+          showGlobalToast('Giỏ hàng đang trống', 'error');
           return;
         }
 
-        const btn = document.getElementById("btnPlaceOrder");
+        const btn = document.getElementById('place-order-btn');
         btn.disabled = true;
-        btn.textContent = "Đang đặt hàng...";
+        btn.textContent = 'Đang xử lý...';
 
         try {
-          const res = await Order.checkout({
+          await Order.checkout({
             ShippingAddress: address,
             Note: note,
             CustomerName: name,
             CustomerEmail: email,
             CustomerPhone: phone,
-            ShippingFee: getShipFee(),
-            PaymentMethod: getPay(),
-            VoucherCode: _appliedVoucher ? _appliedVoucher.code : null,
+            ShippingFee: SHIP_FEE,
+            PaymentMethod: payment,
+            VoucherCode: coVoucher ? coVoucher.code : null,
           });
-          showGlobalToast("✓ Đặt hàng thành công! Mã đơn #" + res.orderId);
-          sessionStorage.removeItem("glowhub_voucher");
-          _appliedVoucher = null;
-          document.getElementById("voucherInput").value = "";
-          document.getElementById("voucherMsg").textContent = "";
-          await Cart.refresh();
-          setTimeout(() => activateTab("orders"), 800);
+          await Cart.clear();
+          coVoucher = null;
+          localStorage.removeItem(VOUCHER_KEY);
+          showGlobalToast('Đặt hàng thành công!');
+          setTimeout(() => switchTab('orders'), 600);
         } catch (err) {
-          showGlobalToast("Lỗi: " + err.message, "error");
-        } finally {
+          showGlobalToast(err.message || 'Đặt hàng thất bại', 'error');
           btn.disabled = false;
-          btn.textContent = "Đặt hàng";
+          btn.textContent = 'Đặt Hàng Ngay';
         }
-      });
-
-      // ───────── ORDERS TAB ─────────
-      const STATUS_TEXT = {
-        PENDING: "Chờ Xử Lý",
-        CONFIRMED: "Đã Xác Nhận",
-        SHIPPING: "Đang Giao",
-        COMPLETED: "Đã Giao",
-        CANCELLED: "Đã Hủy",
-      };
-      function statusBadge(s) {
-        const cls = (s || "").toLowerCase();
-        return `<span class="badge-status badge-${cls}">${STATUS_TEXT[s] || s}</span>`;
-      }
-      function fmtDate(d) {
-        if (!d) return "--";
-        try { return new Date(d).toLocaleString("vi-VN"); } catch { return String(d); }
       }
 
-      async function loadOrders() {
-        if (!Auth.isLoggedIn()) {
-          document.getElementById("ordersWrap").innerHTML =
-            '<div class="empty-state">Vui lòng <a href="login.html?redirect=checkout.html%23orders" style="color:#f759ab">đăng nhập</a> để xem đơn hàng.</div>';
+      // ========== ORDERS TAB ==========
+      async function renderOrders() {
+        const host = document.getElementById('orders-list-host');
+        host.innerHTML = '<div class="text-center text-muted py-4">Đang tải...</div>';
+        let list = [];
+        try { list = await Account.myOrders(); } catch (err) {
+          host.innerHTML = `<div class="gh-empty-state">Lỗi: ${err.message}</div>`;
           return;
         }
-        document.getElementById("ordersWrap").innerHTML = '<div class="spinner-x"></div>';
-        try {
-          const orders = await Account.myOrders();
-          if (!orders || orders.length === 0) {
-            document.getElementById("ordersWrap").innerHTML =
-              '<div class="empty-state">Bạn chưa có đơn hàng nào.<br><a href="shop.html" class="btn-link-x">Mua sắm ngay →</a></div>';
-            return;
-          }
-          let html = `
-            <div style="overflow-x:auto">
-            <table class="w-100" style="border-collapse:collapse">
+        list = _extractList(list);
+
+        if (!list.length) {
+          host.innerHTML = `<div class="gh-empty-state"><div class="gh-empty-state__icon">📦</div><div class="gh-empty-state__title">Chưa có đơn hàng nào</div><a href="shop.html" class="gh-btn gh-btn--primary gh-mt-s3">Bắt Đầu Mua Sắm</a></div>`;
+          return;
+        }
+
+        host.innerHTML = `
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
               <thead>
-                <tr style="background:#fafafa;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666">
-                  <th class="px-3 py-2">Mã đơn</th>
-                  <th class="px-3 py-2">Ngày đặt</th>
-                  <th class="px-3 py-2">Tổng tiền</th>
-                  <th class="px-3 py-2">Trạng thái</th>
-                  <th class="px-3 py-2">Thao tác</th>
+                <tr style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gh-text-muted)">
+                  <th>Mã đơn</th>
+                  <th>Ngày đặt</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody>`;
-          for (const o of orders) {
-            html += `
-              <tr class="order-row">
-                <td><strong style="color:#f759ab">#${o.id}</strong></td>
-                <td>${fmtDate(o.orderDate)}</td>
-                <td style="font-weight:600">${_fmtMoney(o.totalAmount)}</td>
-                <td>${statusBadge(o.status)}</td>
-                <td>
-                  <button type="button" class="btn-outline-x" onclick="viewOrder(${o.id})" style="padding:6px 12px;font-size:11px">Chi tiết</button>
-                  ${o.status === "PENDING" ? `<button type="button" class="btn-outline-x" style="padding:6px 12px;font-size:11px;color:#dc2626;border-color:#fecaca" onclick="cancelOrder(${o.id})">Hủy đơn</button>` : ""}
-                </td>
-              </tr>`;
-          }
-          html += `</tbody></table></div>`;
-          document.getElementById("ordersWrap").innerHTML = html;
-        } catch (err) {
-          document.getElementById("ordersWrap").innerHTML = `<div class="empty-state">Lỗi: ${err.message}</div>`;
-        }
+              <tbody>
+                ${list.map(o => {
+                  const id   = o.Id || o.id;
+                  const date = o.OrderDate || o.orderDate;
+                  const dateStr = date ? new Date(date).toLocaleString('vi-VN') : '—';
+                  const total = o.TotalAmount || o.totalAmount || 0;
+                  const status = o.Status || o.status;
+                  return `
+                    <tr class="gh-order-row" data-order-id="${id}">
+                      <td><b>#${id}</b></td>
+                      <td>${dateStr}</td>
+                      <td><b>${_fmtMoney(total)}</b></td>
+                      <td>${_statusLabel(status)}</td>
+                      <td><button class="gh-btn gh-btn--ghost gh-btn--sm">Xem →</button></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        host.querySelectorAll('.gh-order-row').forEach(tr => {
+          tr.addEventListener('click', () => openOrderDetail(tr.dataset.orderId));
+        });
       }
-      document.getElementById("btnRefreshOrders").addEventListener("click", loadOrders);
 
-      async function viewOrder(id) {
-        const modal = document.getElementById("orderDetailModal");
-        const body = document.getElementById("odmBody");
-        document.getElementById("odmId").textContent = "#" + id;
-        body.innerHTML = '<div class="spinner-x"></div>';
-        modal.classList.add("show");
+      async function openOrderDetail(orderId) {
+        const body = document.getElementById('order-detail-body');
+        body.innerHTML = '<div class="text-center text-muted py-4">Đang tải...</div>';
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('orderDetailModal'));
+        modal.show();
+
         try {
-          const o = await Account.orderDetail(id);
-          let logs = [];
-          try { logs = await Account.orderStatusLogs(id); } catch (_) {}
-
-          const items = (o.orderDetails || []).map((od) => `
-            <div class="d-flex gap-2 py-2" style="border-bottom:1px solid #f5f5f5">
-              <img src="${od.productImage||'https://via.placeholder.com/48'}" style="width:48px;height:48px;object-fit:cover;border-radius:4px" />
-              <div style="flex:1">
-                <div style="font-size:13px;font-weight:500">${od.productName||'Sản phẩm'}</div>
-                <div style="font-size:12px;color:#888">${_fmtMoney(od.unitPrice)} × ${od.quantity}</div>
-              </div>
-              <div style="font-weight:600">${_fmtMoney(od.unitPrice*od.quantity)}</div>
-            </div>
-          `).join("");
-
-          const timeline = (logs || []).map((l, i) => `
-            <div class="timeline-item">
-              ${i < logs.length - 1 ? '<div class="timeline-line"></div>' : ""}
-              <div style="font-size:12px;color:#666">${fmtDate(l.createdAt)} · ${l.changedByName||'(Admin)'}</div>
-              <div class="mt-1">
-                ${l.oldStatus ? statusBadge(l.oldStatus) + ' <span style="color:#bbb">→</span> ' : ""}
-                ${statusBadge(l.newStatus)}
-              </div>
-              ${l.note ? `<div style="margin-top:6px;padding:8px 12px;background:#fdf2f8;border-radius:4px;font-size:13px;color:#374151">💬 ${l.note}</div>` : ""}
-            </div>
-          `).join("");
-
-          const subtotal = (o.orderDetails || []).reduce((s, d) => s + d.unitPrice * d.quantity, 0);
+          const [order, logs] = await Promise.all([
+            Account.orderDetail(orderId),
+            Account.orderStatusLogs(orderId).catch(() => []),
+          ]);
+          const details = _extractList(order.OrderDetails || order.orderDetails || order.Details);
+          const status  = order.Status || order.status;
+          const date    = order.OrderDate || order.orderDate;
+          const dateStr = date ? new Date(date).toLocaleString('vi-VN') : '—';
 
           body.innerHTML = `
+            <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+              <div>
+                <div class="gh-text-muted" style="font-size:12px">MÃ ĐƠN</div>
+                <h4 style="font-family:var(--gh-font-display);margin:0">#${order.Id || order.id}</h4>
+              </div>
+              <div class="text-end">
+                <div class="gh-text-muted" style="font-size:12px">TRẠNG THÁI</div>
+                ${_statusLabel(status)}
+              </div>
+            </div>
+
             <div class="row g-3 mb-3" style="font-size:13px">
-              <div class="col-md-6">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Người nhận</div>
-                <div><strong>${o.customerName||'--'}</strong></div>
-                <div>${o.customerPhone||'--'}</div>
-                <div>${o.customerEmail||''}</div>
-              </div>
-              <div class="col-md-6">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Trạng thái & Thời gian</div>
-                <div class="mb-1">${statusBadge(o.status)}</div>
-                <div style="font-size:12px;color:#666">Đặt: ${fmtDate(o.orderDate)}</div>
-                <div style="font-size:12px;color:#666">Cập nhật: ${fmtDate(o.updatedAt)}</div>
-              </div>
-              <div class="col-12">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Địa chỉ giao hàng</div>
-                <div>${o.shippingAddress||'--'}</div>
-              </div>
-              <div class="col-12" style="display:${o.note?'block':'none'}">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Ghi chú</div>
-                <div>${o.note||''}</div>
-              </div>
-              <div class="col-md-6">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Thanh toán</div>
-                <div>${o.paymentMethod||'COD'}</div>
-              </div>
-              <div class="col-md-6" style="display:${o.voucherCode?'block':'none'}">
-                <div style="text-transform:uppercase;font-size:11px;color:#999;letter-spacing:1px">Voucher</div>
-                <div><strong>${o.voucherCode||''}</strong> · giảm ${_fmtMoney(o.discountAmount||0)}</div>
-              </div>
+              <div class="col-md-6"><b>Người nhận:</b> ${order.CustomerName || order.customerName || '—'}</div>
+              <div class="col-md-6"><b>SĐT:</b> ${order.CustomerPhone || order.customerPhone || '—'}</div>
+              <div class="col-md-12"><b>Địa chỉ:</b> ${order.ShippingAddress || order.shippingAddress || '—'}</div>
+              <div class="col-md-6"><b>Ngày đặt:</b> ${dateStr}</div>
+              <div class="col-md-6"><b>Thanh toán:</b> ${order.PaymentMethod || order.paymentMethod || 'COD'}</div>
+              ${(order.Note || order.note) ? `<div class="col-12"><b>Ghi chú:</b> ${order.Note || order.note}</div>` : ''}
             </div>
 
-            <div style="background:#fafafa;padding:14px;margin-bottom:14px">
-              <div style="font-weight:600;margin-bottom:10px">Sản phẩm</div>
-              ${items}
-              <div style="margin-top:14px;padding-top:14px;border-top:1px solid #ddd">
-                <div class="summary-line"><span>Tạm tính</span><span>${_fmtMoney(subtotal)}</span></div>
-                <div class="summary-line"><span>Phí vận chuyển</span><span>${_fmtMoney(o.shippingFee||0)}</span></div>
-                ${o.discountAmount > 0 ? `<div class="summary-line" style="color:#16a34a"><span>Giảm giá</span><span>−${_fmtMoney(o.discountAmount)}</span></div>` : ""}
-                <div class="summary-line total"><span>Tổng</span><span class="v">${_fmtMoney(o.totalAmount)}</span></div>
-              </div>
+            <h6 class="gh-card__title" style="font-size:13px">Sản Phẩm</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead><tr><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th class="text-end">Thành tiền</th></tr></thead>
+                <tbody>
+                  ${details.map(d => {
+                    const pname = d.ProductName || d.productName || ('SP #' + (d.ProductId || d.productId));
+                    const qty   = d.Quantity || d.quantity || 0;
+                    const unit  = d.UnitPrice || d.unitPrice || 0;
+                    return `<tr><td>${pname}</td><td>${qty}</td><td>${_fmtMoney(unit)}</td><td class="text-end"><b>${_fmtMoney(qty * unit)}</b></td></tr>`;
+                  }).join('')}
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="3" class="text-end gh-text-muted">Phí vận chuyển</td><td class="text-end">${_fmtMoney(order.ShippingFee || order.shippingFee || 0)}</td></tr>
+                  ${(order.DiscountAmount || order.discountAmount) ? `<tr><td colspan="3" class="text-end gh-text-muted">Giảm giá (${order.VoucherCode || ''})</td><td class="text-end gh-text-danger">− ${_fmtMoney(order.DiscountAmount || order.discountAmount)}</td></tr>` : ''}
+                  <tr><td colspan="3" class="text-end"><b>TỔNG CỘNG</b></td><td class="text-end"><b class="gh-text-primary" style="font-size:18px">${_fmtMoney(order.TotalAmount || order.totalAmount || 0)}</b></td></tr>
+                </tfoot>
+              </table>
             </div>
 
-            <div style="margin-bottom:14px">
-              <div style="font-family:'Marcellus',serif;letter-spacing:2px;font-size:14px;text-transform:uppercase;margin-bottom:14px">Lịch sử trạng thái</div>
-              ${timeline || '<div style="color:#999;font-size:13px">Chưa có lịch sử thay đổi.</div>'}
-            </div>
+            <h6 class="gh-card__title gh-mt-s5" style="font-size:13px">Lịch Sử Trạng Thái</h6>
+            ${renderTimeline(_extractList(logs))}
 
-            ${o.status === "PENDING" ? `<button type="button" class="btn-pink" style="background:#dc2626" onclick="cancelOrder(${o.id}, true)">Hủy đơn hàng</button>` : ""}
+            ${String(status || '').toUpperCase() === 'PENDING'
+              ? `<div class="text-end gh-mt-s4"><button class="gh-btn gh-btn--outline gh-text-danger" id="cancel-order-btn" data-id="${order.Id || order.id}">Hủy Đơn Hàng</button></div>`
+              : ''
+            }
           `;
+
+          const cancelBtn = document.getElementById('cancel-order-btn');
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', async () => {
+              const note = prompt('Lý do hủy đơn (tùy chọn):') || '';
+              try {
+                await Account.cancelMyOrder(cancelBtn.dataset.id, note);
+                showGlobalToast('Đã hủy đơn hàng');
+                modal.hide();
+                renderOrders();
+              } catch (err) {
+                showGlobalToast(err.message || 'Không hủy được', 'error');
+              }
+            });
+          }
         } catch (err) {
-          body.innerHTML = `<div class="empty-state">Lỗi: ${err.message}</div>`;
+          body.innerHTML = `<div class="gh-empty-state">Lỗi: ${err.message}</div>`;
         }
       }
-      document.getElementById("odmClose").addEventListener("click", () => {
-        document.getElementById("orderDetailModal").classList.remove("show");
-      });
 
-      async function cancelOrder(id, closeModalAfter) {
-        if (!confirm("Bạn chắc chắn muốn hủy đơn #" + id + "?")) return;
-        try {
-          await Account.cancelMyOrder(id);
-          showGlobalToast("Đã hủy đơn hàng");
-          if (closeModalAfter) document.getElementById("orderDetailModal").classList.remove("show");
-          loadOrders();
-        } catch (err) {
-          showGlobalToast("Lỗi: " + err.message, "error");
-        }
+      function renderTimeline(logs) {
+        if (!logs.length) return `<p class="gh-text-muted" style="font-size:13px">Chưa có lịch sử.</p>`;
+        return `
+          <ul class="gh-timeline">
+            ${logs.map(l => {
+              const dt = l.CreatedAt || l.createdAt;
+              const when = dt ? new Date(dt).toLocaleString('vi-VN') : '';
+              const newStatus = l.NewStatus || l.newStatus;
+              const oldStatus = l.OldStatus || l.oldStatus;
+              const note = l.Note || l.note;
+              const by   = l.ChangedBy || l.changedBy;
+              return `
+                <li>
+                  <div class="gh-timeline__when">${when}</div>
+                  <div class="gh-timeline__what">${oldStatus ? `${oldStatus} →` : ''} ${newStatus}</div>
+                  ${by ? `<div class="gh-timeline__when">Bởi: ${by}</div>` : ''}
+                  ${note ? `<div class="gh-timeline__note">"${note}"</div>` : ''}
+                </li>
+              `;
+            }).join('')}
+          </ul>
+        `;
       }
-      window.viewOrder = viewOrder;
-      window.cancelOrder = cancelOrder;
 
-      // ───────── ACCOUNT TAB ─────────
-      async function loadAccount() {
-        if (!Auth.isLoggedIn()) {
-          document.getElementById("tab-account").innerHTML =
-            '<div class="empty-state">Vui lòng <a href="login.html?redirect=checkout.html%23account" style="color:#f759ab">đăng nhập</a>.</div>';
-          return;
-        }
+      // ========== ACCOUNT TAB ==========
+      async function renderAccount() {
         try {
           const me = await Account.getMe();
-          document.getElementById("acc-username").value = me.username || "";
-          document.getElementById("acc-name").value = me.name || "";
-          document.getElementById("acc-email").value = me.email || "";
-          document.getElementById("acc-phone").value = me.phone || "";
+          document.getElementById('acc-username').value = me.UserName || me.userName || '';
+          document.getElementById('acc-name').value     = me.Name || me.name || '';
+          document.getElementById('acc-email').value    = me.Email || me.email || '';
+          document.getElementById('acc-phone').value    = me.Phone || me.phone || '';
+        } catch (_) {}
+      }
+
+      async function saveAccount() {
+        try {
+          await Account.updateMe({
+            Name:  document.getElementById('acc-name').value.trim(),
+            Email: document.getElementById('acc-email').value.trim(),
+            Phone: document.getElementById('acc-phone').value.trim(),
+          });
+          showGlobalToast('Đã cập nhật thông tin');
         } catch (err) {
-          showGlobalToast("Lỗi tải thông tin: " + err.message, "error");
+          showGlobalToast(err.message || 'Lỗi cập nhật', 'error');
         }
       }
-      document.getElementById("btnSaveProfile").addEventListener("click", async () => {
-        const data = {
-          Name: document.getElementById("acc-name").value.trim(),
-          Email: document.getElementById("acc-email").value.trim(),
-          Phone: document.getElementById("acc-phone").value.trim(),
-        };
-        if (!data.Name || !data.Email) {
-          showGlobalToast("Tên và email không được trống", "error");
-          return;
-        }
-        try {
-          const me = await Account.updateMe(data);
-          const u = JSON.parse(localStorage.getItem("user") || "{}");
-          u.name = me.name; u.Name = me.name;
-          u.email = me.email; u.Email = me.email;
-          u.phone = me.phone; u.Phone = me.phone;
-          localStorage.setItem("user", JSON.stringify(u));
-          renderNavUser();
-          showGlobalToast("✓ Đã lưu thông tin");
-        } catch (err) {
-          showGlobalToast("Lỗi: " + err.message, "error");
-        }
-      });
-      document.getElementById("btnChangePass").addEventListener("click", async () => {
-        const oldP = document.getElementById("acc-oldPass").value;
-        const newP = document.getElementById("acc-newPass").value;
-        const conf = document.getElementById("acc-confirmPass").value;
-        if (!oldP || !newP) { showGlobalToast("Vui lòng nhập đủ mật khẩu", "error"); return; }
-        if (newP.length < 6) { showGlobalToast("Mật khẩu mới phải ≥ 6 ký tự", "error"); return; }
-        if (newP !== conf) { showGlobalToast("Mật khẩu xác nhận không khớp", "error"); return; }
+
+      async function changePassword() {
+        const oldP = document.getElementById('pw-old').value;
+        const newP = document.getElementById('pw-new').value;
+        const cf   = document.getElementById('pw-confirm').value;
+        if (!oldP || !newP) { showGlobalToast('Vui lòng nhập đủ mật khẩu', 'error'); return; }
+        if (newP !== cf)    { showGlobalToast('Mật khẩu mới không khớp', 'error'); return; }
         try {
           await Account.changePassword({ OldPassword: oldP, NewPassword: newP });
-          showGlobalToast("✓ Đã đổi mật khẩu");
-          document.getElementById("acc-oldPass").value = "";
-          document.getElementById("acc-newPass").value = "";
-          document.getElementById("acc-confirmPass").value = "";
+          showGlobalToast('Đã đổi mật khẩu');
+          document.getElementById('pw-old').value = '';
+          document.getElementById('pw-new').value = '';
+          document.getElementById('pw-confirm').value = '';
         } catch (err) {
-          showGlobalToast("Lỗi: " + err.message, "error");
+          showGlobalToast(err.message || 'Lỗi đổi mật khẩu', 'error');
         }
-      });
+      }
 
-      // ───────── INIT ─────────
-      window.addEventListener("DOMContentLoaded", async () => {
-        // Pre-fill checkout form
-        if (Auth.isLoggedIn()) {
-          try {
-            const me = await Account.getMe();
-            const fields = { "co-name": me.name, "co-email": me.email, "co-phone": me.phone };
-            for (const [id, v] of Object.entries(fields)) {
-              const el = document.getElementById(id);
-              if (el && !el.value && v) el.value = v;
-            }
-          } catch (_) {}
+      // ========== TAB SWITCHING ==========
+      const TAB_TITLES = {
+        checkout: ['Thanh Toán', 'Thanh Toán'],
+        orders:   ['Đơn Hàng Của Tôi', 'Đơn Hàng'],
+        account:  ['Tài Khoản', 'Tài Khoản'],
+      };
+
+      function switchTab(tab) {
+        ['checkout', 'orders', 'account'].forEach(t => {
+          document.getElementById(`tab-${t}`).style.display = (t === tab ? 'block' : 'none');
+        });
+        document.querySelectorAll('.gh-tabs__btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.tab === tab);
+        });
+        const [title, bc] = TAB_TITLES[tab] || ['', ''];
+        document.getElementById('page-title').textContent = title;
+        document.getElementById('bc-current').textContent = bc;
+        if (location.hash !== `#${tab}`) history.replaceState({}, '', `#${tab}`);
+
+        if (tab === 'orders')  renderOrders();
+        if (tab === 'account') renderAccount();
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        if (!requireLogin('checkout.html')) return;
+        mountLayout({ active: 'account' });
+        await loadShippingFee();
+
+        // Restore voucher
+        try {
+          const v = JSON.parse(localStorage.getItem(VOUCHER_KEY) || 'null');
+          if (v && v.code) coVoucher = v;
+        } catch (_) {}
+
+        await renderCheckout();
+        await preFillCheckout();
+
+        if (coVoucher) {
+          document.getElementById('co-voucher').value = coVoucher.code;
+          recalc();
         }
 
-        const hash = (window.location.hash || "#checkout").replace("#", "");
-        const initial = ["checkout", "orders", "account"].includes(hash) ? hash : "checkout";
-        activateTab(initial);
+        document.querySelectorAll('.gh-tabs__btn').forEach(b => {
+          b.addEventListener('click', () => switchTab(b.dataset.tab));
+        });
 
-        document.addEventListener("cart:updated", renderCheckoutSummary);
+        document.getElementById('place-order-btn').addEventListener('click', placeOrder);
+        document.getElementById('co-apply-voucher').addEventListener('click', applyCoVoucher);
+        document.getElementById('co-voucher').addEventListener('keydown', e => { if (e.key === 'Enter') applyCoVoucher(); });
+
+        document.getElementById('save-account-btn').addEventListener('click', saveAccount);
+        document.getElementById('change-password-btn').addEventListener('click', changePassword);
+
+        // Initial tab from hash
+        const initial = (location.hash || '').replace('#', '');
+        if (['checkout', 'orders', 'account'].includes(initial)) switchTab(initial);
       });
     </script>
   </body>

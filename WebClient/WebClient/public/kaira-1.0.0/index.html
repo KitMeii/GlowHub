@@ -1,1685 +1,403 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <title>GlowHub - Thời Trang & Làm Đẹp</title>
+    <title>GlowHub — Mỹ Phẩm & Thời Trang Cho Phái Đẹp</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="GlowHub - Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="css/vendor.css" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta name="description" content="GlowHub — Cửa hàng mỹ phẩm và thời trang hàng đầu Việt Nam" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <style>
-      :root {
-        --pink: #f759ab;
-        --dark: #111111;
-        --light-bg: #fffdf9;
-      }
-      body {
-        background-color: var(--light-bg);
-        font-family: "Jost", sans-serif;
-      }
-      .brand-name {
-        font-family: "Marcellus", serif;
-        letter-spacing: 4px;
-        color: var(--dark);
-        text-decoration: none;
-      }
-      .nav-link {
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--dark) !important;
-        font-weight: 500;
-      }
-      .nav-link:hover {
-        color: var(--pink) !important;
-      }
-      .btn-pink {
-        background: var(--pink);
-        color: #fff;
-        border: none;
-        padding: 12px 30px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 13px;
-        transition: 0.3s;
-      }
-      .btn-pink:hover {
-        background: var(--dark);
-        color: #fff;
-      }
-      .btn-dark-custom {
-        background: var(--dark);
-        color: #fff;
-        border: none;
-        padding: 12px 30px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 13px;
-        transition: 0.3s;
-      }
-      .btn-dark-custom:hover {
-        background: var(--pink);
-        color: #fff;
-      }
-      .section-title {
-        font-family: "Marcellus", serif;
-        font-size: 2.2rem;
-        color: var(--dark);
-      }
-      .product-card {
-        transition: 0.3s;
-        position: relative;
-        overflow: hidden;
-      }
-      .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-      }
-      .product-card img {
-        width: 100%;
-        aspect-ratio: 3/4;
-        object-fit: cover;
-      }
-      .product-title {
-        font-family: "Marcellus", serif;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--dark);
-        text-decoration: none;
-      }
-      .product-price {
-        color: var(--pink);
-        font-weight: 600;
-      }
-      .badge-new {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background: var(--pink);
-        color: #fff;
-        font-size: 10px;
-        padding: 4px 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        z-index: 2;
-      }
-      .badge-sale {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background: var(--dark);
-        color: #fff;
-        font-size: 10px;
-        padding: 4px 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        z-index: 2;
-      }
-      .hero-section {
-        background: #f5f0ea;
-        padding: 80px 0;
-      }
-      .category-card {
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-      }
-      .category-card img {
-        width: 100%;
-        height: 400px;
-        object-fit: cover;
-        transition: 0.5s;
-      }
-      .category-card:hover img {
-        transform: scale(1.05);
-      }
-      .category-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
-        padding: 24px;
-      }
-      .category-name {
-        font-family: "Marcellus", serif;
-        color: #fff;
-        font-size: 1.4rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-      }
-      .feature-icon {
-        width: 50px;
-        height: 50px;
-        background: #f5f0ea;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 16px;
-      }
-      footer {
-        background: var(--dark);
-        color: #ccc;
-      }
-      footer a {
-        color: #aaa;
-        text-decoration: none;
-        font-size: 13px;
-      }
-      footer a:hover {
-        color: var(--pink);
-      }
-      .footer-title {
-        font-family: "Marcellus", serif;
-        color: #fff;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 20px;
-        font-size: 14px;
-      }
-      .topbar {
-        background: var(--dark);
-        color: #fff;
-        font-size: 12px;
-        text-align: center;
-        padding: 8px;
-        letter-spacing: 1px;
-      }
-      .cart-badge {
-        background: var(--pink);
-        color: #fff;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        font-size: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        vertical-align: middle;
-      }
-      .btn-add-cart {
-        position: absolute;
-        bottom: -50px;
-        left: 0;
-        right: 0;
-        background: rgba(17, 17, 17, 0.9);
-        color: #fff;
-        text-align: center;
-        padding: 12px;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: 0.3s;
-        cursor: pointer;
-        border: none;
-        width: 100%;
-      }
-      .product-card:hover .btn-add-cart {
-        bottom: 0;
-      }
-      .promo-banner {
-        background: linear-gradient(135deg, #fce4ec, #f8bbd0);
-        padding: 60px 0;
-      }
-      .testimonial-card {
-        background: #fff;
-        border: 1px solid #f0f0f0;
-        padding: 30px;
-      }
-      .stars {
-        color: #f59e0b;
-      }
-      .section-divider {
-        border: none;
-        height: 1px;
-        background: #e8e8e8;
-        margin: 0;
-      }
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Marcellus&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript
-      ><link
-        href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Marcellus&display=swap"
-        rel="stylesheet"
-    /></noscript>
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Marcellus&display=swap" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="css/glowhub-theme.css" />
   </head>
-  <body class="homepage">
-    <!-- SVG Defs (giữ nguyên từ template gốc) -->
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-      <defs>
-        <symbol id="heart" viewBox="0 0 24 24">
-          <path
-            fill="currentColor"
-            d="M20.16 4.61A6.27 6.27 0 0 0 12 4a6.27 6.27 0 0 0-8.16 9.48l7.45 7.45a1 1 0 0 0 1.42 0l7.45-7.45a6.27 6.27 0 0 0 0-8.87Z"
-          />
-        </symbol>
-        <symbol id="cart" viewBox="0 0 24 24">
-          <path
-            fill="currentColor"
-            d="M8.5 19a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 8.5 19ZM19 16H7a1 1 0 0 1 0-2h8.491a3.013 3.013 0 0 0 2.885-2.176l1.585-5.55A1 1 0 0 0 19 5H6.74a3.007 3.007 0 0 0-2.82-2H3a1 1 0 0 0 0 2h.921a1.005 1.005 0 0 1 .962.725l.155.545v.005l1.641 5.742A3 3 0 0 0 7 18h12a1 1 0 0 0 0-2Zm-1.326-9l-1.22 4.274a1.005 1.005 0 0 1-.963.726H8.754l-.255-.892L7.326 7ZM16.5 19a1.5 1.5 0 1 0 1.5 1.5a1.5 1.5 0 0 0-1.5-1.5Z"
-          />
-        </symbol>
-        <symbol id="search" viewBox="0 0 24 24">
-          <path
-            fill="currentColor"
-            d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"
-          />
-        </symbol>
-        <symbol id="user" viewBox="0 0 24 24">
-          <path
-            fill="currentColor"
-            d="M15.71 12.71a6 6 0 1 0-7.42 0a10 10 0 0 0-6.22 8.18a1 1 0 0 0 2 .22a8 8 0 0 1 15.9 0a1 1 0 0 0 1 .89h.11a1 1 0 0 0 .88-1.1a10 10 0 0 0-6.25-8.19ZM12 12a4 4 0 1 1 4-4a4 4 0 0 1-4 4Z"
-          />
-        </symbol>
-      </defs>
-    </svg>
 
-    <!-- Topbar -->
-    <div class="topbar" id="topbar-text">
-      🌸 MIỄN PHÍ VẬN CHUYỂN cho đơn hàng từ 500.000₫ &nbsp;|&nbsp; Giao hàng
-      toàn quốc
-    </div>
+  <body>
+    <div id="gh-layout-header"></div>
 
-    <!-- Giỏ hàng Offcanvas -->
-    <div
-      class="offcanvas offcanvas-end"
-      data-bs-scroll="true"
-      tabindex="-1"
-      id="offcanvasCart"
-      aria-labelledby="Giỏ Hàng"
-    >
-      <div class="offcanvas-header justify-content-between border-bottom py-3">
-        <h5
-          class="m-0"
-          style="
-            font-family: &quot;Marcellus&quot;, serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-          "
-        >
-          Giỏ Hàng
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="list-group list-group-flush mb-3" id="cart-list">
-          <li class="list-group-item text-center text-muted py-5">
-            Giỏ hàng trống
-          </li>
-        </ul>
-        <div
-          class="d-flex justify-content-between py-3 border-top border-bottom mb-3"
-        >
-          <span class="fw-bold text-uppercase" style="letter-spacing: 1px"
-            >Tổng cộng</span
-          >
-          <strong id="cart-total" style="color: var(--pink)">0 ₫</strong>
-        </div>
-        <a
-          href="checkout.html"
-          class="btn btn-dark w-100 text-uppercase"
-          style="letter-spacing: 2px; padding: 14px"
-          >Thanh Toán Ngay</a
-        >
-        <a
-          href="cart.html"
-          class="btn btn-outline-secondary w-100 text-uppercase mt-2"
-          style="letter-spacing: 1px; padding: 12px"
-          >Xem Giỏ Hàng</a
-        >
-      </div>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
-      <div class="container">
-        <a class="navbar-brand brand-name fs-3" href="index.html" id="site-name-nav">GLOWHUB</a>
-
-        <div class="d-flex align-items-center gap-3 d-lg-none">
-          <a
-            href="#offcanvasCart"
-            class="position-relative"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasCart"
-          >
-            <svg width="22" height="22"><use xlink:href="#cart"></use></svg>
-            <span
-              id="cart-count-mobile"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size: 10px"
-              >0</span
-            >
-          </a>
-          <button
-            class="navbar-toggler border-0"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasNavbar"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="offcanvas"
-            ></button>
-          </div>
-
-          <div class="offcanvas-body">
-            <ul
-              class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4"
-            >
-              <li class="nav-item">
-                <a class="nav-link active" href="index.html">Trang Chủ</a>
-              </li>
-
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  href="#"
-                  data-bs-toggle="dropdown"
-                  >Cửa Hàng</a
-                >
-                <ul class="dropdown-menu border-0 shadow-sm">
-                  <li>
-                    <a href="shop.html" class="dropdown-item"
-                      >Tất Cả Sản Phẩm</a
-                    >
-                  </li>
-                  <li>
-                    <a href="shop.html?section=new" class="dropdown-item"
-                      >Hàng Mới Về</a
-                    >
-                  </li>
-                  <li>
-                    <a href="shop.html?section=best" class="dropdown-item"
-                      >Bán Chạy Nhất</a
-                    >
-                  </li>
-                </ul>
-              </li>
-
-              <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Liên Hệ</a></li>
-
-              <li class="nav-item d-lg-none border-top mt-3 pt-3">
-                <div id="nav-user-mobile"></div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="d-none d-lg-flex align-items-center gap-4">
-          <div id="nav-user-area"></div>
-
-          <a href="#" class="nav-link position-relative">
-            <svg width="20" height="20"><use xlink:href="#heart"></use></svg>
-            <span id="wishlist-count" style="font-size: 12px">(0)</span>
-          </a>
-
-          <a
-            href="#"
-            class="nav-link position-relative"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasCart"
-          >
-            <svg width="20" height="20"><use xlink:href="#cart"></use></svg>
-            <span
-              id="cart-count"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size: 10px"
-              >0</span
-            >
-          </a>
-
-          <a href="#" class="nav-link">
-            <svg width="20" height="20"><use xlink:href="#search"></use></svg>
-          </a>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Hero / Billboard -->
-    <section class="hero-section">
-      <div class="container">
-        <div class="row justify-content-center text-center mb-5">
-          <div class="col-lg-7">
-            <h1 class="section-title mb-3" id="hero-title">Bộ Sưu Tập Mới</h1>
-            <p class="text-muted" id="hero-subtitle">
-              Khám phá những xu hướng thời trang và làm đẹp mới nhất. Phong cách
-              tinh tế, chất lượng vượt trội – chỉ có tại GlowHub.
-            </p>
-          </div>
-        </div>
-        <!-- Swiper sản phẩm nổi bật -->
-        <div class="swiper main-swiper py-4">
-          <div class="swiper-wrapper" id="hero-products-wrapper">
+    <main>
+      <!-- ========== HERO SWIPER (Banners) ========== -->
+      <section class="gh-hero">
+        <div class="swiper gh-hero-swiper">
+          <div class="swiper-wrapper" id="hero-wrapper">
+            <!-- 1 slide fallback luôn có khi không có banner -->
             <div class="swiper-slide">
-              <div class="product-card bg-white" data-product-id="101">
-                <span class="badge-new">Mới</span>
-                <img
-                  src="images/banner-image-6.jpg"
-                  alt="Áo khoác da mềm"
-                  onerror="
-                    this.src =
-                      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80'
-                  "
-                />
-                <div class="p-3">
-                  <a
-                    href="product.html?id=101"
-                    class="product-title d-block mb-1"
-                    >Áo Khoác Da Mềm</a
-                  >
-                  <span class="product-price">1.250.000 ₫</span>
-                </div>
-                <button class="btn-add-cart">Thêm Vào Giỏ</button>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div data-product-id="202" class="product-card bg-white">
-                <img
-                  src="images/banner-image-1.jpg"
-                  alt="Đầm dạo phố"
-                  onerror="
-                    this.src =
-                      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80'
-                  "
-                />
-                <div class="p-3">
-                  <a
-                    href="product.html?id=202"
-                    class="product-title d-block mb-1"
-                    >Đầm Dạo Phố</a
-                  >
-                  <span class="product-price">890.000 ₫</span>
-                </div>
-                <button class="btn-add-cart">Thêm Vào Giỏ</button>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div data-product-id="203" class="product-card bg-white">
-                <span class="badge-sale">-20%</span>
-                <img
-                  src="images/banner-image-2.jpg"
-                  alt="Túi xách thời trang"
-                  onerror="
-                    this.src =
-                      'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80'
-                  "
-                />
-                <div class="p-3">
-                  <a
-                    href="product.html?id=203"
-                    class="product-title d-block mb-1"
-                    >Túi Xách Thời Trang</a
-                  >
-                  <span class="product-price">760.000 ₫</span>
-                  <span
-                    class="text-muted text-decoration-line-through ms-2"
-                    style="font-size: 13px"
-                    >950.000 ₫</span
-                  >
-                </div>
-                <button class="btn-add-cart">Thêm Vào Giỏ</button>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div data-product-id="204" class="product-card bg-white">
-                <span class="badge-new">Hot</span>
-                <img
-                  src="images/banner-image-3.jpg"
-                  alt="Set áo trench coat"
-                  onerror="
-                    this.src =
-                      'https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=400&q=80'
-                  "
-                />
-                <div class="p-3">
-                  <a
-                    href="product.html?id=204"
-                    class="product-title d-block mb-1"
-                    >Set Áo Trench Coat</a
-                  >
-                  <span class="product-price">1.890.000 ₫</span>
-                </div>
-                <button class="btn-add-cart">Thêm Vào Giỏ</button>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div data-product-id="205" class="product-card bg-white">
-                <img
-                  src="images/banner-image-4.jpg"
-                  alt="Blazer công sở"
-                  onerror="
-                    this.src =
-                      'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=400&q=80'
-                  "
-                />
-                <div class="p-3">
-                  <a
-                    href="product.html?id=205"
-                    class="product-title d-block mb-1"
-                    >Blazer Công Sở</a
-                  >
-                  <span class="product-price">1.050.000 ₫</span>
-                </div>
-                <button class="btn-add-cart">Thêm Vào Giỏ</button>
-              </div>
-            </div>
-          </div>
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-button-next"></div>
-        </div>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-    <!-- Danh mục nổi bật -->
-    <section class="py-6 py-5">
-      <div class="container">
-        <h2 class="section-title text-center mb-2">Danh Mục Nổi Bật</h2>
-        <p class="text-center text-muted mb-5">
-          Tìm kiếm phong cách của bạn trong từng bộ sưu tập
-        </p>
-        <div class="row g-4" id="categories-grid">
-          <div class="col-md-4">
-            <div class="category-card">
-              <img
-                loading="lazy"
-                src="images/category-1.jpg"
-                alt="Thời trang"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'
-                "
-              />
-              <div class="category-overlay">
-                <div class="category-name">Thời Trang</div>
-                <a
-                  href="shop.html?cat=2"
-                  class="text-white text-decoration-none"
-                  style="
-                    font-size: 12px;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                  "
-                  >Khám phá →</a
-                >
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="category-card">
-              <img
-                loading="lazy"
-                src="images/category-2.jpg"
-                alt="Mỹ phẩm"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&q=80'
-                "
-              />
-              <div class="category-overlay">
-                <div class="category-name">Mỹ Phẩm</div>
-                <a
-                  href="shop.html?cat=2"
-                  class="text-white text-decoration-none"
-                  style="
-                    font-size: 12px;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                  "
-                  >Khám phá →</a
-                >
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="category-card">
-              <img
-                loading="lazy"
-                src="images/category-3.jpg"
-                alt="Phụ kiện"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500&q=80'
-                "
-              />
-              <div class="category-overlay">
-                <div class="category-name">Phụ Kiện</div>
-                <a
-                  href="shop.html?cat=4"
-                  class="text-white text-decoration-none"
-                  style="
-                    font-size: 12px;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                  "
-                  >Khám phá →</a
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-    <!-- Sản phẩm mới nhất -->
-    <section class="py-5">
-      <div class="container">
-        <div class="d-flex justify-content-between align-items-end mb-5">
-          <div>
-            <h2 class="section-title mb-1">Hàng Mới Về</h2>
-            <p class="text-muted m-0">Những sản phẩm mới nhất vừa cập nhật</p>
-          </div>
-          <a href="#" class="btn-dark-custom btn" style="font-size: 12px"
-            >Xem Tất Cả</a
-          >
-        </div>
-        <div class="row g-4" id="new-products-grid">
-          <!-- Sản phẩm sẽ được render bởi api.js hoặc hiển thị mặc định -->
-          <div class="col-6 col-md-3">
-            <div data-product-id="206" class="product-card">
-              <span class="badge-new">Mới</span>
-              <img
-                loading="lazy"
-                src="images/product-1.jpg"
-                alt="Áo sơ mi lụa"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=206" class="product-title d-block mb-1"
-                  >Áo Sơ Mi Lụa Cao Cấp</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★★</div>
-                <span class="product-price">650.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="207" class="product-card">
-              <img
-                loading="lazy"
-                src="images/product-2.jpg"
-                alt="Son môi đỏ"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1586495777744-4e6232bf2263?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=207" class="product-title d-block mb-1"
-                  >Son Môi Lì Đỏ Hồng</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★☆</div>
-                <span class="product-price">280.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="208" class="product-card">
-              <span class="badge-sale">-30%</span>
-              <img
-                loading="lazy"
-                src="images/product-3.jpg"
-                alt="Nước hoa hồng"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1614289371518-722f2615943d?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=208" class="product-title d-block mb-1"
-                  >Nước Hoa Hồng Dưỡng Da</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★★</div>
-                <span class="product-price">420.000 ₫</span>
-                <span
-                  class="text-muted text-decoration-line-through ms-1"
-                  style="font-size: 12px"
-                  >600.000 ₫</span
-                >
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="209" class="product-card">
-              <img
-                loading="lazy"
-                src="images/product-4.jpg"
-                alt="Bông tai"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=209" class="product-title d-block mb-1"
-                  >Bông Tai Vàng Tinh Tế</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★☆</div>
-                <span class="product-price">380.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Banner khuyến mãi -->
-    <section class="promo-banner">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-7">
-            <p
-              class="text-uppercase"
-              style="
-                letter-spacing: 3px;
-                font-size: 12px;
-                color: var(--pink);
-                font-weight: 600;
-              "
-            >
-              Ưu Đãi Đặc Biệt
-            </p>
-            <h2 class="section-title mb-3">
-              Giảm 25% Cho Đơn Hàng<br />Đầu Tiên Của Bạn
-            </h2>
-            <p class="text-muted mb-4">
-              Đăng ký thành viên ngay hôm nay để nhận ưu đãi độc quyền và cập
-              nhật bộ sưu tập mới nhất.
-            </p>
-            <div class="d-flex gap-3 flex-wrap">
-              <a href="register.html" class="btn-pink btn">Đăng Ký Ngay</a>
-              <a
-                href="#"
-                class="btn btn-outline-dark text-uppercase"
-                style="letter-spacing: 1px; font-size: 13px; padding: 12px 24px"
-                >Tìm Hiểu Thêm</a
-              >
-            </div>
-          </div>
-          <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img
-              loading="lazy"
-              src="images/promo.jpg"
-              alt="Khuyến mãi"
-              onerror="
-                this.src =
-                  'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=500&q=80'
-              "
-              style="max-height: 350px; object-fit: cover; width: 100%"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Bán chạy nhất -->
-    <section class="py-5 bg-white">
-      <div class="container">
-        <div class="d-flex justify-content-between align-items-end mb-5">
-          <div>
-            <h2 class="section-title mb-1">Bán Chạy Nhất</h2>
-            <p class="text-muted m-0">Được yêu thích nhất tháng này</p>
-          </div>
-          <a href="#" class="btn-dark-custom btn" style="font-size: 12px"
-            >Xem Tất Cả</a
-          >
-        </div>
-        <div class="row g-4">
-          <div class="col-6 col-md-3">
-            <div data-product-id="210" class="product-card">
-              <img
-                loading="lazy"
-                src="images/product-5.jpg"
-                alt="Kem dưỡng ẩm"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=210" class="product-title d-block mb-1"
-                  >Kem Dưỡng Ẩm Ban Đêm</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★★</div>
-                <span class="product-price">550.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="211" class="product-card">
-              <span class="badge-new">Hot</span>
-              <img
-                loading="lazy"
-                src="images/product-6.jpg"
-                alt="Quần culottes"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=211" class="product-title d-block mb-1"
-                  >Quần Culottes Công Sở</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★☆</div>
-                <span class="product-price">720.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="212" class="product-card">
-              <img
-                loading="lazy"
-                src="images/product-7.jpg"
-                alt="Mascara"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1631214500003-02b92869e88c?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=212" class="product-title d-block mb-1"
-                  >Mascara Dài Cong Tự Nhiên</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★★</div>
-                <span class="product-price">195.000 ₫</span>
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div data-product-id="213" class="product-card">
-              <span class="badge-sale">-15%</span>
-              <img
-                loading="lazy"
-                src="images/product-8.jpg"
-                alt="Vòng tay"
-                onerror="
-                  this.src =
-                    'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80'
-                "
-              />
-              <div class="p-3">
-                <a href="product.html?id=213" class="product-title d-block mb-1"
-                  >Vòng Tay Bạc 925</a
-                >
-                <div class="stars" style="font-size: 12px">★★★★☆</div>
-                <span class="product-price">340.000 ₫</span>
-                <span
-                  class="text-muted text-decoration-line-through ms-1"
-                  style="font-size: 12px"
-                  >400.000 ₫</span
-                >
-              </div>
-              <button class="btn-add-cart">Thêm Vào Giỏ</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Đánh giá khách hàng -->
-    <section class="py-5" style="background: #fafafa">
-      <div class="container">
-        <h2 class="section-title text-center mb-2">Khách Hàng Nói Gì</h2>
-        <p class="text-center text-muted mb-5">
-          Hơn 10.000 khách hàng hài lòng trên cả nước
-        </p>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="testimonial-card">
-              <div class="stars mb-2">★★★★★</div>
-              <p class="text-muted mb-3">
-                "Sản phẩm chất lượng tuyệt vời, đúng như mô tả. Giao hàng nhanh,
-                đóng gói cẩn thận. Tôi rất hài lòng và sẽ mua lại!"
-              </p>
-              <div class="d-flex align-items-center gap-2">
-                <div
-                  style="
-                    width: 40px;
-                    height: 40px;
-                    background: #f5f0ea;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    color: var(--pink);
-                  "
-                >
-                  L
-                </div>
-                <div>
-                  <div style="font-weight: 600; font-size: 14px">
-                    Nguyễn Thị Lan
+              <div class="container">
+                <div class="gh-hero__slide">
+                  <div class="gh-hero__content">
+                    <span class="gh-eyebrow">Bộ Sưu Tập Mới</span>
+                    <h1 class="gh-hero__title">Vẻ Đẹp Tinh Tế<br/>Cho Người Hiện Đại</h1>
+                    <p class="gh-hero__sub">Khám phá những xu hướng mỹ phẩm và thời trang mới nhất tại GlowHub. Chất lượng vượt trội — phong cách tinh tế.</p>
+                    <a href="shop.html" class="gh-btn gh-btn--primary gh-btn--lg">Khám Phá Ngay</a>
                   </div>
-                  <div style="font-size: 12px; color: #999">Hà Nội</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="testimonial-card">
-              <div class="stars mb-2">★★★★★</div>
-              <p class="text-muted mb-3">
-                "Mình đã mua nhiều sản phẩm ở đây, lần nào cũng hài lòng. Mỹ
-                phẩm thật sự hiệu quả, da mình cải thiện rõ rệt!"
-              </p>
-              <div class="d-flex align-items-center gap-2">
-                <div
-                  style="
-                    width: 40px;
-                    height: 40px;
-                    background: #f5f0ea;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    color: var(--pink);
-                  "
-                >
-                  M
-                </div>
-                <div>
-                  <div style="font-weight: 600; font-size: 14px">
-                    Trần Minh Thu
-                  </div>
-                  <div style="font-size: 12px; color: #999">
-                    TP. Hồ Chí Minh
+                  <div class="gh-hero__media">
+                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900&q=80" alt="GlowHub" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="testimonial-card">
-              <div class="stars mb-2">★★★★☆</div>
-              <p class="text-muted mb-3">
-                "Váy đẹp lắm, chất vải tốt, mặc vào rất sang. Shop tư vấn nhiệt
-                tình, sẽ ủng hộ lần sau. Giá cả hợp lý!"
-              </p>
-              <div class="d-flex align-items-center gap-2">
-                <div
-                  style="
-                    width: 40px;
-                    height: 40px;
-                    background: #f5f0ea;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    color: var(--pink);
-                  "
-                >
-                  H
-                </div>
-                <div>
-                  <div style="font-weight: 600; font-size: 14px">
-                    Lê Hoài Phương
-                  </div>
-                  <div style="font-size: 12px; color: #999">Đà Nẵng</div>
-                </div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev" style="color:var(--gh-text)"></div>
+          <div class="swiper-button-next" style="color:var(--gh-text)"></div>
+        </div>
+      </section>
+
+      <!-- ========== CATEGORIES ========== -->
+      <section class="gh-section">
+        <div class="container">
+          <div class="text-center mb-5">
+            <span class="gh-eyebrow">Mua Sắm Theo Danh Mục</span>
+            <h2 class="gh-section-title">Danh Mục Nổi Bật</h2>
+          </div>
+          <div class="row g-4" id="categories-grid">
+            <!-- categories render here -->
+          </div>
+        </div>
+      </section>
+
+      <hr class="gh-divider" />
+
+      <!-- ========== NEW ARRIVALS ========== -->
+      <section class="gh-section gh-section--surface">
+        <div class="container">
+          <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+              <span class="gh-eyebrow">Hàng Mới Về</span>
+              <h2 class="gh-section-title">Sản Phẩm Mới Nhất</h2>
+            </div>
+            <a href="shop.html?section=new" class="gh-btn gh-btn--ghost">Xem Tất Cả →</a>
+          </div>
+          <div class="row g-4" id="new-arrivals-grid">
+            <!-- products render here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PROMO STRIP ========== -->
+      <section class="gh-promo-strip">
+        <div class="container">
+          <span class="gh-eyebrow" id="promo-eyebrow">Ưu Đãi Đặc Biệt</span>
+          <h2 id="promo-title">Giảm Đến 25% Cho Đơn Hàng Đầu Tiên</h2>
+          <p class="gh-text-muted" id="promo-subtitle">Áp dụng mã giảm giá ngay khi thanh toán — chỉ trong tuần này.</p>
+          <a href="shop.html" id="promo-cta" class="gh-btn gh-btn--dark gh-btn--lg gh-mt-s5">Mua Sắm Ngay</a>
+        </div>
+      </section>
+
+      <!-- ========== BEST SELLERS ========== -->
+      <section class="gh-section">
+        <div class="container">
+          <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+              <span class="gh-eyebrow">Bán Chạy Nhất</span>
+              <h2 class="gh-section-title">Khách Hàng Yêu Thích</h2>
+            </div>
+            <a href="shop.html?section=best" class="gh-btn gh-btn--ghost">Xem Tất Cả →</a>
+          </div>
+          <div class="row g-4" id="best-sellers-grid">
+            <!-- products render here -->
+          </div>
+        </div>
+      </section>
+
+      <hr class="gh-divider" />
+
+      <!-- ========== TESTIMONIALS ========== -->
+      <section class="gh-section gh-section--surface">
+        <div class="container">
+          <div class="text-center mb-5">
+            <span class="gh-eyebrow">Khách Hàng Nói Gì</span>
+            <h2 class="gh-section-title">Đánh Giá Thực Tế</h2>
+          </div>
+          <div class="row g-4" id="testimonials-grid">
+            <!-- testimonials render here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== FEATURES ========== -->
+      <section class="gh-section gh-section--sm">
+        <div class="container">
+          <div class="row g-4">
+            <div class="col-6 col-md-3">
+              <div class="gh-feature">
+                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-cart"></use></svg></div>
+                <h4 class="gh-feature__title">Miễn Phí Vận Chuyển</h4>
+                <p class="gh-feature__desc">Cho đơn hàng từ 500.000₫</p>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="gh-feature">
+                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-heart"></use></svg></div>
+                <h4 class="gh-feature__title">Hàng Chính Hãng</h4>
+                <p class="gh-feature__desc">Cam kết 100%</p>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="gh-feature">
+                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-user"></use></svg></div>
+                <h4 class="gh-feature__title">Hỗ Trợ 24/7</h4>
+                <p class="gh-feature__desc">Tư vấn tận tâm</p>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="gh-feature">
+                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-search"></use></svg></div>
+                <h4 class="gh-feature__title">Đổi Trả Dễ Dàng</h4>
+                <p class="gh-feature__desc">Trong 7 ngày</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- Dịch vụ -->
-    <section class="py-5 bg-white border-top">
-      <div class="container">
-        <div class="row g-4 text-center">
-          <div class="col-6 col-md-3">
-            <div class="feature-icon">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h6
-              class="text-uppercase"
-              style="font-size: 12px; letter-spacing: 1px"
-            >
-              Miễn Phí Vận Chuyển
-            </h6>
-            <p class="text-muted" style="font-size: 12px">
-              Đơn hàng từ 500.000₫
-            </p>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-icon">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"
-                />
-              </svg>
-            </div>
-            <h6
-              class="text-uppercase"
-              style="font-size: 12px; letter-spacing: 1px"
-            >
-              Đổi Trả Dễ Dàng
-            </h6>
-            <p class="text-muted" style="font-size: 12px">Trong vòng 30 ngày</p>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-icon">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                <line x1="1" y1="10" x2="23" y2="10" />
-              </svg>
-            </div>
-            <h6
-              class="text-uppercase"
-              style="font-size: 12px; letter-spacing: 1px"
-            >
-              Thanh Toán An Toàn
-            </h6>
-            <p class="text-muted" style="font-size: 12px">Mã hóa SSL 256-bit</p>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-icon">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.08 1.18 2 2 0 012.04.01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l.86-.86a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7a2 2 0 011.72 2z"
-                />
-              </svg>
-            </div>
-            <h6
-              class="text-uppercase"
-              style="font-size: 12px; letter-spacing: 1px"
-            >
-              Hỗ Trợ 24/7
-            </h6>
-            <p class="text-muted" style="font-size: 12px" id="hotline-text">
-              Hotline: 1800 0000</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div id="gh-layout-footer"></div>
 
-    <!-- Footer -->
-    <footer class="pt-5 pb-3">
-      <div class="container">
-        <div class="row g-4 mb-4">
-          <div class="col-lg-3 col-md-6">
-            <div class="footer-title brand-name" style="font-size: 1.5rem" id="site-name-footer">
-              GLOWHUB
-            </div>
-            <p style="font-size: 13px; line-height: 1.8">
-              Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam. Mang lại vẻ đẹp
-              và sự tự tin cho hàng triệu phụ nữ.
-            </p>
-            <div class="d-flex gap-3 mt-3">
-              <a href="#" id="social-facebook" style="color: #aaa; font-size: 18px">f</a>
-              <a href="#" id="social-linkedin" style="color: #aaa; font-size: 18px">in</a>
-              <a href="#" id="social-instagram" style="color: #aaa; font-size: 18px">ig</a>
-            </div>
-          </div>
-          <div class="col-lg-2 col-md-6">
-            <div class="footer-title">Cửa Hàng</div>
-            <ul class="list-unstyled" style="line-height: 2.2">
-              <li><a href="#">Hàng Mới Về</a></li>
-              <li><a href="#">Thời Trang</a></li>
-              <li><a href="#">Mỹ Phẩm</a></li>
-              <li><a href="#">Phụ Kiện</a></li>
-              <li><a href="#">Khuyến Mãi</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-2 col-md-6">
-            <div class="footer-title">Hỗ Trợ</div>
-            <ul class="list-unstyled" style="line-height: 2.2">
-              <li><a href="#">Hướng Dẫn Mua Hàng</a></li>
-              <li><a href="#">Chính Sách Đổi Trả</a></li>
-              <li><a href="#">Chính Sách Vận Chuyển</a></li>
-              <li><a href="#">Câu Hỏi Thường Gặp</a></li>
-              <li><a href="#">Liên Hệ Chúng Tôi</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-2 col-md-6">
-            <div class="footer-title">Tài Khoản</div>
-            <ul class="list-unstyled" style="line-height: 2.2">
-              <li><a href="login.html">Đăng Nhập</a></li>
-              <li><a href="register.html">Đăng Ký</a></li>
-              <li><a href="#">Tài Khoản Của Tôi</a></li>
-              <li><a href="#">Đơn Hàng Của Tôi</a></li>
-              <li><a href="#">Danh Sách Yêu Thích</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="footer-title">Nhận Ưu Đãi</div>
-            <p style="font-size: 13px">
-              Đăng ký nhận bản tin để được thông báo về khuyến mãi và bộ sưu tập
-              mới.
-            </p>
-            <div class="input-group mt-2">
-              <input
-                type="email"
-                class="form-control"
-                placeholder="Email của bạn"
-                style="
-                  border-radius: 0;
-                  border-color: #333;
-                  background: #222;
-                  color: #fff;
-                  font-size: 13px;
-                "
-              />
-              <button
-                class="btn"
-                style="
-                  background: var(--pink);
-                  color: #fff;
-                  border-radius: 0;
-                  font-size: 12px;
-                  text-transform: uppercase;
-                  letter-spacing: 1px;
-                "
-              >
-                Đăng Ký
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+      // ========== PRODUCT CARD RENDER ==========
+      function _renderProductCard(p) {
+        const id    = p.Id || p.id;
+        const name  = (p.Name || p.name || 'Sản phẩm').replace(/'/g, "\\'");
+        const price = p.Price || p.price || 0;
+        const img   = pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image) ||
+                      'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80';
+        const isNew = p.IsNew || p.isNew;
+        const sale  = p.SalePercent || p.salePercent || p.discount;
+        const cat   = p.CategoryName || p.categoryName || '';
+
+        return `
+          <div class="col-6 col-md-3">
+            <div class="gh-product-card" data-product-id="${id}">
+              ${isNew ? '<span class="gh-badge gh-badge--new">Mới</span>' : ''}
+              ${sale  ? `<span class="gh-badge gh-badge--sale">-${sale}%</span>` : ''}
+              <a href="product.html?id=${id}" class="gh-product-card__media">
+                <img src="${img}" alt="${name}" loading="lazy"
+                     onerror="this.src='https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80'"/>
+              </a>
+              <div class="gh-product-card__body">
+                ${cat ? `<span class="gh-product-card__cat">${cat}</span>` : ''}
+                <a href="product.html?id=${id}" class="gh-product-card__title">${name}</a>
+                <div class="gh-product-card__stars">★★★★★</div>
+                <span class="gh-product-card__price">${_fmtMoney(price)}</span>
+              </div>
+              <button class="gh-product-card__cta"
+                onclick='Cart.add(${JSON.stringify(p).replace(/'/g, "&apos;")}).then(()=>showGlobalToast("Đã thêm vào giỏ"))'>
+                Thêm Vào Giỏ
               </button>
             </div>
           </div>
-        </div>
-        <hr style="border-color: #333" />
-        <div
-          class="d-flex flex-wrap justify-content-between align-items-center py-2"
-        >
-          <p class="m-0" style="font-size: 12px; color: #666" id="footer-text">
-            © 2025 GlowHub. Bảo lưu mọi quyền.
-          </p>
-          <div style="font-size: 12px; color: #666">
-            <a href="#" class="me-3" style="color: #666">Điều Khoản Sử Dụng</a>
-            <a href="#" style="color: #666">Chính Sách Bảo Mật</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-      defer
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"
-      defer
-    ></script>
-    <script src="js/jquery.min.js" defer></script>
-    <script src="js/api.js" defer></script>
-    <script>
-      // Khởi tạo Swiper — lưu instance toàn cục để cập nhật sau khi fetch API
-      document.addEventListener("DOMContentLoaded", function () {
-        if (typeof Swiper !== "undefined") {
-          window.heroSwiper = new Swiper(".main-swiper", {
-            slidesPerView: 1,
-            spaceBetween: 20,
-            navigation: {
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            },
-            breakpoints: {
-              576: { slidesPerView: 2 },
-              768: { slidesPerView: 3 },
-              1024: { slidesPerView: 4 },
-            },
-            observer: true,
-            observeParents: true,
-          });
-        }
-      });
-    </script>
-
-    <!-- ===== API → render hero swiper, danh mục, banner strip ===== -->
-    <script>
-      // Cache để fallback ảnh danh mục
-      const CATEGORY_FALLBACK_IMGS = [
-        "images/category-1.jpg",
-        "images/category-2.jpg",
-        "images/category-3.jpg",
-      ];
-      const UNSPLASH_FALLBACK =
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&q=80";
-
-      function fmtVND(n) {
-        if (n == null || isNaN(n)) return "0 ₫";
-        return new Intl.NumberFormat("vi-VN").format(n) + " ₫";
-      }
-      function pickArray(data) {
-        if (Array.isArray(data)) return data;
-        return data?.items || data?.data || [];
+        `;
       }
 
-      /** Render swiper hero từ Product.getAll — top 8 sản phẩm active */
-      async function renderHeroProducts() {
-        if (typeof Product === "undefined") return;
-        const wrap = document.getElementById("hero-products-wrapper");
-        if (!wrap) return;
-        try {
-          const res = await Product.getAll({ page: 1, pageSize: 8 });
-          const products = pickArray(res);
-          if (!products.length) return; // giữ HTML tĩnh
-
-          wrap.innerHTML = products
-            .map((p) => {
-              const id = p.id || p.Id;
-              const name = (p.name || p.Name || "Sản phẩm").replace(
-                /'/g,
-                "&#39;",
-              );
-              const price = p.price || p.Price || 0;
-              const img =
-                pickFirstImage(
-                  p.imageUrl || p.ImageUrl || p.image || p.Image,
-                ) || UNSPLASH_FALLBACK;
-              const isNew = p.isNew || p.IsNew;
-              const sale = p.salePercent || p.SalePercent || p.discount;
-              return `
-            <div class="swiper-slide">
-              <div class="product-card bg-white" data-product-id="${id}">
-                ${isNew ? '<span class="badge-new">Mới</span>' : ""}
-                ${sale ? `<span class="badge-sale">-${sale}%</span>` : ""}
-                <a href="product.html?id=${id}">
-                  <img src="${img}" alt="${name}" loading="lazy"
-                       onerror="this.src='${UNSPLASH_FALLBACK}'" />
-                </a>
-                <div class="p-3">
-                  <a href="product.html?id=${id}" class="product-title d-block mb-1">${name}</a>
-                  <span class="product-price">${fmtVND(price)}</span>
-                </div>
-                <button class="btn-add-cart"
-                  onclick="Cart.add({id:${id},name:'${name}',price:${price},image:'${img}'});showGlobalToast('Đã thêm vào giỏ hàng')">
-                  Thêm Vào Giỏ
-                </button>
-              </div>
-            </div>`;
-            })
-            .join("");
-
-          if (window.heroSwiper) window.heroSwiper.update();
-        } catch (e) {
-          // Backend chưa sẵn sàng — giữ HTML tĩnh, không phá vỡ trang
-          console.warn("renderHeroProducts skipped:", e.message);
-        }
+      function _renderEmptyGrid(host, msg) {
+        host.innerHTML = `<div class="col-12"><div class="gh-empty-state">${msg}</div></div>`;
       }
 
-      /** Render danh mục từ Categories API */
-      async function renderCategories() {
-        const grid = document.getElementById("categories-grid");
-        if (!grid) return;
-        try {
-          const res = await fetch("http://localhost:5001/api/categories");
-          if (!res.ok) throw new Error(res.status);
-          const cats = await res.json();
-          const list = Array.isArray(cats) ? cats : pickArray(cats);
-          if (!list.length) return;
-
-          // Hiện tối đa 6 danh mục. >3 → mỗi col-md-4 vẫn ok thành 2 hàng.
-          const top = list.slice(0, 6);
-          grid.innerHTML = top
-            .map((c, i) => {
-              const id = c.id || c.Id;
-              const name = c.name || c.Name || "Danh mục";
-              const img =
-                c.imageUrl ||
-                c.ImageUrl ||
-                CATEGORY_FALLBACK_IMGS[i % CATEGORY_FALLBACK_IMGS.length];
-              return `
-            <div class="col-md-4">
-              <div class="category-card">
-                <img loading="lazy" src="${img}" alt="${name}"
-                     onerror="this.src='${UNSPLASH_FALLBACK}'" />
-                <div class="category-overlay">
-                  <div class="category-name">${name}</div>
-                  <a href="shop.html?cat=${id}" class="text-white text-decoration-none"
-                     style="font-size:12px;letter-spacing:1px;text-transform:uppercase">Khám phá →</a>
-                </div>
-              </div>
-            </div>`;
-            })
-            .join("");
-        } catch (e) {
-          console.warn("renderCategories skipped:", e.message);
-        }
+      function _extractList(res) {
+        if (!res) return [];
+        if (Array.isArray(res)) return res;
+        if (Array.isArray(res.data)) return res.data;
+        if (Array.isArray(res.items)) return res.items;
+        if (Array.isArray(res.products)) return res.products;
+        return [];
       }
 
-      /** Render banner strip phía trên hero (nếu có banner active) */
-      async function renderBannerStrip() {
-        if (typeof Banner === "undefined") return;
-        try {
-          const res = await Banner.getAll();
-          const banners = pickArray(res).filter(
-            (b) => b.isActive !== false && b.IsActive !== false,
-          );
-          if (!banners.length) return;
+      function _featuredToProducts(featuredList) {
+        return _extractList(featuredList)
+          .map(fp => fp.Product || fp.product || fp)
+          .filter(Boolean);
+      }
 
-          const hero = document.querySelector(".hero-section");
-          if (!hero) return;
+      // ========== HERO SWIPER ==========
+      async function renderHero() {
+        const wrapper = document.getElementById('hero-wrapper');
+        let banners = [];
+        try { banners = await Banner.getAll(); } catch (_) {}
+        banners = _extractList(banners);
 
-          const html = `
-            <div class="banner-api-strip" style="background:#fff;padding:12px 0">
-              <div class="container">
-                <div class="swiper banner-strip-swiper">
-                  <div class="swiper-wrapper">
-                    ${banners
-                      .map((b) => {
-                        const img =
-                          b.imageUrl || b.ImageUrl || b.image || b.Image || "";
-                        const link = b.linkUrl || b.LinkUrl || b.link || "#";
-                        const title = (b.title || b.Title || "").replace(
-                          /"/g,
-                          "&quot;",
-                        );
-                        return `<div class="swiper-slide">
-                        <a href="${link}">
-                          <img src="${img}" alt="${title}" loading="lazy"
-                            style="width:100%;height:auto;max-height:380px;object-fit:cover;border-radius:6px"
-                            onerror="this.style.display='none'" />
-                        </a>
-                      </div>`;
-                      })
-                      .join("")}
+        if (banners.length > 0) {
+          wrapper.innerHTML = banners.map(b => {
+            const title    = b.Title || b.title || 'Bộ sưu tập';
+            const sub      = b.Subtitle || b.subtitle || '';
+            const img      = b.ImageUrl || b.imageUrl || '';
+            const link     = b.LinkUrl || b.linkUrl || 'shop.html';
+            const btn      = b.ButtonText || b.buttonText || 'Khám Phá';
+            const bg       = b.BgColor || b.bgColor || 'var(--gh-surface)';
+            return `
+              <div class="swiper-slide">
+                <div style="background:${bg}">
+                  <div class="container">
+                    <div class="gh-hero__slide">
+                      <div class="gh-hero__content">
+                        <span class="gh-eyebrow">GlowHub</span>
+                        <h2 class="gh-hero__title">${title}</h2>
+                        ${sub ? `<p class="gh-hero__sub">${sub}</p>` : ''}
+                        <a href="${link}" class="gh-btn gh-btn--primary gh-btn--lg">${btn}</a>
+                      </div>
+                      <div class="gh-hero__media">
+                        <img src="${img}" alt="${title}" onerror="this.style.display='none'"/>
+                      </div>
+                    </div>
                   </div>
-                  <div class="swiper-pagination"></div>
                 </div>
               </div>
-            </div>`;
-          hero.insertAdjacentHTML("beforebegin", html);
-
-          if (typeof Swiper !== "undefined") {
-            new Swiper(".banner-strip-swiper", {
-              slidesPerView: 1,
-              loop: banners.length > 1,
-              autoplay: banners.length > 1
-                ? { delay: 4500, disableOnInteraction: false }
-                : false,
-              pagination: { el: ".banner-strip-swiper .swiper-pagination", clickable: true },
-            });
-          }
-        } catch (e) {
-          console.warn("renderBannerStrip skipped:", e.message);
+            `;
+          }).join('');
         }
+
+        new Swiper('.gh-hero-swiper', {
+          loop: wrapper.children.length > 1,
+          pagination: { el: '.swiper-pagination', clickable: true },
+          navigation: { prevEl: '.swiper-button-prev', nextEl: '.swiper-button-next' },
+          autoplay: wrapper.children.length > 1 ? { delay: 5000, disableOnInteraction: false } : false,
+          speed: 700,
+        });
       }
 
-      // Khởi chạy sau khi DOM + Swiper init xong
-      document.addEventListener("DOMContentLoaded", function () {
-        // Đợi 1 tick để window.heroSwiper được tạo bởi script trước
-        setTimeout(() => {
-          renderHeroProducts();
-          renderCategories();
-          renderBannerStrip();
-        }, 50);
-      });
-    </script>
-
-    <div
-      id="adminBar"
-      style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: #111;
-        color: #fff;
-        z-index: 9999;
-        height: 44px;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-        font-size: 12px;
-      "
-    >
-      <div style="display: flex; align-items: center; gap: 12px">
-        <span
-          style="font-family: &quot;Marcellus&quot;, serif; letter-spacing: 2px"
-          >GLOWHUB</span
-        >
-        <span
-          style="
-            background: #f759ab;
-            color: #fff;
-            padding: 2px 8px;
-            font-size: 10px;
-            text-transform: uppercase;
-          "
-          >Admin</span
-        >
-      </div>
-      <div style="display: flex; gap: 8px">
-        <button
-          id="btnSaveAll"
-          onclick="savePageChanges()"
-          style="
-            display: none;
-            background: #f759ab;
-            border: none;
-            color: #fff;
-            padding: 5px 14px;
-            font-size: 11px;
-            cursor: pointer;
-            text-transform: uppercase;
-          "
-        >
-          Lưu Thay Đổi
-        </button>
-        <a
-          href="admin.html"
-          style="
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 5px 14px;
-            font-size: 11px;
-            text-decoration: none;
-            text-transform: uppercase;
-          "
-          >Dashboard</a
-        >
-      </div>
-    </div>
-    <script>
-      function goProduct(el) {
-        if (event) event.preventDefault();
-        var c = el.closest ? el.closest("[data-product-id]") : null;
-        var id = c ? c.getAttribute("data-product-id") : null;
-        if (id) window.location.href = "product.html?id=" + id;
-        else window.location.href = "shop.html";
+      // ========== CATEGORIES ==========
+      async function renderCategories() {
+        const host = document.getElementById('categories-grid');
+        let cats = [];
+        try { cats = await Category.getAll(); } catch (_) {}
+        cats = _extractList(cats);
+        if (!cats.length) {
+          _renderEmptyGrid(host, 'Chưa có danh mục nào.');
+          return;
+        }
+        const fallbackImgs = [
+          'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80',
+          'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80',
+          'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&q=80',
+          'https://images.unsplash.com/photo-1583241800698-9c2e2b4d8eb6?w=600&q=80',
+          'https://images.unsplash.com/photo-1631214540242-6e23f57d5d7c?w=600&q=80',
+          'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600&q=80',
+        ];
+        host.innerHTML = cats.slice(0, 6).map((c, i) => {
+          const id   = c.Id || c.id;
+          const name = c.Name || c.name || 'Danh mục';
+          const img  = c.ImageUrl || c.imageUrl || fallbackImgs[i % fallbackImgs.length];
+          return `
+            <div class="col-6 col-md-4">
+              <a href="shop.html?category=${id}" class="gh-category-card d-block">
+                <img src="${img}" alt="${name}" loading="lazy"/>
+                <div class="gh-category-card__overlay">
+                  <h3 class="gh-category-card__name">${name}</h3>
+                </div>
+              </a>
+            </div>
+          `;
+        }).join('');
       }
-      document.addEventListener("click", function (e) {
-        var t = e.target;
-        while (t && t.tagName !== "A") t = t.parentElement;
-        if (!t) return;
-        if (
-          t.classList.contains("product-title") &&
-          (t.getAttribute("href") === "#" || !t.getAttribute("href"))
-        ) {
-          e.preventDefault();
-          var c = t.closest("[data-product-id]");
-          var id = c ? c.getAttribute("data-product-id") : null;
-          if (id) window.location.href = "product.html?id=" + id;
+
+      // ========== FEATURED SECTION (with fallback) ==========
+      async function renderSection(hostId, section, fallbackParams) {
+        const host = document.getElementById(hostId);
+        let list = [];
+        try {
+          const featured = await Featured.getBySection(section);
+          list = _featuredToProducts(featured);
+        } catch (_) {}
+
+        if (!list.length) {
+          try {
+            const res = await Product.getAll({ isActive: true, ...fallbackParams });
+            list = _extractList(res);
+          } catch (_) {}
         }
-      });
-      document.addEventListener("DOMContentLoaded", function () {
-        if (
-          typeof Auth !== "undefined" &&
-          Auth.isLoggedIn() &&
-          Auth.isAdmin()
-        ) {
-          var b = document.getElementById("adminBar");
-          if (b) {
-            b.style.display = "flex";
-            document.body.style.paddingTop = "44px";
+
+        if (!list.length) {
+          _renderEmptyGrid(host, 'Chưa có sản phẩm trong section này.');
+          return;
+        }
+        host.innerHTML = list.slice(0, 8).map(_renderProductCard).join('');
+      }
+
+      // ========== PROMO from SiteSettings ==========
+      async function renderPromo() {
+        try {
+          const settings = await SiteSettings.getAll('homepage');
+          const list = _extractList(settings);
+          const map = {};
+          list.forEach(s => { map[s.Key || s.key] = s.Value || s.value; });
+          const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
+          set('promo-title',    map.promo_title);
+          set('promo-subtitle', map.promo_subtitle);
+          if (map.promo_cta_text) document.getElementById('promo-cta').textContent = map.promo_cta_text;
+          if (map.promo_cta_link) document.getElementById('promo-cta').href = map.promo_cta_link;
+        } catch (_) {}
+      }
+
+      // ========== TESTIMONIALS (top-rated reviews) ==========
+      async function renderTestimonials() {
+        const host = document.getElementById('testimonials-grid');
+        const seed = [];
+        try {
+          // Lấy 6 sản phẩm bán chạy / mới làm seed cho review
+          const featured = await Featured.getBySection('best_sellers').catch(() => null);
+          let prods = _featuredToProducts(featured);
+          if (prods.length < 3) {
+            const res = await Product.getAll({ isActive: true, pageSize: 6 });
+            prods = _extractList(res);
           }
-        }
-        if (typeof SiteSettings !== "undefined") {
-          SiteSettings.getAll()
-            .then(function (s) {
-              if (!s) return;
-              const set = (id, val) => { const e = document.getElementById(id); if (e && val) e.innerHTML = val; };
-              const setHref = (id, val) => { const e = document.getElementById(id); if (e && val) e.href = val; };
-              set("topbar-text",    s.topbar_text);
-              set("hero-title",     s.hero_title);
-              set("hero-subtitle",  s.hero_subtitle);
-              set("footer-text",    s.footer_text);
-              set("site-name-nav",  s.site_name);
-              set("site-name-footer", s.site_name);
-              if (s.site_phone) set("hotline-text", "Hotline: " + s.site_phone);
-              setHref("social-facebook",  s.site_facebook);
-              setHref("social-instagram", s.site_instagram);
-              if (s.primary_color) {
-                document.documentElement.style.setProperty("--pink", s.primary_color);
-              }
-            })
-            .catch(function () {});
-        }
-        if (typeof Featured !== "undefined") {
-          Featured.getBySection("new_arrivals")
-            .then(function (items) {
-              if (!items || !items.length) return;
-              var g = document.getElementById("new-products-grid");
-              if (!g) return;
-              g.innerHTML = items
-                .map(function (fp) {
-                  var p = fp.Product || fp.product || fp;
-                  var id = p.Id || p.id;
-                  var name = p.Name || p.name || "SP";
-                  var price = p.Price || p.price || 0;
-                  var img =
-                    pickFirstImage(
-                      p.ImageUrl || p.imageUrl || p.Image || p.image,
-                    ) || "images/product-item-1.jpg";
-                  var isNew = p.IsNew || p.isNew;
-                  var safeName = name.replace(/'/g, "&#39;");
-                  var card = '<div class="col-6 col-md-3">';
-                  card +=
-                    '<div class="product-card bg-white" data-product-id="' +
-                    id +
-                    '">';
-                  if (isNew) card += '<span class="badge-new">Mới</span>';
-                  card += '<a href="product.html?id=' + id + '">';
-                  card +=
-                    '<img src="' +
-                    img +
-                    '" alt="' +
-                    safeName +
-                    '" loading="lazy" ';
-                  card +=
-                    'onerror="this.src=&quot;images/product-item-1.jpg&quot;"/></a>';
-                  card += '<div class="p-3">';
-                  card +=
-                    '<a href="product.html?id=' +
-                    id +
-                    '" class="product-title d-block mb-1">' +
-                    name +
-                    "</a>";
-                  card +=
-                    '<span class="product-price">' +
-                    new Intl.NumberFormat("vi-VN").format(price) +
-                    " ₫</span>";
-                  card += "</div>";
-                  card += '<button class="btn-add-cart" ';
-                  card += `onclick="Cart.add({id: ${id}, name: '${safeName}', price: ${price}, image: '${img}'}); 
-        showGlobalToast('Đã thêm vào giỏ hàng')">Thêm Vào Giỏ</button>`;
-                  card += "</div></div>";
-                  return card;
-                })
-                .join("");
-            })
-            .catch(function () {});
-        }
-        window.savePageChanges = function () {
-          var u = JSON.parse(localStorage.getItem("gh_page_edits") || "{}");
-          if (!Object.keys(u).length) return;
-          if (typeof SiteSettings !== "undefined") {
-            SiteSettings.bulkUpdate(u)
-              .then(function () {
-                localStorage.removeItem("gh_page_edits");
-                showGlobalToast("Đã lưu thay đổi!");
-              })
-              .catch(function (e) {
-                showGlobalToast("Lỗi: " + e.message, "error");
+          for (const p of prods.slice(0, 6)) {
+            const pid = p.Id || p.id;
+            try {
+              const reviews = await Review.getByProduct(pid);
+              _extractList(reviews).forEach(r => {
+                const rating = r.Rating ?? r.rating ?? 0;
+                if (rating >= 4 && (r.Comment || r.comment)) {
+                  seed.push({
+                    rating,
+                    text: r.Comment || r.comment,
+                    name: r.UserName || r.userName || r.User?.Name || 'Khách hàng',
+                    productName: p.Name || p.name,
+                  });
+                }
               });
+            } catch (_) {}
+            if (seed.length >= 6) break;
           }
-        };
+        } catch (_) {}
+
+        const picks = seed.slice(0, 3);
+        if (!picks.length) {
+          // Không có review → ẩn section bằng cách bỏ test
+          host.innerHTML = `<div class="col-12"><div class="gh-empty-state">Chưa có đánh giá nào — hãy là người đầu tiên!</div></div>`;
+          return;
+        }
+
+        host.innerHTML = picks.map(t => `
+          <div class="col-md-4">
+            <div class="gh-testimonial">
+              <div class="gh-testimonial__stars">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
+              <p class="gh-testimonial__text">"${t.text}"</p>
+              <div class="gh-testimonial__author">${t.name}</div>
+              <div class="gh-testimonial__role">Đánh giá: ${t.productName}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // ========== BOOT ==========
+      document.addEventListener('DOMContentLoaded', () => {
+        mountLayout({ active: 'home' });
+
+        renderHero();
+        renderCategories();
+        renderSection('new-arrivals-grid', 'new_arrivals', { pageSize: 8 });
+        renderSection('best-sellers-grid', 'best_sellers', { pageSize: 8 });
+        renderPromo();
+        renderTestimonials();
       });
     </script>
   </body>

@@ -22,32 +22,70 @@ namespace BaseCore.APIService.Controllers
         /// Trả về sản phẩm nổi bật kèm thông tin Product đầy đủ
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetBySection([FromQuery] string section = "new_arrivals")
+        public async Task<IActionResult> GetBySection([FromQuery] string? section = null)
         {
-            var items = await _db.FeaturedProducts
-                .Include(fp => fp.Product)
-                    .ThenInclude(p => p!.Category)
-                .Where(fp => fp.Section == section && fp.IsActive && fp.Product!.IsActive)
-                .OrderBy(fp => fp.SortOrder)
-                .Select(fp => new {
-                    fp.Id,
-                    fp.SortOrder,
-                    Product = new
-                    {
-                        fp.Product!.Id,
-                        fp.Product.Name,
-                        fp.Product.Price,
-                        fp.Product.DiscountPrice,
-                        fp.Product.ImageUrl,
-                        fp.Product.Description,
-                        fp.Product.Stock,
-                        fp.Product.IsNew,
-                        Category = fp.Product.Category != null ? fp.Product.Category.Name : ""
-                    }
-                })
-                .ToListAsync();
+            try
+            {
+                // Nếu không truyền section → lấy tất cả; ngược lại lọc theo section
+                var query = _db.FeaturedProducts.Where(fp => fp.IsActive);
+                if (!string.IsNullOrWhiteSpace(section))
+                    query = query.Where(fp => fp.Section == section);
 
-            return Ok(items);
+                var featuredList = await query
+                    .OrderBy(fp => fp.Section)
+                    .ThenBy(fp => fp.SortOrder)
+                    .ToListAsync();
+
+                // Lấy danh sách ProductId để query 1 lần
+                var productIds = featuredList.Select(fp => fp.ProductId).Distinct().ToList();
+
+                // Load products + categories trong 1 query
+                var products = await _db.Products
+                    .Where(p => productIds.Contains(p.Id) && p.IsActive)
+                    .ToDictionaryAsync(p => p.Id);
+
+                var categoryIds = products.Values
+                    .Select(p => p.CategoryId)
+                    .Distinct()
+                    .ToList();
+
+                var categories = await _db.Categories
+                    .Where(c => categoryIds.Contains(c.Id))
+                    .ToDictionaryAsync(c => c.Id);
+
+                // Build response thủ công — tránh lỗi EF Core translation với [NotMapped]
+                var result = new List<object>();
+                foreach (var fp in featuredList)
+                {
+                    if (!products.TryGetValue(fp.ProductId, out var product))
+                        continue;
+
+                    categories.TryGetValue(product.CategoryId, out var category);
+
+                    result.Add(new
+                    {
+                        fp.Id,
+                        fp.Section,
+                        fp.SortOrder,
+                        Product = new
+                        {
+                            product.Id,
+                            product.Name,
+                            Price = product.Price,
+                            product.ImageUrl,
+                            product.Description,
+                            product.Stock,
+                            Category = category?.Name ?? ""
+                        }
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.InnerException?.Message ?? ex.Message });
+            }
         }
 
         /// <summary>POST /api/FeaturedProducts — Thêm sản phẩm vào section (admin only)</summary>

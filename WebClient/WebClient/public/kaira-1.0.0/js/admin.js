@@ -1,9 +1,18 @@
       // ============================================================
       //  CONFIG
       // ============================================================
-      const AUTH_API = "http://localhost:5002";
-      const PRODUCT_API = "http://localhost:5001";
-      const ORDER_API = "http://localhost:5001";
+      // Tự động detect môi trường: dev → localhost với port riêng, production → cùng origin
+      (function () {
+        const host = window.location.hostname;
+        const isLocal =
+          host === "localhost" || host === "127.0.0.1" || host === "::1";
+        window.__API = isLocal
+          ? { auth: "http://localhost:5002", product: "http://localhost:5001" }
+          : { auth: window.location.origin, product: window.location.origin };
+      })();
+      const AUTH_API = window.__API.auth;
+      const PRODUCT_API = window.__API.product;
+      const ORDER_API = window.__API.product;
 
       // ============================================================
       //  STATE
@@ -25,9 +34,14 @@
       let currentOrderId = null;
       let pendingDeleteFn = null;
 
-      const PRODUCT_PAGE_SIZE = 5;
-      const ORDER_PAGE_SIZE = 5;
-      const CUSTOMER_PAGE_SIZE = 5;
+      // Banners & Featured Products state
+      let allBanners = [];
+      let allFeatured = [];
+      let currentFeaturedSection = "new_arrivals";
+
+      const PRODUCT_PAGE_SIZE = 10;
+      const ORDER_PAGE_SIZE = 10;
+      const CUSTOMER_PAGE_SIZE = 10;
       const ORDER_DETAIL_PAGE_SIZE = 10;
 
       // ============================================================
@@ -158,6 +172,9 @@
         carts: "Giỏ hàng",
         orderlogs: "Lịch sử trạng thái đơn hàng",
         vouchers: "Mã giảm giá / Voucher",
+        banners: "Quản lý Banners",
+        featured: "Sản phẩm nổi bật",
+        roles: "Phân quyền hệ thống",
         settings: "Cấu hình hệ thống",
       };
 
@@ -186,6 +203,9 @@
         if (page === "orderlogs") loadOrderLogs();
         if (page === "vouchers") loadVouchers();
         if (page === "settings") loadSettings();
+        if (page === "banners") loadBanners();
+        if (page === "featured") loadFeaturedProducts();
+        if (page === "roles") loadRoles();
       }
 
       // ============================================================
@@ -265,6 +285,11 @@
             sensitivity: "base",
           });
         });
+      }
+
+      // Sắp xếp theo ID giảm dần — mới nhất lên đầu
+      function sortDesc(arr, field) {
+        return sortAsc(arr, field).reverse();
       }
 
       // ============================================================
@@ -968,7 +993,7 @@
           else if (res?.items) products = res.items;
           else if (res?.data) products = res.data;
           else if (res?.products) products = res.products;
-          allProducts = sortAsc(products);
+          allProducts = sortDesc(products);
           filteredProducts = [...allProducts];
           productPage = 1;
           // LUÔN reload danh mục cho dropdown (phòng trường hợp user vừa thêm/xóa danh mục)
@@ -1033,7 +1058,7 @@
             <td>${stock}</td>
             <td><span class="badge-status badge-${isActive ? "active" : "inactive"}">${isActive ? "Đang Bán" : "Ẩn"}</span></td>
             <td><div class="d-flex gap-1">
-              <button type="button" class="btn-icon edit" title="Sửa" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "\\'")})'>
+              <button type="button" class="btn-icon edit" title="Sửa" onclick="editProductById('${id}')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
               <button type="button" class="btn-icon delete" title="Xóa" onclick="deleteProduct('${id}','${escapeHtml(name)}')">
@@ -1107,6 +1132,13 @@
           });
         }
         openModal("productModal");
+      }
+
+      function editProductById(id) {
+        const p = allProducts.find(
+          (x) => String(x.id || x.Id) === String(id),
+        );
+        if (p) editProduct(p);
       }
 
       async function editProduct(p) {
@@ -1420,7 +1452,7 @@
         try {
           const endpoint = isAdminUser() ? "/api/orders/all" : "/api/orders";
           const res = await apiFetch(ORDER_API, endpoint);
-          allOrders = sortAsc(
+          allOrders = sortDesc(
             Array.isArray(res) ? res : res?.items || res?.data || [],
           );
           filteredOrders = [...allOrders];
@@ -4007,6 +4039,379 @@
           pendingDeleteFn = null;
         }
         closeModal("confirmModal");
+      }
+
+      // ============================================================
+      //  BANNERS
+      // ============================================================
+      async function loadBanners() {
+        const tbody = document.getElementById("bannerTable");
+        if (tbody)
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>`;
+        try {
+          const res = await apiFetch(PRODUCT_API, "/api/Banners/all");
+          allBanners = Array.isArray(res) ? res : res?.items || [];
+          allBanners = sortAsc(allBanners, "sortOrder");
+          renderBanners();
+        } catch (err) {
+          if (tbody) tbody.innerHTML = emptyRow(7, "❌ Lỗi: " + err.message);
+          showToast("Lỗi tải banners: " + err.message, "error");
+        }
+      }
+
+      function renderBanners() {
+        const total = allBanners.length;
+        document.getElementById("bannerCount").innerText =
+          `Hiển thị ${total} banner`;
+        const tbody = document.getElementById("bannerTable");
+        if (!tbody) return;
+        if (total === 0) {
+          tbody.innerHTML = emptyRow(7, "Chưa có banner nào");
+          return;
+        }
+        let html = "";
+        for (let b of allBanners) {
+          const id = b.id || b.Id;
+          const imgUrl = resolveImageUrl(b.imageUrl || b.ImageUrl || "");
+          html += `<tr>
+            <td class="text-center">${id}</td>
+            <td>${imgUrl ? `<img src="${imgUrl}" style="width:80px;height:40px;object-fit:cover;border-radius:4px" onerror="this.style.display='none'" />` : '<span style="color:#9ca3af">—</span>'}</td>
+            <td><div class="fw-semibold">${escapeHtml(b.title || b.Title || "—")}</div>${b.subtitle || b.Subtitle ? `<div style="font-size:11px;color:#6b7280">${escapeHtml(b.subtitle || b.Subtitle)}</div>` : ""}</td>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.linkUrl || b.LinkUrl ? escapeHtml(b.linkUrl || b.LinkUrl) : '<span style="color:#9ca3af">—</span>'}</td>
+            <td class="text-center"><input type="number" value="${b.sortOrder ?? b.SortOrder ?? 0}" min="0" style="width:60px;text-align:center" class="form-control-admin banner-sort" data-id="${id}" /></td>
+            <td class="text-center"><span class="badge-status badge-${(b.isActive ?? b.IsActive) ? "delivered" : "cancelled"}">${(b.isActive ?? b.IsActive) ? "Hiển thị" : "Ẩn"}</span></td>
+            <td class="text-center"><div class="d-flex gap-1 justify-content-center">
+              <button type="button" class="btn-icon edit" onclick="editBanner(${id})" title="Sửa">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button type="button" class="btn-icon delete" onclick="deleteBanner(${id},'${escapeHtml(b.title || b.Title || "")}')" title="Xóa">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </button>
+            </div></td>
+          </tr>`;
+        }
+        tbody.innerHTML = html;
+      }
+
+      function openBannerModal() {
+        document.getElementById("bannerModalTitle").innerText = "Thêm Banner";
+        document.getElementById("bannerId").value = "";
+        document.getElementById("bannerTitle").value = "";
+        document.getElementById("bannerSubtitle").value = "";
+        document.getElementById("bannerImageUrl").value = "";
+        document.getElementById("bannerBgColor").value = "#f759ab";
+        document.getElementById("bannerLinkUrl").value = "";
+        document.getElementById("bannerButtonText").value = "";
+        document.getElementById("bannerSortOrder").value = "0";
+        document.getElementById("bannerIsActive").checked = true;
+        openModal("bannerModal");
+      }
+
+      function editBanner(id) {
+        const b = allBanners.find((x) => (x.id || x.Id) == id);
+        if (!b) return;
+        document.getElementById("bannerModalTitle").innerText = "Sửa Banner #" + id;
+        document.getElementById("bannerId").value = id;
+        document.getElementById("bannerTitle").value = b.title || b.Title || "";
+        document.getElementById("bannerSubtitle").value = b.subtitle || b.Subtitle || "";
+        document.getElementById("bannerImageUrl").value = b.imageUrl || b.ImageUrl || "";
+        document.getElementById("bannerBgColor").value = b.bgColor || b.BgColor || "#f759ab";
+        document.getElementById("bannerLinkUrl").value = b.linkUrl || b.LinkUrl || "";
+        document.getElementById("bannerButtonText").value = b.buttonText || b.ButtonText || "";
+        document.getElementById("bannerSortOrder").value = b.sortOrder ?? b.SortOrder ?? 0;
+        document.getElementById("bannerIsActive").checked = (b.isActive ?? b.IsActive) !== false;
+        openModal("bannerModal");
+      }
+
+      async function saveBanner() {
+        const id = document.getElementById("bannerId").value;
+        const title = document.getElementById("bannerTitle").value.trim();
+        const imageUrl = document.getElementById("bannerImageUrl").value.trim();
+        if (!title) return showToast("Vui lòng nhập tiêu đề", "error");
+        if (!imageUrl) return showToast("Vui lòng nhập URL ảnh", "error");
+        const data = {
+          Title: title,
+          Subtitle: document.getElementById("bannerSubtitle").value.trim() || null,
+          ImageUrl: imageUrl,
+          LinkUrl: document.getElementById("bannerLinkUrl").value.trim() || null,
+          ButtonText: document.getElementById("bannerButtonText").value.trim() || null,
+          BgColor: document.getElementById("bannerBgColor").value,
+          SortOrder: parseInt(document.getElementById("bannerSortOrder").value) || 0,
+          IsActive: document.getElementById("bannerIsActive").checked,
+        };
+        const btn = document.getElementById("saveBannerBtn");
+        btn.disabled = true;
+        btn.textContent = "Đang lưu...";
+        try {
+          if (id) {
+            await apiFetch(PRODUCT_API, `/api/Banners/${id}`, "PUT", data);
+            showToast("Đã cập nhật banner", "success");
+          } else {
+            await apiFetch(PRODUCT_API, "/api/Banners", "POST", data);
+            showToast("Đã thêm banner mới", "success");
+          }
+          closeModal("bannerModal");
+          await loadBanners();
+        } catch (err) {
+          showToast("Lỗi: " + err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Lưu Banner";
+        }
+      }
+
+      async function deleteBanner(id, title) {
+        if (!confirm(`Xóa banner "${title}"? Hành động không thể hoàn tác.`)) return;
+        try {
+          await apiFetch(PRODUCT_API, `/api/Banners/${id}`, "DELETE");
+          showToast("Đã xóa banner", "success");
+          await loadBanners();
+        } catch (err) {
+          showToast("Lỗi xóa: " + err.message, "error");
+        }
+      }
+
+      async function saveBannerOrder() {
+        const inputs = document.querySelectorAll(".banner-sort");
+        const orders = [];
+        inputs.forEach((inp) => {
+          orders.push({
+            Id: parseInt(inp.dataset.id),
+            SortOrder: parseInt(inp.value) || 0,
+          });
+        });
+        try {
+          await apiFetch(PRODUCT_API, "/api/Banners/reorder", "PUT", orders);
+          showToast("Đã lưu thứ tự " + orders.length + " banner", "success");
+          await loadBanners();
+        } catch (err) {
+          showToast("Lỗi: " + err.message, "error");
+        }
+      }
+
+      // ============================================================
+      //  FEATURED PRODUCTS
+      // ============================================================
+      async function loadFeaturedProducts() {
+        const section = document.getElementById("featuredSectionFilter")?.value || "";
+        currentFeaturedSection = section;
+        const tbody = document.getElementById("featuredTable");
+        if (tbody)
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>`;
+        try {
+          const url = section
+            ? `/api/FeaturedProducts?section=${encodeURIComponent(section)}`
+            : "/api/FeaturedProducts";
+          const res = await apiFetch(PRODUCT_API, url);
+          allFeatured = Array.isArray(res) ? res : res?.items || [];
+          renderFeatured();
+        } catch (err) {
+          if (tbody) tbody.innerHTML = emptyRow(7, "❌ Lỗi: " + err.message);
+          showToast("Lỗi tải: " + err.message, "error");
+        }
+      }
+
+      function renderFeatured() {
+        const sectionLabels = {
+          new_arrivals: "Hàng mới về",
+          best_sellers: "Bán chạy",
+          hero_slider: "Hero Slider",
+        };
+        const total = allFeatured.length;
+        document.getElementById("featuredCount").innerText = `Hiển thị ${total} sản phẩm`;
+        const tbody = document.getElementById("featuredTable");
+        if (!tbody) return;
+        if (total === 0) {
+          tbody.innerHTML = emptyRow(7, "Chưa có sản phẩm nổi bật nào");
+          return;
+        }
+        let html = "";
+        for (let f of allFeatured) {
+          const id = f.id || f.Id;
+          const section = f.section || f.Section || "—";
+          const product = f.product || {};
+          const productName = product.name || product.Name || `SP#${product.id || product.Id}`;
+          const category = product.category || product.Category || "—";
+          const price = product.price ?? product.Price ?? 0;
+          const imageUrl = resolveImageUrl(product.imageUrl || product.ImageUrl || "");
+          html += `<tr>
+            <td class="text-center">${id}</td>
+            <td><div class="d-flex align-items-center gap-2">${imageUrl ? `<img src="${imageUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:4px" onerror="this.style.display='none'" />` : ""}<span class="fw-semibold">${escapeHtml(productName)}</span></div></td>
+            <td>${escapeHtml(category)}</td>
+            <td style="font-weight:600;color:var(--pink)">${formatMoney(price)}</td>
+            <td class="text-center"><span class="badge-status badge-processing">${sectionLabels[section] || section}</span></td>
+            <td class="text-center"><input type="number" value="${f.sortOrder ?? f.SortOrder ?? 0}" min="0" style="width:60px;text-align:center" class="form-control-admin featured-sort" data-id="${id}" /></td>
+            <td class="text-center">
+              <button type="button" class="btn-icon delete" onclick="deleteFeaturedProduct(${id})" title="Xóa khỏi danh sách">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </button>
+            </td>
+          </tr>`;
+        }
+        tbody.innerHTML = html;
+      }
+
+      async function openFeaturedModal() {
+        const sel = document.getElementById("featuredProductId");
+        sel.innerHTML = '<option value="">-- Đang tải sản phẩm --</option>';
+        // Luôn fetch mới toàn bộ sản phẩm, không dùng cache (cache có thể thiếu)
+        try {
+          const res = await apiFetch(PRODUCT_API, "/api/products?page=1&pageSize=1000");
+          allProducts = sortAsc(Array.isArray(res) ? res : res?.items || []);
+        } catch (_) {}
+        sel.innerHTML = '<option value="">-- Chọn sản phẩm --</option>';
+        allProducts.forEach((p) => {
+          const opt = document.createElement("option");
+          opt.value = p.id || p.Id;
+          opt.textContent = (p.name || p.Name || "SP") + " — " + formatMoney(p.price ?? p.Price ?? 0);
+          sel.appendChild(opt);
+        });
+        document.getElementById("featuredSortOrder").value = "0";
+        document.getElementById("featuredSection").value = currentFeaturedSection;
+        openModal("featuredModal");
+      }
+
+      async function saveFeaturedProduct() {
+        const productId = parseInt(document.getElementById("featuredProductId").value);
+        const section = document.getElementById("featuredSection").value;
+        const sortOrder = parseInt(document.getElementById("featuredSortOrder").value) || 0;
+        if (!productId) return showToast("Vui lòng chọn sản phẩm", "error");
+        try {
+          await apiFetch(PRODUCT_API, "/api/FeaturedProducts", "POST", {
+            ProductId: productId,
+            Section: section,
+            SortOrder: sortOrder,
+          });
+          showToast("Đã thêm sản phẩm vào danh sách nổi bật", "success");
+          closeModal("featuredModal");
+          await loadFeaturedProducts();
+        } catch (err) {
+          showToast("Lỗi: " + err.message, "error");
+        }
+      }
+
+      async function deleteFeaturedProduct(id) {
+        if (!confirm("Xóa sản phẩm này khỏi danh sách nổi bật?")) return;
+        try {
+          await apiFetch(PRODUCT_API, `/api/FeaturedProducts/${id}`, "DELETE");
+          showToast("Đã xóa", "success");
+          await loadFeaturedProducts();
+        } catch (err) {
+          showToast("Lỗi xóa: " + err.message, "error");
+        }
+      }
+
+      async function saveFeaturedOrder() {
+        const inputs = document.querySelectorAll(".featured-sort");
+        const orders = [];
+        inputs.forEach((inp) => {
+          orders.push({
+            Id: parseInt(inp.dataset.id),
+            SortOrder: parseInt(inp.value) || 0,
+          });
+        });
+        try {
+          await apiFetch(PRODUCT_API, "/api/FeaturedProducts/reorder", "PUT", orders);
+          showToast("Đã lưu thứ tự " + orders.length + " sản phẩm", "success");
+          await loadFeaturedProducts();
+        } catch (err) {
+          showToast("Lỗi: " + err.message, "error");
+        }
+      }
+
+      // ============================================================
+      //  ROLES & PERMISSIONS
+      // ============================================================
+      let allRoles = [];
+
+      async function loadRoles() {
+        const tbody = document.getElementById("roleTable");
+        if (tbody)
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4"><div class="spinner mx-auto"></div></td></tr>`;
+        try {
+          const res = await apiFetch(AUTH_API, "/api/Roles");
+          allRoles = Array.isArray(res) ? res : res?.items || [];
+          renderRoles();
+        } catch (err) {
+          if (tbody) tbody.innerHTML = emptyRow(5, "❌ Lỗi: " + err.message);
+          showToast("Lỗi tải roles: " + err.message, "error");
+        }
+      }
+
+      function renderRoles() {
+        const tbody = document.getElementById("roleTable");
+        if (!tbody) return;
+        if (allRoles.length === 0) {
+          tbody.innerHTML = emptyRow(5, "Không có role nào");
+          return;
+        }
+        const typeLabels = { 0: "Khách hàng", 1: "Admin", 2: "Manager" };
+        let html = "";
+        for (let r of allRoles) {
+          const id = r.id || r.Id;
+          const name = r.name || r.Name || "—";
+          const desc = r.description || r.Description || "—";
+          const userType = r.userType ?? r.UserType ?? 0;
+          html += `<tr>
+            <td class="text-center">${id}</td>
+            <td class="fw-semibold">${escapeHtml(name)}</td>
+            <td>${escapeHtml(desc)}</td>
+            <td class="text-center"><span class="badge-status badge-${userType === 1 ? "processing" : userType === 2 ? "shipped" : "pending"}">${typeLabels[userType] || userType}</span></td>
+            <td class="text-center">
+              <button type="button" class="btn-admin btn-outline-admin" style="font-size:12px;padding:4px 10px" onclick="viewPermissions(${id},'${escapeHtml(name)}')">🔑 Xem quyền</button>
+            </td>
+          </tr>`;
+        }
+        tbody.innerHTML = html;
+      }
+
+      async function viewPermissions(roleId, roleName) {
+        const card = document.getElementById("permissionCard");
+        const detail = document.getElementById("permissionDetail");
+        document.getElementById("permissionRoleName").innerText = roleName;
+        card.style.display = "block";
+        detail.innerHTML = `<div class="text-center py-3"><div class="spinner mx-auto"></div></div>`;
+        try {
+          const res = await apiFetch(AUTH_API, `/api/Roles/${roleId}/permissions`);
+          const perms = res?.permissions || [];
+          if (perms.length === 0) {
+            detail.innerHTML = `<div class="text-center py-3 text-muted">Role này không có quyền nào</div>`;
+            return;
+          }
+          // Nhóm quyền theo domain (vd: users.read, users.write → nhóm "users")
+          const grouped = {};
+          perms.forEach((p) => {
+            const parts = p.split(".");
+            const domain = parts[0] || "khác";
+            const action = parts[1] || p;
+            if (!grouped[domain]) grouped[domain] = [];
+            grouped[domain].push({ raw: p, action });
+          });
+          const actionLabels = {
+            read: "👁 Xem",
+            write: "✏️ Ghi",
+            create: "➕ Tạo",
+            edit: "📝 Sửa",
+            delete: "🗑 Xóa",
+            manage: "⚙️ Quản lý",
+          };
+          let html = '<div class="row g-3">';
+          for (const [domain, actions] of Object.entries(grouped)) {
+            html += `<div class="col-md-6 col-lg-4">
+              <div style="background:#fdf2f8;border-radius:8px;padding:14px;height:100%">
+                <div style="font-weight:700;color:var(--pink);margin-bottom:8px;text-transform:uppercase;font-size:12px;letter-spacing:1px">📦 ${domain}</div>`;
+            actions.forEach((a) => {
+              html += `<div style="font-size:13px;padding:3px 0;color:#374151">${actionLabels[a.action] || "🔹 " + a.action} <code style="font-size:10px;color:#9ca3af;background:#fff;padding:1px 5px;border-radius:3px">${a.raw}</code></div>`;
+            });
+            html += `</div></div>`;
+          }
+          html += "</div>";
+          html += `<div class="mt-3 text-muted small">Tổng: <strong>${perms.length}</strong> quyền</div>`;
+          detail.innerHTML = html;
+          card.scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+          detail.innerHTML = `<div class="text-center py-3" style="color:#dc2626">❌ ${err.message}</div>`;
+        }
       }
 
       // ============================================================
