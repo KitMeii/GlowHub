@@ -959,7 +959,7 @@
           } else if (status === 'PENDING') {
             actionBtns = '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'"><i class="bi bi-x-circle"></i> Hủy Đơn</button>';
           } else if (status === 'SHIPPING') {
-            actionBtns = '<button onclick="confirmReceived(' + oid + ')" style="font-size:11px;padding:5px 14px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:opacity .2s" onmouseover="this.style.opacity=\'.75\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
+            actionBtns = ''; // per-shop confirm buttons are inside the detail modal
           }
           var cdBadge = (status === 'WAITING_PAYMENT' && expireAt) ? ' <span class="order-countdown" id="cd-' + oid + '">...</span>' : '';
           var detailBtn = '<button onclick="viewOrderDetail(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ccc;background:#fff;color:#555;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.borderColor=\'#111\';this.style.color=\'#111\'" onmouseout="this.style.borderColor=\'#ccc\';this.style.color=\'#555\'"><i class="bi bi-file-text"></i> Chi Tiết</button>';
@@ -1025,8 +1025,19 @@
 
           var subOrders = o.subOrders || [];
           var shopSectionsHtml = '';
+          var subStatusLabel = {
+            PENDING: '⏳ Chờ xác nhận', CONFIRMED: '✅ Đã xác nhận',
+            SHIPPING: '🚚 Đang giao',   DELIVERED: '📦 Đã nhận hàng',
+            COMPLETED: '🎉 Hoàn thành', CANCELLED: '❌ Đã hủy',
+          };
           if (subOrders.length > 0) {
-            shopSectionsHtml = subOrders.map(function(so) {
+            var allShopsDelivered = subOrders.every(function(so) { return (so.status||'').toUpperCase() === 'DELIVERED'; });
+            var allDeliveredBanner = allShopsDelivered
+              ? '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:14px;text-align:center;font-size:13px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng từ tất cả shop!</div>'
+              : '';
+            shopSectionsHtml = allDeliveredBanner + subOrders.map(function(so) {
+              var soStatus = (so.status || '').toUpperCase();
+              var soLabel  = subStatusLabel[soStatus] || soStatus;
               var soItemsHtml = (so.items || []).map(function(i) {
                 return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
                   '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
@@ -1037,13 +1048,24 @@
                   '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
                   '</div>';
               }).join('');
+              var confirmBtn = soStatus === 'SHIPPING'
+                ? '<button id="sub-btn-' + so.subOrderId + '" onclick="confirmShopReceived(' + o.orderId + ',' + so.subOrderId + ')" ' +
+                  'style="background:#16a34a;color:#fff;border:none;padding:7px 16px;font-size:12px;cursor:pointer;border-radius:4px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px" ' +
+                  'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>'
+                : soStatus === 'DELIVERED'
+                  ? '<button disabled style="background:#e2f4ea;color:#15803d;border:1px solid #86efac;padding:7px 16px;font-size:12px;border-radius:4px;cursor:default">✓ Đã Nhận</button>'
+                  : '';
               return '<div style="margin-bottom:14px;border:1px solid #ede8e2;border-radius:6px;overflow:hidden">' +
-                '<div style="background:#f9f6f3;padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.5px">🏪 ' + (so.shopName || 'Shop') + '</div>' +
+                '<div style="background:#f9f6f3;padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center">' +
+                  '<span>🏪 ' + (so.shopName || 'Shop') + '</span>' +
+                  '<span style="font-weight:400;color:#555">' + soLabel + '</span>' +
+                '</div>' +
                 '<div style="padding:0 14px">' + soItemsHtml + '</div>' +
                 '<div style="padding:8px 14px;background:#fafaf8;border-top:1px solid #ede8e2;font-size:12px">' +
                   '<div style="display:flex;justify-content:space-between;color:#666;margin-bottom:2px"><span>Tạm tính shop</span><span>' + fmtMoney(so.totalAmount) + '</span></div>' +
                   (so.shopVoucherDiscount > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--pink,#f759ab);margin-bottom:2px"><span>Voucher shop</span><span>−' + fmtMoney(so.shopVoucherDiscount) + '</span></div>' : '') +
                   '<div style="display:flex;justify-content:space-between;color:#666"><span>Phí vận chuyển</span><span>+' + fmtMoney(so.shippingFee) + '</span></div>' +
+                  (confirmBtn ? '<div style="text-align:right;margin-top:10px">' + confirmBtn + '</div>' : '') +
                 '</div>' +
               '</div>';
             }).join('');
@@ -1091,7 +1113,7 @@
               '<i class="bi bi-truck" style="font-size:18px;color:#16a34a;flex-shrink:0"></i>' +
               '<div style="flex:1">' +
               '<div style="font-size:13px;font-weight:600;color:#15803d">Đơn hàng đang trên đường giao đến bạn</div>' +
-              '<div style="font-size:12px;color:#166534;margin-top:2px">Khi nhận được hàng, hãy nhấn <b>"Đã Nhận Hàng"</b> để xác nhận.</div>' +
+              '<div style="font-size:12px;color:#166534;margin-top:2px">Khi nhận được hàng từ từng shop, hãy nhấn <b>"Đã Nhận Hàng"</b> trong ô shop tương ứng bên dưới.</div>' +
               '</div></div>'
             : '';
 
@@ -1125,9 +1147,6 @@
             timelineHtml;
 
           footer.innerHTML = '<button onclick="hideOrderDetailModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">Đóng</button>';
-          if (status === 'SHIPPING') {
-            footer.innerHTML += '<button onclick="confirmReceived(' + o.orderId + ')" style="padding:9px 24px;border:none;background:#16a34a;color:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.opacity=\'.85\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>';
-          }
         }).catch(function(e) {
           body.innerHTML = '<div style="color:#ef4444;padding:24px">Lỗi: ' + (e.message || 'Không thể tải chi tiết') + '</div>';
         });
@@ -1150,6 +1169,26 @@
           });
           renderOrders(currentFilter);
         }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err'); });
+      }
+
+      function confirmShopReceived(orderId, subOrderId) {
+        var btn = document.getElementById('sub-btn-' + subOrderId);
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang xử lý...'; }
+        if (typeof Order === 'undefined' || !Order.confirmReceived) { toast('Không thể kết nối API', 'err'); return; }
+        Order.confirmReceived(orderId, subOrderId).then(function(res) {
+          toast(res.message || 'Xác nhận thành công!');
+          if (res.allDelivered) {
+            allOrders = allOrders.map(function(o) {
+              if ((o.orderId || o.Id || o.id) == orderId) { o.status = o.Status = 'DELIVERED'; }
+              return o;
+            });
+            renderOrders(currentFilter);
+          }
+          viewOrderDetail(orderId);
+        }).catch(function(e) {
+          toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err');
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng'; }
+        });
       }
 
       /* ══════════════════════════════
