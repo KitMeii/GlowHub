@@ -408,11 +408,12 @@ const SellerProduct = {
     if (status) qs.set("status", status);
     return apiFetch(PRODUCT_API, "/api/products/my?" + qs.toString(), "GET");
   },
-  create(data)      { return apiFetch(PRODUCT_API, "/api/products", "POST", data); },
-  update(id, data)  { return apiFetch(PRODUCT_API, "/api/products/" + id, "PUT", data); },
-  delete(id)        { return apiFetch(PRODUCT_API, "/api/products/" + id, "DELETE"); },
-  toggle(id)        { return apiFetch(PRODUCT_API, "/api/products/" + id + "/toggle", "PATCH"); },
-  getStats(id)      { return apiFetch(PRODUCT_API, "/api/products/" + id + "/stats", "GET"); },
+  create(data)         { return apiFetch(PRODUCT_API, "/api/products", "POST", data); },
+  update(id, data)     { return apiFetch(PRODUCT_API, "/api/products/" + id, "PUT", data); },
+  delete(id)           { return apiFetch(PRODUCT_API, "/api/products/" + id, "DELETE"); },
+  toggle(id)           { return apiFetch(PRODUCT_API, "/api/products/" + id + "/toggle", "PATCH"); },
+  getStats(id)         { return apiFetch(PRODUCT_API, "/api/products/" + id + "/stats", "GET"); },
+  addImages(id, urls)  { return apiFetch(PRODUCT_API, "/api/products/" + id + "/images", "POST", { ImageUrls: urls }); },
 };
 
 // ============================================================

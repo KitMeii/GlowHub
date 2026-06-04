@@ -1075,6 +1075,34 @@
               </div>
             </div>
           </div>
+
+          <!-- ── Gallery ảnh ── -->
+          <div class="form-group" style="margin-top:16px;border-top:1px solid #f0ece6;padding-top:16px">
+            <label class="form-label">Ảnh Gallery <span style="font-weight:400;color:#aaa;font-size:11px">(tối đa 10 ảnh)</span></label>
+
+            <!-- Nút chọn file -->
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <label for="gallery-file-input" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--pink,#f759ab);color:#fff;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500">
+                📷 Thêm nhiều ảnh
+              </label>
+              <input type="file" id="gallery-file-input" accept="image/*" multiple style="display:none"
+                onchange="galleryAddFiles(this.files); this.value=''">
+              <button type="button" id="gallery-upload-btn" onclick="galleryUploadAll()"
+                style="display:none;padding:8px 16px;background:#111;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer">
+                ⬆️ Upload tất cả
+              </button>
+              <span id="gallery-progress" style="font-size:12px;color:#888"></span>
+            </div>
+
+            <!-- Preview grid -->
+            <div id="gallery-preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px"></div>
+
+            <!-- Ảnh đã lưu (khi edit) -->
+            <div id="gallery-saved-wrap" style="display:none;margin-top:10px">
+              <div style="font-size:11px;color:#aaa;letter-spacing:.5px;margin-bottom:6px">ẢNH ĐÃ LƯU</div>
+              <div id="gallery-saved-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px"></div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn-outline" onclick="closeModal('productModal')">
@@ -2112,6 +2140,13 @@
         );
         previewProductImg();
         hideAlert("productAlertBox");
+        // Load gallery ảnh đã lưu
+        galleryReset();
+        const existingImages = product?.images || product?.Images || [];
+        const imgs = Array.isArray(existingImages) ? existingImages
+          : (existingImages ? String(existingImages).split(",").map(s=>s.trim()).filter(Boolean) : []);
+        _galleryUrls = imgs.slice();
+        galleryRenderSaved(_galleryUrls);
         openModal("productModal");
       }
 
@@ -2171,14 +2206,21 @@
         if (discount !== null) data.DiscountPrice = discount;
 
         try {
+          let savedId = _editingProductId;
           if (_editingProductId) {
             await SellerProduct.update(_editingProductId, data);
             showToast("Sản phẩm đã được cập nhật");
           } else {
-            await SellerProduct.create(data);
+            const res = await SellerProduct.create(data);
+            savedId = res?.id || res?.Id || res?.productId || null;
             showToast("Sản phẩm đã được thêm");
           }
+          // Lưu gallery nếu có URLs
+          if (savedId && _galleryUrls.length > 0) {
+            try { await SellerProduct.addImages(savedId, _galleryUrls); } catch(_) {}
+          }
           closeModal("productModal");
+          galleryReset();
           loadProducts();
         } catch (e) {
           showAlert("productAlertBox", e.message);
@@ -2204,12 +2246,98 @@
       function previewProductImg() {
         const url = document.getElementById("p-image").value;
         const img = document.getElementById("p-image-preview");
-        if (url) {
-          img.src = url;
-          img.style.display = "block";
-        } else {
-          img.style.display = "none";
+        if (url) { img.src = url; img.style.display = "block"; }
+        else { img.style.display = "none"; }
+      }
+
+      // ── Gallery upload ──────────────────────────────────────
+      let _galleryFiles = [];   // { file, objectUrl } chờ upload
+      let _galleryUrls  = [];   // URL đã upload lên Cloudinary
+
+      function galleryAddFiles(fileList) {
+        Array.from(fileList).forEach(function(file) {
+          if (!file.type.startsWith("image/")) return;
+          if (_galleryFiles.length >= 10) { showToast("Tối đa 10 ảnh gallery", "error"); return; }
+          const objectUrl = URL.createObjectURL(file);
+          _galleryFiles.push({ file, objectUrl });
+        });
+        galleryRenderPreviews();
+        document.getElementById("gallery-upload-btn").style.display =
+          _galleryFiles.length ? "inline-flex" : "none";
+      }
+
+      function galleryRemoveFile(idx) {
+        URL.revokeObjectURL(_galleryFiles[idx].objectUrl);
+        _galleryFiles.splice(idx, 1);
+        galleryRenderPreviews();
+        document.getElementById("gallery-upload-btn").style.display =
+          _galleryFiles.length ? "inline-flex" : "none";
+      }
+
+      function galleryRenderPreviews() {
+        const grid = document.getElementById("gallery-preview-grid");
+        grid.innerHTML = _galleryFiles.map(function(item, i) {
+          return '<div style="position:relative;aspect-ratio:1/1">' +
+            '<img src="' + item.objectUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px;border:1px solid #e0dbd5">' +
+            '<button onclick="galleryRemoveFile(' + i + ')" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>' +
+            '</div>';
+        }).join("");
+      }
+
+      async function galleryUploadAll() {
+        if (!_galleryFiles.length) return;
+        const btn      = document.getElementById("gallery-upload-btn");
+        const progress = document.getElementById("gallery-progress");
+        btn.disabled   = true;
+        const total    = _galleryFiles.length;
+        const uploaded = [];
+        for (let i = 0; i < total; i++) {
+          progress.textContent = `Đang tải ${i + 1}/${total} ảnh...`;
+          try {
+            const url = await uploadToCloudinary(_galleryFiles[i].file);
+            uploaded.push(url);
+            _galleryUrls.push(url);
+          } catch(e) {
+            showToast("Lỗi upload ảnh " + (i+1) + ": " + e.message, "error");
+          }
         }
+        // Xóa hàng chờ, hiện ảnh đã upload vào saved grid
+        _galleryFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
+        _galleryFiles = [];
+        galleryRenderPreviews();
+        btn.style.display = "none";
+        btn.disabled = false;
+        progress.textContent = `✓ Đã upload ${uploaded.length}/${total} ảnh`;
+        galleryRenderSaved(_galleryUrls);
+        setTimeout(() => { progress.textContent = ""; }, 3000);
+      }
+
+      function galleryRenderSaved(urls) {
+        const wrap = document.getElementById("gallery-saved-wrap");
+        const grid = document.getElementById("gallery-saved-grid");
+        if (!urls || !urls.length) { wrap.style.display = "none"; return; }
+        wrap.style.display = "block";
+        grid.innerHTML = urls.map(function(url, i) {
+          return '<div style="position:relative;aspect-ratio:1/1">' +
+            '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px;border:1px solid #e0dbd5">' +
+            '<button onclick="galleryRemoveSaved(' + i + ')" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>' +
+            '</div>';
+        }).join("");
+      }
+
+      function galleryRemoveSaved(idx) {
+        _galleryUrls.splice(idx, 1);
+        galleryRenderSaved(_galleryUrls);
+      }
+
+      function galleryReset() {
+        _galleryFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
+        _galleryFiles = [];
+        _galleryUrls  = [];
+        galleryRenderPreviews();
+        galleryRenderSaved([]);
+        document.getElementById("gallery-upload-btn").style.display = "none";
+        document.getElementById("gallery-progress").textContent = "";
       }
 
       // ═══════════════════════════════════════════════════════════
