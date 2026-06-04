@@ -485,6 +485,10 @@
           <div class="tab-pane" id="tab-reviews">
             <div class="reviews-overview" id="reviewsOverview"></div>
             <div class="reviews-list" id="reviewsList"></div>
+            <div id="reviewNotPurchased" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13px;color:#7c5e00;text-align:center">
+              🛒 Bạn cần mua sản phẩm này trước khi có thể đánh giá.
+              <a href="shop.html" style="color:#e91e8c;font-weight:600;margin-left:6px;text-decoration:none">Mua ngay</a>
+            </div>
             <div
               class="review-form-section"
               id="reviewFormSection"
@@ -1135,6 +1139,16 @@
           // Tabs
           initTabs();
 
+          // Auto-open reviews tab when coming from #reviews link (e.g. "⭐ Đánh Giá Sản Phẩm" button)
+          if (location.hash === "#reviews") {
+            const rvBtn = document.querySelector('[data-tab="reviews"]');
+            if (rvBtn) rvBtn.click();
+            setTimeout(function () {
+              const tabsSection = document.querySelector(".product-tabs-section");
+              if (tabsSection) tabsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 150);
+          }
+
           // Mô tả
           const descEl = $("productDesc");
           if (descEl) {
@@ -1535,12 +1549,30 @@
               .join("");
           }
 
-          // Show review form if logged in
+          // Show review form only if logged in AND has purchased this product
           const token = localStorage.getItem("token");
           if (token) {
-            const form = $("reviewFormSection");
-            if (form) form.style.display = "block";
-            initReviewForm();
+            fetch(API + "/api/orders/my/check-purchased/" + productId, {
+              headers: { Authorization: "Bearer " + token }
+            })
+              .then(function (r) { return r.ok ? r.json() : { hasPurchased: false }; })
+              .then(function (data) {
+                const form = $("reviewFormSection");
+                if (!form) return;
+                if (data.hasPurchased) {
+                  form.style.display = "block";
+                  initReviewForm();
+                } else {
+                  form.style.display = "none";
+                  const notBought = $("reviewNotPurchased");
+                  if (notBought) notBought.style.display = "block";
+                }
+              })
+              .catch(function () {
+                // Network error — show form anyway to not block legitimate reviewers
+                const form = $("reviewFormSection");
+                if (form) { form.style.display = "block"; initReviewForm(); }
+              });
           }
         }
 
