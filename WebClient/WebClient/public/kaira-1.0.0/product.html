@@ -839,9 +839,11 @@
           const catId = norm(p, "categoryId", "CategoryId");
           const imageUrl = norm(p, "imageUrl", "ImageUrl") || "";
           const rawImages = norm(p, "images", "Images") || [];
-          const images = (rawImages.length ? rawImages : [imageUrl]).filter(
-            Boolean,
-          );
+          // rawImages từ API đã chứa imageUrl ở đầu → deduplicate để tránh hiện 2 lần trong gallery
+          const galleryExtra = rawImages.filter(function(u) { return u && u !== imageUrl; });
+          const images = imageUrl
+            ? [imageUrl, ...galleryExtra]
+            : galleryExtra.filter(Boolean);
           const reviews = norm(p, "reviews", "Reviews") || [];
           const related = norm(p, "relatedProducts", "RelatedProducts") || [];
           const shopId = norm(p, "shopId", "ShopId");
