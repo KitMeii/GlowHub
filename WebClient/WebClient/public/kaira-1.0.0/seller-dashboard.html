@@ -1666,8 +1666,8 @@
           }
         }
 
-        await loadCategories();
-        await loadOverview();
+        // Chạy song song — không phụ thuộc nhau
+        await Promise.all([loadCategories(), loadOverview()]);
 
         // Notification polling every 30s
         loadNotificationCount();
@@ -1876,36 +1876,38 @@
 
           renderRevenueChart(d.revenueChart);
           renderRecentOrders(d.recentOrders);
-          //renderLowStock(d.lowStockCount, d.recentOrders);
 
-          // Update low stock list from overview
-          const ls = await Inventory.getLowStock();
-          renderLowStockList(ls);
+          // Chạy 4 call phụ song song — không phụ thuộc nhau
+          const [lsRes, rvRes, qstRes, rv3Res] = await Promise.allSettled([
+            Inventory.getLowStock(),
+            SellerReview.getStats(),
+            QnA.getStats(),
+            SellerReview.getAll(1, null, null),
+          ]);
 
-          // Review + Q&A summary for overview cards
-          try {
-            const rv = await SellerReview.getStats();
+          if (lsRes.status === "fulfilled") renderLowStockList(lsRes.value);
+
+          if (rvRes.status === "fulfilled") {
+            const rv = rvRes.value;
             document.getElementById("st-avg-rating").textContent = rv.avgRating
-              ? rv.avgRating.toFixed(1) + " ⭐"
-              : "—";
+              ? rv.avgRating.toFixed(1) + " ⭐" : "—";
             document.getElementById("st-total-reviews").textContent =
               rv.totalReviews + " đánh giá";
-          } catch (_) {}
-          try {
-            const qst = await QnA.getStats();
+          }
+
+          if (qstRes.status === "fulfilled") {
+            const qst = qstRes.value;
             const pend = qst.pendingCount;
             document.getElementById("st-pending-qna").textContent = pend;
             document.getElementById("st-pending-qna").style.color =
               pend > 0 ? "#ef4444" : "#111";
             document.getElementById("st-total-qna").textContent =
               qst.totalQuestions + " câu hỏi";
-          } catch (_) {}
+          }
 
-          // Recent reviews (3 latest)
-          try {
-            const rv3 = await SellerReview.getAll(1, null, null);
-            renderRecentReviews((rv3.items || []).slice(0, 3));
-          } catch (_) {
+          if (rv3Res.status === "fulfilled") {
+            renderRecentReviews((rv3Res.value.items || []).slice(0, 3));
+          } else {
             document.getElementById("recentReviewsList").innerHTML =
               '<div class="empty-state">Chưa có đánh giá</div>';
           }
