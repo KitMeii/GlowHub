@@ -24,6 +24,7 @@
       .profile-hero-inner { max-width: 920px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
       .ph-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--pink, #f759ab), #ff9eb5); color: #fff; font-size: 32px; font-family: var(--font-disp, "Cormorant Garamond"), serif; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
       .ph-avatar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+      .ph-avatar:hover .ph-avatar-overlay { opacity: 1 !important; }
       .ph-info { flex: 1; min-width: 0; }
       .ph-name { font-family: var(--font-disp, "Cormorant Garamond"), serif; font-size: 26px; font-weight: 500; color: var(--dark, #111); line-height: 1.2; }
       .ph-meta { font-size: 13px; color: var(--gray, #888); margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
@@ -212,7 +213,12 @@
       <!-- ── Profile Hero ── -->
       <div class="profile-hero">
         <div class="profile-hero-inner">
-          <div class="ph-avatar" id="phAvatar">?</div>
+          <div class="ph-avatar" id="phAvatar" title="Click để đổi ảnh" style="cursor:pointer;position:relative" onclick="document.getElementById('avatarFileInput').click()">?
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;font-size:20px" class="ph-avatar-overlay">📷</div>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none"
+            onchange="ghUploadAvatar(this.files[0])">
+          <span id="avatarStatus" style="font-size:11px;display:none;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap"></span>
           <div class="ph-info">
             <div class="ph-name" id="phName">Đang tải...</div>
             <div class="ph-meta">
@@ -563,6 +569,38 @@
       var currentFilter = 'all';
 
       /* ── Toast ── */
+      /* ── Avatar upload via Cloudinary ── */
+      async function ghUploadAvatar(file) {
+        var statusEl = document.getElementById('avatarStatus');
+        if (!file) return;
+        statusEl.textContent = '⏳ Đang tải...';
+        statusEl.style.color = '#888';
+        statusEl.style.display = 'block';
+        try {
+          var url = await uploadToCloudinary(file);
+          // Cập nhật hiển thị avatar
+          var avatarEl = document.getElementById('phAvatar');
+          avatarEl.innerHTML = '<img src="' + url + '" onerror="this.parentElement.textContent=\'?\'" />'
+            + '<div style="position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;font-size:20px" class="ph-avatar-overlay">📷</div>';
+          // Lưu vào user object & localStorage
+          var u = {};
+          try { u = JSON.parse(localStorage.getItem('user') || '{}'); } catch(_) {}
+          u.avatarUrl = u.AvatarUrl = url;
+          localStorage.setItem('user', JSON.stringify(u));
+          // Gọi API cập nhật (nếu có)
+          if (typeof Users !== 'undefined' && Users.updateProfile) {
+            Users.updateProfile({ AvatarUrl: url }).catch(function(){});
+          }
+          statusEl.textContent = '✓ Cập nhật ảnh thành công!';
+          statusEl.style.color = '#22c55e';
+          toast('Đã cập nhật ảnh đại diện');
+        } catch(e) {
+          statusEl.textContent = '✗ ' + e.message;
+          statusEl.style.color = '#ef4444';
+        }
+        setTimeout(function() { statusEl.style.display = 'none'; }, 3000);
+      }
+
       function toast(msg, type) {
         if (!type) type = 'ok';
         var c = document.getElementById('profileToast');

@@ -427,19 +427,22 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">URL Logo</label>
-                    <input
-                      type="url"
-                      id="shopLogo"
-                      class="form-control"
-                      oninput="previewLogo()"
-                    />
+                    <label class="form-label">Logo Shop</label>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+                      <label for="shopLogo-file" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--pink,#f759ab);color:#fff;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap">
+                        📷 Chọn ảnh từ máy
+                      </label>
+                      <input type="file" id="shopLogo-file" accept="image/*" style="display:none"
+                        onchange="ghUploadImage(this.files[0],'shopLogo','logoPreview','shopLogo-status',function(){previewLogo()})">
+                      <span id="shopLogo-status" style="font-size:12px"></span>
+                    </div>
+                    <input type="hidden" id="shopLogo" />
                     <img
                       id="logoPreview"
                       class="preview-img"
                       src=""
                       alt=""
-                      style="display: none"
+                      style="display:none"
                     />
                   </div>
                   <button class="btn-dark" onclick="saveShopInfo()">
@@ -1052,19 +1055,22 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">URL Ảnh chính</label>
-                <input
-                  type="url"
-                  id="p-image"
-                  class="form-control"
-                  oninput="previewProductImg()"
-                />
+                <label class="form-label">Ảnh chính</label>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <label for="p-image-file" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--pink,#f759ab);color:#fff;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap">
+                    📷 Chọn ảnh từ máy
+                  </label>
+                  <input type="file" id="p-image-file" accept="image/*" style="display:none"
+                    onchange="ghUploadImage(this.files[0],'p-image','p-image-preview','p-image-status',function(u){previewProductImg()})">
+                  <span id="p-image-status" style="font-size:12px"></span>
+                </div>
+                <input type="hidden" id="p-image" />
                 <img
                   id="p-image-preview"
                   class="preview-img"
                   src=""
                   alt=""
-                  style="display: none"
+                  style="display:none;margin-top:8px"
                 />
               </div>
             </div>

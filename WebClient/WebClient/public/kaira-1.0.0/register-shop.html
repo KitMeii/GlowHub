@@ -99,8 +99,17 @@
             <input type="tel" id="phone" class="form-control" placeholder="0909 xxx xxx" maxlength="20" />
           </div>
           <div class="mb-4">
-            <label class="form-label">Logo URL</label>
-            <input type="url" id="logo" class="form-control" placeholder="https://..." maxlength="500" />
+            <label class="form-label">Logo Shop</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+              <label for="logo-file" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#f759ab;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500">
+                📷 Chọn ảnh từ máy
+              </label>
+              <input type="file" id="logo-file" accept="image/*" style="display:none"
+                onchange="ghUploadImage(this.files[0],'logo','logo-preview','logo-status')">
+              <span id="logo-status" style="font-size:12px"></span>
+            </div>
+            <input type="hidden" id="logo" />
+            <img id="logo-preview" src="" alt="Preview" style="display:none;width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #f0ece6;margin-top:4px" />
           </div>
           <button type="submit" class="btn-primary-dark" id="submitBtn">Đăng Ký Shop</button>
         </form>

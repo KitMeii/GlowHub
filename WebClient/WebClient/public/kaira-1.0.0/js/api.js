@@ -2072,3 +2072,59 @@ var Payment = (function () {
     showBankTransferModal: showBankTransferModal
   };
 })();
+
+// ============================================================
+//  CLOUDINARY UPLOAD — dùng chung toàn site
+// ============================================================
+const CLOUDINARY_CLOUD = 'dcucbyzdo';
+const CLOUDINARY_PRESET = 'GlowHub_Upload';
+
+async function uploadToCloudinary(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+    { method: 'POST', body: formData }
+  );
+  if (!res.ok) throw new Error('Upload thất bại: ' + res.status);
+  const data = await res.json();
+  if (!data.secure_url) throw new Error('Cloudinary không trả URL');
+  return data.secure_url;
+}
+
+/**
+ * Helper UI: upload + cập nhật input ẩn + preview + status
+ * @param {File}   file
+ * @param {string} urlInputId   - id của <input> chứa URL
+ * @param {string} previewId    - id của <img> preview (null để bỏ qua)
+ * @param {string} statusId     - id của <span> trạng thái
+ * @param {Function} [onSuccess] - callback(url) tuỳ chọn
+ */
+async function ghUploadImage(file, urlInputId, previewId, statusId, onSuccess) {
+  const statusEl  = document.getElementById(statusId);
+  const urlInput  = document.getElementById(urlInputId);
+  const previewEl = previewId ? document.getElementById(previewId) : null;
+
+  if (!file || !file.type.startsWith('image/')) {
+    if (statusEl) { statusEl.textContent = '⚠ Vui lòng chọn file ảnh'; statusEl.style.color = '#f59e0b'; }
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    if (statusEl) { statusEl.textContent = '⚠ File quá lớn (tối đa 10MB)'; statusEl.style.color = '#f59e0b'; }
+    return;
+  }
+
+  if (statusEl) { statusEl.textContent = '⏳ Đang tải lên...'; statusEl.style.color = '#888'; }
+
+  try {
+    const url = await uploadToCloudinary(file);
+    if (urlInput)  urlInput.value = url;
+    if (previewEl) { previewEl.src = url; previewEl.style.display = 'block'; }
+    if (statusEl)  { statusEl.textContent = '✓ Tải lên thành công!'; statusEl.style.color = '#22c55e'; }
+    if (onSuccess) onSuccess(url);
+    setTimeout(() => { if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; } }, 3000);
+  } catch (e) {
+    if (statusEl) { statusEl.textContent = '✗ ' + e.message; statusEl.style.color = '#ef4444'; }
+  }
+}
