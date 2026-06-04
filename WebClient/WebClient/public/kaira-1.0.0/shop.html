@@ -1118,8 +1118,9 @@
           p.image ||
           "images/product-item-1.jpg";
         var isNew = p.IsNew || p.isNew;
+        var effectivePrice = oldP || price;
         var disc =
-          oldP && oldP > price ? Math.round((1 - price / oldP) * 100) : 0;
+          oldP && price > oldP ? Math.round((1 - oldP / price) * 100) : 0;
         var cat =
           (p.Category && (p.Category.Name || p.Category.name)) ||
           p.CategoryName ||
@@ -1151,8 +1152,8 @@
           name +
           "</a>" +
           '<div class="prod-price-wrap">' +
-          '<span class="prod-price">' + fmt(price) + "</span>" +
-          (oldP ? '<span class="prod-price-old">' + fmt(oldP) + "</span>" : "") +
+          '<span class="prod-price">' + fmt(effectivePrice) + "</span>" +
+          (oldP ? '<span class="prod-price-old">' + fmt(price) + "</span>" : "") +
           "</div>" +
           "</div>" +
           '<button class="btn-add-cart" onclick="addToCart(event,' +
@@ -1160,7 +1161,7 @@
           ",'" +
           name.replace(/'/g, "\\'") +
           "'," +
-          price +
+          effectivePrice +
           ",'" +
           img +
           "','" + shopId + "','" + shopName + "')\">Thêm Vào Giỏ</button>" +
@@ -1183,6 +1184,7 @@
           "images/product-item-1.jpg";
         var desc = p.Description || p.description || "";
         var isNew = p.IsNew || p.isNew;
+        var effectivePrice = oldP || price;
         var shopId   = p.ShopId   || p.shopId   || "";
         var shopName = (p.ShopName || p.shopName || "").replace(/'/g, "\\'");
         return (
@@ -1208,11 +1210,11 @@
           "</p>" +
           '<div style="display:flex;align-items:center;gap:12px">' +
           '<span style="color:var(--pink);font-weight:700;font-size:15px">' +
-          fmt(price) +
+          fmt(effectivePrice) +
           "</span>" +
           (oldP
             ? '<span style="text-decoration:line-through;color:var(--gray);font-size:13px">' +
-              fmt(oldP) +
+              fmt(price) +
               "</span>"
             : "") +
           '<button onclick="addToCart(event,' +
@@ -1220,7 +1222,7 @@
           ",'" +
           name.replace(/'/g, "\\'") +
           "'," +
-          price +
+          effectivePrice +
           ",'" +
           img +
           "','" + shopId + "','" + shopName + "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Jost',sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +

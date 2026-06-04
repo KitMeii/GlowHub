@@ -1150,27 +1150,26 @@
             }, 150);
           }
 
-          // Mô tả
+          // Mô tả — parse trước để tìm ảnh minh họa, rồi bỏ ảnh đó ra khỏi nội dung
+          const _dParser = new DOMParser();
+          const _dDoc = _dParser.parseFromString(desc || "", "text/html");
+          const _illust = _dDoc.querySelector(".desc-illustration-img");
+          const _illustSrc = _illust ? _illust.getAttribute("src") || "" : "";
+          if (_illust) _illust.remove(); // tránh hiện 2 lần trong nội dung
+
           const descEl = $("productDesc");
           if (descEl) {
             descEl.innerHTML =
-              desc ||
+              _dDoc.body.innerHTML ||
               '<p style="color:rgba(0,0,0,0.35);font-style:italic">Chưa có mô tả sản phẩm</p>';
           }
 
-          // Ảnh minh họa tab mô tả
+          // Ảnh minh họa tab mô tả — chỉ dùng ảnh từ desc HTML, không fallback gallery
           const _descImg = $("descImage");
           const _tabDescRight = $("tabDescRight");
           if (_descImg) {
-            const _dParser = new DOMParser();
-            const _dDoc = _dParser.parseFromString(desc || "", "text/html");
-            const _illust = _dDoc.querySelector(".desc-illustration-img");
-            const _descSrc =
-              (_illust && _illust.getAttribute("src")) ||
-              currentImages[1] ||
-              "";
-            if (_descSrc) {
-              _descImg.src = _descSrc;
+            if (_illustSrc) {
+              _descImg.src = _illustSrc;
               _descImg.onerror = function () {
                 if (_tabDescRight) _tabDescRight.style.display = "none";
               };
