@@ -15,14 +15,18 @@ namespace BaseCore.APIService.Controllers
     {
         private readonly IShopService _shopService;
         private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
 
-        public ShopsController(IShopService shopService, MySqlDbContext db)
+        public ShopsController(IShopService shopService, MySqlDbContext db, AuditLogService audit)
         {
             _shopService = shopService;
-            _db = db;
+            _db          = db;
+            _audit       = audit;
         }
 
-        private string? GetSellerId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetSellerId()  => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserId()    => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName()  => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         // ─────────────────────────────────────────────────────────
         // PUBLIC
@@ -80,6 +84,7 @@ namespace BaseCore.APIService.Controllers
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
                 .Include(o => o.User)
+                .Include(o => o.SubOrders)
                 .Where(o => o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
                 .ToListAsync();
 
@@ -101,17 +106,20 @@ namespace BaseCore.APIService.Controllers
             var totalProducts  = productIds.Count;
             var lowStockCount  = await _db.Products.CountAsync(p => p.ShopId == shopId && p.Stock < 10 && p.IsActive);
 
-            // Recent 5 orders
+            // Recent 5 orders — amount is this shop's sub-order only
             var recentOrders = shopOrders
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
                 .Select(o => new
                 {
-                    orderId      = o.Id,
-                    customer     = o.User?.Name ?? o.UserId,
-                    totalAmount  = o.TotalAmount,
-                    status       = o.Status,
-                    createdAt    = o.OrderDate
+                    orderId     = o.Id,
+                    customer    = o.User?.Name ?? o.UserId,
+                    totalAmount = o.SubOrders.FirstOrDefault(s => s.ShopId == shopId)?.FinalAmount
+                                  ?? o.OrderDetails
+                                       .Where(od => productIds.Contains(od.ProductId))
+                                       .Sum(od => od.UnitPrice * od.Quantity),
+                    status      = o.Status,
+                    createdAt   = o.OrderDate
                 });
 
             // Top 5 products by sold count
@@ -234,6 +242,15 @@ namespace BaseCore.APIService.Controllers
             {
                 var shop = await _shopService.RegisterAsync(
                     sellerId, req.ShopName, req.Description, req.Logo, req.Address, req.Phone);
+                // Set Province + Region if provided
+                if (!string.IsNullOrEmpty(req.Province))
+                {
+                    shop.Province = req.Province;
+                    shop.Region   = !string.IsNullOrEmpty(req.Region)
+                        ? req.Region.ToUpper()
+                        : BaseCore.Services.ShippingRegion.Normalize(req.Province);
+                    await _shopService.UpdateAsync(shop);
+                }
                 return Ok(new { message = "Đăng ký shop thành công. Chờ admin duyệt.", shopId = shop.Id });
             }
             catch (InvalidOperationException ex)
@@ -257,9 +274,83 @@ namespace BaseCore.APIService.Controllers
             if (req.Logo != null) shop.Logo = req.Logo;
             if (req.Address != null) shop.Address = req.Address;
             if (req.Phone != null) shop.Phone = req.Phone;
+            if (req.Province != null) {
+                shop.Province = req.Province;
+                // Derive Region from Province if not explicitly provided
+                shop.Region = !string.IsNullOrEmpty(req.Region)
+                    ? req.Region.ToUpper()
+                    : BaseCore.Services.ShippingRegion.Normalize(req.Province);
+            }
 
             await _shopService.UpdateAsync(shop);
             return Ok(new { message = "Shop đã được cập nhật" });
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // FOLLOW
+        // ─────────────────────────────────────────────────────────
+
+        // POST /api/shops/{id}/follow
+        [HttpPost("{id}/follow")]
+        [Authorize]
+        public async Task<IActionResult> Follow(string id)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            var exists = await _db.ShopFollows
+                .AnyAsync(f => f.UserId == userId && f.ShopId == id);
+            if (!exists)
+            {
+                _db.ShopFollows.Add(new ShopFollow { UserId = userId, ShopId = id });
+                await _db.SaveChangesAsync();
+            }
+            return Ok(new { message = "Đã theo dõi shop", shopId = id });
+        }
+
+        // DELETE /api/shops/{id}/follow
+        [HttpDelete("{id}/follow")]
+        [Authorize]
+        public async Task<IActionResult> Unfollow(string id)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var follow = await _db.ShopFollows
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ShopId == id);
+            if (follow != null)
+            {
+                _db.ShopFollows.Remove(follow);
+                await _db.SaveChangesAsync();
+            }
+            return Ok(new { message = "Đã bỏ theo dõi shop" });
+        }
+
+        // GET /api/shops/followed
+        [HttpGet("followed")]
+        [Authorize]
+        public async Task<IActionResult> GetFollowed()
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var follows = await _db.ShopFollows
+                .Where(f => f.UserId == userId)
+                .Include(f => f.Shop)
+                .OrderByDescending(f => f.CreatedAt)
+                .Select(f => new
+                {
+                    shopId   = f.ShopId,
+                    shopName = f.Shop.ShopName,
+                    logo     = f.Shop.Logo,
+                    followedAt = f.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new { items = follows, total = follows.Count });
         }
 
         // ─────────────────────────────────────────────────────────
@@ -280,7 +371,13 @@ namespace BaseCore.APIService.Controllers
         [Authorize(Roles = RoleConstant.Admin)]
         public async Task<IActionResult> Approve(string id)
         {
-            try { await _shopService.ApproveAsync(id); return Ok(new { message = "Shop đã được duyệt" }); }
+            try
+            {
+                await _shopService.ApproveAsync(id);
+                await _audit.Log(GetUserId(), GetUserName(), "SHOP_APPROVE", "Shop", id,
+                    new { status = ShopStatus.Pending }, new { status = ShopStatus.Active });
+                return Ok(new { message = "Shop đã được duyệt" });
+            }
             catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
         }
 
@@ -289,8 +386,124 @@ namespace BaseCore.APIService.Controllers
         [Authorize(Roles = RoleConstant.Admin)]
         public async Task<IActionResult> Ban(string id)
         {
-            try { await _shopService.BanAsync(id); return Ok(new { message = "Shop đã bị khóa" }); }
+            try
+            {
+                await _shopService.BanAsync(id);
+                await _audit.Log(GetUserId(), GetUserName(), "SHOP_BAN", "Shop", id,
+                    new { status = ShopStatus.Active }, new { status = ShopStatus.Banned });
+                return Ok(new { message = "Shop đã bị khóa" });
+            }
             catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        }
+
+        // GET /api/shops/admin/stats — Tất cả shops với doanh thu / đơn hàng / sản phẩm
+        [HttpGet("admin/stats")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> GetAdminShopStats(
+            [FromQuery] int status = -1,
+            [FromQuery] int page   = 1,
+            [FromQuery] int limit  = 20)
+        {
+            var query = _db.Shops.AsQueryable();
+            if (status >= 0) query = query.Where(s => s.Status == status);
+
+            var total = await query.CountAsync();
+            var shops = await query
+                .OrderByDescending(s => s.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
+
+            var shopIds = shops.Select(s => s.Id).ToList();
+
+            // SubOrders as source of truth for per-shop revenue
+            var subRevMap = await _db.SubOrders
+                .Where(s => shopIds.Contains(s.ShopId!) && s.Order.Status == OrderStatus.Completed)
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { shopId = g.Key, revenue = g.Sum(s => s.ProductRevenue) })
+                .ToDictionaryAsync(x => x.shopId, x => x.revenue);
+
+            var subOrderCountMap = await _db.SubOrders
+                .Where(s => shopIds.Contains(s.ShopId!))
+                .GroupBy(s => s.ShopId!)
+                .Select(g => new { shopId = g.Key, count = g.Select(s => s.OrderId).Distinct().Count() })
+                .ToDictionaryAsync(x => x.shopId, x => x.count);
+
+            var result = new List<object>();
+            foreach (var shop in shops)
+            {
+                var productCount = await _db.Products.CountAsync(p => p.ShopId == shop.Id);
+                var revenue    = subRevMap.TryGetValue(shop.Id, out var rev) ? rev : 0m;
+                var orderCount = subOrderCountMap.TryGetValue(shop.Id, out var cnt) ? cnt : 0;
+
+                result.Add(new {
+                    shop.Id,
+                    shop.ShopName,
+                    shop.Logo,
+                    shop.Status,
+                    shop.CommissionRate,
+                    shop.CreatedAt,
+                    productCount,
+                    orderCount,
+                    revenue
+                });
+            }
+
+            return Ok(new { items = result, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
+        }
+
+        // PUT /api/shops/admin/{id}/commission
+        [HttpPut("admin/{id}/commission")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> UpdateCommission(string id, [FromBody] UpdateCommissionDto dto)
+        {
+            if (dto.CommissionRate < 0 || dto.CommissionRate > 100)
+                return BadRequest(new { message = "Commission rate phải từ 0 đến 100" });
+
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            var oldRate = shop.CommissionRate;
+            shop.CommissionRate = dto.CommissionRate;
+            shop.UpdatedAt      = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            await _audit.Log(GetUserId(), GetUserName(), "SHOP_COMMISSION", "Shop", id,
+                new { commissionRate = oldRate }, new { commissionRate = dto.CommissionRate });
+            return Ok(new { message = "Đã cập nhật hoa hồng", commissionRate = dto.CommissionRate });
+        }
+
+        // GET /api/shops/admin/{id}/stats
+        [HttpGet("admin/{id}/stats")]
+        [Authorize(Roles = RoleConstant.Admin)]
+        public async Task<IActionResult> GetShopStats(string id, [FromQuery] string? from, [FromQuery] string? to)
+        {
+            var shop = await _db.Shops.FindAsync(id);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            var fromDate = DateTime.TryParse(from, out var f) ? f.ToUniversalTime().Date : DateTime.UtcNow.AddDays(-29).Date;
+            var toDate   = DateTime.TryParse(to, out var t) ? t.ToUniversalTime().Date : DateTime.UtcNow.Date;
+
+            var productIds = await _db.Products.Where(p => p.ShopId == id).Select(p => p.Id).ToListAsync();
+            var orders = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o => o.OrderDate.Date >= fromDate && o.OrderDate.Date <= toDate
+                         && o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
+                .ToListAsync();
+
+            var revenue    = orders.Where(o => o.Status == "COMPLETED").Sum(o => o.OrderDetails.Where(od => productIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
+            var commission = revenue * (shop.CommissionRate / 100m);
+
+            return Ok(new {
+                shopId   = id,
+                shopName = shop.ShopName,
+                from     = fromDate.ToString("yyyy-MM-dd"),
+                to       = toDate.ToString("yyyy-MM-dd"),
+                commissionRate = shop.CommissionRate,
+                totalOrders  = orders.Count,
+                revenue,
+                commission,
+                net = revenue - commission
+            });
         }
     }
 
@@ -301,6 +514,8 @@ namespace BaseCore.APIService.Controllers
         public string? Logo { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
+        public string? Province { get; set; }
+        public string? Region   { get; set; }
     }
 
     public class UpdateShopRequest
@@ -310,5 +525,12 @@ namespace BaseCore.APIService.Controllers
         public string? Logo { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
+        public string? Province { get; set; }
+        public string? Region   { get; set; }
+    }
+
+    public class UpdateCommissionDto
+    {
+        public decimal CommissionRate { get; set; }
     }
 }

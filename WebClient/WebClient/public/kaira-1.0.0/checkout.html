@@ -15,45 +15,108 @@
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/checkout.css" />
     <link rel="stylesheet" href="theme/voucher.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
   </head>
   <body>
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
-      <div class="container">
-        <a class="navbar-brand brand-name fs-3" href="index.html">GLOWHUB</a>
-        <div class="d-flex align-items-center gap-3 d-lg-none">
-          <a href="cart.html" class="position-relative">
-            <i class="bi bi-bag" style="font-size:22px"></i>
-          </a>
-          <button class="navbar-toggler border-0" type="button"
-            data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
+
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
           </div>
-          <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4">
-              <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
-              <li class="nav-item"><a class="nav-link" href="shop.html">Cửa Hàng</a></li>
-              <li class="nav-item"><a class="nav-link" href="policy.html#lien-he">Liên Hệ</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="d-none d-lg-flex align-items-center gap-4">
-          <div id="nav-user-area"></div>
-          <a href="cart.html" class="nav-link position-relative">
-            <i class="bi bi-bag" style="font-size:20px"></i>
-            <span id="cart-count"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size:10px">0</span>
-          </a>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
         </div>
       </div>
-    </nav>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
 
     <!-- TABS BAR -->
     <div class="tabs-bar">
@@ -137,20 +200,20 @@
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Tỉnh/Thành *</label>
-                      <select class="gh-input" id="newProv" onchange="loadNewDist()">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newProv">
+                        <option value="">-- Đang tải... --</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Quận/Huyện *</label>
-                      <select class="gh-input" id="newDist" onchange="loadNewWard()">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newDist" disabled>
+                        <option value="">-- Chọn tỉnh trước --</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
                       <label class="gh-label">Phường/Xã</label>
-                      <select class="gh-input" id="newWard">
-                        <option value="">-- Chọn --</option>
+                      <select class="gh-input" id="newWard" disabled>
+                        <option value="">-- Chọn quận trước --</option>
                       </select>
                     </div>
                     <div class="col-12">
@@ -176,34 +239,37 @@
                 </div>
               </div>
 
+              <!-- Shipping fee preview (auto-update when province selected) -->
+              <div id="shipPreviewBox" style="display:none;background:#fdf6f0;border:1px solid #f3cdb3;border-radius:8px;padding:14px 16px;margin-bottom:16px"></div>
+
               <!-- Shipping method -->
               <div class="form-section" id="shipSection" style="display:none">
                 <div class="form-section-title">
                   <i class="bi bi-truck me-2"></i>Phương Thức Vận Chuyển
                 </div>
-                <label class="ship-option selected" onclick="selectShip('standard',0,this)">
+                <label class="ship-option selected" onclick="selectShip('standard',this)">
                   <input type="radio" name="shipping" value="standard" checked />
                   <div>
                     <div class="ship-name">Giao Hàng Tiêu Chuẩn</div>
                     <div class="ship-desc">3–5 ngày làm việc · J&amp;T Express</div>
                   </div>
-                  <div class="ship-price" id="shipStdPrice">Miễn phí</div>
+                  <div class="ship-price" id="shipStdPrice">—</div>
                 </label>
-                <label class="ship-option" onclick="selectShip('express',30000,this)">
+                <label class="ship-option" onclick="selectShip('express',this)">
                   <input type="radio" name="shipping" value="express" />
                   <div>
                     <div class="ship-name">Giao Hàng Nhanh</div>
-                    <div class="ship-desc">1–2 ngày làm việc · GHN Express</div>
+                    <div class="ship-desc">1–2 ngày làm việc · GHN Express · +15.000₫/shop</div>
                   </div>
-                  <div class="ship-price">30.000 ₫</div>
+                  <div class="ship-price" id="shipExpressPrice">—</div>
                 </label>
-                <label class="ship-option" onclick="selectShip('same',50000,this)">
+                <label class="ship-option" onclick="selectShip('same',this)">
                   <input type="radio" name="shipping" value="same" />
                   <div>
                     <div class="ship-name">Giao Trong Ngày</div>
-                    <div class="ship-desc">Chỉ nội thành TP.HCM &amp; Hà Nội</div>
+                    <div class="ship-desc">Chỉ nội thành TP.HCM &amp; Hà Nội · +30.000₫/shop</div>
                   </div>
-                  <div class="ship-price">50.000 ₫</div>
+                  <div class="ship-price" id="shipSamePrice">—</div>
                 </label>
               </div>
 
@@ -274,29 +340,45 @@
                     <div class="pay-desc">Thanh toán qua ví điện tử MoMo</div>
                   </div>
                 </label>
-                <label class="pay-option" onclick="selectPay('zalopay',this)">
-                  <input type="radio" name="payment" value="zalopay" />
-                  <i class="bi bi-phone-fill" style="font-size:24px;color:#0068ff"></i>
+                <label class="pay-option" onclick="selectPay('vnpay',this)">
+                  <input type="radio" name="payment" value="vnpay" />
+                  <i class="bi bi-lightning-fill" style="font-size:24px;color:#e65100"></i>
                   <div>
-                    <div class="pay-name">ZaloPay</div>
-                    <div class="pay-desc">Thanh toán qua ví ZaloPay</div>
+                    <div class="pay-name">VNPay</div>
+                    <div class="pay-desc">Thẻ ATM / Thẻ tín dụng / QR Code</div>
                   </div>
                 </label>
               </div>
 
-              <!-- Bank info (shown when bank selected) -->
-              <div class="form-section" id="bankInfo" style="display:none;background:#f8fffe;border-color:#86efac">
-                <div class="form-section-title" style="color:#166534">Thông Tin Chuyển Khoản</div>
-                <div style="font-size:13px;line-height:2.4">
-                  <div><strong>Ngân hàng:</strong> Vietcombank</div>
-                  <div><strong>Số tài khoản:</strong> 1234567890</div>
-                  <div><strong>Chủ tài khoản:</strong> GLOWHUB STORE</div>
-                  <div><strong>Nội dung CK:</strong>
-                    <span id="bankContent" style="color:var(--pink);font-weight:700">GH + SĐT của bạn</span>
-                  </div>
+              <!-- Bank info hint (shown when bank selected) -->
+              <div class="form-section" id="bankInfo" style="display:none;background:#f0fdf4;border-color:#86efac">
+                <div class="form-section-title" style="color:#166534"><i class="bi bi-bank me-2"></i>Chuyển Khoản Ngân Hàng</div>
+                <p style="font-size:12px;color:#166534;line-height:1.8">
+                  Sau khi đặt hàng, bạn sẽ được chuyển đến trang thanh toán với thông tin tài khoản và QR code.<br/>
+                  Đơn hàng sẽ được xác nhận sau khi admin kiểm tra chuyển khoản.
+                </p>
+              </div>
+
+              <!-- VNPay info hint (shown when vnpay selected) -->
+              <div class="form-section" id="vnpayInfo" style="display:none;background:#fff3e0;border-color:#fed7aa">
+                <div class="form-section-title" style="color:#c2410c"><i class="bi bi-lightning-fill me-2"></i>Thanh Toán VNPay</div>
+                <p style="font-size:12px;color:#c2410c;line-height:1.8;margin-bottom:10px">
+                  Bạn sẽ được chuyển đến cổng VNPay ngay sau khi đặt hàng. Thời gian thanh toán: <strong>15 phút</strong>.
+                </p>
+                <div style="background:#fff;border:1px solid #fed7aa;padding:10px 14px;font-size:11px;border-radius:4px">
+                  <div style="font-weight:600;margin-bottom:6px;color:#111"><i class="bi bi-credit-card me-1"></i>Thẻ Test (Sandbox):</div>
+                  <div>Số thẻ: <strong>9704198526191432198</strong></div>
+                  <div>Tên: <strong>NGUYEN VAN A</strong> · Ngày PH: <strong>07/15</strong> · OTP: <strong>123456</strong></div>
+                  <div style="color:#888;margin-top:4px">Ngân hàng: NCB</div>
                 </div>
-                <p style="font-size:11px;color:var(--gray);margin-top:8px">
-                  Đơn sẽ được xử lý sau khi xác nhận chuyển khoản (1–2 giờ làm việc)
+              </div>
+
+              <!-- MoMo fake modal hint -->
+              <div class="form-section" id="momoInfo" style="display:none;background:#fff0f8;border-color:#f9a8d4">
+                <div class="form-section-title" style="color:#9d174d"><i class="bi bi-phone me-2"></i>Ví MoMo</div>
+                <p style="font-size:12px;color:#9d174d;line-height:1.8">
+                  Sau khi đặt hàng, QR code MoMo sẽ hiển thị để bạn quét thanh toán.<br/>
+                  <em>(Tính năng đang phát triển — đơn sẽ xử lý như COD)</em>
                 </p>
               </div>
 
@@ -339,13 +421,27 @@
                   <i class="bi bi-check-circle-fill"></i><span></span>
                 </div>
                 <div class="voucher-err" id="voucherErr"></div>
+                <div id="shipVoucherRow" style="display:none; margin-top:8px; padding:8px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; font-size:12px; align-items:center; gap:8px;">
+                  <i class="bi bi-truck" style="color:#1d4ed8; flex-shrink:0"></i>
+                  <span id="shipVoucherLabel" style="flex:1; color:#1d4ed8">—</span>
+                  <button onclick="removeShipVoucher()" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:11px;padding:0">✕</button>
+                </div>
               </div>
+
+              <!-- Shop Breakdown (dynamically populated) -->
+              <div id="shopBreakdown"></div>
 
               <!-- Totals -->
               <div class="sum-row"><span>Tạm tính</span><span id="sumSubtotal">0 ₫</span></div>
               <div class="sum-row"><span>Phí vận chuyển</span><span id="sumShip">Miễn phí</span></div>
+              <div class="sum-row" id="shipDiscountRow" style="display:none;color:#1d4ed8">
+                <span>Voucher vận chuyển</span><span id="sumShipDiscount">-0 ₫</span>
+              </div>
               <div class="sum-row" id="discountRow" style="display:none;color:var(--pink)">
-                <span>Giảm giá</span><span id="sumDiscount">-0 ₫</span>
+                <span>Giảm giá hệ thống</span><span id="sumDiscount">-0 ₫</span>
+              </div>
+              <div class="sum-row" id="shopDiscountRow" style="display:none;color:#f59e0b">
+                <span>Voucher shop</span><span id="sumShopDiscount">-0 ₫</span>
               </div>
               <div class="sum-total">
                 <span>Tổng cộng</span>
@@ -443,10 +539,16 @@
       var cartItems        = [];
       var currentStep      = 1;
       var shippingFee      = 0;
+      var baseShippingFee  = 0;   // standard fee from API (sum across all shops)
+      var numShopGroups    = 0;   // number of distinct shops (for per-shop surcharge)
       var shippingMethod   = 'standard';
       var selectedPay      = 'cod';
       var discountAmt      = 0;
       var appliedVoucher   = null;
+      var shopVouchers     = {};   // shopId → { code, discountAmt }
+      var shopVoucherTotal = 0;
+      var appliedShipVoucher  = null;  // ship voucher code (from cart or modal)
+      var _cartGrouped        = null;  // result of Cart.getGrouped(), used for per-shop breakdown
       var allOrders        = [];
       var currentFilter    = 'all';
       var savedAddresses   = [];
@@ -459,6 +561,59 @@
         if (typeof Cart !== 'undefined') Cart._updateUI();
         loadCartItems();
         loadAddresses();
+
+        // Restore voucher carried over from cart.html
+        (function () {
+          try {
+            var saved = localStorage.getItem('gh_applied_voucher');
+            if (!saved) return;
+            var cv = JSON.parse(saved);
+            if (!cv || !cv.code) return;
+            discountAmt    = cv.discountAmount || 0;
+            appliedVoucher = cv.code;
+            _coVpShopId    = cv.shopId || null;
+            var inp = document.getElementById('voucherInput');
+            if (inp) { inp.value = cv.code; inp.disabled = true; }
+            var okEl = document.getElementById('voucherOk');
+            if (okEl) {
+              okEl.querySelector('span').textContent = cv.label || ('Giảm ' + fmt(discountAmt));
+              okEl.style.display = 'flex';
+            }
+            updateTotals();
+          } catch (_) {}
+        })();
+
+        // Restore ship voucher from cart page
+        (function () {
+          try {
+            var sv = localStorage.getItem('gh_applied_ship_voucher');
+            if (!sv) return;
+            var parsed = JSON.parse(sv);
+            if (!parsed || !parsed.code) return;
+            appliedShipVoucher = parsed.code;
+            var row = document.getElementById('shipVoucherRow');
+            var lbl = document.getElementById('shipVoucherLabel');
+            if (row) row.style.display = 'flex';
+            if (lbl) lbl.textContent = parsed.code + ' — ' + (parsed.description || 'Giảm phí vận chuyển');
+            updateTotals();
+          } catch (_) {}
+        })();
+
+        // Restore per-shop vouchers persisted from cart page
+        (function () {
+          try {
+            var shv = localStorage.getItem('gh_shop_vouchers');
+            if (!shv) return;
+            var map = JSON.parse(shv);
+            if (!map || typeof map !== 'object') return;
+            Object.keys(map).forEach(function (sid) {
+              var entry = map[sid];
+              if (!entry || !entry.code) return;
+              shopVouchers[sid] = { code: entry.code, discountAmt: entry.discountAmount || 0 };
+            });
+            if (Object.keys(shopVouchers).length) updateTotals();
+          } catch (_) {}
+        })();
 
         var tab = new URLSearchParams(location.search).get('tab');
         if (tab) switchTab(tab);
@@ -479,22 +634,39 @@
       // ─────────────────────────────────────────────
       //  CART
       // ─────────────────────────────────────────────
-      function loadCartItems() {
-        var doLoad = typeof CartDB !== 'undefined' && typeof Auth !== 'undefined' && Auth.isLoggedIn()
-          ? CartDB.getItems()
-          : Promise.resolve(typeof Cart !== 'undefined' ? Cart.getItems() : []);
+      function showEmptyCart() {
+        var el = document.getElementById('cartReview');
+        if (!el) {
+          var containers = [
+            document.querySelector('.checkout-items'),
+            document.querySelector('[class*="cart"]'),
+          ].filter(Boolean);
+          el = containers[0] || null;
+        }
+        if (el) {
+          el.innerHTML = '<div style="text-align:center;padding:60px 20px">'
+            + '<svg viewBox="0 0 24 24" width="48" height="48" stroke="rgba(0,0,0,0.2)" fill="none" stroke-width="1.5" style="display:block;margin:0 auto 16px">'
+            + '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>'
+            + '<line x1="3" y1="6" x2="21" y2="6"/>'
+            + '<path d="M16 10a4 4 0 0 1-8 0"/>'
+            + '</svg>'
+            + '<p style="font-size:14px;color:rgba(0,0,0,0.4);font-family:var(--font-body);margin-bottom:16px">Giỏ hàng trống</p>'
+            + '<a href="shop.html" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dark);border-bottom:1px solid;text-decoration:none;font-family:var(--font-body)">TIếP TỤC MUA SắM</a>'
+            + '</div>';
+        }
+      }
 
-        doLoad.then(function (items) {
-          cartItems = items || [];
-          renderCartReview();
-          renderSummaryItems();
-          updateTotals();
-        }).catch(function () {
-          cartItems = typeof Cart !== 'undefined' ? Cart.getItems() : [];
-          renderCartReview();
-          renderSummaryItems();
-          updateTotals();
-        });
+      function loadCartItems() {
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart';
+        var raw = localStorage.getItem(key);
+        cartItems = raw ? JSON.parse(raw) : [];
+        if (!cartItems.length) {
+          showEmptyCart();
+          return;
+        }
+        renderCartReview();
+        renderSummaryItems();
+        updateTotals();
       }
 
       function _itemPrice(item) {
@@ -512,6 +684,7 @@
             + '<p>Giỏ hàng trống. <a href="shop.html" style="color:var(--pink)">Tiếp tục mua sắm</a></p></div>';
           return;
         }
+        // Flat list shown immediately while grouped data loads
         el.innerHTML = cartItems.map(function (item) {
           return '<div class="cart-item-row">'
             + '<img src="' + _itemImg(item) + '" class="ci-img" onerror="this.src=\'https://placehold.co/52x64/f5f0ea/888?text=IMG\'">'
@@ -520,6 +693,102 @@
             + '<div class="ci-price">' + fmt(_itemPrice(item) * _itemQty(item)) + '</div>'
             + '</div>';
         }).join('');
+
+        if (typeof Cart === 'undefined' || !Cart.getGrouped) return;
+        var addr = selectedAddrId
+          ? savedAddresses.find(function (a) { return String(a.id) === String(selectedAddrId); })
+          : null;
+        var province = addr ? (addr.province || '') : '';
+
+        Cart.getGrouped(province).then(function (res) {
+          if (!res || !res.groups || !res.groups.length) return;
+          _cartGrouped = res;
+          el.innerHTML = res.groups.map(function (g) {
+            var itemsHtml = (g.items || []).map(function (item) {
+              return '<div class="cart-item-row" style="padding:8px 0;border-bottom:1px solid #f5f0ea">'
+                + '<img src="' + (item.imageUrl || '') + '" class="ci-img" onerror="this.src=\'https://placehold.co/52x64/f5f0ea/888?text=IMG\'">'
+                + '<div style="flex:1;min-width:0">'
+                + '<div class="ci-name">' + (item.productName || 'Sản phẩm') + '</div>'
+                + '<div class="ci-qty" style="color:var(--gray);font-size:12px">x' + item.quantity + ' × ' + fmt(item.unitPrice) + '</div>'
+                + '</div>'
+                + '<div class="ci-price">' + fmt(item.subtotal) + '</div>'
+                + '</div>';
+            }).join('');
+            return '<div style="border:1px solid #f0e8df;border-radius:8px;margin-bottom:14px;overflow:hidden">'
+              + '<div style="background:#fdf6f0;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0e8df">'
+              + (g.shopLogo ? '<img src="' + g.shopLogo + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">' : '<i class="bi bi-shop" style="font-size:18px;color:var(--pink)"></i>')
+              + '<span style="font-size:13px;font-weight:600;flex:1">' + (g.shopName || 'Cửa hàng') + '</span>'
+              + '<span style="font-size:12px;color:var(--gray)">Ship: ' + (g.shippingFee > 0 ? fmt(g.shippingFee) : 'Miễn phí') + '</span>'
+              + '</div>'
+              + '<div style="padding:0 14px">' + itemsHtml + '</div>'
+              + '<div style="padding:8px 14px;text-align:right;font-size:13px;color:var(--gray)">'
+              + 'Tạm tính: <strong style="color:var(--dark)">' + fmt(g.subtotal) + '</strong>'
+              + (g.shippingFee > 0 ? ' &nbsp;+&nbsp; ship: <strong style="color:var(--dark)">' + fmt(g.shippingFee) + '</strong>' : '')
+              + '</div>'
+              + (g.shopId ? (
+                  '<div style="padding:8px 14px;border-top:1px dashed #f0e8df;display:flex;align-items:center;gap:8px">'
+                + '<i class="bi bi-tag" style="color:var(--pink);font-size:14px"></i>'
+                + '<input id="svInput-' + g.shopId + '" type="text" placeholder="Mã voucher của ' + (g.shopName || 'shop') + '..." '
+                + 'style="flex:1;border:1px solid #e8ddd4;padding:5px 10px;font-size:12px;font-family:var(--font-body);outline:none" '
+                + 'onkeydown="if(event.key===\'Enter\')applyShopVoucher(\'' + g.shopId + '\',\'' + (g.shopName||'').replace(/'/g,"\\'") + '\',' + g.subtotal + ')" />'
+                + '<button onclick="applyShopVoucher(\'' + g.shopId + '\',\'' + (g.shopName||'').replace(/'/g,"\\'") + '\',' + g.subtotal + ')" '
+                + 'style="background:#111;color:#fff;border:none;padding:5px 12px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:var(--font-body)">Áp Dụng</button>'
+                + '</div>'
+                + '<div id="svOk-'  + g.shopId + '" style="display:none;padding:4px 14px;font-size:12px;color:#20c997;gap:6px;align-items:center">'
+                + '<i class="bi bi-check-circle-fill"></i><span></span></div>'
+                + '<div id="svErr-' + g.shopId + '" style="display:none;padding:4px 14px;font-size:12px;color:#ef4444"></div>'
+              ) : '')
+              + '</div>';
+          }).join('');
+
+          if (res.totalShipping !== undefined) {
+            baseShippingFee = res.totalShipping;
+            numShopGroups   = (res.groups || []).length;
+            shippingFee     = baseShippingFee;
+            _refreshShipMethodPrices();
+            updateTotals();
+          }
+
+          // Auto-fill saved shop vouchers into each shop's input
+          if (typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn()) {
+            fetch(PRODUCT_API + '/api/vouchers/my', {
+              headers: { 'Authorization': 'Bearer ' + (Auth.getToken ? Auth.getToken() : '') }
+            }).then(function(r2) { return r2.ok ? r2.json() : []; })
+            .then(function(savedList) {
+              (savedList || []).filter(function(cv) { return cv.voucher && !cv.IsUsed; })
+              .forEach(function(cv) {
+                var v = cv.voucher;
+                if (!v.ShopId) return;
+                var inp = document.getElementById('svInput-' + v.ShopId);
+                if (inp && !inp.value && !shopVouchers[v.ShopId]) {
+                  inp.value = v.Code;
+                  inp.style.color = '#22c55e';
+                  inp.title = 'Voucher đã lưu — nhấn Áp Dụng để kích hoạt';
+                }
+              });
+            }).catch(function() {});
+          }
+          // Pre-fill inputs from gh_shop_vouchers (persisted from cart page)
+          try {
+            var _cartShopV = JSON.parse(localStorage.getItem('gh_shop_vouchers') || '{}');
+            Object.keys(_cartShopV).forEach(function(sid) {
+              var entry = _cartShopV[sid];
+              if (!entry || !entry.code) return;
+              var inp = document.getElementById('svInput-' + sid);
+              if (inp && !inp.value) {
+                inp.value = entry.code;
+                inp.style.color = '#22c55e';
+                inp.disabled = true;
+                inp.title = 'Voucher từ giỏ hàng — đã áp dụng';
+              }
+              var okEl = document.getElementById('svOk-' + sid);
+              if (okEl) {
+                okEl.querySelector('span').textContent = entry.code + ' — Giảm ' + fmt(entry.discountAmount || 0);
+                okEl.style.display = 'flex';
+              }
+            });
+          } catch (_) {}
+        }).catch(function () { /* keep flat list on error */ });
       }
 
       function renderSummaryItems() {
@@ -543,7 +812,15 @@
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
         var fee = shippingFee;
         if (shippingMethod === 'standard' && sub >= 500000) fee = 0;
-        var total = Math.max(0, sub + fee - discountAmt);
+        shopVoucherTotal = Object.values(shopVouchers).reduce(function (s, v) { return s + (v.discountAmt || 0); }, 0);
+
+        // Ship discount estimate (actual computed server-side)
+        var shipDiscAmt = 0;
+        if (appliedShipVoucher && fee > 0) {
+          shipDiscAmt = fee; // conservative: assume full freeship
+        }
+
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal - shipDiscAmt);
 
         document.getElementById('sumSubtotal').textContent = fmt(sub);
         document.getElementById('sumShip').textContent = fee > 0 ? fmt(fee) : 'Miễn phí';
@@ -556,6 +833,44 @@
         } else {
           document.getElementById('discountRow').style.display = 'none';
         }
+        var shopDiscRow = document.getElementById('shopDiscountRow');
+        if (shopDiscRow) {
+          if (shopVoucherTotal > 0) {
+            shopDiscRow.style.display = 'flex';
+            var el = document.getElementById('sumShopDiscount');
+            if (el) el.textContent = '-' + fmt(shopVoucherTotal);
+          } else {
+            shopDiscRow.style.display = 'none';
+          }
+        }
+        var shipDiscRow = document.getElementById('shipDiscountRow');
+        if (shipDiscRow) {
+          if (shipDiscAmt > 0) {
+            shipDiscRow.style.display = 'flex';
+            var sde = document.getElementById('sumShipDiscount');
+            if (sde) sde.textContent = '-' + fmt(shipDiscAmt) + ' (ước tính)';
+          } else {
+            shipDiscRow.style.display = 'none';
+          }
+        }
+
+        // Per-shop breakdown
+        var shopBreakdownEl = document.getElementById('shopBreakdown');
+        if (shopBreakdownEl && _cartGrouped && _cartGrouped.groups && _cartGrouped.groups.length >= 1) {
+          var bkHtml = '';
+          _cartGrouped.groups.forEach(function(g) {
+            if (!g.shopId) return;
+            var shopD = (shopVouchers[g.shopId] && shopVouchers[g.shopId].discountAmt) || 0;
+            bkHtml += '<div style="background:#fdf6f0;border:1px solid #f3e4d5;border-radius:4px;padding:8px 12px;margin-bottom:6px;font-size:12px">';
+            bkHtml += '<div style="font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px"><i class="bi bi-shop" style="color:var(--pink)"></i>' + (g.shopName || 'Shop') + '</div>';
+            bkHtml += '<div style="display:flex;justify-content:space-between;color:#555"><span>Tạm tính:</span><span>' + fmt(g.subtotal) + '</span></div>';
+            if (shopD > 0) bkHtml += '<div style="display:flex;justify-content:space-between;color:#f59e0b"><span>Voucher shop:</span><span>-' + fmt(shopD) + '</span></div>';
+            bkHtml += '<div style="display:flex;justify-content:space-between;color:#555"><span>Phí ship:</span><span>' + fmt(g.shippingFee) + '</span></div>';
+            bkHtml += '</div>';
+          });
+          shopBreakdownEl.innerHTML = bkHtml;
+        }
+
         document.getElementById('sumTotal').textContent = fmt(total);
       }
 
@@ -585,6 +900,32 @@
           var def = savedAddresses.find(function (a) { return a.isDefault; }) || savedAddresses[0];
           if (def) selectAddress(def.id);
         }).catch(function () { showAddrSection([]); });
+      }
+
+      var _addrCascadeInited = false;
+      function loadNewAddrProvinces() {
+        if (_addrCascadeInited) return;
+        _addrCascadeInited = true;
+        if (typeof VNProvinces === 'undefined') return;
+        VNProvinces.setupCascade(
+          { province: 'newProv', district: 'newDist', ward: 'newWard' },
+          function (loc) { if (loc.provName) _updateShippingPreview(loc.provName); }
+        );
+      }
+
+      function fillAddressForm(addr) {
+        var provCode = addr.ProvinceCode || addr.provinceCode || '';
+        var distCode = addr.DistrictCode || addr.districtCode || '';
+        var wardCode = addr.WardCode     || addr.wardCode     || '';
+        document.getElementById('newName').value   = addr.ReceiverName || addr.name   || '';
+        document.getElementById('newPhone').value  = addr.Phone        || addr.phone  || '';
+        document.getElementById('newDetail').value = addr.Detail       || addr.detail || '';
+        if (provCode && typeof VNProvinces !== 'undefined') {
+          VNProvinces.setValues(
+            { province: 'newProv', district: 'newDist', ward: 'newWard' },
+            { provinceCode: provCode, districtCode: distCode, wardCode: wardCode }
+          );
+        }
       }
 
       function showAddrSection(list) {
@@ -652,55 +993,38 @@
         if (btn) btn.innerHTML = _newAddrVisible
           ? '<i class="bi bi-dash-circle"></i> Ẩn Form'
           : '<i class="bi bi-plus-circle"></i> Thêm Địa Chỉ Mới';
-        if (_newAddrVisible) loadNewAddrProvinces();
+        if (_newAddrVisible) _initNewAddrCascade();
       }
 
-      function loadNewAddrProvinces() {
-        var sel = document.getElementById('newProv');
-        if (!sel || sel.options.length > 1) return;
-        fetch('https://provinces.open-api.vn/api/p/')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            data.forEach(function (p) {
-              var o = document.createElement('option');
-              o.value = p.code; o.textContent = p.name;
-              sel.appendChild(o);
-            });
-          }).catch(function () {});
+      function _initNewAddrCascade() {
+        loadNewAddrProvinces();
       }
 
-      function loadNewDist() {
-        var distSel = document.getElementById('newDist');
-        var wardSel = document.getElementById('newWard');
-        distSel.innerHTML = '<option value="">-- Chọn quận --</option>';
-        wardSel.innerHTML = '<option value="">-- Chọn phường --</option>';
-        var code = document.getElementById('newProv').value;
-        if (!code) return;
-        fetch('https://provinces.open-api.vn/api/p/' + code + '?depth=2')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            (data.districts || []).forEach(function (d) {
-              var o = document.createElement('option');
-              o.value = d.code; o.textContent = d.name;
-              distSel.appendChild(o);
-            });
-          }).catch(function () {});
-      }
-
-      function loadNewWard() {
-        var wardSel = document.getElementById('newWard');
-        wardSel.innerHTML = '<option value="">-- Chọn phường --</option>';
-        var code = document.getElementById('newDist').value;
-        if (!code) return;
-        fetch('https://provinces.open-api.vn/api/d/' + code + '?depth=2')
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            (data.wards || []).forEach(function (w) {
-              var o = document.createElement('option');
-              o.value = w.code; o.textContent = w.name;
-              wardSel.appendChild(o);
-            });
-          }).catch(function () {});
+      function _updateShippingPreview(provinceName) {
+        var previewEl = document.getElementById('shipPreviewBox');
+        if (!previewEl) return;
+        if (!provinceName || typeof Cart === 'undefined' || typeof Cart.getGrouped !== 'function') {
+          previewEl.style.display = 'none'; return;
+        }
+        previewEl.style.display = 'block';
+        previewEl.innerHTML = '<div style="font-size:12px;color:var(--gray)"><i class="bi bi-hourglass-split me-1"></i>Đang tính phí vận chuyển...</div>';
+        Cart.getGrouped(provinceName).then(function (r) {
+          if (!r || !r.groups || !r.groups.length) { previewEl.style.display = 'none'; return; }
+          baseShippingFee = r.totalShipping;
+          numShopGroups   = r.groups.length;
+          shippingFee     = baseShippingFee;
+          _refreshShipMethodPrices();
+          updateTotals();
+          var html = '<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#333"><i class="bi bi-truck me-1" style="color:var(--pink)"></i>Phí ship ước tính (tiêu chuẩn)</div>';
+          r.groups.forEach(function (g) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed #eee">'
+              + '<span style="color:#555"><i class="bi bi-shop me-1" style="color:var(--pink)"></i>' + (g.shopName || g.shopId) + '</span>'
+              + '<span style="font-weight:600">' + fmt(g.shippingFee) + '</span></div>';
+          });
+          html += '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:5px 0;color:var(--pink)">'
+            + '<span>Tổng phí ship</span><span>' + fmt(r.totalShipping) + '</span></div>';
+          previewEl.innerHTML = html;
+        }).catch(function () { previewEl.style.display = 'none'; });
       }
 
       function saveNewAddress() {
@@ -723,9 +1047,9 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Đang lưu...';
 
-        var provName = prov.options[prov.selectedIndex] ? prov.options[prov.selectedIndex].textContent : '';
-        var distName = dist.options[dist.selectedIndex] ? dist.options[dist.selectedIndex].textContent : '';
-        var wardName = ward.selectedIndex > 0 && ward.options[ward.selectedIndex] ? ward.options[ward.selectedIndex].textContent : '';
+        var provName = prov.selectedIndex > 0 ? (prov.options[prov.selectedIndex].dataset.name || prov.options[prov.selectedIndex].textContent) : '';
+        var distName = dist.selectedIndex > 0 ? (dist.options[dist.selectedIndex].dataset.name || dist.options[dist.selectedIndex].textContent) : '';
+        var wardName = ward.selectedIndex > 0 ? (ward.options[ward.selectedIndex].dataset.name || ward.options[ward.selectedIndex].textContent) : '';
 
         var payload = {
           ReceiverName: name, Phone: phone,
@@ -755,8 +1079,12 @@
           // Reset form
           ['newName', 'newPhone', 'newDetail'].forEach(function (id) { document.getElementById(id).value = ''; });
           document.getElementById('newProv').value = '';
-          document.getElementById('newDist').innerHTML = '<option value="">-- Chọn quận --</option>';
-          document.getElementById('newWard').innerHTML = '<option value="">-- Chọn phường --</option>';
+          document.getElementById('newDist').innerHTML = '<option value="">-- Chọn tỉnh trước --</option>';
+          document.getElementById('newDist').disabled = true;
+          document.getElementById('newWard').innerHTML = '<option value="">-- Chọn quận trước --</option>';
+          document.getElementById('newWard').disabled = true;
+          var spb = document.getElementById('shipPreviewBox');
+          if (spb) spb.style.display = 'none';
           document.getElementById('newIsDefault').checked = false;
           showToast('Đã lưu địa chỉ thành công!');
         }).catch(function (e) {
@@ -810,29 +1138,88 @@
           ? (addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', '))
           : '—';
         var addrName = addr ? (addr.name + ' — ' + addr.phone) : '—';
-        var shipLabels = { standard: 'Giao hàng tiêu chuẩn', express: 'Giao hàng nhanh (+30.000₫)', same: 'Giao trong ngày (+50.000₫)' };
+        var _expSurcharge  = numShopGroups * 15000;
+        var _sameSurcharge = numShopGroups * 30000;
+        var shipLabels = {
+          standard: 'Giao hàng tiêu chuẩn',
+          express:  'Giao hàng nhanh' + (_expSurcharge  > 0 ? ' (+' + fmt(_expSurcharge)  + ')' : ''),
+          same:     'Giao trong ngày' + (_sameSurcharge > 0 ? ' (+' + fmt(_sameSurcharge) + ')' : '')
+        };
         var payLabels  = { cod: 'COD (khi nhận hàng)', bank: 'Chuyển khoản ngân hàng', momo: 'Ví MoMo', zalopay: 'ZaloPay' };
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
         var fee = (shippingMethod === 'standard' && sub >= 500000) ? 0 : shippingFee;
-        var total = Math.max(0, sub + fee - discountAmt);
+        var shipDiscAmt = (appliedShipVoucher && fee > 0) ? fee : 0;
+        var total = Math.max(0, sub + fee - discountAmt - shopVoucherTotal - shipDiscAmt);
 
-        document.getElementById('confirmDetail').innerHTML =
-          '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
+        var grid = '<div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px">'
           + '<span style="color:var(--gray)">Người nhận:</span><strong>' + addrName + '</strong>'
           + '<span style="color:var(--gray)">Địa chỉ:</span><span>' + addrText + '</span>'
-          + '<span style="color:var(--gray)">Vận chuyển:</span><span>' + (shipLabels[shippingMethod] || shippingMethod) + '</span>'
           + '<span style="color:var(--gray)">Thanh toán:</span><span>' + (payLabels[selectedPay] || selectedPay) + '</span>'
-          + '<span style="color:var(--gray)">Tạm tính:</span><span>' + fmt(sub) + '</span>'
-          + (fee ? '<span style="color:var(--gray)">Phí ship:</span><span>' + fmt(fee) + '</span>' : '')
-          + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
-          + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px">' + fmt(total) + '</strong>'
+          + '<span style="color:var(--gray)">Vận chuyển:</span><span>' + (shipLabels[shippingMethod] || shippingMethod) + '</span>'
           + '</div>';
+
+        document.getElementById('confirmDetail').innerHTML = grid
+          + '<div id="confirmShopGroups" style="margin:10px 0;font-size:12px;color:var(--gray)">Đang tính phí vận chuyển...</div>'
+          + '<div style="display:grid;grid-template-columns:120px 1fr;gap:4px 12px;margin-top:8px">'
+          + '<span style="color:var(--gray)">Tạm tính:</span><span>' + fmt(sub) + '</span>'
+          + (discountAmt ? '<span style="color:var(--gray)">Giảm giá:</span><span style="color:var(--pink)">-' + fmt(discountAmt) + '</span>' : '')
+          + '<span style="color:var(--gray)">Phí vận chuyển:</span><span>' + (fee === 0 ? 'Miễn phí' : fmt(fee)) + '</span>'
+          + (shopVoucherTotal ? '<span style="color:var(--gray)">Voucher shop:</span><span style="color:var(--pink)">-' + fmt(shopVoucherTotal) + '</span>' : '')
+          + (shipDiscAmt ? '<span style="color:var(--gray)">Voucher ship:</span><span style="color:#1d4ed8">-' + fmt(shipDiscAmt) + '</span>' : '')
+          + '<span style="color:var(--gray)">Tổng cộng:</span><strong style="color:var(--pink);font-size:16px" id="confirmTotal">' + fmt(total) + '</strong>'
+          + '</div>';
+
+        // Try to load grouped cart with shipping estimate
+        if (addr && typeof Cart !== 'undefined' && typeof Cart.getGrouped === 'function') {
+          Cart.getGrouped(addr.province).then(function (grouped) {
+            var grpEl = document.getElementById('confirmShopGroups');
+            if (!grpEl) return;
+            if (!grouped || !grouped.groups || !grouped.groups.length) {
+              grpEl.style.display = 'none'; return;
+            }
+            var perShopSurcharge = shippingMethod === 'express' ? 15000 : shippingMethod === 'same' ? 30000 : 0;
+            var totalSurcharge   = grouped.groups.length * perShopSurcharge;
+            var html = '<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">'
+              + '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Phí vận chuyển theo shop</div>';
+            grouped.groups.forEach(function (g) {
+              html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee">'
+                + '<span><i class="bi bi-shop" style="color:var(--pink);margin-right:4px"></i>' + (g.shopName || g.shopId) + '</span>'
+                + '<span style="font-weight:600">' + fmt(g.shippingFee + perShopSurcharge) + '</span></div>';
+            });
+            html += '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:6px 0;border-top:1px solid var(--border)">'
+              + '<span>Tổng ship</span><span>' + fmt(grouped.totalShipping + totalSurcharge) + '</span></div></div>';
+            grpEl.innerHTML = html;
+            // Update grand total (apply all discounts)
+            var grandTotal = document.getElementById('confirmTotal');
+            if (grandTotal) grandTotal.textContent = fmt(Math.max(0, grouped.grandTotal - discountAmt - shopVoucherTotal));
+          }).catch(function () {
+            var grpEl = document.getElementById('confirmShopGroups');
+            if (grpEl) grpEl.style.display = 'none';
+          });
+        } else {
+          var grpEl = document.getElementById('confirmShopGroups');
+          if (grpEl) grpEl.style.display = 'none';
+        }
       }
 
       // ── Ship / Pay ──
-      function selectShip(type, fee, el) {
+      // Cập nhật label giá các phương thức ship dựa trên baseShippingFee + surcharge thực tế
+      function _refreshShipMethodPrices() {
+        var sub = cartItems.reduce(function(s,i){return s+_itemPrice(i)*_itemQty(i);},0);
+        var stdEl  = document.getElementById('shipStdPrice');
+        var expEl  = document.getElementById('shipExpressPrice');
+        var sameEl = document.getElementById('shipSamePrice');
+        if (stdEl)  stdEl.textContent  = (sub >= 500000) ? 'Miễn phí' : fmt(baseShippingFee);
+        if (expEl)  expEl.textContent  = fmt(baseShippingFee + numShopGroups * 15000);
+        if (sameEl) sameEl.textContent = fmt(baseShippingFee + numShopGroups * 30000);
+      }
+
+      function selectShip(type, el) {
         shippingMethod = type;
-        shippingFee    = fee;
+        var surcharge  = type === 'express' ? numShopGroups * 15000
+                       : type === 'same'    ? numShopGroups * 30000
+                       : 0;
+        shippingFee    = baseShippingFee + surcharge;
         document.querySelectorAll('.ship-option').forEach(function (o) { o.classList.remove('selected'); });
         if (el) el.classList.add('selected');
         updateTotals();
@@ -842,15 +1229,13 @@
         selectedPay = type;
         document.querySelectorAll('.pay-option').forEach(function (o) { o.classList.remove('selected'); });
         if (el) el.classList.add('selected');
-        document.getElementById('bankInfo').style.display = type === 'bank' ? 'block' : 'none';
-        if (type === 'bank') {
-          var addr = savedAddresses.find(function (a) { return String(a.id) === String(selectedAddrId); });
-          document.getElementById('bankContent').textContent = 'GH ' + (addr ? addr.phone : 'SĐT của bạn');
-        }
+        document.getElementById('bankInfo').style.display  = type === 'bank'   ? 'block' : 'none';
+        document.getElementById('vnpayInfo').style.display = type === 'vnpay'  ? 'block' : 'none';
+        document.getElementById('momoInfo').style.display  = type === 'momo'   ? 'block' : 'none';
       }
 
       // ── Voucher ──
-      function applyVoucher() {
+      async function applyVoucher() {
         var code = document.getElementById('voucherInput').value.trim().toUpperCase();
         if (!code) { showToast('Vui lòng nhập mã giảm giá!', 'err'); return; }
         var sub = cartItems.reduce(function (s, i) { return s + _itemPrice(i) * _itemQty(i); }, 0);
@@ -858,42 +1243,105 @@
         var errEl = document.getElementById('voucherErr');
         okEl.style.display = 'none'; errEl.style.display = 'none';
 
+        var shopId = typeof _coVpShopId !== 'undefined' ? _coVpShopId : null;
+
+        try {
+          var token = typeof Auth !== 'undefined' && Auth.getToken ? Auth.getToken() : localStorage.getItem('token');
+          var headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+
+          var res = await fetch(PRODUCT_API + '/api/vouchers/validate', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ code: code, orderAmount: sub, shopId: shopId })
+          });
+          var data = await res.json();
+
+          if (data.valid) {
+            discountAmt    = data.discountAmount || 0;
+            appliedVoucher = code;
+            updateTotals();
+            okEl.querySelector('span').textContent = data.message || 'Áp dụng thành công!';
+            okEl.style.display = 'flex';
+            showToast('Áp dụng mã giảm giá thành công!');
+            localStorage.setItem('gh_applied_voucher', JSON.stringify({ code: code, discountAmount: discountAmt, label: data.message, shopId: shopId }));
+          } else {
+            errEl.textContent  = data.message || 'Mã không hợp lệ';
+            errEl.style.display = 'block';
+            discountAmt = 0; appliedVoucher = null; updateTotals();
+            localStorage.removeItem('gh_applied_voucher');
+          }
+          _coVpShopId = null;
+        } catch (e) {
+          errEl.textContent = 'Không thể kiểm tra mã. Vui lòng thử lại.';
+          errEl.style.display = 'block';
+        }
+      }
+
+      function removeShipVoucher() {
+        appliedShipVoucher = null;
+        localStorage.removeItem('gh_applied_ship_voucher');
+        var row = document.getElementById('shipVoucherRow');
+        if (row) row.style.display = 'none';
+        updateTotals();
+      }
+
+      // ── Voucher shop (per-shop) ──
+      function applyShopVoucher(shopId, shopName, subtotal) {
+        var inputEl = document.getElementById('svInput-' + shopId);
+        var code = inputEl ? inputEl.value.trim().toUpperCase() : '';
+        if (!code) { showToast('Vui lòng nhập mã voucher của ' + shopName + '!', 'err'); return; }
+        var okEl  = document.getElementById('svOk-'  + shopId);
+        var errEl = document.getElementById('svErr-' + shopId);
+        if (okEl)  okEl.style.display  = 'none';
+        if (errEl) errEl.style.display = 'none';
+
         var doValidate = typeof Voucher !== 'undefined'
-          ? Voucher.validate(code, sub)
+          ? Voucher.validate(code, subtotal, shopId)
           : Promise.resolve(null);
 
         doValidate.then(function (res) {
           if (res && res.valid) {
-            discountAmt    = res.discountAmount || 0;
-            appliedVoucher = code;
+            shopVouchers[shopId] = { code: code, discountAmt: res.discountAmount || 0 };
             updateTotals();
-            okEl.querySelector('span').textContent = res.message || 'Áp dụng thành công!';
-            okEl.style.display = 'flex';
-            showToast('Áp dụng mã giảm giá thành công!');
-          } else if (res) {
-            errEl.textContent  = res.message || 'Mã không hợp lệ';
-            errEl.style.display = 'block';
-            discountAmt = 0; appliedVoucher = null; updateTotals();
-          } else {
-            var demos = { GLOW10: { pct: 10 }, FREESHIP: { fixed: 30000 }, GLOW50K: { fixed: 50000 } };
-            var d = demos[code];
-            if (d) {
-              discountAmt    = d.fixed || Math.round(sub * d.pct / 100);
-              appliedVoucher = code;
-              updateTotals();
-              okEl.querySelector('span').textContent = 'Giảm ' + fmt(discountAmt);
+            if (okEl) {
               okEl.style.display = 'flex';
-              showToast('Áp dụng mã thành công!');
-            } else {
-              errEl.textContent = 'Mã không hợp lệ hoặc đã hết hạn';
+              var sp = okEl.querySelector('span');
+              if (sp) sp.textContent = 'Giảm ' + fmt(res.discountAmount || 0) + ' từ ' + shopName;
+            }
+            showToast('Áp dụng voucher shop thành công!');
+          } else {
+            delete shopVouchers[shopId];
+            updateTotals();
+            if (errEl) {
               errEl.style.display = 'block';
-              discountAmt = 0; appliedVoucher = null; updateTotals();
+              errEl.textContent = (res && res.message) || 'Mã không hợp lệ hoặc không thuộc shop này';
             }
           }
         }).catch(function () {
-          errEl.textContent = 'Không thể kiểm tra mã. Vui lòng thử lại.';
-          errEl.style.display = 'block';
+          if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Không thể kiểm tra mã. Vui lòng thử lại.'; }
         });
+      }
+
+      // ── Sync localStorage cart → DB (backend checkout reads from DB, not body) ──
+      function syncCartToDB() {
+        var key = (typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart';
+        var items = [];
+        try { items = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+        if (!items.length) return Promise.resolve();
+
+        return apiFetch(PRODUCT_API, '/api/cart/clear', 'DELETE')
+          .catch(function () { return null; })
+          .then(function () {
+            var adds = items.map(function (item) {
+              var pid = parseInt(item.id || item.Id || 0, 10);
+              var qty = parseInt(item.qty || item.quantity || 1, 10);
+              if (!pid || qty < 1) return Promise.resolve();
+              return apiFetch(PRODUCT_API, '/api/cart/add', 'POST', { ProductId: pid, Quantity: qty })
+                .catch(function (e) { console.warn('[Cart sync] item', pid, 'failed:', e.message); });
+            });
+            return Promise.all(adds);
+          });
       }
 
       // ── Place Order ──
@@ -910,34 +1358,61 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang xử lý...';
 
-        var payMap  = { cod: "COD", bank: "BANK", momo: "MOMO", zalopay: "ZALOPAY" };
+        var payMap  = { cod: 0, bank: 1, momo: 2, vnpay: 4 };
         var fullAddr = addr.fullAddress || [addr.detail, addr.ward, addr.district, addr.province].filter(Boolean).join(', ');
         var payload  = {
           ShippingAddress: fullAddr,
+          ToProvince:      addr.province || '',
           Note:            document.getElementById('orderNote').value.trim(),
           ReceiverName:    addr.name,
           ReceiverPhone:   addr.phone,
-          PaymentMethod:   payMap[selectedPay] || "COD",
+          PaymentMethod:   (selectedPay in payMap) ? payMap[selectedPay] : 0,
           VoucherCode:     appliedVoucher || null,
-          ShippingMethod:  shippingMethod
+          ShipVoucherCode: appliedShipVoucher || null,
+          ShopVouchers:    Object.keys(shopVouchers).length
+            ? Object.keys(shopVouchers).reduce(function (obj, sid) {
+                obj[sid] = shopVouchers[sid].code; return obj;
+              }, {})
+            : null,
+          ShippingMethod:  shippingMethod || 'standard'
         };
 
-        var syncP = typeof CartDB !== 'undefined' && Auth.isLoggedIn()
-          ? CartDB.syncToDB().catch(function (e) { console.warn('[Cart sync]', e); })
-          : Promise.resolve();
-
-        syncP.then(function () {
+        Promise.resolve()
+        .then(function () { return syncCartToDB(); })
+        .then(function () {
           return typeof Order !== 'undefined'
             ? Order.checkout(payload)
             : Promise.reject(new Error('API not ready'));
         }).then(function (result) {
           cartItems = [];
           if (typeof Cart !== 'undefined' && Cart.clear) Cart.clear();
-          localStorage.removeItem('glowhub_cart');
+          localStorage.removeItem((typeof Cart !== 'undefined' && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : 'gh_cart');
 
-          var orderId   = result && (result.orderId   || result.OrderId   || result.Id   || result.id   || '');
-          var orderCode = result && (result.orderCode || result.OrderCode || ('ORD-' + orderId));
-          window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+          var orderId      = result && (result.orderId      || result.OrderId      || result.Id      || result.id   || '');
+          var orderCode    = result && (result.orderCode    || result.OrderCode    || ('ORD-' + orderId));
+          var payMethod    = result && (result.paymentMethod|| result.PaymentMethod|| payMap[selectedPay] || 'COD');
+          var payStatus    = result && (result.paymentStatus|| result.PaymentStatus|| '');
+          var expireAt     = result && (result.paymentExpireAt || result.PaymentExpireAt || '');
+          var requiresPay  = result && (result.requiresPayment || result.RequiresPayment || false);
+          var finalAmount  = result && (result.finalAmount  || result.FinalAmount  || result.totalAmount || 0);
+
+          if (requiresPay && (payMethod === 'BANK' || payMethod === 'VNPAY')) {
+            // Redirect đến trang chờ thanh toán
+            var wp = 'waiting-payment.html?orderId=' + orderId
+              + '&method=' + payMethod
+              + '&orderCode=' + encodeURIComponent(orderCode)
+              + '&amount=' + finalAmount;
+            if (expireAt) wp += '&expireAt=' + encodeURIComponent(expireAt);
+            window.location.href = wp;
+          } else if (payMethod === 'MOMO') {
+            // MoMo: hiện fake modal rồi redirect order-success
+            showToast('Thanh toán MoMo đang được xử lý...');
+            setTimeout(function() {
+              window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+            }, 1500);
+          } else {
+            window.location.href = 'order-success.html?orderId=' + orderId + '&orderCode=' + encodeURIComponent(orderCode);
+          }
         }).catch(function (e) {
           showToast('Lỗi: ' + e.message + '. Vui lòng thử lại!', 'err');
           btn.disabled = false;
@@ -1025,7 +1500,7 @@
           var finalAmt  = o.finalAmount || o.FinalAmount || o.totalAmount || o.TotalAmount || 0;
           var oid       = o.id || o.Id || o.orderId;
           var canCancel = status === 'PENDING';
-          var canRecv   = status === 'DELIVERED';
+          var canRecv   = status === 'SHIPPING';
 
           return '<div class="po-card">'
             + '<div class="po-card-hd">'
@@ -1169,9 +1644,12 @@
     </div>
 
     <script>
-    var _coVpVouchers = [];
-    var _coVpSelected = null;
-    var _coVpLoaded   = false;
+    var _coVpVouchers     = [];
+    var _coVpSaved        = [];
+    var _coVpSelectedShip = null;
+    var _coVpSelectedDisc = null;
+    var _coVpLoaded       = false;
+    var _coVpShopId       = null;
 
     function openCoVoucherPicker() {
       document.getElementById("coVoucherPickerBackdrop").classList.add("show");
@@ -1184,67 +1662,153 @@
     }
 
     async function loadCoVoucherPicker() {
+      var list = document.getElementById("co-vp-list");
       try {
-        var res = await fetch("/api/vouchers/public");
+        var res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) _coVpVouchers = await res.json();
+        if (typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn()) {
+          try {
+            var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { "Authorization": "Bearer " + Auth.getToken() }
+            });
+            if (res2.ok)
+              _coVpSaved = (await res2.json()).filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
+          } catch (_) {}
+        }
         _coVpLoaded = true;
-        coVpRender(_coVpVouchers);
-      } catch(_) {
-        document.getElementById("co-vp-list").innerHTML =
-          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+        coVpRender(_coVpVouchers, _coVpSaved);
+      } catch (_) {
+        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
       }
+    }
+
+    function _coIsShip(v) {
+      return (v.DiscountType || "").toLowerCase() === "freeship"
+        || (v.Code || "").toUpperCase().includes("SHIP")
+        || (v.Description || "").toLowerCase().includes("freeship")
+        || (v.Description || "").toLowerCase().includes("vận chuyển");
     }
 
     function coVpFilter() {
       var q = (document.getElementById("co-vp-search").value || "").toLowerCase();
-      var filtered = q ? _coVpVouchers.filter(v =>
-        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
-      ) : _coVpVouchers;
-      coVpRender(filtered);
+      var fp = q ? _coVpVouchers.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _coVpVouchers;
+      var fs = q ? _coVpSaved.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _coVpSaved;
+      coVpRender(fp, fs);
     }
 
     function coVpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function coVpDiscLabel(v) {
-      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${coVpFmt(v.discountValue)}`;
+      if (_coIsShip(v)) return "Miễn/giảm phí vận chuyển";
+      return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${coVpFmt(v.DiscountValue)}`;
     }
 
-    function coVpRender(list) {
+    function coVpItem(v, isSaved, isShip) {
+      var isSelShip = isShip  && _coVpSelectedShip && _coVpSelectedShip.Code === v.Code;
+      var isSelDisc = !isShip && _coVpSelectedDisc && _coVpSelectedDisc.Code === v.Code;
+      var isSel = isSelShip || isSelDisc;
+      var typeClass = isShip ? "co-vp-ship-item" : "co-vp-disc-item";
+      var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)" : "";
+      var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
+      var onclick = isShip ? `coVpSelectShip(this,'${v.Code}')` : `coVpSelectDisc(this,'${v.Code}')`;
+      var shopTag = !isShip && v.ShopId && v.shopName
+        ? `<span style="color:#f97316;font-weight:600">🏪 ${v.shopName}</span> · ` : '';
+      return `
+        <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
+          <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.Description || v.Code}</div>
+            <div class="vo-mvi-sub">
+              ${shopTag}${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
+              ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
+              ${isSaved ? ' · <span style="color:#22c55e">Đã lưu</span>' : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.Code}</div>
+          <div class="vo-mvi-radio"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="11" fill="white" stroke="var(--pink)" stroke-width="2"/><polyline points="5,12 10,17 19,7" stroke="var(--pink)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>`;
+    }
+
+    function coVpRender(publicList, savedList) {
       var el = document.getElementById("co-vp-list");
-      if (!list.length) {
+      savedList = savedList || [];
+      var savedCodes = new Set(savedList.map(v => v.Code));
+
+      function sortBest(a, b) {
+        var aS = savedCodes.has(a.Code) ? 1 : 0, bS = savedCodes.has(b.Code) ? 1 : 0;
+        if (aS !== bS) return bS - aS;
+        return (b.DiscountValue || 0) - (a.DiscountValue || 0);
+      }
+
+      var allShip = [...savedList.filter(_coIsShip), ...publicList.filter(_coIsShip)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var _coCartShopIds = new Set(
+        (_cartGrouped && _cartGrouped.groups ? _cartGrouped.groups : []).map(function(g){return g.shopId;}).filter(Boolean)
+      );
+      var allDisc = [...savedList.filter(v=>!_coIsShip(v)), ...publicList.filter(v=>!_coIsShip(v))]
+        .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
+        .filter(v => !v.ShopId || _coCartShopIds.has(v.ShopId));
+      allShip.sort(sortBest); allDisc.sort(sortBest);
+
+      var html = "";
+      var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
+
+      if (allShip.length) {
+        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển <span style="font-size:9px;color:#6b7280">(chọn 1)</span></div>`;
+        html += allShip.map(v => coVpItem(v, savedCodes.has(v.Code), true)).join("");
+      }
+      if (allDisc.length) {
+        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá <span style="font-size:9px;color:#6b7280">(chọn 1)</span></div>`;
+        html += allDisc.map(v => coVpItem(v, savedCodes.has(v.Code), false)).join("");
+      }
+      if (!html) {
         el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
         return;
       }
-      el.innerHTML = list.map(v => `
-        <div class="vo-modal-voucher-item ${_coVpSelected && _coVpSelected.code === v.code ? 'selected' : ''}"
-             onclick="coVpSelect(this,'${v.code}')">
-          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-          <div class="vo-mvi-info">
-            <div class="vo-mvi-title">${coVpDiscLabel(v)} — ${v.description || v.code}</div>
-            <div class="vo-mvi-sub">
-              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + coVpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
-              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
-            </div>
-          </div>
-          <div class="vo-mvi-code">${v.code}</div>
-        </div>
-      `).join("");
+      el.innerHTML = html;
     }
 
-    function coVpSelect(el, code) {
-      document.querySelectorAll("#co-vp-list .vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
+    function coVpSelectShip(el, code) {
+      document.querySelectorAll(".co-vp-ship-item").forEach(e => e.classList.remove("selected"));
+      if (_coVpSelectedShip && _coVpSelectedShip.Code === code) { _coVpSelectedShip = null; return; }
       el.classList.add("selected");
-      _coVpSelected = _coVpVouchers.find(v => v.code === code) || { code };
+      _coVpSelectedShip = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
     }
 
-    function applyCoPickedVoucher() {
-      if (!_coVpSelected) { closeCoVoucherPicker(); return; }
-      var inp = document.getElementById("voucherInput");
-      if (inp) {
-        inp.value = _coVpSelected.code;
-        closeCoVoucherPicker();
-        if (typeof applyVoucher === "function") applyVoucher();
+    function coVpSelectDisc(el, code) {
+      document.querySelectorAll(".co-vp-disc-item").forEach(e => e.classList.remove("selected"));
+      if (_coVpSelectedDisc && _coVpSelectedDisc.Code === code) { _coVpSelectedDisc = null; return; }
+      el.classList.add("selected");
+      _coVpSelectedDisc = _coVpSaved.find(v => v.Code === code) || _coVpVouchers.find(v => v.Code === code) || { Code: code };
+    }
+
+    async function applyCoPickedVoucher() {
+      closeCoVoucherPicker();
+
+      // Apply ship voucher
+      if (_coVpSelectedShip) {
+        appliedShipVoucher = _coVpSelectedShip.Code;
+        localStorage.setItem('gh_applied_ship_voucher', JSON.stringify({
+          code: _coVpSelectedShip.Code,
+          description: _coVpSelectedShip.Description || 'Giảm phí vận chuyển'
+        }));
+        var row = document.getElementById('shipVoucherRow');
+        var lbl = document.getElementById('shipVoucherLabel');
+        if (row) row.style.display = 'flex';
+        if (lbl) lbl.textContent = _coVpSelectedShip.Code + ' — ' + (_coVpSelectedShip.Description || 'Giảm phí vận chuyển');
+        updateTotals();
+      }
+
+      // Apply discount voucher
+      if (_coVpSelectedDisc) {
+        var inp = document.getElementById("voucherInput");
+        if (inp) {
+          inp.value = _coVpSelectedDisc.Code;
+          _coVpShopId = _coVpSelectedDisc.ShopId !== undefined ? _coVpSelectedDisc.ShopId : null;
+          if (typeof applyVoucher === "function") await applyVoucher();
+        }
       }
     }
     </script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>

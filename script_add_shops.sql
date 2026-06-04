@@ -1,4 +1,5 @@
 -- ============================================================
+-- 28/05/2026
 -- MIGRATION: Add Shops + ShopProducts tables to BaseCoreDB
 -- Run this script on your existing BaseCoreDB database
 -- ============================================================
@@ -84,3 +85,4 @@ GO
 
 PRINT 'Tables Shops and ShopProducts created successfully.'
 GO
+

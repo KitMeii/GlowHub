@@ -38,183 +38,108 @@
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/cart.css" />
     <link rel="stylesheet" href="theme/voucher.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
   </head>
   <body>
-    <div id="lux-cursor-dot"></div>
-    <div id="lux-cursor-ring"></div>
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
 
-    <!-- ── NAVBAR ── -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
-      <div
-        class="container-fluid"
-        style="max-width: 1200px; margin: 0 auto; padding: 0 24px"
-      >
-        <a
-          class="navbar-brand"
-          href="index.html"
-          style="
-            font-family: &quot;Marcellus&quot;, serif;
-            letter-spacing: 4px;
-            color: #111;
-            text-decoration: none;
-            font-size: 1.4rem;
-          "
-          >GLOWHUB</a
-        >
-        <div class="d-flex align-items-center gap-3 d-lg-none">
-          <a href="cart.html" class="position-relative" style="color: #f759ab">
-            <i class="bi bi-bag-fill" style="font-size: 22px"></i>
-          </a>
-          <button
-            class="navbar-toggler border-0"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasNavCart"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-        <div
-          class="offcanvas offcanvas-end"
-          tabindex="-1"
-          id="offcanvasNavCart"
-        >
-          <div class="offcanvas-header">
-            <h5
-              class="offcanvas-title"
-              style="
-                font-family: &quot;Marcellus&quot;, serif;
-                letter-spacing: 3px;
-              "
-            >
-              GLOWHUB
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="offcanvas"
-            ></button>
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
           </div>
-          <div class="offcanvas-body">
-            <ul
-              class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4"
-            >
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="index.html"
-                  style="
-                    font-size: 13px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    color: #111;
-                    font-weight: 500;
-                  "
-                  >Trang Chủ</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="shop.html"
-                  style="
-                    font-size: 13px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    color: #111;
-                    font-weight: 500;
-                  "
-                  >Cửa Hàng</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="checkout.html"
-                  style="
-                    font-size: 13px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    color: #111;
-                    font-weight: 500;
-                  "
-                  >Thanh Toán</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="policy.html#lien-he"
-                  style="
-                    font-size: 13px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    color: #111;
-                    font-weight: 500;
-                  "
-                  >Liên Hệ</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="d-none d-lg-flex align-items-center gap-4">
-          <a
-            href="shop.html"
-            style="
-              font-size: 12px;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-              color: #111;
-              text-decoration: none;
-              font-weight: 500;
-            "
-            onmouseover="this.style.color = '#f759ab'"
-            onmouseout="this.style.color = '#111'"
-            >Cửa Hàng</a
-          >
-          <a
-            href="checkout.html"
-            style="
-              font-size: 12px;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-              color: #111;
-              text-decoration: none;
-              font-weight: 500;
-            "
-            onmouseover="this.style.color = '#f759ab'"
-            onmouseout="this.style.color = '#111'"
-            >Thanh Toán</a
-          >
-          <div id="nav-user-area"></div>
-          <a
-            href="checkout.html?tab=profile"
-            class="position-relative"
-            style="color: #111; text-decoration: none"
-            title="Hồ sơ của tôi"
-            onmouseover="this.style.color = '#f759ab'"
-            onmouseout="this.style.color = '#111'"
-          >
-            <i class="bi bi-person-circle" style="font-size: 20px"></i>
-          </a>
-          <a
-            href="cart.html"
-            class="position-relative"
-            style="color: #f759ab; text-decoration: none"
-            title="Giỏ hàng"
-          >
-            <i class="bi bi-bag-fill" style="font-size: 20px"></i>
-            <span
-              id="cart-count"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size: 10px"
-              >0</span
-            >
-          </a>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
         </div>
       </div>
-    </nav>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
 
     <!-- ── BREADCRUMB ── -->
     <div class="breadcrumb-bar">
@@ -285,62 +210,13 @@
         NEWUSER: { type: "fixed", value: 50000, label: "Giảm 50.000₫" },
       };
 
-      const SHIPPING_OPTS = [
-        {
-          id: "standard",
-          name: "Tiêu Chuẩn",
-          sub: "3–5 ngày • GHN / GHTK",
-          fee: 0,
-          free: true,
-        },
-        {
-          id: "express",
-          name: "Nhanh",
-          sub: "1–2 ngày • J&T Express",
-          fee: 25000,
-          free: false,
-        },
-        {
-          id: "sameday",
-          name: "Trong Ngày",
-          sub: "Nội thành trước 22:00",
-          fee: 60000,
-          free: false,
-        },
-      ];
-
-      const SUGGESTIONS = [
-        {
-          id: 901,
-          name: "Serum Vitamin C",
-          price: 285000,
-          img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80",
-        },
-        {
-          id: 902,
-          name: "Toner Hoa Hồng",
-          price: 195000,
-          img: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80",
-        },
-        {
-          id: 903,
-          name: "Kem Chống Nắng",
-          price: 320000,
-          img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80",
-        },
-        {
-          id: 904,
-          name: "Son Lì Đỏ",
-          price: 145000,
-          img: "https://images.unsplash.com/photo-1586495777744-4e6232bf2263?w=400&q=80",
-        },
-      ];
 
       // ══════════════════════════════════════════════
       //  STATE
       // ══════════════════════════════════════════════
       let appliedCoupon = null;
-      let selectedShipping = SHIPPING_OPTS[0]; // default: standard (free)
+      let appliedShipCoupon = null;
+      let _shopVouchers = {}; // shopId → { code, discountAmount, shopName }
 
       // ══════════════════════════════════════════════
       //  FORMAT
@@ -406,7 +282,7 @@
                             <button class="clear-cart-btn" onclick="clearAll()">🗑 Xóa tất cả</button>
                           </div>
                           <div id="items-body">
-                            ${items.map((item) => renderItem(item)).join("")}
+                            ${renderItemsGrouped(items)}
                           </div>
                           <div class="coupon-bar">
                             <input type="text" id="coupon-input" placeholder="Nhập mã giảm giá..." maxlength="20"
@@ -417,6 +293,7 @@
                             </button>
                           </div>
                           <div class="coupon-msg" id="coupon-msg"></div>
+                          <div class="coupon-msg ok" id="ship-coupon-display" style="display:none"></div>
                         </div>
                         <a href="index.html" class="continue-link">← Tiếp Tục Mua Sắm</a>
                       </div>`;
@@ -442,23 +319,6 @@
                         <div class="summary-body">
                           ${shipBarHTML}
                           ${renderSummaryLines(items)}
-                          <div class="shipping-options">
-                            <p>Phương Thức Vận Chuyển</p>
-                            ${SHIPPING_OPTS.map(
-                              (opt) => `
-                              <label class="shipping-opt">
-                                <input type="radio" name="shipping" value="${opt.id}"
-                                  ${opt.id === selectedShipping.id ? "checked" : ""}
-                                  onchange="selectShipping('${opt.id}')" />
-                                <div class="opt-label">
-                                  ${opt.name}
-                                  <div class="opt-sub">${opt.sub}</div>
-                                </div>
-                                <span class="opt-price ${opt.free ? "free" : ""}">${opt.free ? "Miễn phí" : fmt(opt.fee)}</span>
-                              </label>
-                            `,
-                            ).join("")}
-                          </div>
                           <a href="checkout.html" class="btn-checkout" onclick="saveCartToSession()">
                             Tiến Hành Thanh Toán →
                           </a>
@@ -481,6 +341,58 @@
             inp.disabled = true;
           }
         }
+
+        // Restore ship coupon state
+        if (appliedShipCoupon) {
+          const shipDisp = document.getElementById("ship-coupon-display");
+          if (shipDisp) {
+            shipDisp.textContent = "✓ Ship: " + appliedShipCoupon.code + " — sẽ giảm phí vận chuyển khi thanh toán";
+            shipDisp.style.display = "block";
+          }
+        }
+      }
+
+      // ── Group items by shop ──
+      function _groupByShop(items) {
+        const map = {};
+        items.forEach(function (item) {
+          const sid = item.shopId || item.ShopId || "__none__";
+          const sname = item.shopName || item.ShopName || "";
+          if (!map[sid]) map[sid] = { shopId: sid, shopName: sname, items: [] };
+          // Upgrade to a better (non-empty) name if available from any item in the group
+          else if (!map[sid].shopName && sname) map[sid].shopName = sname;
+          map[sid].items.push(item);
+        });
+        return Object.values(map);
+      }
+
+      function renderItemsGrouped(items) {
+        const hasShop = items.some((i) => i.shopId || i.ShopId);
+        const groups = _groupByShop(items);
+        if (!hasShop || groups.length <= 1)
+          return items.map((item) => renderItem(item)).join("");
+        return groups
+          .map(function (g) {
+            const groupSub = g.items.reduce(
+              (s, i) => s + (i.price || 0) * (i.qty || 1),
+              0,
+            );
+            return (
+              `<div style="display:flex;align-items:center;justify-content:space-between;` +
+              `padding:10px 14px;margin:12px 0 4px;background:#fdf6f0;border-left:3px solid var(--pink);` +
+              `border-radius:0 8px 8px 0;font-size:13px;font-weight:600;color:#333">` +
+              `<span><i class="bi bi-shop" style="color:var(--pink);margin-right:6px"></i>${g.shopName || 'Shop'}</span>` +
+              `<span style="font-weight:400;color:var(--gray)">Tạm tính: ${fmt(groupSub)}</span></div>` +
+              g.items.map((item) => renderItem(item)).join("")
+            );
+          })
+          .join("");
+      }
+
+      function getProductImage(p) {
+        return p.imageUrl || p.ImageUrl || p.image || p.Image
+          || p.thumbnail || p.Thumbnail || p.img
+          || 'https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub';
       }
 
       function renderItem(item) {
@@ -488,15 +400,11 @@
         const name = item.name || item.Name || "Sản phẩm";
         const price = item.price || item.Price || 0;
         const qty = item.qty || 1;
-        const img = item.image || item.Image || "";
+        const img = getProductImage(item);
         const cat = item.category || item.Category || "";
 
-        // Logic xử lý ảnh lỗi sạch hơn
-        const imgHTML = img
-          ? `<img loading="lazy" class="item-img" src="${img}" alt="${name}"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
-                   <div class="item-img-placeholder" style="display:none">🛍</div>`
-          : `<div class="item-img-placeholder">🛍</div>`;
+        const imgHTML = `<img loading="lazy" class="item-img" src="${img}" alt="${name}"
+                        onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" />`;
 
         return `
                 <div class="cart-item" id="item-row-${id}" data-id="${id}">
@@ -529,25 +437,27 @@
           (s, i) => s + (i.price || 0) * (i.qty || 1),
           0,
         );
-        const shipFee = selectedShipping.fee;
         let discountAmt = 0;
 
         if (appliedCoupon) {
-          if (appliedCoupon.type === "percent")
+          if (appliedCoupon.discountAmount !== undefined) {
+            discountAmt = appliedCoupon.discountAmount;
+          } else if (appliedCoupon.type === "percent") {
             discountAmt = Math.round((subtotal * appliedCoupon.value) / 100);
-          else if (appliedCoupon.type === "fixed")
+          } else if (appliedCoupon.type === "fixed") {
             discountAmt = appliedCoupon.value;
-          else if (appliedCoupon.type === "ship") discountAmt = shipFee;
+          }
         }
 
-        const isFreeShip =
-          shipFee === 0 || (appliedCoupon && appliedCoupon.type === "ship");
-        const total = Math.max(
-          0,
-          subtotal +
-            (isFreeShip ? 0 : shipFee) -
-            (appliedCoupon && appliedCoupon.type !== "ship" ? discountAmt : 0),
-        );
+        const shopDiscountTotal = Object.values(_shopVouchers).reduce((s, v) => s + (v.discountAmount || 0), 0);
+        const shopDiscountLines = Object.values(_shopVouchers)
+          .filter(sv => sv.discountAmount > 0)
+          .map(sv => `<div class="summary-line discount">
+            <span class="label">🏪 ${sv.shopName || 'Shop'} (${sv.code})</span>
+            <span class="value">−${fmt(sv.discountAmount)}</span>
+          </div>`).join('');
+
+        const total = Math.max(0, subtotal - discountAmt - shopDiscountTotal);
 
         return `
           <div class="summary-line">
@@ -556,76 +466,85 @@
           </div>
           <div class="summary-line shipping">
             <span class="label">Vận chuyển</span>
-            <span class="value ${isFreeShip ? "free" : ""}">
-              ${isFreeShip ? "Miễn phí" : fmt(shipFee)}
-            </span>
+            <span class="value" style="color:var(--gray);font-size:12px">Tính ở bước thanh toán</span>
           </div>
+          ${appliedShipCoupon ? `<div class="summary-line" style="color:#1d4ed8"><span class="label"><i class="bi bi-truck"></i> Voucher ship (${appliedShipCoupon.code})</span><span class="value">Áp dụng ở bước TT</span></div>` : ""}
           ${
-            discountAmt > 0 && appliedCoupon.type !== "ship"
-              ? `
-            <div class="summary-line discount">
+            discountAmt > 0
+              ? `<div class="summary-line discount">
               <span class="label">Giảm giá (${appliedCoupon.label})</span>
               <span class="value">−${fmt(discountAmt)}</span>
             </div>`
               : ""
           }
+          ${shopDiscountLines}
           <div class="summary-total">
             <span class="label">Tổng Cộng</span>
             <span class="value">${fmt(total)}</span>
           </div>`;
       }
 
-      function renderSuggestions() {
+      async function loadSuggestedProducts() {
         const sec = document.getElementById("recently-section");
         const grid = document.getElementById("recently-grid");
         if (!sec || !grid) return;
-        sec.style.display = "block";
+        try {
+          const token = localStorage.getItem("token");
+          const headers = token ? { Authorization: "Bearer " + token } : {};
+          const res = await fetch(
+            "http://localhost:5001/api/products?pageSize=8&isActive=true",
+            { headers }
+          );
+          if (!res.ok) throw new Error(res.status);
+          const data = await res.json();
+          const all = Array.isArray(data) ? data : (data.items || data.data || data.products || []);
+          if (!all.length) { sec.style.display = "none"; return; }
 
-        // Mặc định dùng danh sách tĩnh
-        let prods = typeof SUGGESTIONS !== "undefined" ? SUGGESTIONS : [];
+          const cartKey = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
+          const cartIds = new Set(
+            JSON.parse(localStorage.getItem(cartKey) || "[]").map((x) => String(x.id || x.Id))
+          );
+          const filtered = all.filter((p) => !cartIds.has(String(p.id || p.Id))).slice(0, 4);
+          if (!filtered.length) { sec.style.display = "none"; return; }
 
-        if (typeof Product !== "undefined" && Product.getAll) {
-          Product.getAll({ limit: 4, isActive: true })
-            .then((res) => {
-              const list = Array.isArray(res)
-                ? res
-                : res.data || res.items || [];
-              if (list.length > 0) {
-                grid.innerHTML = list
-                  .slice(0, 4)
-                  .map((p) => suggestionCard(p))
-                  .join("");
-              }
-            })
-            .catch(() => {
-              grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
-            });
-        } else {
-          grid.innerHTML = prods.map((p) => suggestionCard(p)).join("");
+          sec.style.display = "block";
+          grid.innerHTML = filtered.map((p) => suggestionCard(p)).join("");
+        } catch (e) {
+          console.warn("loadSuggestedProducts:", e);
+          sec.style.display = "none";
         }
       }
 
       function suggestionCard(p) {
         const id = p.Id || p.id;
-        const name = p.Name || p.name;
-        const price = p.Price || p.price;
-        const img = p.Image || p.image || p.img;
-
-        // Dùng JSON.stringify an toàn để truyền dữ liệu vào hàm quickAdd
-        const productData = JSON.stringify(p).replace(/"/g, "'");
+        const name = p.Name || p.name || "Sản phẩm";
+        const price = p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+        const origPrice = p.Price || p.price || 0;
+        const img = getProductImage(p);
 
         return `
-    <div class="recent-card">
+    <div class="recent-card" onclick="location.href='product.html?id=${id}'" style="cursor:pointer">
       <img loading="lazy" src="${img}" alt="${name}"
-           onerror="this.src='https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80'" />
+           onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" />
       <div class="recent-card-info">
         <div class="recent-card-name">${name}</div>
-        <div class="recent-card-price">${fmt(price)}</div>
-        <button class="recent-card-btn" onclick="quickAdd(${productData})">
+        <div class="recent-card-price">${fmt(price)}${price < origPrice ? `<span style="font-size:11px;color:#aaa;text-decoration:line-through;margin-left:6px">${fmt(origPrice)}</span>` : ""}</div>
+        <button class="recent-card-btn" onclick="event.stopPropagation();quickAddSuggest('${id}','${name.replace(/'/g, "&#39;")}',${price},'${img}')">
           + Thêm Vào Giỏ
         </button>
       </div>
     </div>`;
+      }
+
+      function quickAddSuggest(id, name, price, image) {
+        if (typeof Cart !== "undefined") {
+          Cart.add({ id, name, price, image, qty: 1 });
+        } else {
+          _localAdd({ id, name, price, image });
+        }
+        toast('Đã thêm "' + name + '" vào giỏ hàng');
+        render();
+        loadSuggestedProducts();
       }
       // ══════════════════════════════════════════════
       //  ACTIONS
@@ -658,13 +577,13 @@
       function clearAll() {
         if (!confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) return;
         if (typeof Cart !== "undefined") Cart.clear();
-        else localStorage.removeItem("glowhub_cart");
+        else localStorage.removeItem("gh_cart");
         appliedCoupon = null;
         render();
         toast("Đã xóa toàn bộ giỏ hàng", "error");
       }
 
-      function applyCoupon() {
+      async function applyCoupon(shopIdOverride) {
         const input = document.getElementById("coupon-input");
         const msg = document.getElementById("coupon-msg");
         if (!input || !msg) return;
@@ -676,25 +595,48 @@
           return;
         }
 
-        if (COUPONS[code]) {
-          appliedCoupon = { ...COUPONS[code], code };
-          msg.textContent = "✓ " + COUPONS[code].label + " đã được áp dụng!";
-          msg.className = "coupon-msg ok";
-          input.disabled = true;
-          toast("Áp dụng mã " + code + " thành công!");
-          renderSummaryOnly();
-        } else {
-          appliedCoupon = null;
-          msg.textContent = "✕ Mã giảm giá không hợp lệ hoặc đã hết hạn";
-          msg.className = "coupon-msg error";
-          toast("Mã giảm giá không hợp lệ", "error");
-        }
-      }
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const subtotal = items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+        const shopId = shopIdOverride !== undefined ? shopIdOverride : null;
 
-      function selectShipping(id) {
-        selectedShipping =
-          SHIPPING_OPTS.find((o) => o.id === id) || SHIPPING_OPTS[0];
-        renderSummaryOnly();
+        try {
+          const token = typeof Auth !== "undefined" && Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+          const headers = { "Content-Type": "application/json" };
+          if (token) headers["Authorization"] = "Bearer " + token;
+
+          const res = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ code, orderAmount: subtotal, shopId })
+          });
+          const data = await res.json();
+
+          if (data.valid) {
+            appliedCoupon = {
+              code, shopId,
+              type: data.discountType,
+              value: data.discountValue,
+              discountAmount: data.discountAmount,
+              label: data.message
+            };
+            msg.textContent = "✓ " + data.message;
+            msg.className = "coupon-msg ok";
+            input.disabled = true;
+            toast("Áp dụng mã " + code + " thành công!");
+            renderSummaryOnly();
+            localStorage.setItem("gh_applied_voucher", JSON.stringify(appliedCoupon));
+          } else {
+            appliedCoupon = null;
+            localStorage.removeItem("gh_applied_voucher");
+            msg.textContent = "✕ " + (data.message || "Mã giảm giá không hợp lệ");
+            msg.className = "coupon-msg error";
+            toast(data.message || "Mã giảm giá không hợp lệ", "error");
+          }
+        } catch (e) {
+          appliedCoupon = null;
+          msg.textContent = "✕ Lỗi kết nối. Vui lòng thử lại.";
+          msg.className = "coupon-msg error";
+        }
       }
 
       /** Chỉ re-render phần tổng tiền (không rebuild toàn bộ) */
@@ -702,29 +644,20 @@
         const items =
           typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const summaryBox = document.querySelector(".summary-body");
-        if (!summaryBox) {
-          render();
-          return;
-        }
-        // Re-render only the summary lines (before shipping options)
-        const summaryLines = summaryBox.querySelector(".summary-total");
-        if (summaryLines) {
+        if (!summaryBox) { render(); return; }
+        const hasTotalLine = summaryBox.querySelector(".summary-total");
+        if (hasTotalLine) {
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = renderSummaryLines(items);
-          // Replace lines but keep shipping options + button
-          const existingLines = summaryBox.querySelectorAll(
-            ".summary-line, .summary-total",
-          );
-          existingLines.forEach((el) => el.remove());
-          const shippingSection = summaryBox.querySelector(".shipping-options");
-          summaryBox.insertBefore(tempDiv, shippingSection);
+          summaryBox.querySelectorAll(".summary-line, .summary-total").forEach((el) => el.remove());
+          const checkoutBtn = summaryBox.querySelector(".btn-checkout");
+          summaryBox.insertBefore(tempDiv, checkoutBtn || null);
         } else {
           render();
         }
       }
 
       function saveCartToSession() {
-        // Pass selected shipping to checkout page
         const items =
           typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
         const subtotal = items.reduce(
@@ -733,27 +666,15 @@
         );
         sessionStorage.setItem(
           "glowhub_checkout",
-          JSON.stringify({
-            shipping: selectedShipping,
-            coupon: appliedCoupon,
-            subtotal,
-          }),
+          JSON.stringify({ coupon: appliedCoupon, subtotal }),
         );
       }
 
-      function quickAdd(p) {
-        const prod =
-          typeof p === "string" ? JSON.parse(p.replace(/'/g, '"')) : p;
-        if (typeof Cart !== "undefined") Cart.add(prod);
-        else _localAdd(prod);
-        toast('Đã thêm "' + (prod.name || prod.Name) + '" vào giỏ hàng');
-        render();
-      }
 
       // ══════════════════════════════════════════════
       //  LOCAL CART FALLBACK (if api.js Cart not loaded)
       // ══════════════════════════════════════════════
-      const CART_KEY = "glowhub_cart";
+      const CART_KEY = "gh_cart";
       function _localCart() {
         try {
           return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
@@ -796,20 +717,108 @@
       //  INIT
       // ══════════════════════════════════════════════
       document.addEventListener("DOMContentLoaded", function () {
-        // Render nav user if api.js loaded
         if (typeof renderNavUser === "function") renderNavUser();
-
+        // Restore persisted shop vouchers before first render
+        try {
+          var _svStored = localStorage.getItem("gh_shop_vouchers");
+          if (_svStored) _shopVouchers = JSON.parse(_svStored) || {};
+        } catch (_) {}
         render();
-        renderSuggestions();
-
-        // If cart is not empty, don't show suggestions prominently
-        const items =
-          typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
-        if (items.length > 0) {
-          const sec = document.getElementById("recently-section");
-          if (sec) sec.style.display = "block";
-        }
+        loadSuggestedProducts();
+        resolveShopNames();
+        autoApplyShopVouchers();
       });
+
+      async function resolveShopNames() {
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        // Remove junk items (price=0 with default name from old addToCartFromCard fallback)
+        const cleanItems = items.filter(i => !(i.name === "Sản phẩm" && (i.price || 0) === 0));
+        if (cleanItems.length < items.length) {
+          const key = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
+          localStorage.setItem(key, JSON.stringify(cleanItems));
+        }
+
+        const groups = _groupByShop(cleanItems);
+        // Needs lookup: has a real shopId but shopName is empty (new _groupByShop no longer sets "Shop" as default)
+        const needsLookup = groups.filter(g => g.shopId && g.shopId !== "__none__" && !g.shopName);
+        if (!needsLookup.length) return;
+
+        let changed = false;
+        for (const group of needsLookup) {
+          try {
+            const res = await fetch(PRODUCT_API + "/api/shops/" + group.shopId + "/profile");
+            if (!res.ok) continue;
+            const data = await res.json();
+            const name = data.shopName || data.ShopName || "";
+            if (!name) continue;
+            const allItems = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+            let modified = false;
+            allItems.forEach(function (i) {
+              if ((i.shopId || i.ShopId) === group.shopId && !i.shopName) {
+                i.shopName = name;
+                modified = true;
+              }
+            });
+            if (modified) {
+              const key = (typeof Cart !== "undefined" && Cart.STORAGE_KEY) ? Cart.STORAGE_KEY : "gh_cart";
+              localStorage.setItem(key, JSON.stringify(allItems));
+              changed = true;
+            }
+          } catch (_) {}
+        }
+
+        if (changed) render();
+      }
+
+      async function autoApplyShopVouchers() {
+        if (typeof Auth === "undefined" || !Auth.isLoggedIn || !Auth.isLoggedIn()) return;
+        try {
+          const token = Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+          const res = await fetch(PRODUCT_API + "/api/vouchers/my", {
+            headers: { "Authorization": "Bearer " + token }
+          });
+          if (!res.ok) return;
+          const myList = await res.json();
+          const shopSaved = myList
+            .filter(cv => !cv.IsUsed && cv.voucher && cv.voucher.ShopId)
+            .map(cv => cv.voucher);
+          if (!shopSaved.length) return;
+
+          const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+          const groups = _groupByShop(items).filter(g => g.shopId !== "__none__");
+          if (!groups.length) return;
+
+          const existingMap = JSON.parse(localStorage.getItem("gh_shop_vouchers") || "{}");
+          let changed = false;
+
+          for (const group of groups) {
+            if (existingMap[group.shopId]) continue; // already have one (manual or prior auto)
+            const candidates = shopSaved.filter(v => v.ShopId === group.shopId);
+            if (!candidates.length) continue;
+            candidates.sort((a, b) => (b.DiscountValue || 0) - (a.DiscountValue || 0));
+            const best = candidates[0];
+            try {
+              const shopSubtotal = group.items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+              const valRes = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                body: JSON.stringify({ code: best.Code, orderAmount: shopSubtotal, shopId: group.shopId })
+              });
+              const data = await valRes.json();
+              if (data.valid) {
+                _shopVouchers[group.shopId] = { code: best.Code, discountAmount: data.discountAmount, shopName: group.shopName };
+                existingMap[group.shopId] = { code: best.Code, discountAmount: data.discountAmount, shopName: group.shopName };
+                changed = true;
+              }
+            } catch (_) {}
+          }
+
+          if (changed) {
+            localStorage.setItem("gh_shop_vouchers", JSON.stringify(existingMap));
+            renderSummaryOnly();
+          }
+        } catch (_) {}
+      }
     </script>
     <script src="js/gsap.js" defer></script>
 
@@ -837,13 +846,14 @@
     </div>
 
     <script>
-    var _vpVouchers   = [];
-    var _vpSelected   = null;
-    var _vpLoaded     = false;
+    var _vpVouchers     = [];
+    var _vpSaved        = [];
+    var _vpSelectedShip = null;   // independently selected ship voucher
+    var _vpSelectedDisc = null;   // independently selected discount voucher
+    var _vpLoaded       = false;
 
     function openVoucherPicker() {
-      var bd = document.getElementById("voucherPickerBackdrop");
-      bd.classList.add("show");
+      document.getElementById("voucherPickerBackdrop").classList.add("show");
       document.body.style.overflow = "hidden";
       if (!_vpLoaded) loadVoucherPicker();
     }
@@ -853,67 +863,193 @@
     }
 
     async function loadVoucherPicker() {
+      var list = document.getElementById("vp-list");
       try {
-        var res = await fetch("/api/vouchers/public");
+        var res = await fetch(PRODUCT_API + "/api/vouchers/public");
         if (res.ok) _vpVouchers = await res.json();
+        if (typeof Auth !== "undefined" && Auth.isLoggedIn && Auth.isLoggedIn()) {
+          try {
+            var res2 = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { "Authorization": "Bearer " + Auth.getToken() }
+            });
+            if (res2.ok)
+              _vpSaved = (await res2.json()).filter(cv => !cv.IsUsed).map(cv => cv.voucher).filter(Boolean);
+          } catch (_) {}
+        }
         _vpLoaded = true;
-        vpRender(_vpVouchers);
-      } catch(_) {
-        document.getElementById("vp-list").innerHTML =
-          '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
+        vpRender(_vpVouchers, _vpSaved);
+      } catch (_) {
+        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray);">Không thể tải voucher.</div>';
       }
+    }
+
+    function _isShipV(v) {
+      return (v.DiscountType || "").toLowerCase() === "freeship"
+        || (v.Code || "").toUpperCase().includes("SHIP")
+        || (v.Description || "").toLowerCase().includes("freeship")
+        || (v.Description || "").toLowerCase().includes("vận chuyển");
     }
 
     function vpFilter() {
       var q = (document.getElementById("vp-search").value || "").toLowerCase();
-      var filtered = q ? _vpVouchers.filter(v =>
-        v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q)
-      ) : _vpVouchers;
-      vpRender(filtered);
+      var fp = q ? _vpVouchers.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _vpVouchers;
+      var fs = q ? _vpSaved.filter(v => (v.Code||"").toLowerCase().includes(q)||(v.Description||"").toLowerCase().includes(q)) : _vpSaved;
+      vpRender(fp, fs);
     }
 
     function vpFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
     function vpDiscLabel(v) {
-      return v.discountType === "percent" ? `-${v.discountValue}%` : `-${vpFmt(v.discountValue)}`;
+      if (_isShipV(v)) return "Miễn/giảm phí vận chuyển";
+      return v.DiscountType === "percent" ? `-${v.DiscountValue}%` : `-${vpFmt(v.DiscountValue)}`;
     }
 
-    function vpRender(list) {
+    function vpItem(v, isSaved, isShip) {
+      var isSelShip = isShip  && _vpSelectedShip && _vpSelectedShip.Code === v.Code;
+      var isSelDisc = !isShip && _vpSelectedDisc && _vpSelectedDisc.Code === v.Code;
+      var isSel = isSelShip || isSelDisc;
+      var typeClass = isShip ? "vp-ship-item" : "vp-disc-item";
+      var iconStyle = isSaved ? "background:linear-gradient(135deg,#22c55e,#16a34a)"
+                   : isShip  ? "background:linear-gradient(135deg,#3b82f6,#1d4ed8)" : "";
+      var icon = isSaved ? "bookmark-fill" : isShip ? "truck" : "ticket-perforated-fill";
+      var onclick = isShip ? `vpSelectShip(this,'${v.Code}')` : `vpSelectDisc(this,'${v.Code}')`;
+      var shopTag = !isShip && v.ShopId && v.shopName
+        ? `<span style="color:#f97316;font-weight:600">🏪 ${v.shopName}</span> · ` : '';
+      return `
+        <div class="vo-modal-voucher-item ${typeClass} ${isSel ? 'selected' : ''}" onclick="${onclick}">
+          <div class="vo-mvi-icon" style="${iconStyle}"><i class="bi bi-${icon}"></i></div>
+          <div class="vo-mvi-info">
+            <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.Description || v.Code}</div>
+            <div class="vo-mvi-sub">
+              ${shopTag}${v.MinOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.MinOrderAmount) : 'Không giới hạn đơn'}
+              ${v.ExpiryDate ? ' · HH: ' + new Date(v.ExpiryDate).toLocaleDateString("vi-VN") : ''}
+              ${isSaved ? ' · <span style="color:#22c55e">Đã lưu</span>' : ''}
+            </div>
+          </div>
+          <div class="vo-mvi-code">${v.Code}</div>
+          <div class="vo-mvi-radio"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="11" fill="white" stroke="var(--pink)" stroke-width="2"/><polyline points="5,12 10,17 19,7" stroke="var(--pink)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>`;
+    }
+
+    function vpRender(publicList, savedList) {
       var el = document.getElementById("vp-list");
-      if (!list.length) {
+      savedList = savedList || [];
+      var savedCodes = new Set(savedList.map(v => v.Code));
+
+      function sortBest(a, b) {
+        var aS = savedCodes.has(a.Code) ? 1 : 0, bS = savedCodes.has(b.Code) ? 1 : 0;
+        if (aS !== bS) return bS - aS;
+        return (b.DiscountValue || 0) - (a.DiscountValue || 0);
+      }
+
+      var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var _cartItemsNow = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+      var _cartShopIds = new Set(_cartItemsNow.map(i => i.shopId || i.ShopId).filter(Boolean));
+      var allDisc = [...savedList.filter(v=>!_isShipV(v)), ...publicList.filter(v=>!_isShipV(v))]
+        .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
+        .filter(v => !v.ShopId || _cartShopIds.has(v.ShopId));
+      allShip.sort(sortBest); allDisc.sort(sortBest);
+
+      var html = "";
+      var secStyle = "font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:6px;";
+
+      if (allShip.length) {
+        html += `<div style="${secStyle}color:#1d4ed8"><i class="bi bi-truck"></i> Voucher Vận Chuyển <span style="font-size:9px;color:#6b7280;font-weight:400">(chọn 1)</span></div>`;
+        html += allShip.map(v => vpItem(v, savedCodes.has(v.Code), true)).join("");
+      }
+      if (allDisc.length) {
+        html += `<div style="${secStyle}${allShip.length?'margin-top:14px;':''}color:var(--gray)"><i class="bi bi-tag"></i> Voucher Giảm Giá <span style="font-size:9px;color:#6b7280;font-weight:400">(chọn 1)</span></div>`;
+        html += allDisc.map(v => vpItem(v, savedCodes.has(v.Code), false)).join("");
+      }
+      if (!html) {
         el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);font-size:13px;">Không có voucher phù hợp</div>';
         return;
       }
-      el.innerHTML = list.map(v => `
-        <div class="vo-modal-voucher-item ${_vpSelected && _vpSelected.code === v.code ? 'selected' : ''}"
-             onclick="vpSelect(this,'${v.code}')">
-          <div class="vo-mvi-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-          <div class="vo-mvi-info">
-            <div class="vo-mvi-title">${vpDiscLabel(v)} — ${v.description || v.code}</div>
-            <div class="vo-mvi-sub">
-              ${v.minOrderAmount > 0 ? 'Đơn tối thiểu ' + vpFmt(v.minOrderAmount) : 'Không giới hạn đơn'}
-              ${v.expiryDate ? ' · HH: ' + new Date(v.expiryDate).toLocaleDateString("vi-VN") : ''}
-            </div>
-          </div>
-          <div class="vo-mvi-code">${v.code}</div>
-        </div>
-      `).join("");
+      el.innerHTML = html;
     }
 
-    function vpSelect(el, code) {
-      document.querySelectorAll(".vo-modal-voucher-item").forEach(e => e.classList.remove("selected"));
-      el.classList.add("selected");
-      _vpSelected = _vpVouchers.find(v => v.code === code) || { code };
-    }
-
-    function applyPickedVoucher() {
-      if (!_vpSelected) { closeVoucherPicker(); return; }
-      var inp = document.getElementById("coupon-input");
-      if (inp) {
-        inp.value = _vpSelected.code;
-        closeVoucherPicker();
-        if (typeof applyCoupon === "function") applyCoupon();
+    function vpSelectShip(el, code) {
+      document.querySelectorAll(".vp-ship-item").forEach(e => e.classList.remove("selected"));
+      if (_vpSelectedShip && _vpSelectedShip.Code === code) {
+        _vpSelectedShip = null; // toggle off
+        return;
       }
+      el.classList.add("selected");
+      _vpSelectedShip = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
+    }
+
+    function vpSelectDisc(el, code) {
+      document.querySelectorAll(".vp-disc-item").forEach(e => e.classList.remove("selected"));
+      if (_vpSelectedDisc && _vpSelectedDisc.Code === code) {
+        _vpSelectedDisc = null; // toggle off
+        return;
+      }
+      el.classList.add("selected");
+      _vpSelectedDisc = _vpSaved.find(v => v.Code === code) || _vpVouchers.find(v => v.Code === code) || { Code: code };
+    }
+
+    async function applyPickedVoucher() {
+      closeVoucherPicker();
+
+      // Apply ship voucher (store directly, validate server-side at checkout)
+      if (_vpSelectedShip) {
+        appliedShipCoupon = {
+          code:     _vpSelectedShip.Code,
+          type:     _vpSelectedShip.DiscountType || "freeship",
+          value:    _vpSelectedShip.DiscountValue || 0,
+          shopId:   null,
+          description: _vpSelectedShip.Description || "",
+          label:    "Giảm/miễn phí vận chuyển"
+        };
+        localStorage.setItem("gh_applied_ship_voucher", JSON.stringify(appliedShipCoupon));
+        const shipDisp = document.getElementById("ship-coupon-display");
+        if (shipDisp) {
+          shipDisp.textContent = "✓ Ship: " + appliedShipCoupon.code + " — sẽ giảm phí vận chuyển khi thanh toán";
+          shipDisp.style.display = "block";
+        }
+      }
+
+      // Apply discount voucher
+      if (_vpSelectedDisc) {
+        if (_vpSelectedDisc.ShopId) {
+          await _applyShopVoucherFromPicker(_vpSelectedDisc);
+        } else {
+          const inp = document.getElementById("coupon-input");
+          if (inp) {
+            inp.value = _vpSelectedDisc.Code;
+            if (typeof applyCoupon === "function") await applyCoupon(null);
+          }
+        }
+      }
+
+      renderSummaryOnly();
+    }
+
+    async function _applyShopVoucherFromPicker(v) {
+      try {
+        const items = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
+        const shopItems = items.filter(i => (i.shopId || i.ShopId) === v.ShopId);
+        const shopSubtotal = shopItems.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+        const token = typeof Auth !== "undefined" && Auth.getToken ? Auth.getToken() : localStorage.getItem("token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+        const res = await fetch(PRODUCT_API + "/api/vouchers/validate", {
+          method: "POST", headers,
+          body: JSON.stringify({ code: v.Code, orderAmount: shopSubtotal, shopId: v.ShopId })
+        });
+        const data = await res.json();
+        if (data.valid) {
+          _shopVouchers[v.ShopId] = { code: v.Code, discountAmount: data.discountAmount, shopName: v.shopName || "" };
+          const savedMap = JSON.parse(localStorage.getItem("gh_shop_vouchers") || "{}");
+          savedMap[v.ShopId] = { code: v.Code, discountAmount: data.discountAmount, shopName: v.shopName || "" };
+          localStorage.setItem("gh_shop_vouchers", JSON.stringify(savedMap));
+          toast("✓ Voucher shop " + v.Code + " áp dụng thành công!");
+          renderSummaryOnly();
+        } else {
+          toast(data.message || "Voucher không hợp lệ", "error");
+        }
+      } catch (e) { toast("Lỗi kết nối", "error"); }
     }
     </script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>

@@ -14,47 +14,109 @@
           rel="stylesheet" media="print" onload="this.media='all'" />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/order-tracking.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
   </head>
   <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom py-3 sticky-top">
-      <div class="container">
-        <a class="navbar-brand brand-name fs-3" href="index.html">GLOWHUB</a>
-        <div class="d-flex align-items-center gap-3 d-lg-none">
-          <a href="cart.html" class="position-relative nav-link">
-            <i class="bi bi-bag" style="font-size:22px"></i>
-          </a>
-          <button class="navbar-toggler border-0" type="button"
-            data-bs-toggle="offcanvas" data-bs-target="#offcanvasNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNav">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title brand-name">GLOWHUB</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
+
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
           </div>
-          <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-center flex-grow-1 gap-1 gap-md-4">
-              <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
-              <li class="nav-item"><a class="nav-link" href="shop.html">Cửa Hàng</a></li>
-              <li class="nav-item"><a class="nav-link" href="checkout.html">Đơn Hàng</a></li>
-              <li class="nav-item"><a class="nav-link" href="policy.html#lien-he">Liên Hệ</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="d-none d-lg-flex align-items-center gap-4">
-          <div id="nav-user-area"></div>
-          <a href="cart.html" class="nav-link position-relative">
-            <i class="bi bi-bag" style="font-size:20px"></i>
-            <span id="cart-count"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size:10px">0</span>
-          </a>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
         </div>
       </div>
-    </nav>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
 
     <!-- PAGE HERO -->
     <div class="page-hero">
@@ -372,14 +434,17 @@
       document.getElementById("res-payment").textContent = "—";
       document.getElementById("res-total").textContent = "—";
 
-      // Fetch full detail for extra fields
+      // Fetch full detail for extra fields + shop-grouped items
       Order.getDetail(data.orderId).then(detail => {
         document.getElementById("res-receiver").textContent = detail.receiverName || "—";
         document.getElementById("res-phone").textContent    = detail.receiverPhone || "—";
         document.getElementById("res-address").textContent  = detail.shippingAddress || "—";
         document.getElementById("res-payment").textContent  = PAYMENT_LABEL[detail.paymentMethod] || "COD";
         document.getElementById("res-total").textContent    = fmt(detail.finalAmount || detail.totalAmount || 0);
-      }).catch(() => {});
+        renderDetailItems(detail);
+      }).catch(() => {
+        document.getElementById("items-list").innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">Không tải được sản phẩm</div>';
+      });
 
       // Tracking code
       if (data.trackingCode) {
@@ -401,10 +466,8 @@
       btnReceived.style.display = "none";
       btnCancel.style.display   = "none";
 
-      if (data.currentStatus === "SHIPPING") {
-        btnReceived.style.display = "";
-        actionBar.style.display = "";
-      } else if (data.currentStatus === "PENDING") {
+      // Global confirm button removed — per-shop confirm buttons are inside each shop card
+      if (data.currentStatus === "PENDING") {
         btnCancel.style.display = "";
         actionBar.style.display = "";
       } else {
@@ -414,11 +477,9 @@
       // Timeline
       renderTimeline(data.timeline, data.isCancelled, data.cancelReason);
 
-      // Items
-      if (data.items && data.items.length > 0) {
-        show("items-section");
-        renderItems(data.items);
-      }
+      // Items — populated via getDetail callback above
+      show("items-section");
+      document.getElementById("items-list").innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">Đang tải sản phẩm...</div>';
     }
 
     // ─────────────────────────────────────────────────────────
@@ -487,22 +548,92 @@
     }
 
     // ─────────────────────────────────────────────────────────
-    // Items
+    // Items — shop-grouped with summary
     // ─────────────────────────────────────────────────────────
-    function renderItems(items) {
+    function renderDetailItems(o) {
       const list = document.getElementById("items-list");
-      list.innerHTML = items.map(item => `
-        <div class="order-item-row">
-          <img class="oi-img" src="${item.imageUrl || 'https://via.placeholder.com/52x62'}"
-               alt="${item.productName}" loading="lazy"
-               onerror="this.src='https://via.placeholder.com/52x62'" />
-          <div class="oi-info">
-            <div class="oi-name">${item.productName}</div>
-            <div class="oi-qty">x${item.qty}</div>
+      const ph = "https://placehold.co/48x48/f5f0ea/888?text=IMG";
+      const fmtMoney = n => (n == null ? "—" : new Intl.NumberFormat("vi-VN").format(n) + " ₫");
+
+      function itemRow(i, showReview) {
+        const pid = i.productId || i.ProductId || "";
+        const reviewBtn = (showReview && pid)
+          ? `<div style="padding:5px 0 3px 0"><a href="product.html?id=${pid}#reviews"
+              style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px"
+              onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">⭐ Đánh Giá Sản Phẩm</a></div>`
+          : "";
+        return `<div style="border-bottom:1px solid #f5f4f2">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+            <img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;line-height:1.4">${i.productName || "Sản phẩm"}</div>
+              <div style="font-size:12px;color:#888;margin-top:2px">×${i.qty || i.quantity || 1} · ${fmtMoney(i.unitPrice)}</div>
+            </div>
+            <div style="font-size:13px;font-weight:600;flex-shrink:0">${fmtMoney(i.subtotal || (i.unitPrice * (i.qty || i.quantity || 1)))}</div>
           </div>
-          <div class="oi-price">${fmt(item.unitPrice * item.qty)}</div>
-        </div>
-      `).join("");
+          ${reviewBtn}
+        </div>`;
+      }
+
+      const subOrders = o.subOrders || [];
+      let shopSectionsHtml = "";
+
+      const SUB_STATUS_LABEL = {
+        PENDING: "⏳ Chờ xác nhận", CONFIRMED: "✅ Đã xác nhận",
+        SHIPPING: "🚚 Đang giao",   DELIVERED: "📦 Đã nhận hàng",
+        COMPLETED: "🎉 Hoàn thành", CANCELLED: "❌ Đã hủy",
+      };
+
+      if (subOrders.length > 0) {
+        const allDelivered = subOrders.every(so => (so.status || "").toUpperCase() === "DELIVERED");
+        const allDeliveredBanner = allDelivered
+          ? `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px 18px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng! Hãy đánh giá để giúp người mua khác nhé!</div>`
+          : "";
+
+        shopSectionsHtml = allDeliveredBanner + subOrders.map(so => {
+          const soStatus = (so.status || "").toUpperCase();
+          const soLabel  = SUB_STATUS_LABEL[soStatus] || soStatus;
+          const confirmBtn = soStatus === "SHIPPING"
+            ? `<button data-sub="${so.subOrderId}" onclick="confirmShopReceived(${currentOrderId}, ${so.subOrderId}, this)"
+                style="background:#16a34a;color:#fff;border:none;padding:7px 16px;font-size:12px;cursor:pointer;border-radius:4px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px"
+                onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <i class="bi bi-check2-circle"></i> Đã Nhận Hàng
+              </button>`
+            : soStatus === "DELIVERED"
+              ? `<button disabled style="background:#e2f4ea;color:#15803d;border:1px solid #86efac;padding:7px 16px;font-size:12px;border-radius:4px;letter-spacing:.5px;cursor:default">✓ Đã Nhận</button>`
+              : "";
+          return `<div class="ot-shop-card">
+            <div class="ot-shop-card-hd" style="display:flex;justify-content:space-between;align-items:center">
+              <span>🏪 ${so.shopName || "Shop"}</span>
+              <span style="font-size:12px;color:#555">${soLabel}</span>
+            </div>
+            <div class="ot-shop-card-body">${(so.items || []).map(i => itemRow(i, soStatus === "DELIVERED")).join("")}</div>
+            <div class="ot-shop-card-ft">
+              <div class="ot-shop-ft-row"><span>Tạm tính shop</span><span>${fmtMoney(so.totalAmount)}</span></div>
+              ${so.shopVoucherDiscount > 0 ? `<div class="ot-shop-ft-row discount"><span>Voucher shop</span><span>−${fmtMoney(so.shopVoucherDiscount)}</span></div>` : ""}
+              <div class="ot-shop-ft-row"><span>Phí vận chuyển</span><span>+${fmtMoney(so.shippingFee)}</span></div>
+              ${confirmBtn ? `<div style="text-align:right;margin-top:10px">${confirmBtn}</div>` : ""}
+            </div>
+          </div>`;
+        }).join("");
+      } else {
+        shopSectionsHtml = (o.items || []).map(itemRow).join("");
+      }
+
+      const sysDisc  = o.systemVoucherDiscount || 0;
+      const shopDisc = o.shopVoucherDiscount   || 0;
+      const shipDisc = o.freeshipDiscount      || 0;
+      const summaryHtml =
+        `<div class="ot-summary">
+          <div class="ot-summary-row muted"><span>Tạm tính</span><span>${fmtMoney(o.totalAmount)}</span></div>
+          <div class="ot-summary-row muted"><span>Phí vận chuyển</span><span>+${fmtMoney(o.shippingFee)}</span></div>
+          ${shopDisc > 0 ? `<div class="ot-summary-row discount"><span>Voucher shop</span><span>−${fmtMoney(shopDisc)}</span></div>` : ""}
+          ${sysDisc  > 0 ? `<div class="ot-summary-row discount"><span>Voucher hệ thống</span><span>−${fmtMoney(sysDisc)}</span></div>` : ""}
+          ${shipDisc > 0 ? `<div class="ot-summary-row discount"><span>Voucher freeship</span><span>−${fmtMoney(shipDisc)}</span></div>` : ""}
+          <div class="ot-summary-row total"><span>Thanh toán</span><span>${fmtMoney(o.finalAmount)}</span></div>
+        </div>`;
+
+      list.innerHTML = shopSectionsHtml + summaryHtml;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -522,6 +653,25 @@
         showToast(err?.message || "Có lỗi xảy ra", "error");
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng';
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Confirm Received — per-shop
+    // ─────────────────────────────────────────────────────────
+    async function confirmShopReceived(orderId, subOrderId, btn) {
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...'; }
+      try {
+        const res = await Order.confirmReceived(orderId, subOrderId);
+        showToast(res.message || "Xác nhận thành công!", "success");
+        if (res.allDelivered) {
+          setTimeout(() => loadTracking(orderId), 600);
+        } else {
+          Order.getDetail(orderId).then(detail => renderDetailItems(detail)).catch(() => {});
+        }
+      } catch (err) {
+        showToast(err?.message || "Có lỗi xảy ra", "error");
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng'; }
       }
     }
 
@@ -585,5 +735,6 @@
     function show(id) { document.getElementById(id).style.display = ""; }
     function hide(id) { document.getElementById(id).style.display = "none"; }
     </script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>

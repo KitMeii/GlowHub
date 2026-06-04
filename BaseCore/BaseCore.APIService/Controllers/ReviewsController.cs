@@ -24,22 +24,30 @@ namespace BaseCore.APIService.Controllers
             _notificationService = notificationService;
         }
 
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                    ?? User.FindFirstValue("sub");
+
         // GET /api/products/{productId}/reviews
         [HttpGet]
         public async Task<IActionResult> GetReviews(int productId)
         {
-            var reviews = await _db.Reviews
+            var rows = await _db.Reviews
+                .Include(r => r.User)
                 .Where(r => r.ProductId == productId)
                 .OrderByDescending(r => r.CreatedAt)
-                .Select(r => new {
-                    r.Id, r.ProductId, r.UserId,
-                    UserName  = r.UserId,
-                    r.Rating, r.Comment,
-                    r.Images, r.IsVerifiedPurchase,
-                    r.CreatedAt,
-                    r.SellerReply, r.ReplyAt
-                })
                 .ToListAsync();
+
+            var reviews = rows.Select(r => new {
+                r.Id, r.ProductId, r.UserId,
+                UserName  = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
+                r.Rating, r.Comment,
+                images = r.Images != null
+                    ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>(),
+                r.IsVerifiedPurchase,
+                r.CreatedAt,
+                r.SellerReply, r.ReplyAt
+            });
 
             return Ok(reviews);
         }
@@ -64,6 +72,7 @@ namespace BaseCore.APIService.Controllers
             {
                 existing.Rating    = Math.Clamp(dto.Rating, 1, 5);
                 existing.Comment   = dto.Comment ?? existing.Comment;
+                existing.Images    = dto.Images != null ? string.Join(",", dto.Images.Take(5)) : existing.Images;
                 existing.CreatedAt = DateTime.Now;
                 await _db.SaveChangesAsync();
                 return Ok(existing);
@@ -75,6 +84,7 @@ namespace BaseCore.APIService.Controllers
                 UserId    = userId,
                 Rating    = Math.Clamp(dto.Rating, 1, 5),
                 Comment   = dto.Comment ?? "",
+                Images    = dto.Images != null ? string.Join(",", dto.Images.Take(5)) : null,
                 CreatedAt = DateTime.Now,
             };
             _db.Reviews.Add(review);
@@ -97,6 +107,46 @@ namespace BaseCore.APIService.Controllers
             }
 
             return Ok(review);
+        }
+
+        // PUT /api/products/{productId}/reviews/{reviewId}  — chỉ tác giả mới được sửa
+        [HttpPut("{reviewId:int}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateReview(int productId, int reviewId, [FromBody] UpdateReviewDto dto)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+            if (dto.Rating < 1 || dto.Rating > 5)
+                return BadRequest(new { message = "Rating phải từ 1 đến 5" });
+
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.Id == reviewId && r.ProductId == productId && r.UserId == userId);
+            if (review == null)
+                return NotFound(new { message = "Đánh giá không tồn tại hoặc không thuộc về bạn" });
+
+            review.Rating    = dto.Rating;
+            if (dto.Comment != null) review.Comment = dto.Comment;
+            review.CreatedAt = DateTime.Now;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã cập nhật đánh giá" });
+        }
+
+        // DELETE /api/products/{productId}/reviews/{reviewId}  — chỉ tác giả mới được xóa
+        [HttpDelete("{reviewId:int}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int productId, int reviewId)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.Id == reviewId && r.ProductId == productId && r.UserId == userId);
+            if (review == null)
+                return NotFound(new { message = "Đánh giá không tồn tại hoặc không thuộc về bạn" });
+
+            _db.Reviews.Remove(review);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xóa đánh giá" });
         }
     }
 
@@ -141,7 +191,9 @@ namespace BaseCore.APIService.Controllers
 
             var productIds = await GetShopProductIdsAsync(shop!.Id);
 
-            var query = _db.Reviews.Include(r => r.Product)
+            var query = _db.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
                 .Where(r => productIds.Contains(r.ProductId));
 
             if (rating.HasValue)  query = query.Where(r => r.Rating == rating.Value);
@@ -149,25 +201,31 @@ namespace BaseCore.APIService.Controllers
             if (replied == false) query = query.Where(r => r.SellerReply == null);
 
             var total = await query.CountAsync();
-            var items = await query
+            // Materialize with Include active, then project in memory.
+            // EF Core ignores .Include() inside .Select() projections,
+            // so r.User would be null if we projected directly in the query.
+            var rows = await query
                 .OrderByDescending(r => r.CreatedAt)
                 .Skip((page - 1) * limit)
                 .Take(limit)
-                .Select(r => new {
-                    reviewId     = r.Id,
-                    productName  = r.Product != null ? r.Product.Name     : "",
-                    productImage = r.Product != null ? r.Product.ImageUrl : "",
-                    customerId   = r.UserId,
-                    customerName = r.UserId,
-                    r.Rating,
-                    r.Comment,
-                    images              = r.Images,
-                    createdAt           = r.CreatedAt,
-                    sellerReply         = r.SellerReply,
-                    replyAt             = r.ReplyAt,
-                    isVerifiedPurchase  = r.IsVerifiedPurchase
-                })
                 .ToListAsync();
+
+            var items = rows.Select(r => new {
+                reviewId     = r.Id,
+                productName  = r.Product != null ? r.Product.Name     : "",
+                productImage = r.Product != null ? r.Product.ImageUrl : "",
+                customerId   = r.UserId,
+                customerName = r.User != null ? (r.User.Name ?? r.User.UserName) : r.UserId,
+                rating       = r.Rating,
+                comment      = r.Comment,
+                images = r.Images != null
+                    ? r.Images.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>(),
+                createdAt          = r.CreatedAt,
+                sellerReply        = r.SellerReply,
+                replyAt            = r.ReplyAt,
+                isVerifiedPurchase = r.IsVerifiedPurchase
+            }).ToList();
 
             return Ok(new {
                 total,
@@ -380,10 +438,12 @@ namespace BaseCore.APIService.Controllers
 
             return Ok(review);
         }
+
     }
 
-    public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; } }
+    public class ReviewDto      { public int Rating { get; set; }  public string? Comment { get; set; }  public List<string>? Images { get; set; } }
     public class ReplyReviewDto { public string Reply { get; set; } = ""; }
+    public class UpdateReviewDto { public int Rating { get; set; } public string? Comment { get; set; } }
     public class CreateReviewDto
     {
         public int ProductId { get; set; }

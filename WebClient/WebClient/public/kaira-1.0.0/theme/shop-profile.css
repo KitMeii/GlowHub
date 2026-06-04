@@ -22,7 +22,7 @@ body{background:var(--bg);font-family:var(--font-body);color:var(--dark)}
 #lux-cursor-ring{width:32px;height:32px;border:1px solid var(--dark);border-radius:50%;opacity:.5;transition:width .4s var(--ease-lux),height .4s var(--ease-lux),border-color .3s,opacity .3s,transform .12s linear;z-index:99998}
 body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-color:var(--pink)}
 @media(hover:none),(pointer:coarse){#lux-cursor-dot,#lux-cursor-ring{display:none}body,body *{cursor:auto!important}}
-@media(hover:hover) and (pointer:fine){body,body *{cursor:none!important}}
+@media(hover:hover) and (pointer:fine){body{cursor:none!important}a,button,input,select,textarea,label,[onclick],[role=button],[tabindex]{cursor:auto!important}}
 
 /* ── TOPBAR ── */
 .gh-topbar{background:var(--dark);color:rgba(255,255,255,.75);text-align:center;padding:7px 20px;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:300}
@@ -42,6 +42,8 @@ body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-colo
 .gh-cart-count{position:absolute;top:-6px;right:-8px;width:16px;height:16px;background:var(--pink);border-radius:50%;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center}
 
 /* ── SHOP HEADER ── */
+.sp-header,.sp-header *{cursor:default}
+.sp-btn-chat,.sp-btn-follow,.sp-desc-more{cursor:pointer!important}
 .sp-header{background:#fff;border-bottom:1px solid var(--border);margin-bottom:0}
 .sp-banner{height:200px;background:linear-gradient(135deg,#f8c4e0 0%,var(--pink) 40%,#a855f7 100%);position:relative;overflow:hidden}
 .sp-banner img{width:100%;height:100%;object-fit:cover}
@@ -78,7 +80,7 @@ body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-colo
 /* ── PRODUCT GRID ── */
 .sp-content{max-width:1200px;margin:0 auto;padding:28px 40px}
 .sp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:24px}
-.sp-card{position:relative;cursor:pointer;background:var(--bg)}
+.sp-card{position:relative;cursor:pointer;background:var(--bg);display:flex;flex-direction:column}
 .sp-card-img-wrap{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--bg)}
 .sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease-lux)}
 .sp-card:hover .sp-card-img-wrap img{transform:scale(1.06)}
@@ -92,10 +94,11 @@ body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-colo
 .sp-card-add{position:absolute;bottom:0;left:0;right:0;background:rgba(17,17,17,.85);color:#fff;border:none;cursor:pointer;padding:11px;font-family:var(--font-body);font-size:9px;letter-spacing:2px;text-transform:uppercase;transform:translateY(100%);transition:transform .4s var(--ease-lux)}
 .sp-card:hover .sp-card-add{transform:translateY(0)}
 .sp-card-add:hover{background:var(--pink)}
-.sp-card-info{padding:12px 0 4px}
-.sp-card-name{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dark);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.sp-card-info{padding:12px 0 4px;flex:1;display:flex;flex-direction:column}
+.sp-card-name{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dark);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;min-height:2.8em}
 .sp-card-rating{color:#d4a847;font-size:11px;letter-spacing:1.5px;margin-bottom:3px}
 .sp-card-rating span{color:var(--gray);font-size:10px;margin-left:4px}
+.sp-card-price-row{margin-top:auto;padding-top:4px}
 .sp-card-price{font-size:13px;color:var(--pink);font-weight:500}
 .sp-card-price-old{font-size:11px;color:var(--gray);text-decoration:line-through;margin-left:6px}
 .sp-load-more{display:flex;justify-content:center;padding:16px 0 32px}
@@ -202,3 +205,42 @@ body.cursor-hover #lux-cursor-ring{width:52px;height:52px;opacity:.8;border-colo
   .sp-rv-filter{gap:6px}
   .sp-rv-filter-btn{font-size:9px;padding:5px 10px}
 }
+
+/* ── MINI CHAT WIDGET ── */
+#spChatWidget{position:fixed;bottom:80px;right:24px;z-index:9000;display:none;flex-direction:column;width:320px;max-height:440px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.16);overflow:hidden}
+#spChatWidget.open{display:flex}
+.sp-chat-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--pink);color:#fff}
+.sp-chat-head-name{flex:1;font-weight:600;font-size:13px}
+.sp-chat-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer!important;line-height:1;padding:0}
+.sp-chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.sp-chat-bubble{max-width:75%;padding:7px 11px;border-radius:12px;line-height:1.45;word-break:break-word}
+.sp-chat-bubble.me{align-self:flex-end;background:var(--pink);color:#fff;border-bottom-right-radius:3px}
+.sp-chat-bubble.them{align-self:flex-start;background:#f3f3f3;color:var(--dark);border-bottom-left-radius:3px}
+.sp-chat-bubble .sp-chat-ts{display:block;font-size:10px;opacity:.65;margin-top:3px;text-align:right}
+.sp-chat-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}
+.sp-chat-input{flex:1;border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:13px;outline:none;font-family:var(--font-body)}
+.sp-chat-send{background:var(--pink);color:#fff;border:none;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer!important;display:flex;align-items:center;justify-content:center}
+.sp-chat-empty{color:#aaa;font-size:12px;text-align:center;margin:auto}
+#spChatFab{position:fixed;bottom:24px;right:24px;z-index:8999;background:var(--pink);color:#fff;border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer!important;box-shadow:0 4px 18px rgba(0,0,0,.2);display:none;align-items:center;justify-content:center}
+#spChatFab.visible{display:flex}
+#spChatFab .sp-chat-badge{position:absolute;top:4px;right:4px;background:#e53;color:#fff;font-size:10px;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;display:none}
+#spChatFab .sp-chat-badge.has{display:flex}
+
+/* ── SHOP VOUCHER SECTION ── */
+.sp-vouchers{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 20px}
+.sp-vouchers-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sp-vouchers-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dark);display:flex;align-items:center;gap:6px}
+.sp-vouchers-more{font-size:11px;color:var(--pink);text-decoration:none;letter-spacing:0.5px;white-space:nowrap}
+.sp-vouchers-more:hover{text-decoration:underline}
+.sp-vouchers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:600px){.sp-vouchers-grid{grid-template-columns:1fr}}
+.sp-vc-card{border:1.5px dashed #f9a8d4;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:#fff9fc;position:relative;cursor:pointer;user-select:none}
+.sp-vc-discount{font-size:20px;font-weight:700;color:var(--pink);line-height:1.1}
+.sp-vc-label{font-size:11px;color:var(--gray);letter-spacing:0.3px}
+.sp-vc-min{font-size:10px;color:#6b7280;letter-spacing:0.3px}
+.sp-vc-code{font-family:monospace;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:1.5px}
+.sp-vc-btn{margin-top:auto;padding:5px 0;border:1.5px solid var(--pink);background:#fff;color:var(--pink);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:background .18s,color .18s;font-family:var(--font-body)}
+.sp-vc-btn:hover:not(:disabled){background:var(--pink);color:#fff}
+.sp-vc-btn.saved{border-color:#d1d5db;color:#9ca3af;cursor:default}
+.sp-vc-skel{border-radius:6px;height:100px;background:linear-gradient(90deg,#f5f5f5 25%,#e8e8e8 50%,#f5f5f5 75%);background-size:200% 100%;animation:sp-skel-shine 1.4s ease-in-out infinite}
+@keyframes sp-skel-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}

@@ -20,6 +20,9 @@ namespace BaseCore.Entities
 
         public int SoldCount { get; set; } = 0;
 
+        /// <summary>Số lượng còn lại — cập nhật atomic khi mua, tránh race condition</summary>
+        public int RemainingQuantity { get; set; } = 0;
+
         public bool IsActive { get; set; } = true;
 
         public FlashSale FlashSale { get; set; } = null!;

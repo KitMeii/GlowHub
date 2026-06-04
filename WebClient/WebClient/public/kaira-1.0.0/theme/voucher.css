@@ -170,6 +170,7 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   margin-bottom: 48px;
+  align-items: stretch;
 }
 
 /* ── VOUCHER CARD ── */
@@ -201,6 +202,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 0;
 }
 
 .vo-card-type-badge {
@@ -210,6 +212,28 @@
   color: var(--gray);
   margin-bottom: 2px;
 }
+.vo-card-shop-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f97316;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.vo-shop-group-header {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+  margin-top: 12px;
+}
+.vo-shop-group-header:first-child { margin-top: 0; }
 
 .vo-card-title {
   font-size: 13px;
@@ -246,9 +270,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: auto;
   padding-top: 10px;
   border-top: 1px dashed var(--border);
+}
+
+.vo-code-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: stretch;
 }
 
 .vo-card-code {
@@ -259,26 +290,30 @@
   color: var(--dark);
   flex: 1;
   background: var(--cream);
-  padding: 6px 10px;
+  padding: 6px 32px 6px 10px;
   border-radius: 2px;
   user-select: all;
 }
 
-.vo-btn-copy {
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  background: #fff;
-  font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.vo-btn-copy-icon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: all 0.18s;
-  color: var(--dark);
-  white-space: nowrap;
+  padding: 4px;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: color 0.18s;
+  line-height: 0;
 }
-.vo-btn-copy:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
-.vo-btn-copy.copied { background: var(--success); color: #fff; border-color: var(--success); }
+.vo-btn-copy-icon:hover { color: var(--dark); }
+.vo-btn-copy-icon.copied { color: var(--success); }
 
 .vo-btn-save {
   padding: 6px 12px;
@@ -295,6 +330,21 @@
 }
 .vo-btn-save:hover  { background: var(--pink-hover); }
 .vo-btn-save.saved  { background: var(--success); cursor: default; }
+
+.vo-btn-delete {
+  padding: 6px 12px;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.vo-btn-delete:hover { background: #fecaca; color: #b91c1c; }
 
 /* Notch cutout (decorative) */
 .vo-card::before,
@@ -462,6 +512,29 @@
 }
 .vo-modal-voucher-item:hover { border-color: var(--pink); background: var(--pink-soft); }
 .vo-modal-voucher-item.selected { border-color: var(--pink); background: var(--pink-soft); }
+.vo-modal-voucher-item .vo-mvi-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  position: relative;
+  margin-left: 6px;
+  pointer-events: none;
+  overflow: visible;
+}
+.vo-modal-voucher-item .vo-mvi-radio::after { content: none; }
+.vo-modal-voucher-item .vo-mvi-radio svg {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+}
+.vo-modal-voucher-item.selected .vo-mvi-radio { border-color: transparent; }
+.vo-modal-voucher-item.selected .vo-mvi-radio svg { display: block; }
 
 .vo-modal-voucher-item .vo-mvi-icon {
   width: 36px;
@@ -574,5 +647,5 @@ footer.vo-footer a:hover { color: var(--pink); }
 }
 @media (max-width: 480px) {
   .vo-card-code-row { flex-wrap: wrap; gap: 6px; }
-  .vo-card-code { width: 100%; }
+  .vo-code-wrap { width: 100%; }
 }

@@ -59,3 +59,9 @@
   --z-admin:    99998;
   --z-toast:    11000;
 }
+
+/* ── Global performance & UX ── */
+html { scroll-behavior: smooth; }
+*, *::before, *::after { box-sizing: border-box; }
+img { max-width: 100%; height: auto; }
+::selection { background: var(--pink); color: var(--white); }

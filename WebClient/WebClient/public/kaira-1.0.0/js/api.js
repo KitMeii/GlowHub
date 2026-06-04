@@ -174,6 +174,11 @@ const Auth = {
     return !!localStorage.getItem("token") && !!localStorage.getItem("user");
   },
 
+  /** Lấy token hiện tại */
+  getToken() {
+    return localStorage.getItem("token");
+  },
+
   /** Kiểm tra admin */
   isAdmin() {
     const u = this.getCurrentUser();
@@ -288,7 +293,7 @@ const Order = {
     return apiFetch(ORDER_API, "/api/orders/my/" + id + "/cancel", "POST", { Reason: reason || "" });
   },
 
-  confirmReceived(id) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/received", "POST"); },
+  confirmReceived(id, subOrderId) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/received", "POST", subOrderId ? { subOrderId } : undefined); },
 
   // Checkout v2 — gửi đủ ReceiverName, ReceiverPhone, PaymentMethod, VoucherCode, ShippingMethod
   checkout(data) { return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data); },
@@ -357,6 +362,16 @@ const Shop = {
   async adminBan(id) {
     return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
   },
+
+  follow(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id + "/follow", "POST");
+  },
+  unfollow(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/" + id + "/follow", "DELETE");
+  },
+  getFollowed() {
+    return apiFetch(PRODUCT_API, "/api/shops/followed", "GET");
+  },
 };
 
 // ============================================================
@@ -404,11 +419,20 @@ const SellerProduct = {
 //  SELLER ORDER MODULE
 // ============================================================
 const SellerOrder = {
+  // Orders tab — SubOrder endpoints
   getAll(status = "", page = 1, limit = 10) {
     const qs = new URLSearchParams({ page, limit });
     if (status) qs.set("status", status);
-    return apiFetch(PRODUCT_API, "/api/orders/shop?" + qs.toString(), "GET");
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
   },
+  confirmSub(id) { return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT"); },
+  shipSub(id, trackingCode) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { TrackingCode: trackingCode || null });
+  },
+  cancelSub(id, reason) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { Reason: reason });
+  },
+  // Overview / legacy — parent order endpoints
   getDetail(id)  { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id, "GET"); },
   confirm(id)    { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/confirm", "PUT"); },
   ship(id, trackingCode) {
@@ -544,10 +568,42 @@ const SellerReport = {
 };
 
 // ============================================================
+//  SELLER WALLET MODULE
+// ============================================================
+const SellerWallet = {
+  getWallet() {
+    return apiFetch(PRODUCT_API, "/api/seller/wallet", "GET");
+  },
+  getTransactions(type = "", page = 1, limit = 15) {
+    const qs = new URLSearchParams({ page, limit });
+    if (type) qs.set("type", type);
+    return apiFetch(PRODUCT_API, "/api/seller/wallet/transactions?" + qs.toString(), "GET");
+  },
+};
+
+// ============================================================
+//  ADMIN WALLET MODULE
+// ============================================================
+const AdminWallet = {
+  getOverview() {
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/overview", "GET");
+  },
+  releasePayouts() {
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/release-payouts", "POST");
+  },
+  getTransactions(shopId = "", type = "", page = 1, limit = 20) {
+    const qs = new URLSearchParams({ page, limit });
+    if (shopId) qs.set("shopId", shopId);
+    if (type)   qs.set("type", type);
+    return apiFetch(PRODUCT_API, "/api/admin/wallet/transactions?" + qs.toString(), "GET");
+  },
+};
+
+// ============================================================
 //  CART MODULE  ← Fix hoàn toàn
 // ============================================================
 const Cart = {
-  STORAGE_KEY: "glowhub_cart",
+  STORAGE_KEY: "gh_cart",
 
   /** Đọc giỏ hàng từ localStorage */
   getItems() {
@@ -562,6 +618,7 @@ const Cart = {
   _save(items) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
     this._updateUI();
+    window.dispatchEvent(new Event('cart-updated'));
   },
 
   /** Thêm sản phẩm vào giỏ */
@@ -571,6 +628,11 @@ const Cart = {
     const idx = items.findIndex((i) => (i.id || i.Id) == id);
     if (idx > -1) {
       items[idx].qty = (items[idx].qty || 1) + qty;
+      // Upgrade shopId/shopName on existing items if previously missing
+      if (!items[idx].shopId   && (product.shopId   || product.ShopId))
+        items[idx].shopId   = product.shopId   || product.ShopId;
+      if (!items[idx].shopName && (product.shopName || product.ShopName))
+        items[idx].shopName = product.shopName || product.ShopName;
     } else {
       items.push({
         id: id,
@@ -590,6 +652,8 @@ const Cart = {
           product.Category ||
           product.category ||
           "",
+        shopId:   product.shopId   || product.ShopId   || "",
+        shopName: product.shopName || product.ShopName || "",
         qty: qty,
       });
     }
@@ -619,6 +683,7 @@ const Cart = {
   clear() {
     localStorage.removeItem(this.STORAGE_KEY);
     this._updateUI();
+    window.dispatchEvent(new Event('cart-updated'));
   },
 
   /** Tổng số lượng */
@@ -722,29 +787,45 @@ function _fmtMoney(n) {
 // ============================================================
 function showGlobalToast(msg, type) {
   if (type === undefined) type = "success";
-  let container = document.getElementById("_globalToastContainer");
+
+  // Try to use the base.css #gh-toast element first
+  var ghToast = document.getElementById("gh-toast");
+  if (ghToast) {
+    ghToast.textContent = msg;
+    ghToast.className = "show";
+    if (type === "error" || type === "err") ghToast.classList.add("toast-err");
+    else if (type === "warn" || type === "warning") ghToast.classList.add("toast-warn");
+    else if (type === "ok" || type === "success") ghToast.classList.add("toast-ok");
+    clearTimeout(ghToast._tid);
+    ghToast._tid = setTimeout(function() { ghToast.className = ""; }, 3200);
+    return;
+  }
+
+  // Fallback: create floating toast
+  var isErr = (type === "error" || type === "err");
+  var isWarn = (type === "warn" || type === "warning");
+  var borderColor = isErr ? "#dc2626" : isWarn ? "#f59e0b" : "#f759ab";
+  var icon = isErr ? "✕" : isWarn ? "⚠" : "✓";
+
+  var container = document.getElementById("_globalToastContainer");
   if (!container) {
     container = document.createElement("div");
     container.id = "_globalToastContainer";
     container.style.cssText =
-      "position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px";
+      "position:fixed;bottom:24px;right:24px;z-index:11000;display:flex;flex-direction:column;gap:8px;pointer-events:none";
     document.body.appendChild(container);
   }
-  const t = document.createElement("div");
+  var t = document.createElement("div");
   t.style.cssText =
-    "padding:12px 20px;background:" +
-    (type === "success" ? "#111" : "#dc2626") +
-    ";color:#fff;border-radius:4px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);border-left:3px solid " +
-    (type === "success" ? "#f759ab" : "#ff6b6b") +
-    ";transform:translateX(120%);transition:transform 0.3s ease";
-  t.textContent = (type === "success" ? "✓  " : "✕  ") + msg;
+    "padding:12px 20px;background:#111;color:#fff;font-size:12px;letter-spacing:.5px;" +
+    "box-shadow:0 4px 16px rgba(0,0,0,.2);border-left:3px solid " + borderColor +
+    ";transform:translateX(120%);transition:transform 0.3s ease;display:flex;align-items:center;gap:8px;max-width:320px";
+  t.innerHTML = '<span style="font-size:14px">' + icon + '</span><span>' + msg + '</span>';
   container.appendChild(t);
-  requestAnimationFrame(() => {
-    t.style.transform = "translateX(0)";
-  });
-  setTimeout(() => {
+  requestAnimationFrame(function() { t.style.transform = "translateX(0)"; });
+  setTimeout(function() {
     t.style.transform = "translateX(120%)";
-    setTimeout(() => t.remove(), 350);
+    setTimeout(function() { t.remove(); }, 350);
   }, 3000);
 }
 
@@ -906,6 +987,8 @@ async function renderProductsOnIndex() {
       var isNew = p.IsNew || p.isNew;
       var sale = p.SalePercent || p.salePercent || p.discount || 0;
       var sn = name.replace(/'/g, "&#39;");
+      var shopId = p.ShopId || p.shopId || "";
+      var shopName = (p.ShopName || p.shopName || "").replace(/'/g, "&#39;");
 
       var badgeHtml = isNew
         ? '<span class="badge-new">Mới</span>'
@@ -927,7 +1010,7 @@ async function renderProductsOnIndex() {
           <span class="product-price">${_fmtMoney(price)}</span>
         </div>
         <button class="btn-add-cart"
-          data-id="${id}" data-name="${sn}" data-price="${price}" data-img="${img}"
+          data-id="${id}" data-name="${sn}" data-price="${price}" data-img="${img}" data-shop-id="${shopId}" data-shop-name="${shopName}"
           onclick="event.stopPropagation();addToCartFromCard(this)">
           Thêm Vào Giỏ
         </button>
@@ -937,10 +1020,23 @@ async function renderProductsOnIndex() {
     .join("");
 }
 
+/** Handler cho nút add-to-cart được render bằng JS (có data attributes) */
+function addToCartFromCard(btn) {
+  var id = btn.dataset.id || btn.dataset.productId;
+  var name = btn.dataset.name || "Sản phẩm";
+  var price = parseFloat(btn.dataset.price) || 0;
+  var img = btn.dataset.img || "";
+  var shopId = btn.dataset.shopId || "";
+  var shopName = btn.dataset.shopName || "";
+  Cart.add({ id: id, name: name, price: price, image: img, shopId: shopId, shopName: shopName });
+  if (typeof showGlobalToast !== "undefined") showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
+}
+
 /** Gắn sự kiện cho các nút tĩnh trong HTML (khi API chưa sẵn sàng) */
 function _attachStaticCartButtons() {
   document.querySelectorAll(".btn-add-cart").forEach((btn) => {
     if (btn.dataset.cartBound) return;
+    if (btn.getAttribute("onclick")) return; // already handled by inline onclick
     btn.dataset.cartBound = "1";
     btn.addEventListener("click", function () {
       // Lấy thông tin từ DOM gần nhất
@@ -961,8 +1057,10 @@ function _attachStaticCartButtons() {
         (card && card.dataset && card.dataset.productId
           ? card.dataset.productId
           : null) || Date.now();
+      const shopId = (card && card.dataset.shopId) || btn.dataset.shopId || "";
+      const shopName = (card && card.dataset.shopName) || btn.dataset.shopName || "";
 
-      Cart.add({ id, name, price, image: img });
+      Cart.add({ id, name, price, image: img, shopId, shopName });
       showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
     });
   });
@@ -1276,6 +1374,188 @@ const Wishlist = {
 };
 
 // ============================================================
+//  ADMIN MODULE — Dành riêng cho Admin Dashboard (Sprint 8)
+// ============================================================
+const Admin = {
+  // ── Dashboard ──
+  getDashboard() {
+    return apiFetch(PRODUCT_API, "/api/admin/dashboard", "GET");
+  },
+  getRevenueStats(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/stats/revenue" + (qs ? "?" + qs : ""), "GET");
+  },
+  getSummary() {
+    return apiFetch(PRODUCT_API, "/api/admin/stats/summary", "GET");
+  },
+
+  // ── Users ──
+  getUsers(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/users" + (qs ? "?" + qs : ""), "GET");
+  },
+  getUserById(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "GET");
+  },
+  banUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/ban", "PUT");
+  },
+  unbanUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/unban", "PUT");
+  },
+  changeRole(id, role) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/role", "PUT", { Role: role });
+  },
+  deleteUser(id) {
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "DELETE");
+  },
+
+  // ── Orders ──
+  getOrders(qs) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders" + (qs ? "?" + qs : ""), "GET");
+  },
+  getOrderDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id, "GET");
+  },
+  updateOrderStatus(id, status, note) {
+    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id + "/status", "PUT", { Status: status, Note: note || null });
+  },
+
+  // ── Shops ──
+  getShopStats(qs) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/stats" + (qs ? "?" + qs : ""), "GET");
+  },
+  approveShop(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/approve", "PUT");
+  },
+  banShop(id) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
+  },
+  updateCommission(id, rate) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/commission", "PUT", { CommissionRate: rate });
+  },
+  getShopStatsById(id, qs) {
+    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/stats" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── Categories ──
+  getCategories() {
+    return apiFetch(PRODUCT_API, "/api/categories", "GET");
+  },
+  createCategory(data) {
+    return apiFetch(PRODUCT_API, "/api/categories", "POST", { Name: data.name, Description: data.description });
+  },
+  updateCategory(id, data) {
+    return apiFetch(PRODUCT_API, "/api/categories/" + id, "PUT", { Name: data.name, Description: data.description });
+  },
+  deleteCategory(id) {
+    return apiFetch(PRODUCT_API, "/api/categories/" + id, "DELETE");
+  },
+
+  // ── Banners ──
+  getBanners() {
+    return apiFetch(PRODUCT_API, "/api/banners/all", "GET");
+  },
+  getBanner(id) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "GET");
+  },
+  createBanner(data) {
+    return apiFetch(PRODUCT_API, "/api/banners", "POST", data);
+  },
+  updateBanner(id, data) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "PUT", data);
+  },
+  deleteBanner(id) {
+    return apiFetch(PRODUCT_API, "/api/banners/" + id, "DELETE");
+  },
+
+  // ── Flash Sale ──
+  getFlashSales(qs) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/admin/list" + (qs ? "?" + qs : ""), "GET");
+  },
+  getFlashSaleDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "GET");
+  },
+  createFlashSale(data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale", "POST", data);
+  },
+  updateFlashSale(id, data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "PUT", data);
+  },
+  deleteFlashSale(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "DELETE");
+  },
+  toggleFlashSale(id) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/toggle", "PUT");
+  },
+  addFlashSaleProduct(id, data) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products", "POST", data);
+  },
+  removeFlashSaleProduct(id, productId) {
+    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products/" + productId, "DELETE");
+  },
+
+  // ── Vouchers ──
+  getVouchers() {
+    return apiFetch(PRODUCT_API, "/api/Vouchers", "GET");
+  },
+  createVoucher(data) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers", "POST", data);
+  },
+  updateVoucher(id, data) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id, "PUT", data);
+  },
+  deleteVoucher(id) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id, "DELETE");
+  },
+  getVoucherUsage(id, qs) {
+    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id + "/usage" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── System Config ──
+  getConfig() {
+    return apiFetch(PRODUCT_API, "/api/admin/config", "GET");
+  },
+  updateConfig(items) {
+    return apiFetch(PRODUCT_API, "/api/admin/config", "PUT", items);
+  },
+  updateConfigKey(key, value) {
+    return apiFetch(PRODUCT_API, "/api/admin/config/" + key, "PUT", { Key: key, Value: value });
+  },
+
+  // ── Commission (Hoa Hồng) ──
+  getCommissionSummary() {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/summary", "GET");
+  },
+  getCommissionShops(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/shops" + (qs ? "?" + qs : ""), "GET");
+  },
+  createPayout(shopId, data) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/payout/" + shopId, "POST", data);
+  },
+  getPayoutHistory(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/commission/history" + (qs ? "?" + qs : ""), "GET");
+  },
+
+  // ── Disputes (Khiếu Nại) ──
+  getDisputes(qs) {
+    return apiFetch(PRODUCT_API, "/api/disputes" + (qs ? "?" + qs : ""), "GET");
+  },
+  getDisputeDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id, "GET");
+  },
+  processDispute(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/process", "PUT");
+  },
+  resolveDispute(id, data) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/resolve", "PUT", data);
+  },
+
+  // ── Audit Log ──
+  getAuditLogs(qs) {
+    return apiFetch(PRODUCT_API, "/api/admin/audit-logs" + (qs ? "?" + qs : ""), "GET");
+  },
+};
+
+// ============================================================
 //  REVIEW MODULE (thêm vào Product)
 // ============================================================
 // Gắn thêm vào Product object
@@ -1389,3 +1669,406 @@ const RecentlyViewed = {
     return apiFetch(PRODUCT_API, "/api/recently-viewed/" + productId, "POST").catch(function () {});
   },
 };
+
+// ============================================================
+//  DISPUTE MODULE — Customer-facing (tạo khiếu nại)
+// ============================================================
+const DisputeApi = {
+  create(data) {
+    return apiFetch(PRODUCT_API, "/api/disputes", "POST", data);
+  },
+  getMy(page, limit) {
+    const qs = new URLSearchParams({ page: page || 1, limit: limit || 10 });
+    return apiFetch(PRODUCT_API, "/api/disputes/my?" + qs.toString(), "GET");
+  },
+  getDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/disputes/" + id, "GET");
+  },
+};
+
+// ============================================================
+//  SHIPPING MODULE
+// ============================================================
+const Shipping = {
+  calculate: function (fromRegion, toRegion, weightGram) {
+    var qs = new URLSearchParams({ fromRegion: fromRegion, toRegion: toRegion, weightGram: weightGram });
+    return apiFetch(PRODUCT_API, "/api/shipping/calculate?" + qs.toString(), "GET");
+  },
+  calculateCart: function (fromShopId, toProvince, items) {
+    return apiFetch(PRODUCT_API, "/api/shipping/calculate-cart", "POST", {
+      fromShopId: fromShopId,
+      toProvince: toProvince,
+      items: items
+    });
+  },
+  getRegions: function () {
+    return apiFetch(PRODUCT_API, "/api/shipping/regions", "GET");
+  },
+};
+
+// ============================================================
+//  CART — getGrouped (grouped by shop with shipping estimate)
+// ============================================================
+Cart.getGrouped = function (toProvince) {
+  var qs = toProvince ? "?toProvince=" + encodeURIComponent(toProvince) : "";
+  return apiFetch(PRODUCT_API, "/api/cart/grouped" + qs, "GET");
+};
+
+// ============================================================
+//  SELLER SUB-ORDER MODULE
+// ============================================================
+const SellerSubOrder = {
+  getAll: function (params) {
+    var qs = new URLSearchParams(params || {});
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
+  },
+  confirm: function (id) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT");
+  },
+  ship: function (id, trackingCode) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { trackingCode: trackingCode });
+  },
+  cancel: function (id, reason) {
+    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { reason: reason });
+  },
+};
+
+// ============================================================
+//  CUSTOMER WALLET MODULE
+// ============================================================
+const CustomerWallet = {
+  get: function () {
+    return apiFetch(PRODUCT_API, "/api/customer/wallet", "GET");
+  },
+  getTransactions: function (params) {
+    var qs = new URLSearchParams(params || {});
+    return apiFetch(PRODUCT_API, "/api/customer/wallet/transactions?" + qs.toString(), "GET");
+  },
+  topUp: function (data) {
+    return apiFetch(PRODUCT_API, "/api/customer/wallet/topup", "POST", data);
+  },
+};
+
+// ============================================================
+//  FLASH SALE — buy (race-condition safe)
+// ============================================================
+FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
+  return apiFetch(PRODUCT_API, "/api/flashsale/buy", "POST", {
+    flashSaleProductId: flashSaleProductId,
+    quantity: quantity || 1,
+    shippingAddress: shippingAddress || ""
+  });
+};
+
+// ============================================================
+//  CART — add with shopId/shopName support
+// ============================================================
+(function () {
+  var _origAdd = Cart.add.bind(Cart);
+  Cart.add = function (product, qty) {
+    var items = this.getItems();
+    var id = product.Id || product.id || product._id;
+    var idx = items.findIndex(function (i) { return (i.id || i.Id) == id; });
+    if (idx > -1) {
+      items[idx].qty = (items[idx].qty || 1) + (qty || 1);
+    } else {
+      items.push({
+        id: id,
+        name: product.Name || product.name,
+        price: product.Price || product.price,
+        image: product.ImageUrl || product.imageUrl || product.Image || product.image || "",
+        category: (product.Category && (product.Category.Name || product.Category.name)) || product.CategoryName || product.Category || product.category || "",
+        shopId: product.ShopId || product.shopId || null,
+        shopName: product.ShopName || product.shopName || null,
+        weightGram: product.WeightGram || product.weightGram || 500,
+        qty: qty || 1,
+      });
+    }
+    this._save(items);
+    this._flashBadge();
+    return items;
+  };
+})();
+
+// ============================================================
+//  VN PROVINCES — 3-level cascade (province → district → ward)
+//  Source: https://provinces.open-api.vn/api/
+//  Cache: localStorage 24h
+// ============================================================
+var VNProvinces = (function () {
+  var BASE = 'https://provinces.open-api.vn/api';
+  var TTL  = 86400000; // 24h
+
+  function _write(key, data) {
+    try { localStorage.setItem(key, JSON.stringify({ d: data, t: Date.now() })); } catch (_) {}
+  }
+  function _read(key) {
+    try {
+      var c = JSON.parse(localStorage.getItem(key));
+      return (c && (Date.now() - c.t) < TTL) ? c.d : null;
+    } catch (_) { return null; }
+  }
+  function _fetch(url, cacheKey) {
+    var hit = _read(cacheKey);
+    if (hit) return Promise.resolve(hit);
+    return fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { _write(cacheKey, d); return d; });
+  }
+
+  function getProvinces() {
+    return _fetch(BASE + '/p/?depth=1', 'gh_vnp');
+  }
+  function getDistricts(pCode) {
+    // Correct endpoint: /p/{code}?depth=2 returns { districts: [...] }
+    // /d/?p= is NOT a supported filter — returns ALL ~700 districts (wrong)
+    return _fetch(BASE + '/p/' + pCode + '?depth=2', 'gh_vnd2_' + pCode)
+      .then(function (d) { return d.districts || []; });
+  }
+  function getWards(dCode) {
+    // Correct endpoint: /d/{code}?depth=2 returns { wards: [...] }
+    // /w/?d= is NOT a supported filter — returns ALL wards (wrong)
+    return _fetch(BASE + '/d/' + dCode + '?depth=2', 'gh_vnw2_' + dCode)
+      .then(function (d) { return d.wards || []; });
+  }
+
+  // Fill one <select> element; returns Promise
+  function fillSel(sel, items, placeholder) {
+    sel.innerHTML = '<option value="">Đang tải...</option>';
+    sel.disabled = true;
+    return (items instanceof Promise ? items : Promise.resolve(items))
+      .then(function (list) {
+        sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+        (list || []).forEach(function (item) {
+          var o = document.createElement('option');
+          o.value = item.code;
+          o.textContent = item.name;
+          o.dataset.name = item.name;
+          sel.appendChild(o);
+        });
+        sel.disabled = false;
+      })
+      .catch(function () {
+        sel.innerHTML = '<option value="">Lỗi tải dữ liệu. Nhập thủ công.</option>';
+        sel.disabled = false;
+      });
+  }
+
+  // Reset one select to empty/disabled state
+  function resetSel(sel, placeholder) {
+    if (!sel) return;
+    sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+    sel.disabled = true;
+  }
+
+  /**
+   * Setup 3-level cascade on given element IDs.
+   * opts: { prov, dist, ward } — element IDs
+   * onChange: function({ provCode, provName, distCode, distName, wardCode, wardName })
+   *           called on every change (even partial)
+   */
+  function setup(opts, onChange) {
+    var provSel = document.getElementById(opts.prov);
+    var distSel = opts.dist ? document.getElementById(opts.dist) : null;
+    var wardSel = opts.ward ? document.getElementById(opts.ward) : null;
+    if (!provSel) return;
+
+    if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
+    if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+
+    fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
+      provSel.disabled = false;
+    });
+
+    provSel.addEventListener('change', function () {
+      var pCode = provSel.value;
+      var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+      if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
+      if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+      if (onChange) onChange({ provCode: pCode, provName: pName, distCode: '', distName: '', wardCode: '', wardName: '' });
+      if (!pCode || !distSel) return;
+      fillSel(distSel, getDistricts(pCode), '-- Chọn quận/huyện --').then(function () {
+        distSel.disabled = false;
+      });
+    });
+
+    if (distSel) {
+      distSel.addEventListener('change', function () {
+        var pCode = provSel.value;
+        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+        var dCode = distSel.value;
+        var dName = dCode ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+        if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: '', wardName: '' });
+        if (!dCode || !wardSel) return;
+        fillSel(wardSel, getWards(dCode), '-- Chọn phường/xã --').then(function () {
+          wardSel.disabled = false;
+        });
+      });
+    }
+
+    if (wardSel) {
+      wardSel.addEventListener('change', function () {
+        var pCode = provSel.value;
+        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+        var dCode = distSel ? distSel.value : '';
+        var dName = (dCode && distSel) ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+        var wCode = wardSel.value;
+        var wName = wCode ? (wardSel.options[wardSel.selectedIndex].dataset.name || wardSel.options[wardSel.selectedIndex].textContent) : '';
+        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: wCode, wardName: wName });
+      });
+    }
+  }
+
+  // Map province name → shipping region code (mirrors ShippingRegion.Normalize in C#)
+  function getRegion(provinceName) {
+    if (!provinceName) return 'OTHER';
+    var n = provinceName.toLowerCase();
+    var SOUTH = ['hồ chí minh','ho chi minh','hcm','tphcm','tp.hcm','sài gòn','saigon','sai gon',
+      'bình dương','binh duong','đồng nai','dong nai','bà rịa','ba ria','vũng tàu','vung tau',
+      'long an','tiền giang','tien giang','bến tre','ben tre','vĩnh long','vinh long',
+      'trà vinh','tra vinh','đồng tháp','dong thap','an giang','kiên giang','kien giang',
+      'cần thơ','can tho','hậu giang','hau giang','sóc trăng','soc trang',
+      'bạc liêu','bac lieu','cà mau','ca mau','tây ninh','tay ninh','bình phước','binh phuoc'];
+    var NORTH = ['hà nội','ha noi','hanoi','hải phòng','hai phong','quảng ninh','quang ninh',
+      'hải dương','hai duong','hưng yên','hung yen','thái bình','thai binh','nam định','nam dinh',
+      'hà nam','ha nam','ninh bình','ninh binh','vĩnh phúc','vinh phuc','bắc ninh','bac ninh',
+      'bắc giang','bac giang','thái nguyên','thai nguyen','lạng sơn','lang son','cao bằng','cao bang',
+      'bắc kạn','bac kan','tuyên quang','tuyen quang','hà giang','ha giang','lào cai','lao cai',
+      'yên bái','yen bai','phú thọ','phu tho','sơn la','son la','điện biên','dien bien',
+      'lai châu','lai chau','hòa bình','hoa binh'];
+    var ISLAND = ['phú quốc','phu quoc','côn đảo','con dao','hoàng sa','hoang sa','trường sa','truong sa','lý sơn','ly son'];
+    if (ISLAND.some(function (k) { return n.includes(k); })) return 'ISLAND';
+    if (SOUTH.some(function (k) { return n.includes(k); })) return 'SOUTH';
+    if (NORTH.some(function (k) { return n.includes(k); })) return 'NORTH';
+    // Miền Trung: Thanh Hóa → Lâm Đồng — fallback
+    return 'CENTRAL';
+  }
+
+  // setupCascade — same as setup() but accepts {province, district, ward} key names
+  function setupCascade(ids, onChange) {
+    return setup(
+      { prov: ids.province || ids.prov, dist: ids.district || ids.dist, ward: ids.ward },
+      onChange
+    );
+  }
+
+  // setValues — fill + pre-select all 3 levels (for edit-address forms)
+  function setValues(ids, values) {
+    var provId   = ids.province || ids.prov;
+    var distId   = ids.district || ids.dist;
+    var wardId   = ids.ward;
+    var provSel  = provId ? document.getElementById(provId) : null;
+    var distSel  = distId ? document.getElementById(distId) : null;
+    var wardSel  = wardId ? document.getElementById(wardId) : null;
+    var provCode = String(values.provinceCode || '');
+    var distCode = String(values.districtCode || '');
+    var wardCode = String(values.wardCode     || '');
+
+    if (!provSel || !provCode) return Promise.resolve();
+
+    return fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
+      for (var i = 0; i < provSel.options.length; i++) {
+        if (String(provSel.options[i].value) === provCode) { provSel.selectedIndex = i; break; }
+      }
+      if (!distSel || !distCode) return;
+      return fillSel(distSel, getDistricts(provCode), '-- Chọn quận/huyện --').then(function () {
+        distSel.disabled = false;
+        for (var i = 0; i < distSel.options.length; i++) {
+          if (String(distSel.options[i].value) === distCode) { distSel.selectedIndex = i; break; }
+        }
+        if (!wardSel || !wardCode) return;
+        return fillSel(wardSel, getWards(distCode), '-- Chọn phường/xã --').then(function () {
+          wardSel.disabled = false;
+          for (var i = 0; i < wardSel.options.length; i++) {
+            if (String(wardSel.options[i].value) === wardCode) { wardSel.selectedIndex = i; break; }
+          }
+        });
+      });
+    });
+  }
+
+  return {
+    getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards,
+    setup: setup, setupCascade: setupCascade, setValues: setValues, getRegion: getRegion
+  };
+})();
+
+// ============================================================
+//  PAYMENT — VNPay + Bank Transfer + Auto-expire
+// ============================================================
+var Payment = (function () {
+
+  // Tạo URL thanh toán VNPay cho đơn hàng
+  function createVNPayUrl(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/vnpay/create', 'POST', { orderId: orderId });
+  }
+
+  // Lấy thông tin chuyển khoản ngân hàng + QR code
+  function getBankInfo(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/bank/info?orderId=' + orderId, 'GET');
+  }
+
+  // Khách xác nhận đã chuyển khoản
+  function submitBankTransfer(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/bank/submit', 'POST', { orderId: orderId });
+  }
+
+  // Admin xác nhận nhận tiền chuyển khoản
+  function adminConfirmBank(orderId) {
+    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/confirm/' + orderId, 'POST');
+  }
+
+  // Admin: danh sách đơn chờ xác nhận CK
+  function getPendingBankOrders() {
+    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/pending', 'GET');
+  }
+
+  // Kích hoạt auto-expire (gọi định kỳ hoặc khi cần)
+  function expireOrders() {
+    return apiFetch(PRODUCT_API, '/api/payment/expire', 'POST');
+  }
+
+  // Redirect tới trang thanh toán VNPay
+  function redirectToVNPay(orderId) {
+    return createVNPayUrl(orderId).then(function (res) {
+      if (res && res.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        throw new Error('Không tạo được URL thanh toán VNPay');
+      }
+    });
+  }
+
+  // Hiển thị hộp thoại thông tin chuyển khoản
+  function showBankTransferModal(orderId, containerEl) {
+    return getBankInfo(orderId).then(function (info) {
+      if (!containerEl) return info;
+      containerEl.innerHTML =
+        '<div class="text-center">' +
+        '<img src="' + info.qrUrl + '" alt="QR chuyển khoản" style="max-width:220px;border:1px solid #eee;padding:8px;" onerror="this.style.display=\'none\'">' +
+        '</div>' +
+        '<table class="table table-sm mt-3" style="font-size:13px">' +
+        '<tr><td><b>Ngân hàng</b></td><td>' + info.bankName + '</td></tr>' +
+        '<tr><td><b>Số tài khoản</b></td><td><b>' + info.accountNumber + '</b></td></tr>' +
+        '<tr><td><b>Tên tài khoản</b></td><td>' + info.accountName + '</td></tr>' +
+        '<tr><td><b>Số tiền</b></td><td><b>' + info.amount.toLocaleString('vi-VN') + '₫</b></td></tr>' +
+        '<tr><td><b>Nội dung CK</b></td><td><b>' + info.orderCode + '</b></td></tr>' +
+        '</table>' +
+        (info.expireAt ? '<p class="text-danger" style="font-size:12px">⏱ Hết hạn: ' +
+          new Date(info.expireAt).toLocaleString('vi-VN') + '</p>' : '');
+      return info;
+    });
+  }
+
+  return {
+    createVNPayUrl: createVNPayUrl,
+    getBankInfo: getBankInfo,
+    submitBankTransfer: submitBankTransfer,
+    adminConfirmBank: adminConfirmBank,
+    getPendingBankOrders: getPendingBankOrders,
+    expireOrders: expireOrders,
+    redirectToVNPay: redirectToVNPay,
+    showBankTransferModal: showBankTransferModal
+  };
+})();

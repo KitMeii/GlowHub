@@ -4,38 +4,195 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🎫 Kho Voucher — GlowHub</title>
-    <meta name="description" content="Kho voucher GlowHub — Săn mã giảm giá, ưu đãi hấp dẫn!" />
+    <meta
+      name="description"
+      content="Kho voucher GlowHub — Săn mã giảm giá, ưu đãi hấp dẫn!"
+    />
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
-          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="theme/voucher.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
   </head>
-  <body style="background:var(--cream-soft); font-family:var(--font-body); min-height:100vh; display:flex; flex-direction:column;">
+  <body
+    style="
+      background: var(--cream-soft);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <!-- ── TOPBAR ── -->
+    <div class="gh-topbar">
+      🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG
+      100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+    </div>
 
-    <!-- NAVBAR -->
-    <nav class="vo-nav">
-      <div class="vo-nav-inner">
-        <a href="index.html" class="vo-brand">GLOWHUB</a>
-        <div class="vo-nav-links">
-          <a href="index.html" class="vo-nav-link">Trang Chủ</a>
-          <a href="shop.html" class="vo-nav-link">Cửa Hàng</a>
-          <a href="flash-sale.html" class="vo-nav-link">Flash Sale</a>
+    <!-- ── NAVBAR ── -->
+    <nav class="gh-nav" id="ghNav">
+      <div class="gh-nav-inner">
+        <a href="index.html" class="gh-logo">GLOWHUB</a>
+        <ul class="gh-menu">
+          <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+          <li>
+            <a href="flash-sale.html" data-page="flash-sale">Flash Sale</a>
+          </li>
+          <li class="gh-has-dropdown">
+            <a href="#">Danh Mục ▾</a>
+            <ul class="gh-cat-dropdown gh-dropdown">
+              <li class="gh-dropdown-loading">Đang tải...</li>
+            </ul>
+          </li>
+          <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+        </ul>
+        <div class="gh-nav-right">
+          <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
+          <a
+            href="profile.html#wishlist"
+            class="gh-icon-btn"
+            aria-label="Yêu thích"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <span class="gh-dot gh-wish-dot" style="display: none"></span>
+          </a>
+          <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span class="gh-badge gh-cart-badge" style="display: none">0</span>
+          </a>
+          <a href="login.html" class="gh-login-cta" id="ghLoginBtn"
+            >Đăng Nhập</a
+          >
+          <div class="gh-user-wrap" id="ghUserWrap" style="display: none">
+            <button class="gh-user-trigger" id="ghUserTrigger">
+              <span class="gh-avatar">?</span>
+              <span class="gh-username"></span>
+              <span class="gh-caret">▾</span>
+            </button>
+            <div class="gh-user-dropdown" id="ghUserDropdown">
+              <div class="gh-dropdown-header">
+                <span class="gh-avatar-lg">?</span>
+                <div>
+                  <p class="gh-dropdown-name gh-fullname"></p>
+                  <p class="gh-dropdown-role gh-role-label"></p>
+                </div>
+              </div>
+              <a href="profile.html" class="gh-dropdown-item"
+                ><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a
+              >
+              <a href="profile.html#orders" class="gh-dropdown-item"
+                ><span class="gh-item-icon">📦</span>Đơn Hàng<span
+                  class="gh-dropdown-badge gh-orders-badge"
+                  style="display: none"
+                  >0</span
+                ></a
+              >
+              <a href="profile.html#wishlist" class="gh-dropdown-item"
+                ><span class="gh-item-icon">❤️</span>Yêu Thích</a
+              >
+              <a href="profile.html#wallet" class="gh-dropdown-item"
+                ><span class="gh-item-icon">💳</span>Ví GlowHub<span
+                  class="gh-dropdown-bal gh-wallet-bal"
+                ></span
+              ></a>
+              <a href="vouchers.html" class="gh-dropdown-item"
+                ><span class="gh-item-icon">🎫</span>Kho Voucher</a
+              >
+              <hr class="gh-dropdown-divider" />
+              <a
+                href="seller-dashboard.html"
+                class="gh-dropdown-item gh-seller-only"
+                style="display: none"
+                ><span class="gh-item-icon">🏪</span>Quản Lý Shop</a
+              >
+              <a
+                href="admin.html"
+                class="gh-dropdown-item gh-admin-only"
+                style="display: none"
+                ><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a
+              >
+              <hr class="gh-dropdown-divider" />
+              <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn">
+                <span class="gh-item-icon">🚪</span>Đăng Xuất
+              </button>
+            </div>
+          </div>
+          <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
         </div>
-        <a href="cart.html" class="vo-nav-link" style="font-size:20px; position:relative;">
-          <i class="bi bi-bag"></i>
-          <span id="cart-count" style="
-            position:absolute; top:-6px; right:-8px;
-            background:var(--pink); color:#fff;
-            font-size:9px; border-radius:999px;
-            padding:1px 5px; font-family:var(--font-body);
-          ">0</span>
-        </a>
+      </div>
+      <div class="gh-search-overlay" id="ghSearchOverlay" style="display: none">
+        <div class="gh-search-wrap">
+          <input
+            type="search"
+            class="gh-search-input"
+            id="ghSearchInput"
+            placeholder="Tìm kiếm sản phẩm mỹ phẩm..."
+            autocomplete="off"
+          />
+          <button class="gh-search-close" id="ghSearchClose">✕</button>
+        </div>
+        <div class="gh-search-body" id="ghSearchBody"></div>
       </div>
     </nav>
+    <div class="gh-overlay" id="ghOverlay"></div>
+    <div class="gh-drawer" id="ghDrawer">
+      <div class="gh-drawer-top">
+        <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+        <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+      </div>
+      <div class="gh-drawer-user" id="ghDrawerUser" style="display: none">
+        <span class="gh-avatar">?</span>
+        <div class="gh-drawer-user-info">
+          <div class="name" id="ghDrawerUserName"></div>
+          <div class="role gh-role-label"></div>
+        </div>
+      </div>
+      <nav class="gh-drawer-nav">
+        <a href="index.html">Trang Chủ</a>
+        <a href="shop.html">Cửa Hàng</a>
+        <a href="flash-sale.html">Flash Sale</a>
+        <a href="vouchers.html">Ưu Đãi</a>
+        <div id="ghDrawerCats"></div>
+        <a href="profile.html" id="ghDrawerProfile" style="display: none"
+          >Hồ Sơ Của Tôi</a
+        >
+      </nav>
+      <div class="gh-drawer-footer">
+        <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin"
+          >Đăng Nhập</a
+        >
+        <button class="gh-btn-ghost" id="ghDrawerLogout" style="display: none">
+          Đăng Xuất
+        </button>
+      </div>
+    </div>
 
     <!-- HERO -->
     <div class="vo-hero">
@@ -48,39 +205,104 @@
     </div>
 
     <!-- MAIN -->
-    <main style="flex:1; max-width:var(--container); margin:0 auto; padding:40px var(--gutter) 60px; width:100%;">
-
+    <main
+      style="
+        flex: 1;
+        max-width: var(--container);
+        margin: 0 auto;
+        padding: 40px var(--gutter) 60px;
+        width: 100%;
+      "
+    >
       <!-- TABS -->
       <div class="vo-tabs" role="tablist">
-        <button class="vo-tab-btn active" data-tab="all" onclick="switchTab('all',this)">
+        <button
+          class="vo-tab-btn active"
+          data-tab="all"
+          onclick="switchTab('all', this)"
+        >
           Tất Cả <span class="vo-tab-badge" id="badge-all">0</span>
         </button>
-        <button class="vo-tab-btn" data-tab="system" onclick="switchTab('system',this)">
+        <button
+          class="vo-tab-btn"
+          data-tab="system"
+          onclick="switchTab('system', this)"
+        >
           Hệ Thống <span class="vo-tab-badge" id="badge-system">0</span>
         </button>
-        <button class="vo-tab-btn" data-tab="shop" onclick="switchTab('shop',this)">
+        <button
+          class="vo-tab-btn"
+          data-tab="shop"
+          onclick="switchTab('shop', this)"
+        >
           Theo Shop <span class="vo-tab-badge" id="badge-shop">0</span>
         </button>
-        <button class="vo-tab-btn" data-tab="saved" onclick="switchTab('saved',this)">
-          Đã Lưu <span class="vo-tab-badge" id="badge-saved" style="background:var(--success);">0</span>
+        <button
+          class="vo-tab-btn"
+          data-tab="saved"
+          onclick="switchTab('saved', this)"
+        >
+          Đã Lưu
+          <span
+            class="vo-tab-badge"
+            id="badge-saved"
+            style="background: var(--success)"
+            >0</span
+          >
         </button>
       </div>
 
       <!-- SEARCH -->
       <div class="vo-search-bar">
-        <input type="text" class="vo-search-input" id="vo-search" placeholder="Tìm mã voucher..." oninput="filterVouchers()" />
+        <input
+          type="text"
+          class="vo-search-input"
+          id="vo-search"
+          placeholder="Tìm mã voucher..."
+          oninput="filterVouchers()"
+        />
         <button class="vo-search-btn"><i class="bi bi-search"></i></button>
       </div>
 
       <!-- LOGIN NOTICE (for saved tab) -->
-      <div id="vo-login-notice" style="display:none; padding:24px; background:#fff; border:1px solid var(--border); text-align:center; margin-bottom:24px;">
-        <i class="bi bi-person-lock" style="font-size:2rem; color:var(--pink); opacity:0.5; display:block; margin-bottom:12px;"></i>
-        <p style="font-size:13px; color:var(--gray); margin-bottom:16px;">Đăng nhập để xem và lưu voucher của bạn</p>
-        <a href="login.html?redirect=vouchers.html" style="
-          display:inline-block; background:var(--dark); color:#fff;
-          padding:10px 28px; text-decoration:none;
-          font-size:11px; letter-spacing:2px; text-transform:uppercase;
-        ">Đăng Nhập</a>
+      <div
+        id="vo-login-notice"
+        style="
+          display: none;
+          padding: 24px;
+          background: #fff;
+          border: 1px solid var(--border);
+          text-align: center;
+          margin-bottom: 24px;
+        "
+      >
+        <i
+          class="bi bi-person-lock"
+          style="
+            font-size: 2rem;
+            color: var(--pink);
+            opacity: 0.5;
+            display: block;
+            margin-bottom: 12px;
+          "
+        ></i>
+        <p style="font-size: 13px; color: var(--gray); margin-bottom: 16px">
+          Đăng nhập để xem và lưu voucher của bạn
+        </p>
+        <a
+          href="login.html?redirect=vouchers.html"
+          style="
+            display: inline-block;
+            background: var(--dark);
+            color: #fff;
+            padding: 10px 28px;
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+          "
+          >Đăng Nhập</a
+        >
       </div>
 
       <!-- SKELETON -->
@@ -94,26 +316,39 @@
       </div>
 
       <!-- VOUCHER GRID -->
-      <div class="vo-grid" id="vo-grid" style="display:none;"></div>
+      <div class="vo-grid" id="vo-grid" style="display: none"></div>
 
       <!-- EMPTY STATE -->
-      <div class="vo-empty" id="vo-empty" style="display:none;">
+      <div class="vo-empty" id="vo-empty" style="display: none">
         <i class="bi bi-ticket-perforated"></i>
         <h3>Không Có Voucher</h3>
-        <p style="font-size:13px;">Hiện không có voucher phù hợp.<br>Quay lại sau nhé!</p>
-        <a href="shop.html" style="
-          display:inline-block; margin-top:20px;
-          padding:12px 28px; background:var(--dark);
-          color:#fff; text-decoration:none;
-          font-size:11px; letter-spacing:2px; text-transform:uppercase;
-        ">Xem Cửa Hàng</a>
+        <p style="font-size: 13px">
+          Hiện không có voucher phù hợp.<br />Quay lại sau nhé!
+        </p>
+        <a
+          href="shop.html"
+          style="
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: var(--dark);
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+          "
+          >Xem Cửa Hàng</a
+        >
       </div>
-
     </main>
 
     <!-- FOOTER -->
     <footer class="vo-footer">
-      <p>&copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> · <a href="shop.html">Cửa hàng</a></p>
+      <p>
+        &copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> ·
+        <a href="shop.html">Cửa hàng</a>
+      </p>
     </footer>
 
     <!-- TOAST -->
@@ -121,247 +356,388 @@
 
     <script src="js/api.js"></script>
     <script>
-    // ── State ──────────────────────────────────────────
-    var _allVouchers    = [];  // from /public
-    var _savedVouchers  = [];  // from /my
-    var _currentTab     = "all";
-    var _savedIds       = new Set();
+      // ── State ──────────────────────────────────────────
+      var _allVouchers = []; // from /public
+      var _savedVouchers = []; // from /my
+      var _currentTab = "all";
+      var _savedIds = new Set();
 
-    const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+      const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + "₫";
 
-    function isLoggedIn() {
-      try { return !!(Auth && Auth.getToken && Auth.getToken()); } catch(_) { return false; }
-    }
+      var ICON_COPY =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+      var ICON_CHECK =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
-    // ── Toast ──────────────────────────────────────────
-    function showToast(msg, ok) {
-      var t = document.getElementById("vo-toast");
-      t.textContent = msg;
-      t.style.borderLeftColor = ok === false ? "var(--error)" : ok === "warn" ? "var(--warning)" : "var(--pink)";
-      t.classList.add("show");
-      clearTimeout(t._tid);
-      t._tid = setTimeout(() => t.classList.remove("show"), 3000);
-    }
-
-    // ── Render card ────────────────────────────────────
-    function discountLabel(v) {
-      if (v.discountType === "percent") return `-${v.discountValue}%`;
-      return `-${fmt(v.discountValue)}`;
-    }
-
-    function renderCard(v, isSaved) {
-      var typeBadge = v.voucherType === "shop"
-        ? '<span class="vo-card-type-badge"><i class="bi bi-shop"></i> Shop Voucher</span>'
-        : '<span class="vo-card-type-badge"><i class="bi bi-stars"></i> Hệ Thống</span>';
-
-      var stripeClass = v.voucherType === "shop" ? "shop" : "system";
-
-      var expiry = v.expiryDate
-        ? new Date(v.expiryDate).toLocaleDateString("vi-VN")
-        : "Không giới hạn";
-
-      var minOrder = v.minOrderAmount > 0
-        ? `<span class="vo-card-meta-chip">Đơn tối thiểu ${fmt(v.minOrderAmount)}</span>` : "";
-
-      var maxDisc = v.maxDiscount
-        ? `<span class="vo-card-meta-chip">Giảm tối đa ${fmt(v.maxDiscount)}</span>` : "";
-
-      var remain = v.remainingUsage != null
-        ? `<span class="vo-card-meta-chip warn">Còn ${v.remainingUsage} lượt</span>` : "";
-
-      var alreadySaved = _savedIds.has(v.id);
-      var saveBtn = "";
-      if (isLoggedIn()) {
-        saveBtn = alreadySaved
-          ? `<button class="vo-btn-save saved" disabled>✓ Đã Lưu</button>`
-          : `<button class="vo-btn-save" onclick="saveVoucher(this,'${v.code}',${v.id})">Lưu</button>`;
+      function isLoggedIn() {
+        try {
+          return !!(Auth && Auth.isLoggedIn && Auth.isLoggedIn());
+        } catch (_) {
+          return false;
+        }
       }
 
-      return `
-      <div class="vo-card" id="vc-${v.id}">
+      // ── Toast ──────────────────────────────────────────
+      function showToast(msg, ok) {
+        var t = document.getElementById("vo-toast");
+        t.textContent = msg;
+        t.style.borderLeftColor =
+          ok === false
+            ? "var(--error)"
+            : ok === "warn"
+              ? "var(--warning)"
+              : "var(--pink)";
+        t.classList.add("show");
+        clearTimeout(t._tid);
+        t._tid = setTimeout(() => t.classList.remove("show"), 3000);
+      }
+
+      // ── Render card ────────────────────────────────────
+      function discountLabel(v) {
+        if (v.DiscountType === "percent") return `-${v.DiscountValue}%`;
+        return `-${fmt(v.DiscountValue)}`;
+      }
+
+      function renderCard(v, isSaved) {
+        var typeBadge =
+          v.voucherType === "shop"
+            ? `<span class="vo-card-type-badge"><i class="bi bi-shop"></i> ${v.shopName || "Shop Voucher"}</span>`
+            : '<span class="vo-card-type-badge"><i class="bi bi-stars"></i> Hệ Thống</span>';
+
+        var stripeClass = v.voucherType === "shop" ? "shop" : "system";
+
+        var expiry = v.ExpiryDate
+          ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
+          : "Không giới hạn";
+
+        var minOrder =
+          v.MinOrderAmount > 0
+            ? `<span class="vo-card-meta-chip">Đơn tối thiểu ${fmt(v.MinOrderAmount)}</span>`
+            : "";
+
+        var maxDisc = v.MaxDiscount
+          ? `<span class="vo-card-meta-chip">Giảm tối đa ${fmt(v.MaxDiscount)}</span>`
+          : "";
+
+        var remain =
+          v.remainingUsage != null
+            ? `<span class="vo-card-meta-chip warn">Còn ${v.remainingUsage} lượt</span>`
+            : "";
+
+        var alreadySaved = _savedIds.has(v.Id);
+        var saveBtn = "";
+        if (isLoggedIn()) {
+          saveBtn = alreadySaved
+            ? `<button class="vo-btn-save saved" disabled>✓ Đã Lưu</button>`
+            : `<button class="vo-btn-save" onclick="saveVoucher(this,'${v.Code}',${v.Id})">Lưu</button>`;
+        }
+
+        return `
+      <div class="vo-card" id="vc-${v.Id}">
         <div class="vo-card-stripe ${stripeClass}"></div>
         <div class="vo-card-body">
           ${typeBadge}
-          <div class="vo-card-title">${discountLabel(v)} — ${v.description || v.code}</div>
+          <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">
-            ${v.maxDiscount ? `Giảm đến ${fmt(v.maxDiscount)} · ` : ""}Hết hạn: ${expiry}
+            ${v.MaxDiscount ? `Giảm đến ${fmt(v.MaxDiscount)} · ` : ""}Hết hạn: ${expiry}
           </div>
           <div class="vo-card-meta">
             ${minOrder}${maxDisc}${remain}
           </div>
           <div class="vo-card-code-row">
-            <span class="vo-card-code">${v.code}</span>
-            <button class="vo-btn-copy" onclick="copyCode(this,'${v.code}')">
-              <i class="bi bi-clipboard"></i> Sao Chép
-            </button>
+            <div class="vo-code-wrap">
+              <span class="vo-card-code">${v.Code}</span>
+              <button class="vo-btn-copy-icon" onclick="copyCode(this,'${v.Code}')" title="Sao chép mã">${ICON_COPY}</button>
+            </div>
             ${saveBtn}
           </div>
         </div>
       </div>`;
-    }
+      }
 
-    function renderSavedCard(cv) {
-      var v = cv.voucher || cv;
-      var expiry = v.expiryDate
-        ? new Date(v.expiryDate).toLocaleDateString("vi-VN")
-        : "Không giới hạn";
-      var expired = v.isExpired || (v.expiryDate && new Date(v.expiryDate) < new Date());
+      function renderSavedCard(cv) {
+        var v = cv.voucher || cv;
+        var expiry = v.ExpiryDate
+          ? new Date(v.ExpiryDate).toLocaleDateString("vi-VN")
+          : "Không giới hạn";
+        var expired =
+          v.isExpired || (v.ExpiryDate && new Date(v.ExpiryDate) < new Date());
 
-      return `
-      <div class="vo-card" style="${expired ? 'opacity:0.55;' : ''}">
+        return `
+      <div class="vo-card" id="sv-${v.Code}" style="${expired ? "opacity:0.55;" : ""}">
         <div class="vo-card-stripe system"></div>
         <div class="vo-card-body">
           <span class="vo-card-type-badge">${expired ? '<span style="color:var(--error)">Đã Hết Hạn</span>' : '<i class="bi bi-bookmark-fill" style="color:var(--success)"></i> Đã Lưu'}</span>
-          <div class="vo-card-title">${discountLabel(v)} — ${v.description || v.code}</div>
+          <div class="vo-card-title">${discountLabel(v)} — ${v.Description || v.Code}</div>
           <div class="vo-card-desc">Hết hạn: ${expiry}</div>
           <div class="vo-card-code-row">
-            <span class="vo-card-code">${v.code}</span>
-            ${!expired ? `<button class="vo-btn-copy" onclick="copyCode(this,'${v.code}')"><i class="bi bi-clipboard"></i> Sao Chép</button>` : ""}
+            <div class="vo-code-wrap">
+              <span class="vo-card-code">${v.Code}</span>
+              ${!expired ? `<button class="vo-btn-copy-icon" onclick="copyCode(this,'${v.Code}')" title="Sao chép mã">${ICON_COPY}</button>` : ""}
+            </div>
+            <button class="vo-btn-delete" onclick="unsaveVoucher(this,'${v.Code}')">Xóa</button>
           </div>
         </div>
       </div>`;
-    }
-
-    // ── Switch tab ─────────────────────────────────────
-    function switchTab(tab, btn) {
-      _currentTab = tab;
-      document.querySelectorAll(".vo-tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      if (tab === "saved" && !isLoggedIn()) {
-        document.getElementById("vo-grid").style.display = "none";
-        document.getElementById("vo-empty").style.display = "none";
-        document.getElementById("vo-login-notice").style.display = "";
-        return;
-      }
-      document.getElementById("vo-login-notice").style.display = "none";
-      filterVouchers();
-    }
-
-    // ── Filter / render current tab ────────────────────
-    function filterVouchers() {
-      var q = (document.getElementById("vo-search").value || "").toLowerCase().trim();
-      var grid   = document.getElementById("vo-grid");
-      var empty  = document.getElementById("vo-empty");
-
-      var items;
-      if (_currentTab === "saved") {
-        items = _savedVouchers;
-        if (q) items = items.filter(cv => {
-          var v = cv.voucher || cv;
-          return v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q);
-        });
-        if (items.length === 0) { grid.style.display = "none"; empty.style.display = ""; return; }
-        grid.innerHTML = items.map(renderSavedCard).join("");
-      } else {
-        items = _allVouchers;
-        if (_currentTab === "system") items = items.filter(v => v.voucherType === "system");
-        if (_currentTab === "shop")   items = items.filter(v => v.voucherType === "shop");
-        if (q) items = items.filter(v =>
-          v.code.toLowerCase().includes(q) || (v.description || "").toLowerCase().includes(q));
-        if (items.length === 0) { grid.style.display = "none"; empty.style.display = ""; return; }
-        grid.innerHTML = items.map(v => renderCard(v, _savedIds.has(v.id))).join("");
       }
 
-      empty.style.display = "none";
-      grid.style.display = "";
-    }
+      // ── Switch tab ─────────────────────────────────────
+      function switchTab(tab, btn) {
+        _currentTab = tab;
+        document
+          .querySelectorAll(".vo-tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
 
-    // ── Copy code ──────────────────────────────────────
-    function copyCode(btn, code) {
-      navigator.clipboard.writeText(code).then(() => {
-        btn.classList.add("copied");
-        btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã Chép';
-        showToast("Đã sao chép mã: " + code);
-        setTimeout(() => {
-          btn.classList.remove("copied");
-          btn.innerHTML = '<i class="bi bi-clipboard"></i> Sao Chép';
-        }, 2000);
-      }).catch(() => {
-        showToast("Không thể sao chép. Mã: " + code, "warn");
-      });
-    }
-
-    // ── Save voucher ───────────────────────────────────
-    async function saveVoucher(btn, code, id) {
-      btn.disabled = true;
-      btn.textContent = "Đang lưu...";
-      try {
-        const res = await fetch("/api/vouchers/save/" + code, {
-          method: "POST",
-          headers: { "Authorization": "Bearer " + Auth.getToken() }
-        });
-        if (!res.ok) {
-          var data = await res.json().catch(() => ({}));
-          showToast(data.message || "Không thể lưu voucher", false);
-          btn.disabled = false;
-          btn.textContent = "Lưu";
+        if (tab === "saved" && !isLoggedIn()) {
+          document.getElementById("vo-grid").style.display = "none";
+          document.getElementById("vo-empty").style.display = "none";
+          document.getElementById("vo-login-notice").style.display = "";
           return;
         }
-        _savedIds.add(id);
-        btn.classList.add("saved");
-        btn.textContent = "✓ Đã Lưu";
-        showToast("Đã lưu voucher " + code + " vào tài khoản!");
-        document.getElementById("badge-saved").textContent =
-          parseInt(document.getElementById("badge-saved").textContent || "0") + 1;
-      } catch (e) {
-        showToast("Lỗi kết nối", false);
-        btn.disabled = false;
-        btn.textContent = "Lưu";
+        document.getElementById("vo-login-notice").style.display = "none";
+        filterVouchers();
       }
-    }
 
-    // ── Update badge counts ────────────────────────────
-    function updateBadges() {
-      var all    = _allVouchers.length;
-      var system = _allVouchers.filter(v => v.voucherType === "system").length;
-      var shop   = _allVouchers.filter(v => v.voucherType === "shop").length;
-      var saved  = _savedVouchers.length;
-      document.getElementById("badge-all").textContent    = all;
-      document.getElementById("badge-system").textContent = system;
-      document.getElementById("badge-shop").textContent   = shop;
-      document.getElementById("badge-saved").textContent  = saved;
-    }
+      // ── Filter / render current tab ────────────────────
+      function filterVouchers() {
+        var q = (document.getElementById("vo-search").value || "")
+          .toLowerCase()
+          .trim();
+        var grid = document.getElementById("vo-grid");
+        var empty = document.getElementById("vo-empty");
 
-    // ── Cart count ─────────────────────────────────────
-    function updateCartCount() {
-      try {
-        var cnt = (CartDB ? CartDB.getAll() : []).reduce((s, i) => s + (i.quantity || 1), 0);
-        document.getElementById("cart-count").textContent = cnt;
-      } catch(_) {}
-    }
-
-    // ── Init ───────────────────────────────────────────
-    document.addEventListener("DOMContentLoaded", async () => {
-      updateCartCount();
-
-      // Load public vouchers
-      try {
-        const res = await fetch("/api/vouchers/public");
-        if (res.ok) {
-          _allVouchers = await res.json();
+        var items;
+        if (_currentTab === "saved") {
+          items = _savedVouchers;
+          if (q)
+            items = items.filter((cv) => {
+              var v = cv.voucher || cv;
+              return (
+                v.Code.toLowerCase().includes(q) ||
+                (v.Description || "").toLowerCase().includes(q)
+              );
+            });
+          if (items.length === 0) {
+            grid.style.display = "none";
+            empty.style.display = "";
+            return;
+          }
+          grid.innerHTML = items.map(renderSavedCard).join("");
+        } else {
+          items = _allVouchers;
+          if (_currentTab === "system")
+            items = items.filter((v) => v.voucherType === "system");
+          if (_currentTab === "shop")
+            items = items.filter((v) => v.voucherType === "shop");
+          if (q)
+            items = items.filter(
+              (v) =>
+                v.Code.toLowerCase().includes(q) ||
+                (v.Description || "").toLowerCase().includes(q),
+            );
+          if (items.length === 0) {
+            grid.style.display = "none";
+            empty.style.display = "";
+            return;
+          }
+          if (_currentTab === "shop") {
+            var shopMap = new Map();
+            items.forEach(function (v) {
+              var key = v.ShopId || "__none__";
+              if (!shopMap.has(key))
+                shopMap.set(key, {
+                  name: v.shopName || "Shop Voucher",
+                  vouchers: [],
+                });
+              shopMap.get(key).vouchers.push(v);
+            });
+            var html = "";
+            shopMap.forEach(function (group) {
+              html += `<div class="vo-shop-group-header">🏪 ${group.name}</div>`;
+              html += group.vouchers
+                .map((v) => renderCard(v, _savedIds.has(v.Id)))
+                .join("");
+            });
+            grid.innerHTML = html;
+          } else {
+            grid.innerHTML = items
+              .map((v) => renderCard(v, _savedIds.has(v.Id)))
+              .join("");
+          }
         }
-      } catch(_) {}
 
-      // Load saved vouchers if logged in
-      if (isLoggedIn()) {
-        try {
-          const res = await fetch("/api/vouchers/my", {
-            headers: { "Authorization": "Bearer " + Auth.getToken() }
+        empty.style.display = "none";
+        grid.style.display = "";
+      }
+
+      // ── Copy code ──────────────────────────────────────
+      function copyCode(btn, code) {
+        navigator.clipboard
+          .writeText(code)
+          .then(() => {
+            btn.classList.add("copied");
+            btn.innerHTML = ICON_CHECK;
+            showToast("Đã sao chép mã: " + code);
+            clearTimeout(btn._tid);
+            btn._tid = setTimeout(() => {
+              btn.classList.remove("copied");
+              btn.innerHTML = ICON_COPY;
+            }, 2000);
+          })
+          .catch(() => {
+            showToast("Không thể sao chép. Mã: " + code, "warn");
           });
-          if (res.ok) {
-            _savedVouchers = await res.json();
-            _savedVouchers.forEach(cv => {
-              if (cv.voucher) _savedIds.add(cv.voucher.id);
+      }
+
+      // ── Save voucher ───────────────────────────────────
+      async function saveVoucher(btn, code, id) {
+        btn.disabled = true;
+        btn.textContent = "Đang lưu...";
+        try {
+          const res = await fetch(PRODUCT_API + "/api/vouchers/save/" + code, {
+            method: "POST",
+            headers: { Authorization: "Bearer " + Auth.getToken() },
+          });
+          if (!res.ok) {
+            var data = await res.json().catch(() => ({}));
+            showToast(data.message || "Không thể lưu voucher", false);
+            btn.disabled = false;
+            btn.textContent = "Lưu";
+            return;
+          }
+          _savedIds.add(id);
+          btn.classList.add("saved");
+          btn.textContent = "✓ Đã Lưu";
+          showToast("Đã lưu voucher " + code + " vào tài khoản!");
+          document.getElementById("badge-saved").textContent =
+            parseInt(
+              document.getElementById("badge-saved").textContent || "0",
+            ) + 1;
+        } catch (e) {
+          showToast("Lỗi kết nối", false);
+          btn.disabled = false;
+          btn.textContent = "Lưu";
+        }
+      }
+
+      // ── Unsave voucher ─────────────────────────────────
+      async function unsaveVoucher(btn, code) {
+        btn.disabled = true;
+        try {
+          const res = await fetch(
+            PRODUCT_API + "/api/vouchers/unsave/" + code,
+            {
+              method: "DELETE",
+              headers: { Authorization: "Bearer " + Auth.getToken() },
+            },
+          );
+          if (!res.ok) {
+            var data = await res.json().catch(() => ({}));
+            showToast(data.message || "Không thể xóa voucher", false);
+            btn.disabled = false;
+            return;
+          }
+          // Re-fetch saved list from API → ensures full sync across all tabs
+          try {
+            const myRes = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { Authorization: "Bearer " + Auth.getToken() },
+            });
+            if (myRes.ok) {
+              _savedVouchers = await myRes.json();
+              _savedIds.clear();
+              _savedVouchers.forEach((cv) => {
+                if (cv.voucher) _savedIds.add(cv.voucher.Id);
+              });
+            }
+          } catch (_) {
+            // fallback: manually remove from local state
+            _savedVouchers = _savedVouchers.filter(
+              (cv) => (cv.voucher || cv).Code !== code,
+            );
+            _savedIds.clear();
+            _savedVouchers.forEach((cv) => {
+              if (cv.voucher) _savedIds.add(cv.voucher.Id);
             });
           }
-        } catch(_) {}
+
+          // Re-render current tab with fresh state
+          updateBadges();
+          filterVouchers();
+
+          showToast("Đã xóa voucher " + code + " khỏi danh sách");
+        } catch (e) {
+          showToast("Lỗi kết nối", false);
+          btn.disabled = false;
+        }
       }
 
-      document.getElementById("vo-skeleton").style.display = "none";
-      updateBadges();
-      filterVouchers();
-    });
+      // ── Update badge counts ────────────────────────────
+      function updateBadges() {
+        var all = _allVouchers.length;
+        var system = _allVouchers.filter(
+          (v) => v.voucherType === "system",
+        ).length;
+        var shop = _allVouchers.filter((v) => v.voucherType === "shop").length;
+        var saved = _savedVouchers.length;
+        document.getElementById("badge-all").textContent = all;
+        document.getElementById("badge-system").textContent = system;
+        document.getElementById("badge-shop").textContent = shop;
+        document.getElementById("badge-saved").textContent = saved;
+      }
+
+      // ── Cart count ─────────────────────────────────────
+      function updateCartCount() {
+        try {
+          var cnt = (CartDB ? CartDB.getAll() : []).reduce(
+            (s, i) => s + (i.quantity || 1),
+            0,
+          );
+          document.getElementById("cart-count").textContent = cnt;
+        } catch (_) {}
+      }
+
+      // ── Init ───────────────────────────────────────────
+      document.addEventListener("DOMContentLoaded", async () => {
+        updateCartCount();
+
+        // Load public vouchers
+        try {
+          const res = await fetch(PRODUCT_API + "/api/vouchers/public");
+          if (res.ok) {
+            _allVouchers = await res.json();
+          }
+        } catch (_) {}
+
+        // Load saved vouchers if logged in
+        if (isLoggedIn()) {
+          try {
+            const res = await fetch(PRODUCT_API + "/api/vouchers/my", {
+              headers: { Authorization: "Bearer " + Auth.getToken() },
+            });
+            if (res.ok) {
+              _savedVouchers = await res.json();
+              _savedVouchers.forEach((cv) => {
+                if (cv.voucher) _savedIds.add(cv.voucher.Id);
+              });
+            }
+          } catch (_) {}
+        }
+
+        document.getElementById("vo-skeleton").style.display = "none";
+        updateBadges();
+
+        // Auto-switch to tab from ?tab= query param (e.g. from shop-profile "Xem tất cả")
+        var tabParam = new URLSearchParams(location.search).get("tab");
+        if (tabParam) {
+          var tabBtn = document.querySelector('.vo-tab-btn[data-tab="' + tabParam + '"]');
+          if (tabBtn) switchTab(tabParam, tabBtn);
+          else filterVouchers();
+        } else {
+          filterVouchers();
+        }
+      });
     </script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>

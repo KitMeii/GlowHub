@@ -6,6 +6,7 @@ using BaseCore.Repository;
 using BaseCore.Repository.EFCore;
 using BaseCore.Services;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,22 @@ builder.Services.AddScoped<ICartRepositoryEF, CartRepositoryEF>();
 builder.Services.AddScoped<IShopRepositoryEF, ShopRepositoryEF>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddSingleton<ShippingCalculatorService>();
+builder.Services.AddScoped<VNPayService>();
+
+// Store uploads OUTSIDE the project directory so Live Server / dotnet watch
+// file-watchers never detect new files and never trigger a browser reload.
+var uploadsPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+    "GlowHub", "uploads");
+Directory.CreateDirectory(uploadsPath);
+builder.Services.AddSingleton(new UploadsConfig(uploadsPath));
+
+// wwwroot still used for any other static assets bundled with the project
+var wwwrootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+Directory.CreateDirectory(wwwrootPath);
+builder.Environment.WebRootPath = wwwrootPath;
 
 // JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "YourSecretKeyForAuthenticationShouldBeLongEnough");
@@ -128,6 +145,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
+// Serve user-uploaded images from the external AppData folder at /uploads
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath  = "/uploads"
+});
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
@@ -136,3 +160,5 @@ app.MapControllers();
 Console.WriteLine("BaseCore API Service running on port 5001");
 Console.WriteLine("Endpoints: /api/products, /api/categories, /api/orders");
 app.Run();
+
+public record UploadsConfig(string Path);

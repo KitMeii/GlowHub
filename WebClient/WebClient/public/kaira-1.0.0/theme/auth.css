@@ -24,53 +24,6 @@
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        cursor: none;
-      }
-      #lux-cursor-dot {
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 99999;
-        width: 5px;
-        height: 5px;
-        background: var(--pink);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-      }
-      #lux-cursor-ring {
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 99998;
-        width: 32px;
-        height: 32px;
-        border: 1px solid var(--dark);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        opacity: 0.4;
-        transition:
-          width 0.4s,
-          height 0.4s,
-          opacity 0.3s,
-          transform 0.12s linear;
-      }
-      @media (hover: none), (pointer: coarse) {
-        #lux-cursor-dot,
-        #lux-cursor-ring {
-          display: none;
-        }
-        body,
-        body * {
-          cursor: auto !important;
-        }
-      }
-      @media (hover: hover) and (pointer: fine) {
-        body,
-        body * {
-          cursor: none !important;
-        }
       }
 
       /* TOPBAR */
@@ -399,3 +352,28 @@
       .gh-dropdown .logout {
         color: #ef4444 !important;
       }
+
+      /* ── OAUTH BUTTONS ── */
+      .oauth-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 20px 0; font-size: 10px; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--gray);
+      }
+      .oauth-divider::before, .oauth-divider::after {
+        content: ''; flex: 1; height: 1px; background: var(--border);
+      }
+      .oauth-btn {
+        width: 100%; padding: 13px 16px;
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        border: 1px solid var(--border); background: #fff;
+        font-family: "Jost", sans-serif; font-size: 12px;
+        letter-spacing: 1px; color: var(--dark);
+        cursor: pointer; transition: all .2s;
+        text-decoration: none; margin-bottom: 10px;
+      }
+      .oauth-btn:hover { border-color: var(--dark); background: #fafaf8; }
+      .oauth-btn svg { flex-shrink: 0; }
+      .oauth-btn.google:hover { border-color: #4285f4; color: #4285f4; }
+      .oauth-btn.facebook:hover { border-color: #1877f2; color: #1877f2; }
+      .pwd-strength { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+      .pwd-strength-bar { height: 100%; width: 0; transition: width .3s, background .3s; border-radius: 2px; }

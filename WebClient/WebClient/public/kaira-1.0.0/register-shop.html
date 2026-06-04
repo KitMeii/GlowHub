@@ -68,9 +68,32 @@
             <textarea id="description" class="form-control" rows="3" placeholder="Giới thiệu ngắn về shop của bạn..." maxlength="500"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Địa chỉ</label>
-            <input type="text" id="address" class="form-control" placeholder="VD: 123 Nguyễn Huệ, Q.1, TP.HCM" maxlength="300" />
+            <label class="form-label">Tỉnh/Thành Phố *</label>
+            <select id="shopProv" class="form-control">
+              <option value="">Đang tải danh sách tỉnh thành...</option>
+            </select>
           </div>
+          <div class="row mb-3 g-2">
+            <div class="col-6">
+              <label class="form-label">Quận/Huyện</label>
+              <select id="shopDist" class="form-control" disabled>
+                <option value="">-- Chọn tỉnh trước --</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Phường/Xã</label>
+              <select id="shopWard" class="form-control" disabled>
+                <option value="">-- Chọn quận trước --</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Địa Chỉ Chi Tiết</label>
+            <input type="text" id="shopDetail" class="form-control" placeholder="Số nhà, tên đường..." maxlength="200" />
+          </div>
+          <!-- Hidden fields computed from dropdowns -->
+          <input type="hidden" id="shopProvinceName" />
+          <input type="hidden" id="shopRegion" />
           <div class="mb-3">
             <label class="form-label">Số điện thoại</label>
             <input type="tel" id="phone" class="form-control" placeholder="0909 xxx xxx" maxlength="20" />
@@ -113,9 +136,15 @@
         function fillForm(shop) {
           document.getElementById('shopName').value    = shop.ShopName || shop.shopName || '';
           document.getElementById('description').value = shop.Description || shop.description || '';
-          document.getElementById('address').value     = shop.Address || shop.address || '';
+          document.getElementById('shopDetail').value  = shop.Address || shop.address || '';
           document.getElementById('phone').value       = shop.Phone || shop.phone || '';
           document.getElementById('logo').value        = shop.Logo || shop.logo || '';
+          // Set province name from existing shop data
+          var pName = shop.Province || shop.province || '';
+          if (pName) {
+            document.getElementById('shopProvinceName').value = pName;
+            document.getElementById('shopRegion').value = typeof VNProvinces !== 'undefined' ? VNProvinces.getRegion(pName) : '';
+          }
         }
 
         function showExisting(shop) {
@@ -126,7 +155,9 @@
 
           document.getElementById('existingShopName').textContent = shop.ShopName || shop.shopName || '—';
           document.getElementById('existingPhone').textContent    = shop.Phone || shop.phone || '—';
-          document.getElementById('existingAddress').textContent  = shop.Address || shop.address || '—';
+          var addr = shop.Address || shop.address || '';
+          var prov = shop.Province || shop.province || '';
+          document.getElementById('existingAddress').textContent = addr || (prov ? prov : '—');
           document.getElementById('existingDesc').textContent     = shop.Description || shop.description || '—';
 
           const badge = document.getElementById('shopStatusBadge');
@@ -136,6 +167,17 @@
           document.getElementById('existingShop').style.display = 'block';
           submitBtn.textContent = 'Cập Nhật Thông Tin Shop';
           fillForm(shop);
+        }
+
+        // Setup province/district/ward cascade
+        if (typeof VNProvinces !== 'undefined') {
+          VNProvinces.setup(
+            { prov: 'shopProv', dist: 'shopDist', ward: 'shopWard' },
+            function (loc) {
+              document.getElementById('shopProvinceName').value = loc.provName || '';
+              document.getElementById('shopRegion').value = loc.provName ? VNProvinces.getRegion(loc.provName) : '';
+            }
+          );
         }
 
         // Load existing shop
@@ -151,12 +193,21 @@
           submitBtn.textContent = 'Đang xử lý...';
           alertBox.style.display = 'none';
 
+          var provName  = document.getElementById('shopProvinceName').value.trim();
+          var distSel   = document.getElementById('shopDist');
+          var wardSel   = document.getElementById('shopWard');
+          var distName  = (distSel.selectedIndex > 0) ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+          var wardName  = (wardSel.selectedIndex > 0) ? (wardSel.options[wardSel.selectedIndex].dataset.name || wardSel.options[wardSel.selectedIndex].textContent) : '';
+          var detail    = document.getElementById('shopDetail').value.trim();
+          var fullAddr  = [detail, wardName, distName, provName].filter(Boolean).join(', ');
           const data = {
             ShopName:    document.getElementById('shopName').value.trim(),
             Description: document.getElementById('description').value.trim(),
-            Address:     document.getElementById('address').value.trim(),
+            Address:     fullAddr || detail,
             Phone:       document.getElementById('phone').value.trim(),
             Logo:        document.getElementById('logo').value.trim(),
+            Province:    provName,
+            Region:      document.getElementById('shopRegion').value || (provName && typeof VNProvinces !== 'undefined' ? VNProvinces.getRegion(provName) : ''),
           };
 
           try {

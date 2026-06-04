@@ -6,1212 +6,1489 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript
-      ><link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap"
-        rel="stylesheet"
-    /></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap" rel="stylesheet" /></noscript>
     <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
     <link rel="stylesheet" href="theme/profile.css" />
+    <style>
+      /* ── Profile Shell ── */
+      .profile-shell { margin-top: 100px; min-height: calc(100vh - 100px); background: var(--cream, #f8f5f0); }
+
+      /* ── Profile Hero ── */
+      .profile-hero { background: #fff; border-bottom: 1px solid var(--border, #e2ddd8); padding: 36px 0 28px; }
+      .profile-hero-inner { max-width: 920px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+      .ph-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--pink, #f759ab), #ff9eb5); color: #fff; font-size: 32px; font-family: var(--font-disp, "Cormorant Garamond"), serif; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+      .ph-avatar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+      .ph-info { flex: 1; min-width: 0; }
+      .ph-name { font-family: var(--font-disp, "Cormorant Garamond"), serif; font-size: 26px; font-weight: 500; color: var(--dark, #111); line-height: 1.2; }
+      .ph-meta { font-size: 13px; color: var(--gray, #888); margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+      .ph-badge { display: inline-flex; align-items: center; gap: 4px; background: #fce7f3; color: var(--pink, #f759ab); font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px; margin-top: 8px; }
+      .ph-badge.admin { background: #ede9fe; color: #5b21b6; }
+      .ph-badge.seller { background: #fff3e0; color: #e65100; }
+      .ph-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-shrink: 0; }
+      .ph-edit-btn { background: var(--dark, #111); color: #fff; border: none; padding: 10px 20px; font-size: 12px; cursor: pointer; font-family: var(--font-body, "Jost"), sans-serif; letter-spacing: 1px; text-transform: uppercase; transition: background .2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+      .ph-edit-btn:hover { background: var(--pink, #f759ab); color: #fff; }
+      .ph-admin-link, .ph-seller-link { padding: 10px 18px; font-size: 12px; font-family: var(--font-body, "Jost"), sans-serif; letter-spacing: 1px; text-transform: uppercase; display: none; align-items: center; gap: 6px; text-decoration: none; color: #fff; border: none; cursor: pointer; transition: opacity .2s; }
+      .ph-admin-link { background: #5b21b6; }
+      .ph-seller-link { background: #e65100; }
+      .ph-admin-link:hover, .ph-seller-link:hover { opacity: .85; color: #fff; }
+
+      /* ── Tab Bar ── */
+      .profile-tabs-bar { border-bottom: 2px solid var(--border, #e2ddd8); background: #fff; position: sticky; top: 100px; z-index: 100; }
+      .profile-tabs { max-width: 920px; margin: 0 auto; padding: 0 16px; display: flex; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .profile-tabs::-webkit-scrollbar { display: none; }
+      .ptab { display: inline-flex; align-items: center; gap: 5px; padding: 15px 18px; font-size: 13px; font-weight: 500; color: var(--gray, #888); text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; transition: color .2s, border-color .2s; margin-bottom: -2px; }
+      .ptab:hover { color: var(--dark, #111); }
+      .ptab.active { color: var(--pink, #f759ab); border-bottom-color: var(--pink, #f759ab); }
+
+      /* ── Tab Content ── */
+      .profile-content { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; }
+      .ptab-pane { display: none; animation: ptFade .25s ease; }
+      .ptab-pane.active { display: block; }
+      @keyframes ptFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+      /* ── Voucher ── */
+      .voucher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+      .voucher-card { border: 1px solid var(--border, #e2ddd8); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; background: #fff; position: relative; }
+      .voucher-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--pink, #f759ab); }
+      .voucher-card.expired::before { background: var(--gray, #888); }
+      .voucher-card.expired { opacity: .6; }
+      .voucher-main { padding: 20px 20px 12px 28px; flex: 1; }
+      .voucher-discount-val { font-size: 36px; font-weight: 700; font-family: var(--font-disp, "Cormorant Garamond"), serif; color: var(--pink, #f759ab); line-height: 1; }
+      .voucher-card.expired .voucher-discount-val { color: var(--gray, #888); }
+      .voucher-name { font-size: 13px; font-weight: 600; color: var(--dark, #111); margin: 8px 0 4px; }
+      .voucher-condition { font-size: 12px; color: var(--gray, #888); margin-bottom: 2px; }
+      .voucher-expiry { font-size: 11px; color: var(--gray, #888); margin-top: 10px; text-transform: uppercase; letter-spacing: .5px; }
+      .voucher-footer { border-top: 1px dashed var(--border, #e2ddd8); padding: 12px 20px 12px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .voucher-code { font-family: "Courier New", monospace; font-size: 13px; font-weight: 700; color: var(--dark, #111); letter-spacing: 2px; background: var(--cream, #f8f5f0); padding: 4px 10px; border-radius: 4px; }
+      .voucher-copy-btn { background: var(--pink, #f759ab); color: #fff; border: none; padding: 7px 14px; font-size: 12px; cursor: pointer; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; transition: background .2s; white-space: nowrap; }
+      .voucher-copy-btn:hover:not(:disabled) { background: #e0479a; }
+      .voucher-copy-btn:disabled { background: var(--gray, #888); cursor: not-allowed; }
+
+      /* ── Settings layout ── */
+      .settings-section + .settings-section { margin-top: 32px; }
+      .settings-title { font-family: var(--font-disp, "Cormorant Garamond"), serif; font-size: 22px; font-weight: 500; color: var(--dark, #111); border-bottom: 1px solid var(--border, #e2ddd8); padding-bottom: 12px; margin-bottom: 20px; }
+      .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .settings-full { grid-column: 1 / -1; }
+      @media (max-width: 600px) {
+        .settings-grid { grid-template-columns: 1fr; }
+        .settings-full { grid-column: 1; }
+        .ph-actions { width: 100%; }
+        .voucher-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 768px) {
+        .profile-hero-inner { flex-direction: column; align-items: flex-start; }
+        .ph-actions { margin-left: 0; }
+        .ptab { padding: 13px 12px; font-size: 12px; }
+        .profile-shell { margin-top: 64px; }
+        .profile-tabs-bar { top: 64px; }
+      }
+    </style>
   </head>
 
   <body>
-    <!-- ══════════════════════════════════
-         NAVBAR (include từ index.html)
-    ══════════════════════════════════ -->
-    <nav
-      class="gh-nav"
-      style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid #e2ddd8;
-        height: 64px;
-        display: flex;
-        align-items: center;
-        padding: 0 24px;
-        justify-content: space-between;
-      "
-    >
-      <a
-        href="index.html"
-        style="
-          font-family: &quot;Cormorant Garamond&quot;, serif;
-          font-size: 22px;
-          font-weight: 500;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: #111;
-          text-decoration: none;
-        "
-        >GlowHub</a
-      >
-      <div style="display: flex; align-items: center; gap: 16px">
-        <a
-          href="index.html"
-          style="font-size: 13px; color: #555; text-decoration: none"
-          >Trang Chủ</a
-        >
-        <a
-          href="shop.html"
-          style="font-size: 13px; color: #555; text-decoration: none"
-          >Cửa Hàng</a
-        >
-        <a
-          href="index.html"
-          style="
-            font-size: 13px;
-            color: var(--pink);
-            text-decoration: none;
-            font-weight: 500;
-          "
-          >Hồ Sơ</a
-        >
+    <!-- ── TOPBAR ── -->
+    <div class="gh-topbar">
+      🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+    </div>
+    <!-- ── NAVBAR ── -->
+    <nav class="gh-nav" id="ghNav">
+      <div class="gh-nav-inner">
+        <a href="index.html" class="gh-logo">GLOWHUB</a>
+        <ul class="gh-menu">
+          <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+          <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+          <li class="gh-has-dropdown">
+            <a href="#">Danh Mục ▾</a>
+            <ul class="gh-cat-dropdown gh-dropdown"><li class="gh-dropdown-loading">Đang tải...</li></ul>
+          </li>
+          <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+        </ul>
+        <div class="gh-nav-right">
+          <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm"><i class="bi bi-search"></i></button>
+          <a class="gh-icon-btn" href="profile.html#wishlist" aria-label="Yêu thích" style="position:relative">
+            <i class="bi bi-heart"></i>
+            <span class="gh-dot gh-wish-dot" style="display:none"></span>
+          </a>
+          <a class="gh-icon-btn" href="cart.html" aria-label="Giỏ hàng" style="position:relative">
+            <i class="bi bi-bag"></i>
+            <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+          </a>
+          <a class="gh-login-cta" id="ghLoginBtn" href="login.html" style="display:none">Đăng Nhập</a>
+          <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+            <button class="gh-user-trigger" id="ghUserTrigger">
+              <span class="gh-avatar">?</span>
+              <span class="gh-username">Tài khoản</span>
+              <span class="gh-caret">▾</span>
+            </button>
+            <div class="gh-user-dropdown" id="ghUserDropdown">
+              <div class="gh-dropdown-header">
+                <div class="gh-avatar-lg">?</div>
+                <div>
+                  <div class="gh-dropdown-name gh-fullname">Tên người dùng</div>
+                  <div class="gh-dropdown-role gh-role-label">Thành Viên</div>
+                </div>
+              </div>
+              <a class="gh-dropdown-item" href="profile.html"><i class="bi bi-person"></i> Hồ Sơ Của Tôi</a>
+              <a class="gh-dropdown-item" href="profile.html#orders"><i class="bi bi-bag-check"></i> Đơn Hàng <span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+              <a class="gh-dropdown-item" href="profile.html#wallet"><i class="bi bi-wallet2"></i> Ví GlowHub <span class="gh-dropdown-bal gh-wallet-bal" style="display:none">0₫</span></a>
+              <a class="gh-dropdown-item gh-seller-only" href="admin.html" style="display:none"><i class="bi bi-shop"></i> Quản Lý Shop</a>
+              <a class="gh-dropdown-item gh-admin-only" href="admin.html" style="display:none"><i class="bi bi-shield-check"></i> Admin Panel</a>
+              <div class="gh-dropdown-divider"></div>
+              <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</button>
+            </div>
+          </div>
+          <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+      <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+        <div class="gh-search-wrap">
+          <i class="bi bi-search" style="color:var(--gray)"></i>
+          <input class="gh-search-input" id="ghSearchInput" type="text" placeholder="Tìm kiếm sản phẩm..." autocomplete="off" />
+          <button class="gh-search-close" id="ghSearchClose" aria-label="Đóng">✕</button>
+        </div>
+        <div class="gh-search-body" id="ghSearchBody"></div>
       </div>
     </nav>
-
-    <!-- ══════════════════════════════════
-         MAIN PROFILE SHELL
-    ══════════════════════════════════ -->
-    <div class="profile-shell" style="margin-top: 64px">
-      <div class="container">
-        <div class="row g-4">
-          <!-- ── LEFT SIDEBAR ── -->
-          <div class="col-lg-3 col-md-4">
-            <div class="profile-sidebar">
-              <!-- Banner + Avatar -->
-              <div class="profile-banner">
-                <div class="profile-avatar-wrap">
-                  <div class="profile-avatar" id="pAvatar">?</div>
-                </div>
-              </div>
-
-              <!-- Info -->
-              <div class="profile-sidebar-body">
-                <div class="profile-name" id="pSbName">Đang tải...</div>
-                <div class="profile-username" id="pSbUsername">@username</div>
-                <div class="profile-email" id="pSbEmail">email@domain.com</div>
-                <div class="profile-badge customer" id="pSbBadge">
-                  <i class="bi bi-person-fill"></i>
-                  <span id="pSbBadgeText">Khách Hàng</span>
-                </div>
-
-                <!-- Stats -->
-                <div class="profile-stats-row">
-                  <div class="pstat-item">
-                    <div class="pstat-num" id="pStatOrders">—</div>
-                    <div class="pstat-label">Đơn</div>
-                  </div>
-                  <div class="pstat-item">
-                    <div class="pstat-num" id="pStatSpend">—</div>
-                    <div class="pstat-label">Đã Chi</div>
-                  </div>
-                  <div class="pstat-item">
-                    <div class="pstat-num" id="pStatSince">—</div>
-                    <div class="pstat-label">Ngày GC</div>
-                  </div>
-                </div>
-
-                <!-- Nav -->
-                <button
-                  class="profile-nav-btn active"
-                  onclick="showSec('info', this)"
-                >
-                  <i class="bi bi-person-lines-fill"></i> Thông Tin Cá Nhân
-                </button>
-                <button
-                  class="profile-nav-btn"
-                  onclick="showSec('orders', this)"
-                >
-                  <i class="bi bi-bag-check"></i> Đơn Hàng Của Tôi
-                </button>
-                <button
-                  class="profile-nav-btn"
-                  onclick="showSec('password', this)"
-                >
-                  <i class="bi bi-shield-lock"></i> Đổi Mật Khẩu
-                </button>
-                <button class="profile-nav-btn" onclick="showSec('cart', this)">
-                  <i class="bi bi-cart3"></i> Giỏ Hàng
-                </button>
-                <button class="profile-nav-btn" onclick="showSec('wishlist', this)">
-                  <i class="bi bi-heart"></i> Yêu Thích
-                </button>
-                <div id="sellerNavItem" style="display:none">
-                  <hr style="border-color: var(--border); margin: 8px 0"/>
-                  <a href="admin.html" class="profile-nav-btn" style="display:flex;text-decoration:none;color:inherit">
-                    <i class="bi bi-shop"></i> Quản Lý Shop
-                  </a>
-                </div>
-                <hr style="border-color: var(--border); margin: 8px 0" />
-                <button
-                  class="profile-nav-btn danger"
-                  onclick="Auth && Auth.logout()"
-                >
-                  <i class="bi bi-box-arrow-right"></i> Đăng Xuất
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── RIGHT CONTENT ── -->
-          <div class="col-lg-9 col-md-8">
-            <!-- ════ SECTION: THÔNG TIN CÁ NHÂN ════ -->
-            <div class="psec active" id="psec-info">
-              <div class="profile-content-card">
-                <div class="pcard-header">
-                  <div class="pcard-title">Thông Tin Cá Nhân</div>
-                  <div style="display: flex; gap: 8px">
-                    <button
-                      class="gh-btn-outline"
-                      id="editInfoBtn"
-                      onclick="toggleEdit()"
-                    >
-                      <i class="bi bi-pencil"></i> Chỉnh Sửa
-                    </button>
-                  </div>
-                </div>
-                <div class="pcard-body">
-                  <!-- VIEW MODE -->
-                  <div id="viewInfoMode">
-                    <div class="info-grid" id="infoGrid">
-                      <div class="info-field">
-                        <div class="info-label">Họ và Tên</div>
-                        <div class="info-value" id="vName">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Tên Đăng Nhập</div>
-                        <div class="info-value" id="vUserName">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Email</div>
-                        <div class="info-value" id="vEmail">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Số Điện Thoại</div>
-                        <div class="info-value" id="vPhone">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Địa Chỉ Liên Hệ</div>
-                        <div class="info-value" id="vContact">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Chức Vụ / Ghi Chú</div>
-                        <div class="info-value" id="vPosition">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Loại Tài Khoản</div>
-                        <div class="info-value" id="vUserType">—</div>
-                      </div>
-                      <div class="info-field">
-                        <div class="info-label">Trạng Thái</div>
-                        <div class="info-value" id="vIsActive">—</div>
-                      </div>
-                      <div class="info-field full">
-                        <div class="info-label">Ngày Tham Gia</div>
-                        <div class="info-value" id="vCreated">—</div>
-                      </div>
-                      <div class="info-field full">
-                        <div class="info-label">ID Tài Khoản</div>
-                        <div
-                          class="info-value"
-                          id="vId"
-                          style="font-size: 11px; color: var(--gray)"
-                        >
-                          —
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- EDIT MODE -->
-                  <div id="editInfoMode" style="display: none">
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label class="gh-label">Họ và Tên *</label>
-                        <input
-                          type="text"
-                          id="eName"
-                          class="gh-input"
-                          placeholder="Tên đầy đủ"
-                        />
-                      </div>
-                      <div class="col-md-6">
-                        <label class="gh-label">Tên Đăng Nhập</label>
-                        <input
-                          type="text"
-                          id="eUserName"
-                          class="gh-input"
-                          readonly
-                          placeholder="Không thể thay đổi"
-                        />
-                      </div>
-                      <div class="col-md-6">
-                        <label class="gh-label">Email *</label>
-                        <input
-                          type="email"
-                          id="eEmail"
-                          class="gh-input"
-                          placeholder="email@domain.com"
-                        />
-                      </div>
-                      <div class="col-md-6">
-                        <label class="gh-label">Số Điện Thoại *</label>
-                        <input
-                          type="tel"
-                          id="ePhone"
-                          class="gh-input"
-                          placeholder="0901234567"
-                        />
-                      </div>
-                      <div class="col-12">
-                        <label class="gh-label">Địa Chỉ Liên Hệ</label>
-                        <input
-                          type="text"
-                          id="eContact"
-                          class="gh-input"
-                          placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
-                        />
-                      </div>
-                      <div class="col-12">
-                        <label class="gh-label">Ghi Chú / Chức Vụ</label>
-                        <input
-                          type="text"
-                          id="ePosition"
-                          class="gh-input"
-                          placeholder="VD: Khách hàng VIP, Đại lý, v.v."
-                        />
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 20px">
-                      <button
-                        class="gh-btn-primary"
-                        onclick="saveInfo()"
-                        id="saveInfoBtn"
-                      >
-                        <i class="bi bi-check-lg"></i> Lưu Thay Đổi
-                      </button>
-                      <button class="gh-btn-outline" onclick="cancelEdit()">
-                        Hủy
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ════ SECTION: ĐƠN HÀNG ════ -->
-            <div class="psec" id="psec-orders">
-              <div class="profile-content-card">
-                <div class="pcard-header">
-                  <div class="pcard-title">Đơn Hàng Của Tôi</div>
-                  <div style="display: flex; gap: 6px; flex-wrap: wrap">
-                    <button
-                      class="gh-btn-outline"
-                      style="padding: 6px 14px; font-size: 11px"
-                      onclick="filterOrders('all', this)"
-                      id="ofa-all"
-                    >
-                      Tất Cả
-                    </button>
-                    <button
-                      class="gh-btn-outline"
-                      style="padding: 6px 14px; font-size: 11px"
-                      onclick="filterOrders('PENDING', this)"
-                    >
-                      Chờ
-                    </button>
-                    <button
-                      class="gh-btn-outline"
-                      style="padding: 6px 14px; font-size: 11px"
-                      onclick="filterOrders('CONFIRMED', this)"
-                    >
-                      Xác Nhận
-                    </button>
-                    <button
-                      class="gh-btn-outline"
-                      style="padding: 6px 14px; font-size: 11px"
-                      onclick="filterOrders('SHIPPING', this)"
-                    >
-                      Giao
-                    </button>
-                    <button
-                      class="gh-btn-outline"
-                      style="padding: 6px 14px; font-size: 11px"
-                      onclick="filterOrders('COMPLETED', this)"
-                    >
-                      Hoàn Thành
-                    </button>
-                  </div>
-                </div>
-                <div class="pcard-body">
-                  <div id="orderListWrap">
-                    <div class="empty-state">
-                      <i class="bi bi-bag-x"></i>
-                      <p>Đang tải đơn hàng...</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ════ SECTION: ĐỔI MẬT KHẨU ════ -->
-            <div class="psec" id="psec-password">
-              <div class="profile-content-card">
-                <div class="pcard-header">
-                  <div class="pcard-title">Đổi Mật Khẩu</div>
-                </div>
-                <div class="pcard-body">
-                  <div style="max-width: 420px">
-                    <div class="gh-form-group">
-                      <label class="gh-label">Mật Khẩu Hiện Tại *</label>
-                      <input
-                        type="password"
-                        id="pwdOld"
-                        class="gh-input"
-                        placeholder="Nhập mật khẩu hiện tại"
-                      />
-                    </div>
-                    <div class="gh-form-group">
-                      <label class="gh-label">Mật Khẩu Mới *</label>
-                      <input
-                        type="password"
-                        id="pwdNew"
-                        class="gh-input"
-                        placeholder="Tối thiểu 8 ký tự"
-                        oninput="checkPwdStrength(this.value)"
-                      />
-                      <div class="pwd-strength">
-                        <div class="pwd-strength-bar" id="pwdBar"></div>
-                      </div>
-                      <div
-                        id="pwdHint"
-                        style="
-                          font-size: 11px;
-                          color: var(--gray);
-                          margin-top: 4px;
-                        "
-                      ></div>
-                    </div>
-                    <div class="gh-form-group">
-                      <label class="gh-label">Xác Nhận Mật Khẩu Mới *</label>
-                      <input
-                        type="password"
-                        id="pwdConfirm"
-                        class="gh-input"
-                        placeholder="Nhập lại mật khẩu mới"
-                      />
-                    </div>
-                    <button
-                      class="gh-btn-primary"
-                      onclick="changePassword()"
-                      id="pwdBtn"
-                    >
-                      <i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ════ SECTION: GIỎ HÀNG ════ -->
-            <div class="psec" id="psec-cart">
-              <div class="profile-content-card">
-                <div class="pcard-header">
-                  <div class="pcard-title">Giỏ Hàng Của Tôi</div>
-                  <a
-                    href="checkout.html"
-                    class="gh-btn-primary"
-                    style="text-decoration: none"
-                  >
-                    <i class="bi bi-bag-check"></i> Thanh Toán
-                  </a>
-                </div>
-                <div class="pcard-body">
-                  <div id="cartPageWrap">
-                    <div class="empty-state">
-                      <i class="bi bi-cart-x"></i>
-                      <p>Giỏ hàng trống</p>
-                    </div>
-                  </div>
-                  <div id="cartPageFooter" style="display: none">
-                    <div
-                      style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding-top: 16px;
-                        border-top: 1px solid var(--border);
-                        margin-top: 16px;
-                      "
-                    >
-                      <div>
-                        <div
-                          style="
-                            font-size: 12px;
-                            color: var(--gray);
-                            text-transform: uppercase;
-                            letter-spacing: 1px;
-                          "
-                        >
-                          Tổng Thanh Toán
-                        </div>
-                        <div
-                          id="cartPageTotal"
-                          style="
-                            font-family: var(--font-disp);
-                            font-size: 24px;
-                            font-weight: 500;
-                            color: var(--pink);
-                          "
-                        >
-                          0 ₫
-                        </div>
-                      </div>
-                      <a
-                        href="checkout.html"
-                        class="gh-btn-primary"
-                        style="text-decoration: none; font-size: 13px"
-                      >
-                        Đặt Hàng Ngay →
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- ════ SECTION: YÊU THÍCH ════ -->
-            <div class="psec" id="psec-wishlist">
-              <div class="profile-content-card">
-                <div class="pcard-header">
-                  <div class="pcard-title">Sản Phẩm Yêu Thích</div>
-                  <span id="wishCountBadge" style="font-size:11px;color:var(--gray)">0 sản phẩm</span>
-                </div>
-                <div class="pcard-body">
-                  <div id="wishlistPageWrap">
-                    <div class="empty-state">
-                      <i class="bi bi-heart"></i>
-                      <p>Đang tải...</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- /col -->
-        </div>
-        <!-- /row -->
+    <div class="gh-overlay" id="ghOverlay"></div>
+    <div class="gh-drawer" id="ghDrawer">
+      <div class="gh-drawer-top">
+        <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+        <button class="gh-drawer-close" id="ghDrawerClose" aria-label="Đóng">✕</button>
       </div>
-      <!-- /container -->
+      <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+        <div class="gh-avatar">?</div>
+        <div class="gh-drawer-user-info">
+          <div class="gh-fullname" id="ghDrawerUserName">Tên người dùng</div>
+          <div class="role gh-role-label">Thành Viên</div>
+        </div>
+      </div>
+      <nav class="gh-drawer-nav">
+        <a href="index.html" data-page="index">Trang Chủ</a>
+        <a href="shop.html" data-page="shop">Cửa Hàng</a>
+        <a href="flash-sale.html" data-page="flash-sale">Flash Sale</a>
+        <div id="ghDrawerCats"></div>
+        <a href="vouchers.html" data-page="vouchers">Ưu Đãi</a>
+        <a href="cart.html" data-page="cart">Giỏ Hàng</a>
+      </nav>
+      <div class="gh-drawer-footer">
+        <a href="profile.html" id="ghDrawerProfile" class="gh-btn-dark" style="display:none">Hồ Sơ Của Tôi</a>
+        <a href="login.html" id="ghDrawerLogin" class="gh-btn-dark">Đăng Nhập</a>
+        <button id="ghDrawerLogout" class="gh-btn-ghost" style="display:none">Đăng Xuất</button>
+      </div>
     </div>
 
-    <!-- Toast container -->
+    <!-- ══════════════════════════════════
+         PROFILE SHELL
+    ══════════════════════════════════ -->
+    <div class="profile-shell">
+
+      <!-- ── Profile Hero ── -->
+      <div class="profile-hero">
+        <div class="profile-hero-inner">
+          <div class="ph-avatar" id="phAvatar">?</div>
+          <div class="ph-info">
+            <div class="ph-name" id="phName">Đang tải...</div>
+            <div class="ph-meta">
+              <span id="phEmail">—</span>
+              <span>·</span>
+              <span id="phPhone">—</span>
+              <span>·</span>
+              <span>Thành viên từ <strong id="phSince">—</strong></span>
+            </div>
+            <div class="ph-badge" id="phBadge">Khách Hàng</div>
+          </div>
+          <div class="ph-actions">
+            <a href="admin.html" class="ph-admin-link" id="phAdminLink"><i class="bi bi-shield-check"></i> Admin</a>
+            <a href="admin.html" class="ph-seller-link" id="phSellerLink"><i class="bi bi-shop"></i> Quản Lý Shop</a>
+            <a href="#settings" class="ph-edit-btn" onclick="showTab('settings')"><i class="bi bi-pencil"></i> Chỉnh Sửa</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab Navigation ── -->
+      <div class="profile-tabs-bar">
+        <div class="profile-tabs">
+          <a class="ptab" href="#orders"    data-tab="orders">📦 Đơn Hàng</a>
+          <a class="ptab" href="#wishlist"  data-tab="wishlist">❤️ Yêu Thích</a>
+          <a class="ptab" href="#wallet"    data-tab="wallet">💳 Ví GlowHub</a>
+          <a class="ptab" href="#addresses" data-tab="addresses">📍 Địa Chỉ</a>
+          <a class="ptab" href="#vouchers"  data-tab="vouchers">🎫 Voucher</a>
+          <a class="ptab" href="#settings"  data-tab="settings">⚙️ Tài Khoản</a>
+          <a class="ptab" href="#followed"  data-tab="followed">🏪 Shop Đã Theo Dõi</a>
+        </div>
+      </div>
+
+      <!-- ── Tab Content ── -->
+      <div class="profile-content">
+
+        <!-- ════ TAB: ĐƠN HÀNG ════ -->
+        <div class="ptab-pane" id="ptab-orders">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Đơn Hàng Của Tôi</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('all',this)" id="ofa-all">Tất Cả</button>
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('PENDING',this)">Chờ</button>
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('CONFIRMED',this)">Xác Nhận</button>
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('SHIPPING',this)">Giao</button>
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('COMPLETED',this)">Hoàn Thành</button>
+                <button class="gh-btn-outline" style="padding:6px 14px;font-size:11px" onclick="filterOrders('WAITING_PAYMENT',this)">💳 Chờ TT</button>
+              </div>
+            </div>
+            <div class="pcard-body">
+              <div id="orderListWrap">
+                <div class="empty-state"><i class="bi bi-bag-x"></i><p>Đang tải đơn hàng...</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ TAB: YÊU THÍCH ════ -->
+        <div class="ptab-pane" id="ptab-wishlist">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Sản Phẩm Yêu Thích</div>
+              <span id="wishCountBadge" style="font-size:11px;color:var(--gray)">0 sản phẩm</span>
+            </div>
+            <div class="pcard-body">
+              <div id="wishlistPageWrap">
+                <div class="empty-state"><i class="bi bi-heart"></i><p>Đang tải...</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ TAB: VÍ ════ -->
+        <div class="ptab-pane" id="ptab-wallet">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Ví Của Tôi</div>
+              <button class="gh-btn-outline" onclick="showTopUpModal()"><i class="bi bi-plus-circle"></i> Nạp Tiền</button>
+            </div>
+            <div class="pcard-body">
+              <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+                <div style="flex:1;min-width:160px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                  <div style="font-size:12px;color:var(--gray);margin-bottom:4px">SỐ DƯ HIỆN TẠI</div>
+                  <div id="wBalanceVal" style="font-size:26px;font-weight:700;color:var(--pink)">—</div>
+                </div>
+                <div style="flex:1;min-width:140px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                  <div style="font-size:12px;color:var(--gray);margin-bottom:4px">TỔNG NẠP</div>
+                  <div id="wReceivedVal" style="font-size:20px;font-weight:600;color:#2e7d32">—</div>
+                </div>
+                <div style="flex:1;min-width:140px;background:#f9f6f3;border-radius:12px;padding:20px;text-align:center">
+                  <div style="font-size:12px;color:var(--gray);margin-bottom:4px">TỔNG CHI</div>
+                  <div id="wSpentVal" style="font-size:20px;font-weight:600;color:#c62828">—</div>
+                </div>
+              </div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:12px">Lịch Sử Giao Dịch</div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+                <button class="gh-btn-outline wtype-btn active" data-type="" onclick="filterWalletTx('',this)">Tất cả</button>
+                <button class="gh-btn-outline wtype-btn" data-type="TOPUP" onclick="filterWalletTx('TOPUP',this)">Nạp tiền</button>
+                <button class="gh-btn-outline wtype-btn" data-type="SPEND" onclick="filterWalletTx('SPEND',this)">Chi tiêu</button>
+                <button class="gh-btn-outline wtype-btn" data-type="REFUND" onclick="filterWalletTx('REFUND',this)">Hoàn tiền</button>
+              </div>
+              <div id="walletTxList"><div class="empty-state"><i class="bi bi-clock-history"></i><p>Đang tải...</p></div></div>
+              <div id="walletTxPager" style="margin-top:12px;display:flex;gap:8px;justify-content:center"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ TAB: ĐỊA CHỈ ════ -->
+        <div class="ptab-pane" id="ptab-addresses">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Địa Chỉ Giao Hàng</div>
+              <button class="gh-btn-outline" onclick="toggleProfAddrForm(true)"><i class="bi bi-plus-circle"></i> Thêm Địa Chỉ</button>
+            </div>
+            <div class="pcard-body">
+              <div id="profAddrList"><div class="empty-state"><i class="bi bi-geo-alt"></i><p>Đang tải...</p></div></div>
+              <div id="profAddrForm" style="display:none;margin-top:20px;padding:20px;border:1px solid var(--border);border-radius:12px">
+                <div style="font-size:13px;font-weight:600;margin-bottom:16px">Thêm Địa Chỉ Mới</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div>
+                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Họ &amp; Tên *</label>
+                    <input type="text" id="pafName" class="gh-input" placeholder="Nguyễn Thị Lan" style="width:100%" />
+                  </div>
+                  <div>
+                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Số Điện Thoại *</label>
+                    <input type="tel" id="pafPhone" class="gh-input" placeholder="0912 345 678" style="width:100%" />
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div>
+                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Tỉnh/Thành *</label>
+                    <select id="pafProv" class="gh-input" style="width:100%"><option value="">Đang tải...</option></select>
+                  </div>
+                  <div>
+                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Quận/Huyện *</label>
+                    <select id="pafDist" class="gh-input" style="width:100%" disabled><option value="">-- Chọn tỉnh trước --</option></select>
+                  </div>
+                  <div>
+                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Phường/Xã</label>
+                    <select id="pafWard" class="gh-input" style="width:100%" disabled><option value="">-- Chọn quận trước --</option></select>
+                  </div>
+                </div>
+                <div style="margin-bottom:12px">
+                  <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:4px">Địa Chỉ Chi Tiết *</label>
+                  <input type="text" id="pafDetail" class="gh-input" placeholder="Số nhà, tên đường..." style="width:100%" />
+                </div>
+                <div style="margin-bottom:16px">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                    <input type="checkbox" id="pafDefault" style="accent-color:var(--pink)" /> Đặt làm địa chỉ mặc định
+                  </label>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button class="gh-btn-outline" onclick="toggleProfAddrForm(false)">Hủy</button>
+                  <button style="background:var(--pink);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer" onclick="saveProfAddr()" id="pafSaveBtn">
+                    <i class="bi bi-floppy"></i> Lưu Địa Chỉ
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ TAB: VOUCHER (NEW) ════ -->
+        <div class="ptab-pane" id="ptab-vouchers">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Voucher Của Tôi</div>
+              <a href="vouchers.html" class="gh-btn-outline" style="text-decoration:none;font-size:12px"><i class="bi bi-tags"></i> Xem Thêm</a>
+            </div>
+            <div class="pcard-body">
+              <div id="voucherListWrap">
+                <div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Đang tải voucher...</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ TAB: TÀI KHOẢN (settings = info + password) ════ -->
+        <div class="ptab-pane" id="ptab-settings">
+
+          <!-- Sub-section: Thông Tin Cá Nhân -->
+          <div class="settings-section">
+            <div class="profile-content-card">
+              <div class="pcard-header">
+                <div class="pcard-title">Thông Tin Cá Nhân</div>
+                <button class="gh-btn-outline" id="editInfoBtn" onclick="toggleEdit()">
+                  <i class="bi bi-pencil"></i> Chỉnh Sửa
+                </button>
+              </div>
+              <div class="pcard-body">
+                <!-- VIEW MODE -->
+                <div id="viewInfoMode">
+                  <div class="info-grid" id="infoGrid">
+                    <div class="info-field"><div class="info-label">Họ và Tên</div><div class="info-value" id="vName">—</div></div>
+                    <div class="info-field"><div class="info-label">Tên Đăng Nhập</div><div class="info-value" id="vUserName">—</div></div>
+                    <div class="info-field"><div class="info-label">Email</div><div class="info-value" id="vEmail">—</div></div>
+                    <div class="info-field"><div class="info-label">Số Điện Thoại</div><div class="info-value" id="vPhone">—</div></div>
+                    <div class="info-field"><div class="info-label">Địa Chỉ Liên Hệ</div><div class="info-value" id="vContact">—</div></div>
+                    <div class="info-field"><div class="info-label">Chức Vụ / Ghi Chú</div><div class="info-value" id="vPosition">—</div></div>
+                    <div class="info-field"><div class="info-label">Loại Tài Khoản</div><div class="info-value" id="vUserType">—</div></div>
+                    <div class="info-field"><div class="info-label">Trạng Thái</div><div class="info-value" id="vIsActive">—</div></div>
+                    <div class="info-field full"><div class="info-label">Ngày Tham Gia</div><div class="info-value" id="vCreated">—</div></div>
+                    <div class="info-field full"><div class="info-label">ID Tài Khoản</div><div class="info-value" id="vId" style="font-size:11px;color:var(--gray)">—</div></div>
+                  </div>
+                </div>
+                <!-- EDIT MODE -->
+                <div id="editInfoMode" style="display:none">
+                  <div class="settings-grid">
+                    <div>
+                      <label class="gh-label">Họ và Tên *</label>
+                      <input type="text" id="eName" class="gh-input" placeholder="Tên đầy đủ" style="width:100%" />
+                    </div>
+                    <div>
+                      <label class="gh-label">Tên Đăng Nhập</label>
+                      <input type="text" id="eUserName" class="gh-input" readonly placeholder="Không thể thay đổi" style="width:100%" />
+                    </div>
+                    <div>
+                      <label class="gh-label">Email *</label>
+                      <input type="email" id="eEmail" class="gh-input" placeholder="email@domain.com" style="width:100%" />
+                    </div>
+                    <div>
+                      <label class="gh-label">Số Điện Thoại *</label>
+                      <input type="tel" id="ePhone" class="gh-input" placeholder="0901234567" style="width:100%" />
+                    </div>
+                    <div class="settings-full">
+                      <label class="gh-label">Địa Chỉ Liên Hệ</label>
+                      <input type="text" id="eContact" class="gh-input" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" style="width:100%" />
+                    </div>
+                    <div class="settings-full">
+                      <label class="gh-label">Ghi Chú / Chức Vụ</label>
+                      <input type="text" id="ePosition" class="gh-input" placeholder="VD: Khách hàng VIP, Đại lý, v.v." style="width:100%" />
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:20px">
+                    <button class="gh-btn-primary" onclick="saveInfo()" id="saveInfoBtn"><i class="bi bi-check-lg"></i> Lưu Thay Đổi</button>
+                    <button class="gh-btn-outline" onclick="cancelEdit()">Hủy</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-section: Đổi Mật Khẩu -->
+          <div class="settings-section">
+            <div class="profile-content-card">
+              <div class="pcard-header">
+                <div class="pcard-title">Đổi Mật Khẩu</div>
+              </div>
+              <div class="pcard-body">
+                <div style="max-width:420px">
+                  <div class="gh-form-group">
+                    <label class="gh-label">Mật Khẩu Hiện Tại *</label>
+                    <input type="password" id="pwdOld" class="gh-input" placeholder="Nhập mật khẩu hiện tại" />
+                  </div>
+                  <div class="gh-form-group">
+                    <label class="gh-label">Mật Khẩu Mới *</label>
+                    <input type="password" id="pwdNew" class="gh-input" placeholder="Tối thiểu 8 ký tự" oninput="checkPwdStrength(this.value)" />
+                    <div class="pwd-strength"><div class="pwd-strength-bar" id="pwdBar"></div></div>
+                    <div id="pwdHint" style="font-size:11px;color:var(--gray);margin-top:4px"></div>
+                  </div>
+                  <div class="gh-form-group">
+                    <label class="gh-label">Xác Nhận Mật Khẩu Mới *</label>
+                    <input type="password" id="pwdConfirm" class="gh-input" placeholder="Nhập lại mật khẩu mới" />
+                  </div>
+                  <button class="gh-btn-primary" onclick="changePassword()" id="pwdBtn">
+                    <i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-section: Đăng Xuất -->
+          <div class="settings-section">
+            <div class="profile-content-card">
+              <div class="pcard-body" style="padding:20px 24px">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--dark)">Đăng Xuất Tài Khoản</div>
+                    <div style="font-size:13px;color:var(--gray);margin-top:4px">Phiên đăng nhập sẽ bị xóa trên thiết bị này</div>
+                  </div>
+                  <button class="gh-btn-outline" style="border-color:#ef4444;color:#ef4444" onclick="Auth && Auth.logout()">
+                    <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /ptab-settings -->
+
+        <!-- ════ TAB: SHOP ĐÃ THEO DÕI ════ -->
+        <div class="ptab-pane" id="ptab-followed">
+          <div class="profile-content-card">
+            <div class="pcard-header">
+              <div class="pcard-title">Shop Đã Theo Dõi</div>
+            </div>
+            <div id="followedShopsList" style="padding:8px 0"></div>
+          </div>
+        </div>
+        <!-- /ptab-followed -->
+
+      </div>
+      <!-- /profile-content -->
+    </div>
+    <!-- /profile-shell -->
+
+    <!-- ── Top-up modal ── -->
+    <div id="topUpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:16px;padding:32px;width:360px;max-width:95vw">
+        <div style="font-size:18px;font-weight:600;margin-bottom:20px">Nạp Tiền Vào Ví</div>
+        <label style="font-size:13px;color:var(--gray);display:block;margin-bottom:4px">Số tiền (₫)</label>
+        <input id="topUpAmount" type="number" min="10000" max="50000000" step="10000" placeholder="Ví dụ: 200000" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;margin-bottom:16px" />
+        <label style="font-size:13px;color:var(--gray);display:block;margin-bottom:4px">Ghi chú (tùy chọn)</label>
+        <input id="topUpNote" type="text" placeholder="Nạp tiền mua sắm..." style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;margin-bottom:20px" />
+        <div style="display:flex;gap:10px">
+          <button class="gh-btn-outline" style="flex:1" onclick="hideTopUpModal()">Hủy</button>
+          <button class="gh-btn" style="flex:1;background:var(--pink);color:#fff;border:none;border-radius:8px;padding:10px" onclick="doTopUp()">Nạp Tiền</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Order Detail Modal ── -->
+    <div id="orderDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px">
+      <div style="background:#fff;max-width:680px;width:100%;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative;margin:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #ede8e2">
+          <div>
+            <div style="font-size:12px;color:#888;letter-spacing:1.5px;text-transform:uppercase">Chi Tiết Đơn Hàng</div>
+            <div id="odm-code" style="font-family:var(--font-disp,'Cormorant Garamond',serif);font-size:20px;font-weight:500;margin-top:4px;color:#111">—</div>
+          </div>
+          <button onclick="hideOrderDetailModal()" style="background:none;border:none;font-size:28px;color:#aaa;cursor:pointer;line-height:1;padding:0 4px">×</button>
+        </div>
+        <div id="odmBody" style="padding:24px;min-height:120px"></div>
+        <div id="odmFooter" style="padding:16px 24px;border-top:1px solid #ede8e2;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
+    <!-- Toast -->
     <div id="profileToast"></div>
 
     <!-- ══ SCRIPTS ══ -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/navbar.js" defer></script>
     <script>
-      /* ══════════════════════════════════════════
-         GlowHub — profile.html  (standalone page)
-         Hiển thị đầy đủ dữ liệu từ DB:
-         Users: Id, Name, UserName, Email, Phone,
-                Contact, Position, Image, IsActive,
-                UserType, Created
-      ══════════════════════════════════════════ */
-
+      var API_URL = 'http://localhost:5001';
       var allOrders = [];
-      var currentFilter = "all";
+      var currentFilter = 'all';
 
       /* ── Toast ── */
       function toast(msg, type) {
-        if (!type) type = "ok";
-        var c = document.getElementById("profileToast");
-        var el = document.createElement("div");
-        el.className = "toast-msg" + (type === "err" ? " err" : "");
-        el.textContent = (type === "ok" ? "✓  " : "✕  ") + msg;
+        if (!type) type = 'ok';
+        var c = document.getElementById('profileToast');
+        var el = document.createElement('div');
+        el.className = 'toast-msg' + (type === 'err' ? ' err' : '');
+        el.textContent = (type === 'ok' ? '✓  ' : '✕  ') + msg;
         c.appendChild(el);
-        requestAnimationFrame(function () {
-          el.style.transform = "translateX(0)";
-        });
-        setTimeout(function () {
-          el.style.transform = "translateX(120%)";
-          setTimeout(function () {
-            el.remove();
-          }, 350);
+        requestAnimationFrame(function() { el.style.transform = 'translateX(0)'; });
+        setTimeout(function() {
+          el.style.transform = 'translateX(120%)';
+          setTimeout(function() { el.remove(); }, 350);
         }, 3200);
       }
 
-      /* ── Format ── */
+      /* ── Format helpers ── */
       function fmtMoney(n) {
-        if (!n && n !== 0) return "—";
-        return new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+        if (!n && n !== 0) return '—';
+        return new Intl.NumberFormat('vi-VN').format(n) + ' ₫';
       }
-
       function fmtDate(d) {
-        if (!d) return "—";
+        if (!d) return '—';
         var dt = new Date(d);
-        return dt.toLocaleDateString("vi-VN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        return dt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       }
-
       function fmtDateShort(d) {
-        if (!d) return "—";
+        if (!d) return '—';
         var dt = new Date(d);
-        return dt.toLocaleDateString("vi-VN", {
-          month: "short",
-          year: "numeric",
-        });
-      }
-
-      /* ── Section switcher ── */
-      function showSec(sec, btn) {
-        document.querySelectorAll(".psec").forEach(function (s) {
-          s.classList.remove("active");
-        });
-        document.querySelectorAll(".profile-nav-btn").forEach(function (b) {
-          b.classList.remove("active");
-        });
-        var el = document.getElementById("psec-" + sec);
-        if (el) el.classList.add("active");
-        if (btn) btn.classList.add("active");
-
-        if (sec === "orders")   loadOrders();
-        if (sec === "cart")     renderCart();
-        if (sec === "wishlist") renderWishlistPage();
+        return dt.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' });
       }
 
       /* ══════════════════════════════
-         INIT — load user from localStorage
-         và map đúng field theo DB schema:
-         Id, Name, UserName, Email, Phone,
-         Contact, Position, Image, IsActive,
-         UserType, Created
+         HASH-BASED TAB ROUTING
       ══════════════════════════════ */
-      document.addEventListener("DOMContentLoaded", function () {
-        if (typeof Auth === "undefined" || !Auth.isLoggedIn()) {
-          window.location.href = "login.html";
-          return;
-        }
+      var _tabLoaded = {};
 
-        var u = Auth.getCurrentUser();
-        if (!u) {
-          window.location.href = "login.html";
-          return;
-        }
+      function showTab(tab) {
+        var validTabs = ['orders', 'wishlist', 'wallet', 'addresses', 'vouchers', 'settings', 'followed'];
+        if (validTabs.indexOf(tab) === -1) tab = 'orders';
 
-        populateProfile(u);
-        loadOrderStats();
-        renderCart();
-      });
+        document.querySelectorAll('.ptab-pane').forEach(function(el) { el.classList.remove('active'); });
+        document.querySelectorAll('.ptab').forEach(function(a) { a.classList.remove('active'); });
 
-      function populateProfile(u) {
-        /* ── Field mapping: chuẩn hóa cả PascalCase lẫn camelCase ── */
-        var id = u.id || u.Id || "";
-        var name = u.name || u.Name || u.username || u.UserName || "Người dùng";
-        var username = u.username || u.UserName || u.userName || "";
-        var email = u.email || u.Email || "";
-        var phone = u.phone || u.Phone || "";
-        var contact = u.contact || u.Contact || "";
-        var position = u.position || u.Position || "";
-        var image = u.image || u.Image || "";
-        var isActive =
-          u.isActive !== undefined
-            ? u.isActive
-            : u.IsActive !== undefined
-              ? u.IsActive
-              : true;
-        var userType =
-          u.userType !== undefined
-            ? u.userType
-            : u.UserType !== undefined
-              ? u.UserType
-              : 0;
-        var created = u.created || u.Created || "";
+        var pane = document.getElementById('ptab-' + tab);
+        if (pane) pane.classList.add('active');
+        var link = document.querySelector('.ptab[data-tab="' + tab + '"]');
+        if (link) link.classList.add('active');
 
-        /* ── Avatar ── */
-        var avatarEl = document.getElementById("pAvatar");
-        if (image) {
-          avatarEl.innerHTML =
-            '<img src="' +
-            image +
-            '" onerror="this.parentElement.textContent=\'' +
-            name.charAt(0).toUpperCase() +
-            "'\" />";
-        } else {
-          avatarEl.textContent = name
-            .trim()
-            .split(" ")
-            .pop()
-            .charAt(0)
-            .toUpperCase();
-        }
-
-        /* ── Sidebar ── */
-        document.getElementById("pSbName").textContent = name;
-        document.getElementById("pSbUsername").textContent = username ? "@" + username : "";
-        document.getElementById("pSbEmail").textContent = email;
-
-        var badgeEl     = document.getElementById("pSbBadge");
-        var badgeTextEl = document.getElementById("pSbBadgeText");
-        var roles = u.roles || u.Roles || [];
-        var isSeller = (typeof Auth !== "undefined" && Auth.isSeller && Auth.isSeller()) ||
-                       (Array.isArray(roles) && roles.some(function(r) { return r === "Seller"; }));
-        var isAdmin  = (typeof Auth !== "undefined" && Auth.isAdmin  && Auth.isAdmin())  ||
-                       userType === 1 || userType === "Admin";
-
-        if (isAdmin) {
-          badgeEl.className = "profile-badge admin";
-          badgeTextEl.textContent = "Quản Trị Viên";
-        } else if (isSeller) {
-          badgeEl.className = "profile-badge seller";
-          badgeEl.style.background = "#fff3e0";
-          badgeEl.style.color = "#e65100";
-          badgeTextEl.innerHTML = '<i class="bi bi-shop me-1"></i>Người Bán Hàng';
-          document.getElementById("sellerNavItem").style.display = "";
-        } else {
-          badgeEl.className = "profile-badge customer";
-          badgeTextEl.textContent = "Khách Hàng";
-        }
-
-        if (created) {
-          document.getElementById("pStatSince").textContent =
-            fmtDateShort(created);
-        }
-
-        /* ── Info fields (view mode) ── */
-        document.getElementById("vName").textContent = name || "—";
-        document.getElementById("vUserName").textContent = username || "—";
-        document.getElementById("vEmail").textContent = email || "—";
-        document.getElementById("vPhone").textContent = phone || "—";
-        document.getElementById("vContact").textContent = contact || "—";
-        document.getElementById("vPosition").textContent = position || "—";
-        document.getElementById("vUserType").textContent =
-          userType === 1 || userType === "Admin"
-            ? "👑 Quản Trị Viên"
-            : "🛍️ Khách Hàng";
-        document.getElementById("vIsActive").innerHTML = isActive
-          ? '<span style="color:#065f46">● Đang Hoạt Động</span>'
-          : '<span style="color:#991b1b">● Bị Khóa</span>';
-        document.getElementById("vCreated").textContent = fmtDate(created);
-        document.getElementById("vId").textContent = id
-          ? "ID: " + id
-          : "Chưa có ID";
-
-        /* ── Pre-fill edit form ── */
-        document.getElementById("eName").value = name;
-        document.getElementById("eUserName").value = username;
-        document.getElementById("eEmail").value = email;
-        document.getElementById("ePhone").value = phone;
-        document.getElementById("eContact").value = contact;
-        document.getElementById("ePosition").value = position;
+        if (tab === 'orders'    && !_tabLoaded.orders)    { loadOrders(); _tabLoaded.orders = true; }
+        if (tab === 'wishlist'  )                          { renderWishlistPage(); }
+        if (tab === 'wallet'    )                          { loadWallet(); }
+        if (tab === 'addresses' && !_tabLoaded.addresses)  { loadProfAddresses(); _tabLoaded.addresses = true; }
+        if (tab === 'vouchers'  )                          { loadVouchers(); }
+        if (tab === 'followed'  )                          { renderFollowedShops(); }
       }
 
-      /* ── Load order stats for sidebar ── */
-      function loadOrderStats() {
-        if (typeof Order === "undefined") return;
-        Order.getMyOrders()
-          .then(function (res) {
-            var orders = Array.isArray(res)
-              ? res
-              : (res && res.items) || (res && res.data) || [];
-            allOrders = orders;
+      var _followedShopsCache = null;
 
-            document.getElementById("pStatOrders").textContent = orders.length;
+      function renderFollowedShops() {
+        var container = document.getElementById('followedShopsList');
+        if (!container) return;
+        container.innerHTML = '<div style="text-align:center;padding:32px;color:#aaa">Đang tải...</div>';
 
-            var total = orders.reduce(function (s, o) {
-              return s + (o.TotalAmount || o.totalAmount || 0);
-            }, 0);
-            document.getElementById("pStatSpend").textContent =
-              total >= 1000000
-                ? (total / 1000000).toFixed(1) + "M"
-                : Math.round(total / 1000) + "K";
-          })
-          .catch(function () {
-            document.getElementById("pStatOrders").textContent = "—";
-            document.getElementById("pStatSpend").textContent = "—";
+        if (typeof Shop !== 'undefined' && Shop.getFollowed) {
+          Shop.getFollowed().then(function(res) {
+            var items = (res && res.items) || [];
+            _followedShopsCache = items;
+            // Sync localStorage
+            var local = items.map(function(s) { return { id: s.shopId, name: s.shopName, logo: s.logo }; });
+            localStorage.setItem('gh_followed_shops', JSON.stringify(local));
+            _renderFollowedList(items.map(function(s) { return { id: s.shopId, name: s.shopName, logo: s.logo }; }));
+          }).catch(function() {
+            var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+            _renderFollowedList(list);
           });
+        } else {
+          var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]');
+          _renderFollowedList(list);
+        }
+      }
+
+      function _renderFollowedList(list) {
+        var container = document.getElementById('followedShopsList');
+        if (!container) return;
+        if (!list.length) {
+          container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:#aaa"><div style="font-size:40px;margin-bottom:12px">🏪</div><div>Bạn chưa theo dõi shop nào</div><a href="shop.html" class="gh-btn" style="display:inline-block;margin-top:16px;padding:8px 20px;background:var(--pink);color:#fff;border-radius:8px;text-decoration:none">Khám Phá Shop</a></div>';
+          return;
+        }
+        container.innerHTML = list.map(function(s) {
+          var avatar = s.logo
+            ? '<img src="' + s.logo + '" style="width:48px;height:48px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">'
+            : '<div style="width:48px;height:48px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">' + (s.name||'S')[0].toUpperCase() + '</div>';
+          return '<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border)">' +
+            avatar +
+            '<div style="flex:1"><div style="font-weight:600;font-size:14px">' + (s.name||'Shop') + '</div></div>' +
+            '<a href="shop-profile.html?id=' + s.id + '" class="gh-btn-outline" style="padding:6px 16px;font-size:12px;border-radius:20px">Xem Shop</a>' +
+            '<button onclick="unfollowShop(\'' + s.id + '\')" style="background:none;border:1px solid #ddd;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;color:#888">Bỏ Theo Dõi</button>' +
+            '</div>';
+        }).join('');
+      }
+
+      function unfollowShop(shopId) {
+        if (typeof Shop !== 'undefined' && Shop.unfollow) {
+          Shop.unfollow(shopId).then(function() {
+            var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]')
+              .filter(function(s) { return String(s.id) !== String(shopId); });
+            localStorage.setItem('gh_followed_shops', JSON.stringify(list));
+            _renderFollowedList(list);
+            showToast && showToast('Đã bỏ theo dõi shop');
+          }).catch(function() {
+            showToast && showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+          });
+        } else {
+          var list = JSON.parse(localStorage.getItem('gh_followed_shops') || '[]')
+            .filter(function(s) { return String(s.id) !== String(shopId); });
+          localStorage.setItem('gh_followed_shops', JSON.stringify(list));
+          _renderFollowedList(list);
+        }
+      }
+
+      function showTabByHash() {
+        var hash = location.hash.replace('#', '') || 'orders';
+        showTab(hash);
+      }
+
+      window.addEventListener('hashchange', function() { showTabByHash(); });
+
+      /* ══════════════════════════════
+         POPULATE PROFILE HEADER
+      ══════════════════════════════ */
+      function populateProfile(u) {
+        var id       = u.id || u.Id || '';
+        var name     = u.name || u.Name || u.username || u.UserName || 'Người dùng';
+        var username = u.username || u.UserName || u.userName || '';
+        var email    = u.email || u.Email || '';
+        var phone    = u.phone || u.Phone || '';
+        var contact  = u.contact || u.Contact || '';
+        var position = u.position || u.Position || '';
+        var image    = u.image || u.Image || '';
+        var isActive = u.isActive !== undefined ? u.isActive : (u.IsActive !== undefined ? u.IsActive : true);
+        var userType = u.userType !== undefined ? u.userType : (u.UserType !== undefined ? u.UserType : 0);
+        var created  = u.created || u.Created || '';
+
+        /* Avatar */
+        var avatarEl = document.getElementById('phAvatar');
+        if (image) {
+          avatarEl.innerHTML = '<img src="' + image + '" onerror="this.parentElement.textContent=\'' + name.charAt(0).toUpperCase() + '\'" />';
+        } else {
+          avatarEl.textContent = name.trim().split(' ').pop().charAt(0).toUpperCase();
+        }
+
+        /* Hero info */
+        document.getElementById('phName').textContent  = name;
+        document.getElementById('phEmail').textContent = email || '—';
+        document.getElementById('phPhone').textContent = phone || '—';
+        if (created) document.getElementById('phSince').textContent = fmtDateShort(created);
+
+        /* Role badge */
+        var roles    = u.roles || u.Roles || [];
+        var isSeller = (typeof Auth !== 'undefined' && Auth.isSeller && Auth.isSeller()) ||
+                       (Array.isArray(roles) && roles.some(function(r) { return r === 'Seller'; }));
+        var isAdmin  = (typeof Auth !== 'undefined' && Auth.isAdmin && Auth.isAdmin()) ||
+                       userType === 1 || userType === 'Admin';
+        var badgeEl  = document.getElementById('phBadge');
+
+        if (isAdmin) {
+          badgeEl.className = 'ph-badge admin';
+          badgeEl.textContent = '👑 Quản Trị Viên';
+          document.getElementById('phAdminLink').style.display = 'inline-flex';
+        } else if (isSeller) {
+          badgeEl.className = 'ph-badge seller';
+          badgeEl.textContent = '🛍️ Người Bán Hàng';
+          document.getElementById('phSellerLink').style.display = 'inline-flex';
+        } else {
+          badgeEl.className = 'ph-badge';
+          badgeEl.textContent = '💎 Khách Hàng';
+        }
+
+        /* Info fields (view mode) */
+        document.getElementById('vName').textContent     = name || '—';
+        document.getElementById('vUserName').textContent = username || '—';
+        document.getElementById('vEmail').textContent    = email || '—';
+        document.getElementById('vPhone').textContent    = phone || '—';
+        document.getElementById('vContact').textContent  = contact || '—';
+        document.getElementById('vPosition').textContent = position || '—';
+        document.getElementById('vUserType').textContent = isAdmin ? '👑 Quản Trị Viên' : isSeller ? '🛍️ Người Bán' : '🛒 Khách Hàng';
+        document.getElementById('vIsActive').innerHTML   = isActive
+          ? '<span style="color:#065f46">● Đang Hoạt Động</span>'
+          : '<span style="color:#991b1b">● Bị Khóa</span>';
+        document.getElementById('vCreated').textContent = fmtDate(created);
+        document.getElementById('vId').textContent      = id ? 'ID: ' + id : 'Chưa có ID';
+
+        /* Pre-fill edit form */
+        document.getElementById('eName').value     = name;
+        document.getElementById('eUserName').value = username;
+        document.getElementById('eEmail').value    = email;
+        document.getElementById('ePhone').value    = phone;
+        document.getElementById('eContact').value  = contact;
+        document.getElementById('ePosition').value = position;
+      }
+
+      /* ── Order stats (preload) ── */
+      function loadOrderStats() {
+        if (typeof Order === 'undefined') return;
+        Order.getMyOrders().then(function(res) {
+          allOrders = Array.isArray(res) ? res : (res && res.items) || (res && res.data) || [];
+        }).catch(function() {});
       }
 
       /* ══════════════════════════════
          EDIT PROFILE
       ══════════════════════════════ */
       function toggleEdit() {
-        document.getElementById("viewInfoMode").style.display = "none";
-        document.getElementById("editInfoMode").style.display = "block";
-        document.getElementById("editInfoBtn").style.display = "none";
+        document.getElementById('viewInfoMode').style.display = 'none';
+        document.getElementById('editInfoMode').style.display = 'block';
+        document.getElementById('editInfoBtn').style.display = 'none';
       }
-
       function cancelEdit() {
-        document.getElementById("viewInfoMode").style.display = "block";
-        document.getElementById("editInfoMode").style.display = "none";
-        document.getElementById("editInfoBtn").style.display = "";
+        document.getElementById('viewInfoMode').style.display = 'block';
+        document.getElementById('editInfoMode').style.display = 'none';
+        document.getElementById('editInfoBtn').style.display = '';
       }
-
       function saveInfo() {
-        var name = document.getElementById("eName").value.trim();
-        var email = document.getElementById("eEmail").value.trim();
-        var phone = document.getElementById("ePhone").value.trim();
-        var contact = document.getElementById("eContact").value.trim();
-        var position = document.getElementById("ePosition").value.trim();
-
-        if (!name || !email || !phone) {
-          toast("Vui lòng điền đầy đủ các trường bắt buộc!", "err");
-          return;
-        }
-
-        var btn = document.getElementById("saveInfoBtn");
+        var name     = document.getElementById('eName').value.trim();
+        var email    = document.getElementById('eEmail').value.trim();
+        var phone    = document.getElementById('ePhone').value.trim();
+        var contact  = document.getElementById('eContact').value.trim();
+        var position = document.getElementById('ePosition').value.trim();
+        if (!name || !email || !phone) { toast('Vui lòng điền đầy đủ các trường bắt buộc!', 'err'); return; }
+        var btn = document.getElementById('saveInfoBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang lưu...';
-
-        var payload = {
-          Name: name,
-          Email: email,
-          Phone: phone,
-          Contact: contact,
-          Position: position,
-        };
-
-        var doSave =
-          typeof Auth !== "undefined" && Auth.updateProfile
-            ? Auth.updateProfile(payload)
-            : Promise.resolve();
-
-        doSave
-          .then(function () {
-            /* Cập nhật localStorage ── giữ nguyên các field khác */
-            try {
-              var u = Auth.getCurrentUser() || {};
-              u.Name = name;
-              u.name = name;
-              u.Email = email;
-              u.email = email;
-              u.Phone = phone;
-              u.phone = phone;
-              u.Contact = contact;
-              u.contact = contact;
-              u.Position = position;
-              u.position = position;
-              localStorage.setItem("user", JSON.stringify(u));
-            } catch (_) {}
-
-            populateProfile(Auth.getCurrentUser() || payload);
-            cancelEdit();
-            toast("Đã lưu thông tin thành công!");
-          })
-          .catch(function (err) {
-            toast("Lỗi: " + (err.message || "Không thể lưu"), "err");
-          })
-          .finally(function () {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-lg"></i> Lưu Thay Đổi';
-          });
+        var payload = { Name: name, Email: email, Phone: phone, Contact: contact, Position: position };
+        var doSave = typeof Auth !== 'undefined' && Auth.updateProfile ? Auth.updateProfile(payload) : Promise.resolve();
+        doSave.then(function() {
+          try {
+            var u = Auth.getCurrentUser() || {};
+            Object.assign(u, { Name: name, name: name, Email: email, email: email, Phone: phone, phone: phone, Contact: contact, contact: contact, Position: position, position: position });
+            localStorage.setItem('user', JSON.stringify(u));
+          } catch(_) {}
+          populateProfile(Auth.getCurrentUser() || payload);
+          cancelEdit();
+          toast('Đã lưu thông tin thành công!');
+        }).catch(function(err) {
+          toast('Lỗi: ' + (err.message || 'Không thể lưu'), 'err');
+        }).finally(function() {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-check-lg"></i> Lưu Thay Đổi';
+        });
       }
 
       /* ══════════════════════════════
          ĐỔI MẬT KHẨU
       ══════════════════════════════ */
       function checkPwdStrength(val) {
-        var bar = document.getElementById("pwdBar");
-        var hint = document.getElementById("pwdHint");
+        var bar = document.getElementById('pwdBar');
+        var hint = document.getElementById('pwdHint');
         var score = 0;
         if (val.length >= 8) score++;
         if (/[A-Z]/.test(val)) score++;
         if (/[0-9]/.test(val)) score++;
         if (/[^A-Za-z0-9]/.test(val)) score++;
-
-        var colors = ["#ef4444", "#f97316", "#eab308", "#22c55e"];
-        var labels = ["Rất yếu", "Yếu", "Trung bình", "Mạnh"];
-        bar.style.width = (score / 4) * 100 + "%";
-        bar.style.background = colors[score - 1] || "#e5e7eb";
-        hint.textContent = score > 0 ? labels[score - 1] : "";
+        var colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
+        var labels = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh'];
+        bar.style.width = (score / 4) * 100 + '%';
+        bar.style.background = colors[score - 1] || '#e5e7eb';
+        hint.textContent = score > 0 ? labels[score - 1] : '';
       }
-
       function changePassword() {
-        var old = document.getElementById("pwdOld").value;
-        var nw = document.getElementById("pwdNew").value;
-        var cf = document.getElementById("pwdConfirm").value;
-
-        if (!old || !nw || !cf) {
-          toast("Vui lòng điền đầy đủ!", "err");
-          return;
-        }
-        if (nw.length < 8) {
-          toast("Mật khẩu mới tối thiểu 8 ký tự!", "err");
-          return;
-        }
-        if (nw !== cf) {
-          toast("Mật khẩu xác nhận không khớp!", "err");
-          return;
-        }
-
-        var btn = document.getElementById("pwdBtn");
+        var old = document.getElementById('pwdOld').value;
+        var nw  = document.getElementById('pwdNew').value;
+        var cf  = document.getElementById('pwdConfirm').value;
+        if (!old || !nw || !cf) { toast('Vui lòng điền đầy đủ!', 'err'); return; }
+        if (nw.length < 8) { toast('Mật khẩu mới tối thiểu 8 ký tự!', 'err'); return; }
+        if (nw !== cf) { toast('Mật khẩu xác nhận không khớp!', 'err'); return; }
+        var btn = document.getElementById('pwdBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang cập nhật...';
-
-        var doChange =
-          typeof Auth !== "undefined" && Auth.changePassword
-            ? Auth.changePassword({ OldPassword: old, NewPassword: nw })
-            : Promise.resolve();
-
-        doChange
-          .then(function () {
-            toast("Đã đổi mật khẩu thành công!");
-            document.getElementById("pwdOld").value = "";
-            document.getElementById("pwdNew").value = "";
-            document.getElementById("pwdConfirm").value = "";
-            document.getElementById("pwdBar").style.width = "0";
-            document.getElementById("pwdHint").textContent = "";
-          })
-          .catch(function (err) {
-            toast("Lỗi: " + (err.message || "Không thể đổi mật khẩu"), "err");
-          })
-          .finally(function () {
-            btn.disabled = false;
-            btn.innerHTML =
-              '<i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu';
-          });
+        var doChange = typeof Auth !== 'undefined' && Auth.changePassword
+          ? Auth.changePassword({ OldPassword: old, NewPassword: nw })
+          : Promise.resolve();
+        doChange.then(function() {
+          toast('Đã đổi mật khẩu thành công!');
+          ['pwdOld','pwdNew','pwdConfirm'].forEach(function(id) { document.getElementById(id).value = ''; });
+          document.getElementById('pwdBar').style.width = '0';
+          document.getElementById('pwdHint').textContent = '';
+        }).catch(function(err) {
+          toast('Lỗi: ' + (err.message || 'Không thể đổi mật khẩu'), 'err');
+        }).finally(function() {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-shield-check"></i> Cập Nhật Mật Khẩu';
+        });
       }
 
       /* ══════════════════════════════
          ĐƠN HÀNG
       ══════════════════════════════ */
-      var orderLoaded = false;
-
       function loadOrders() {
-        var wrap = document.getElementById("orderListWrap");
-        wrap.innerHTML =
-          '<div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Đang tải đơn hàng...</p></div>';
-
-        if (typeof Order === "undefined") {
-          wrap.innerHTML =
-            '<div class="empty-state"><i class="bi bi-wifi-off"></i><p>Không thể kết nối API</p></div>';
+        var wrap = document.getElementById('orderListWrap');
+        wrap.innerHTML = '<div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Đang tải đơn hàng...</p></div>';
+        if (typeof Order === 'undefined') {
+          wrap.innerHTML = '<div class="empty-state"><i class="bi bi-wifi-off"></i><p>Không thể kết nối API</p></div>';
           return;
         }
-
-        Order.getMyOrders()
-          .then(function (res) {
-            allOrders = Array.isArray(res)
-              ? res
-              : (res && res.items) || (res && res.data) || [];
-            renderOrders("all");
-            orderLoaded = true;
-          })
-          .catch(function () {
-            wrap.innerHTML =
-              '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không tải được đơn hàng</p><small>Vui lòng thử lại sau</small></div>';
-          });
+        Order.getMyOrders().then(function(res) {
+          allOrders = Array.isArray(res) ? res : (res && res.items) || (res && res.data) || [];
+          renderOrders('all');
+        }).catch(function() {
+          wrap.innerHTML = '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không tải được đơn hàng</p><small>Vui lòng thử lại sau</small></div>';
+        });
       }
 
       function filterOrders(status, btn) {
         currentFilter = status;
-        document
-          .querySelectorAll("#psec-orders .gh-btn-outline")
-          .forEach(function (b) {
-            b.style.borderColor = "";
-            b.style.color = "";
-            b.style.background = "";
-          });
-        if (btn) {
-          btn.style.borderColor = "var(--pink)";
-          btn.style.color = "var(--pink)";
-        }
+        document.querySelectorAll('#ptab-orders .gh-btn-outline').forEach(function(b) {
+          b.style.borderColor = ''; b.style.color = ''; b.style.background = '';
+        });
+        if (btn) { btn.style.borderColor = 'var(--pink)'; btn.style.color = 'var(--pink)'; }
         renderOrders(status);
       }
 
       var statusMap = {
-        PENDING: ["status-PENDING", "⏳ Chờ Xử Lý"],
-        CONFIRMED: ["status-CONFIRMED", "✅ Đã Xác Nhận"],
-        SHIPPING: ["status-SHIPPING", "🚚 Đang Giao"],
-        COMPLETED: ["status-COMPLETED", "🎉 Hoàn Thành"],
-        CANCELLED: ["status-CANCELLED", "❌ Đã Hủy"],
+        PENDING:              ['status-PENDING', '⏳ Chờ Xử Lý'],
+        CONFIRMED:            ['status-CONFIRMED', '✅ Đã Xác Nhận'],
+        SHIPPING:             ['status-SHIPPING', '🚚 Đang Giao'],
+        DELIVERED:            ['status-COMPLETED', '📦 Đã Nhận Hàng'],
+        COMPLETED:            ['status-COMPLETED', '🎉 Hoàn Thành'],
+        CANCELLED:            ['status-CANCELLED', '❌ Đã Hủy'],
+        WAITING_PAYMENT:      ['status-WAITING_PAYMENT', '💳 Chờ Thanh Toán'],
+        PENDING_BANK_CONFIRM: ['status-PENDING_BANK_CONFIRM', '🏦 Chờ Xác Nhận CK'],
       };
 
+      // Close order detail modal on backdrop click or Escape
+      document.addEventListener('click', function(e) {
+        var modal = document.getElementById('orderDetailModal');
+        if (modal && modal.style.display !== 'none' && e.target === modal) hideOrderDetailModal();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { hideOrderDetailModal(); }
+      });
+
+      var _cdTimers = [];
+      function _clearCdTimers() { _cdTimers.forEach(function(id) { clearInterval(id); }); _cdTimers = []; }
+      function _startCountdown(oid, expireAt) {
+        var el = document.getElementById('cd-' + oid);
+        if (!el || !expireAt) return;
+        var expiry = new Date(expireAt).getTime();
+        function tick() {
+          var diff = Math.max(0, expiry - Date.now());
+          if (diff === 0) {
+            el.textContent = 'Hết hạn'; el.classList.add('urgent');
+            var btn = document.getElementById('paybtn-' + oid);
+            if (btn) btn.style.opacity = '0.4';
+            clearInterval(tid); return;
+          }
+          var m = Math.floor(diff / 60000), s = Math.floor((diff % 60000) / 1000);
+          el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+          if (m < 3) el.classList.add('urgent'); else el.classList.remove('urgent');
+        }
+        tick();
+        var tid = setInterval(tick, 1000);
+        _cdTimers.push(tid);
+      }
       function getStatusBadge(s) {
-        var key = (s || "PENDING").toString().toUpperCase();
-        var info = statusMap[key] || ["status-PENDING", s || "Chờ"];
-        return (
-          '<span class="status-badge ' + info[0] + '">' + info[1] + "</span>"
-        );
+        var key = (s || 'PENDING').toString().toUpperCase();
+        var info = statusMap[key] || ['status-PENDING', s || 'Chờ'];
+        return '<span class="status-badge ' + info[0] + '">' + info[1] + '</span>';
       }
 
       function renderOrders(filter) {
         if (!filter) filter = currentFilter;
-        var wrap = document.getElementById("orderListWrap");
-        var list =
-          filter === "all"
-            ? allOrders
-            : allOrders.filter(function (o) {
-                return (
-                  (o.Status || o.status || "").toString().toUpperCase() ===
-                  filter.toUpperCase()
-                );
-              });
-
+        _clearCdTimers();
+        var wrap = document.getElementById('orderListWrap');
+        var list = filter === 'all' ? allOrders : allOrders.filter(function(o) {
+          return (o.Status || o.status || '').toString().toUpperCase() === filter.toUpperCase();
+        });
         if (!list.length) {
-          wrap.innerHTML =
-            '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không có đơn hàng nào</p></div>';
+          wrap.innerHTML = '<div class="empty-state"><i class="bi bi-bag-x"></i><p>Không có đơn hàng nào</p></div>';
           return;
         }
-
-        var ph = "https://placehold.co/44x44/f5f0ea/888?text=IMG";
-
-        wrap.innerHTML = list
-          .map(function (o) {
-            var oid = o.Id || o.id || o.orderId || "—";
-            var status = o.Status || o.status || "PENDING";
-            var date = o.OrderDate || o.orderDate || o.CreatedAt || o.createdAt;
-            var total = o.TotalAmount || o.totalAmount || 0;
-            var addr = o.ShippingAddress || o.shippingAddress || "—";
-            var items =
-              o.Items || o.items || o.OrderDetails || o.orderDetails || [];
-
-            var itemsHtml = "";
-            if (items && items.length) {
-              itemsHtml = items
-                .slice(0, 3)
-                .map(function (it) {
-                  var iname =
-                    it.ProductName ||
-                    it.productName ||
-                    it.Name ||
-                    it.name ||
-                    "Sản phẩm";
-                  var iimg =
-                    it.ImageUrl || it.imageUrl || it.Image || it.image || ph;
-                  var iprice =
-                    it.UnitPrice || it.unitPrice || it.Price || it.price || 0;
-                  var iqty = it.Quantity || it.quantity || 1;
-                  return (
-                    '<div class="order-item-row">' +
-                    '<img class="order-item-img" src="' +
-                    iimg +
-                    '" onerror="this.src=\'' +
-                    ph +
-                    "'\" />" +
-                    '<div class="order-item-name">' +
-                    iname +
-                    ' <span style="color:var(--gray);font-weight:400">×' +
-                    iqty +
-                    "</span></div>" +
-                    '<div class="order-item-price">' +
-                    fmtMoney(iprice * iqty) +
-                    "</div>" +
-                    "</div>"
-                  );
-                })
-                .join("");
-              if (items.length > 3) {
-                itemsHtml +=
-                  '<div style="font-size:12px;color:var(--gray);padding:4px 0">... và ' +
-                  (items.length - 3) +
-                  " sản phẩm khác</div>";
-              }
-            } else {
-              itemsHtml =
-                '<div style="font-size:13px;color:var(--gray);padding:6px 0">Chi tiết đơn hàng</div>';
-            }
-
-            var canCancel = status.toUpperCase() === "PENDING";
-            var cancelBtn = canCancel
-              ? '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'">' +
-                '<i class="bi bi-x-circle"></i> Hủy Đơn</button>'
-              : '';
-            return (
-              '<div class="order-card">' +
-              '<div class="order-header">' +
-              '<div><div class="order-id">#' + oid + "</div>" +
-              '<div class="order-date">' + fmtDate(date) + "</div></div>" +
-              '<div style="display:flex;align-items:center;gap:8px">' +
-              getStatusBadge(status) + cancelBtn +
-              '</div>' +
-              "</div>" +
-              '<div class="order-body">' + itemsHtml + "</div>" +
-              '<div class="order-footer">' +
-              '<div style="font-size:12px;color:var(--gray);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📍 ' + addr + "</div>" +
-              '<div class="order-total">Tổng: <span>' + fmtMoney(total) + "</span></div>" +
-              "</div></div>"
-            );
-          })
-          .join("");
+        var ph = 'https://placehold.co/44x44/f5f0ea/888?text=IMG';
+        var waitingOids = [];
+        wrap.innerHTML = list.map(function(o) {
+          var oid      = o.Id || o.id || o.orderId || '—';
+          var status   = (o.Status || o.status || 'PENDING').toString().toUpperCase();
+          var date     = o.OrderDate || o.orderDate || o.CreatedAt || o.createdAt;
+          var total    = o.TotalAmount || o.totalAmount || 0;
+          var addr     = o.ShippingAddress || o.shippingAddress || '—';
+          var items    = o.Items || o.items || o.OrderDetails || o.orderDetails || [];
+          var payMethod = (o.PaymentMethod || o.paymentMethod || '').toUpperCase();
+          var expireAt = o.PaymentExpireAt || o.paymentExpireAt || o.PaymentExpiry || o.paymentExpiry || '';
+          var itemsHtml = '';
+          if (items && items.length) {
+            itemsHtml = items.slice(0, 3).map(function(it) {
+              var iname = it.ProductName || it.productName || it.Name || it.name || 'Sản phẩm';
+              var iimg  = it.ImageUrl || it.imageUrl || it.Image || it.image || ph;
+              var iprice = it.UnitPrice || it.unitPrice || it.Price || it.price || 0;
+              var iqty  = it.Quantity || it.quantity || 1;
+              return '<div class="order-item-row">' +
+                '<img class="order-item-img" src="' + iimg + '" onerror="this.src=\'' + ph + '\'" />' +
+                '<div class="order-item-name">' + iname + ' <span style="color:var(--gray);font-weight:400">×' + iqty + '</span></div>' +
+                '<div class="order-item-price">' + fmtMoney(iprice * iqty) + '</div></div>';
+            }).join('');
+            if (items.length > 3) itemsHtml += '<div style="font-size:12px;color:var(--gray);padding:4px 0">... và ' + (items.length - 3) + ' sản phẩm khác</div>';
+          } else {
+            itemsHtml = '<div style="font-size:13px;color:var(--gray);padding:6px 0">Chi tiết đơn hàng</div>';
+          }
+          var finalAmount = o.finalAmount || o.FinalAmount || total;
+          var actionBtns = '';
+          if (status === 'WAITING_PAYMENT') {
+            if (expireAt) waitingOids.push({ oid: oid, expireAt: expireAt });
+            var wpUrl = 'waiting-payment.html?orderId=' + oid + '&method=' + (payMethod || 'BANK') + '&amount=' + total + (expireAt ? '&expireAt=' + encodeURIComponent(expireAt) : '');
+            actionBtns = '<a id="paybtn-' + oid + '" class="pay-now-btn" href="' + wpUrl + '"><i class="bi bi-credit-card"></i> Thanh Toán Ngay</a>';
+          } else if (status === 'PENDING') {
+            actionBtns = '<button onclick="cancelOrder(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ef4444;background:#fff;color:#ef4444;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background=\'#ef4444\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'#ef4444\'"><i class="bi bi-x-circle"></i> Hủy Đơn</button>';
+          } else if (status === 'SHIPPING') {
+            actionBtns = ''; // per-shop confirm buttons are inside the detail modal
+          }
+          var cdBadge = (status === 'WAITING_PAYMENT' && expireAt) ? ' <span class="order-countdown" id="cd-' + oid + '">...</span>' : '';
+          var detailBtn = '<button onclick="viewOrderDetail(' + oid + ')" style="font-size:11px;padding:5px 12px;border:1px solid #ccc;background:#fff;color:#555;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.borderColor=\'#111\';this.style.color=\'#111\'" onmouseout="this.style.borderColor=\'#ccc\';this.style.color=\'#555\'"><i class="bi bi-file-text"></i> Chi Tiết</button>';
+          return '<div class="order-card">' +
+            '<div class="order-header">' +
+            '<div><div class="order-id">#' + oid + '</div><div class="order-date">' + fmtDate(date) + '</div></div>' +
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + getStatusBadge(status) + cdBadge + actionBtns + detailBtn + '</div>' +
+            '</div>' +
+            '<div class="order-body">' + itemsHtml + '</div>' +
+            '<div class="order-footer">' +
+            '<div style="font-size:12px;color:var(--gray);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📍 ' + addr + '</div>' +
+            '<div class="order-total">Thanh toán: <span>' + fmtMoney(finalAmount) + '</span></div>' +
+            '</div></div>';
+        }).join('');
+        waitingOids.forEach(function(w) { _startCountdown(w.oid, w.expireAt); });
       }
 
-      /* ══════════════════════════════
-         HỦY ĐƠN HÀNG
-      ══════════════════════════════ */
       function cancelOrder(orderId) {
-        if (!confirm("Bạn có chắc muốn hủy đơn hàng #" + orderId + "?")) return;
-        if (typeof Order === "undefined" || !Order.cancel) {
-          toast("Không thể kết nối API", "err"); return;
+        if (!confirm('Bạn có chắc muốn hủy đơn hàng #' + orderId + '?')) return;
+        if (typeof Order === 'undefined' || !Order.cancel) { toast('Không thể kết nối API', 'err'); return; }
+        Order.cancel(orderId).then(function() {
+          toast('Đã hủy đơn hàng #' + orderId);
+          allOrders = allOrders.map(function(o) {
+            if ((o.Id || o.id) == orderId) { o.Status = o.status = 'CANCELLED'; }
+            return o;
+          });
+          renderOrders(currentFilter);
+        }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể hủy'), 'err'); });
+      }
+
+      function viewOrderDetail(orderId) {
+        var modal = document.getElementById('orderDetailModal');
+        var body  = document.getElementById('odmBody');
+        var footer = document.getElementById('odmFooter');
+        document.getElementById('odm-code').textContent = 'Đang tải...';
+        body.innerHTML = '<div style="text-align:center;padding:32px;color:#888"><i class="bi bi-hourglass-split" style="font-size:24px"></i><p>Đang tải...</p></div>';
+        footer.innerHTML = '';
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (typeof Order === 'undefined' || !Order.getDetail) {
+          body.innerHTML = '<div style="color:#ef4444;padding:24px">Không thể kết nối API</div>';
+          return;
         }
-        Order.cancel(orderId)
-          .then(function() {
-            toast("Đã hủy đơn hàng #" + orderId);
-            // Update status locally
+        Order.getDetail(orderId).then(function(o) {
+          var code = o.orderCode || ('#' + o.orderId);
+          document.getElementById('odm-code').textContent = code;
+
+          var statusLabels = {
+            PENDING: '⏳ Chờ Xử Lý', CONFIRMED: '✅ Đã Xác Nhận',
+            SHIPPING: '🚚 Đang Giao',  COMPLETED: '🎉 Hoàn Thành',
+            DELIVERED: '📦 Đã Nhận Hàng', CANCELLED: '❌ Đã Hủy',
+          };
+          var statusColors = {
+            PENDING: '#f59e0b', CONFIRMED: '#3b82f6',
+            SHIPPING: '#8b5cf6', COMPLETED: '#10b981',
+            DELIVERED: '#10b981', CANCELLED: '#ef4444',
+          };
+          var payMap = { COD: 'Thanh toán khi nhận', BANK: 'Chuyển khoản', MOMO: 'MoMo', VNPAY: 'VNPay', ZALOPAY: 'ZaloPay' };
+          var status = (o.status || '').toUpperCase();
+          var ph = 'https://placehold.co/48x48/f5f0ea/888?text=IMG';
+          var statusColor = statusColors[status] || '#888';
+
+          var subOrders = o.subOrders || [];
+          var shopSectionsHtml = '';
+          var subStatusLabel = {
+            PENDING: '⏳ Chờ xác nhận', CONFIRMED: '✅ Đã xác nhận',
+            SHIPPING: '🚚 Đang giao',   DELIVERED: '📦 Đã nhận hàng',
+            COMPLETED: '🎉 Hoàn thành', CANCELLED: '❌ Đã hủy',
+          };
+          if (subOrders.length > 0) {
+            var allShopsDelivered = subOrders.every(function(so) { return (so.status||'').toUpperCase() === 'DELIVERED'; });
+            var allDeliveredBanner = allShopsDelivered
+              ? '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:14px;text-align:center;font-size:13px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng! Hãy đánh giá để giúp người mua khác nhé!</div>'
+              : '';
+            shopSectionsHtml = allDeliveredBanner + subOrders.map(function(so) {
+              var soStatus = (so.status || '').toUpperCase();
+              var soLabel  = subStatusLabel[soStatus] || soStatus;
+              var soItemsHtml = (so.items || []).map(function(i) {
+                var pid = i.productId || i.ProductId || '';
+                var reviewBtn = (soStatus === 'DELIVERED' && pid)
+                  ? '<div style="padding:5px 0 3px 0"><a href="product.html?id=' + pid + '#reviews" ' +
+                    'style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px" ' +
+                    'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">⭐ Đánh Giá Sản Phẩm</a></div>'
+                  : '';
+                return '<div style="border-bottom:1px solid #f5f4f2">' +
+                  '<div style="display:flex;align-items:center;gap:12px;padding:10px 0">' +
+                    '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
+                    '<div style="flex:1;min-width:0">' +
+                      '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>' +
+                      '<div style="font-size:12px;color:#888;margin-top:2px">×' + (i.qty || 1) + ' · ' + fmtMoney(i.unitPrice) + '</div>' +
+                    '</div>' +
+                    '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
+                  '</div>' +
+                  reviewBtn +
+                  '</div>';
+              }).join('');
+              var confirmBtn = soStatus === 'SHIPPING'
+                ? '<button id="sub-btn-' + so.subOrderId + '" onclick="confirmShopReceived(' + o.orderId + ',' + so.subOrderId + ')" ' +
+                  'style="background:#16a34a;color:#fff;border:none;padding:7px 16px;font-size:12px;cursor:pointer;border-radius:4px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px" ' +
+                  'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'"><i class="bi bi-check2-circle"></i> Đã Nhận Hàng</button>'
+                : soStatus === 'DELIVERED'
+                  ? '<button disabled style="background:#e2f4ea;color:#15803d;border:1px solid #86efac;padding:7px 16px;font-size:12px;border-radius:4px;cursor:default">✓ Đã Nhận</button>'
+                  : '';
+              return '<div style="margin-bottom:14px;border:1px solid #ede8e2;border-radius:6px;overflow:hidden">' +
+                '<div style="background:#f9f6f3;padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center">' +
+                  '<span>🏪 ' + (so.shopName || 'Shop') + '</span>' +
+                  '<span style="font-weight:400;color:#555">' + soLabel + '</span>' +
+                '</div>' +
+                '<div style="padding:0 14px">' + soItemsHtml + '</div>' +
+                '<div style="padding:8px 14px;background:#fafaf8;border-top:1px solid #ede8e2;font-size:12px">' +
+                  '<div style="display:flex;justify-content:space-between;color:#666;margin-bottom:2px"><span>Tạm tính shop</span><span>' + fmtMoney(so.totalAmount) + '</span></div>' +
+                  (so.shopVoucherDiscount > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--pink,#f759ab);margin-bottom:2px"><span>Voucher shop</span><span>−' + fmtMoney(so.shopVoucherDiscount) + '</span></div>' : '') +
+                  '<div style="display:flex;justify-content:space-between;color:#666"><span>Phí vận chuyển</span><span>+' + fmtMoney(so.shippingFee) + '</span></div>' +
+                  (confirmBtn ? '<div style="text-align:right;margin-top:10px">' + confirmBtn + '</div>' : '') +
+                '</div>' +
+              '</div>';
+            }).join('');
+          } else {
+            shopSectionsHtml = (o.items || []).map(function(i) {
+              return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
+                '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />' +
+                '<div style="flex:1;min-width:0">' +
+                  '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>' +
+                  '<div style="font-size:12px;color:#888;margin-top:2px">×' + (i.qty || i.quantity || 1) + ' · ' + fmtMoney(i.unitPrice) + '</div>' +
+                '</div>' +
+                '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
+              '</div>';
+            }).join('');
+          }
+          var sysDisc  = o.systemVoucherDiscount || 0;
+          var shopDisc = o.shopVoucherDiscount   || 0;
+          var shipDisc = o.freeshipDiscount      || 0;
+          var summaryHtml =
+            '<div style="border-top:2px solid #ede8e2;padding-top:12px;margin-top:16px;font-size:13px">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#666">Tạm tính</span><span>' + fmtMoney(o.totalAmount) + '</span></div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#666">Phí vận chuyển</span><span>+' + fmtMoney(o.shippingFee) + '</span></div>' +
+              (shopDisc > 0 ? '<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:var(--pink,#f759ab)"><span>Voucher shop</span><span>−' + fmtMoney(shopDisc) + '</span></div>' : '') +
+              (sysDisc  > 0 ? '<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:var(--pink,#f759ab)"><span>Voucher hệ thống</span><span>−' + fmtMoney(sysDisc) + '</span></div>' : '') +
+              (shipDisc > 0 ? '<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:var(--pink,#f759ab)"><span>Voucher freeship</span><span>−' + fmtMoney(shipDisc) + '</span></div>' : '') +
+              '<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:var(--pink,#f759ab);margin-top:8px;padding-top:8px;border-top:1px solid #ede8e2"><span>Thanh toán</span><span>' + fmtMoney(o.finalAmount) + '</span></div>' +
+            '</div>';
+
+          var timelineHtml = '';
+          if (o.statusHistory && o.statusHistory.length) {
+            timelineHtml = '<div style="margin-top:20px">' +
+              '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Lịch Sử</div>' +
+              o.statusHistory.map(function(h) {
+                return '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:12px">' +
+                  '<span style="color:var(--pink,#f759ab);flex-shrink:0">●</span>' +
+                  '<div><b>' + (statusLabels[h.status] || h.status) + '</b>' +
+                  (h.note ? ' — ' + h.note : '') +
+                  '<div style="color:#aaa">' + fmtDate(h.changedAt) + '</div></div></div>';
+              }).join('') +
+              '</div>';
+          }
+
+          var shippingBanner = (status === 'SHIPPING')
+            ? '<div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:16px">' +
+              '<i class="bi bi-truck" style="font-size:18px;color:#16a34a;flex-shrink:0"></i>' +
+              '<div style="flex:1">' +
+              '<div style="font-size:13px;font-weight:600;color:#15803d">Đơn hàng đang trên đường giao đến bạn</div>' +
+              '<div style="font-size:12px;color:#166534;margin-top:2px">Khi nhận được hàng từ từng shop, hãy nhấn <b>"Đã Nhận Hàng"</b> trong ô shop tương ứng bên dưới.</div>' +
+              '</div></div>'
+            : '';
+
+          body.innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">' +
+            '<span style="display:inline-flex;align-items:center;gap:6px;background:' + statusColor + '1a;color:' + statusColor + ';border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;border:1px solid ' + statusColor + '40">' + (statusLabels[status] || status) + '</span>' +
+            '<span style="font-size:11px;color:#aaa">Ngày đặt: ' + fmtDate(o.createdAt || o.orderDate) + '</span>' +
+            '</div>' +
+            shippingBanner +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' +
+              '<div>' +
+                '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Giao Hàng</div>' +
+                '<div style="font-size:13px;line-height:1.8">' +
+                  '<div>👤 ' + (o.receiverName || '—') + (o.receiverPhone ? ' · ' + o.receiverPhone : '') + '</div>' +
+                  '<div>📍 ' + (o.shippingAddress || '—') + '</div>' +
+                  (o.trackingCode ? '<div>🚚 Mã VĐ: <b>' + o.trackingCode + '</b></div>' : '') +
+                  (o.cancelReason ? '<div style="color:#ef4444">❌ ' + o.cancelReason + '</div>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px">Thanh Toán</div>' +
+                '<div style="font-size:13px;line-height:1.8">' +
+                  '<div>' + (payMap[o.paymentMethod] || o.paymentMethod || '—') + '</div>' +
+                  '<div style="color:#888;font-size:12px">' + (o.paymentStatus || '') + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:10px">Sản Phẩm</div>' +
+            shopSectionsHtml +
+            summaryHtml +
+            timelineHtml;
+
+          footer.innerHTML = '<button onclick="hideOrderDetailModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">Đóng</button>';
+        }).catch(function(e) {
+          body.innerHTML = '<div style="color:#ef4444;padding:24px">Lỗi: ' + (e.message || 'Không thể tải chi tiết') + '</div>';
+        });
+      }
+
+      function hideOrderDetailModal() {
+        document.getElementById('orderDetailModal').style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      function confirmReceived(orderId) {
+        if (!confirm('Xác nhận đã nhận hàng cho đơn #' + orderId + '?')) return;
+        if (typeof Order === 'undefined' || !Order.confirmReceived) { toast('Không thể kết nối API', 'err'); return; }
+        Order.confirmReceived(orderId).then(function() {
+          toast('Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm.');
+          hideOrderDetailModal();
+          allOrders = allOrders.map(function(o) {
+            if ((o.orderId || o.Id || o.id) == orderId) { o.status = o.Status = 'DELIVERED'; }
+            return o;
+          });
+          renderOrders(currentFilter);
+        }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err'); });
+      }
+
+      function confirmShopReceived(orderId, subOrderId) {
+        var btn = document.getElementById('sub-btn-' + subOrderId);
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang xử lý...'; }
+        if (typeof Order === 'undefined' || !Order.confirmReceived) { toast('Không thể kết nối API', 'err'); return; }
+        Order.confirmReceived(orderId, subOrderId).then(function(res) {
+          toast(res.message || 'Xác nhận thành công!');
+          if (res.allDelivered) {
             allOrders = allOrders.map(function(o) {
-              if ((o.Id || o.id) == orderId) {
-                o.Status = o.status = "CANCELLED";
-              }
+              if ((o.orderId || o.Id || o.id) == orderId) { o.status = o.Status = 'DELIVERED'; }
               return o;
             });
             renderOrders(currentFilter);
-          })
-          .catch(function(e) { toast("Lỗi: " + (e && e.message || "Không thể hủy"), "err"); });
+          }
+          viewOrderDetail(orderId);
+        }).catch(function(e) {
+          toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err');
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng'; }
+        });
       }
 
       /* ══════════════════════════════
          YÊU THÍCH
       ══════════════════════════════ */
       function renderWishlistPage() {
-        var wrap = document.getElementById("wishlistPageWrap");
+        var wrap = document.getElementById('wishlistPageWrap');
         if (!wrap) return;
-
-        // Try API first, fall back to localStorage
-        var WISH_KEY = "glowhub_wishlist";
+        var WISH_KEY = 'glowhub_wishlist';
         var localItems = [];
-        try { localItems = JSON.parse(localStorage.getItem(WISH_KEY) || "[]"); } catch(_) {}
-
-        var fetchPromise = (typeof Wishlist !== "undefined" && Wishlist.getAll)
+        try { localItems = JSON.parse(localStorage.getItem(WISH_KEY) || '[]'); } catch(_) {}
+        var fetchPromise = (typeof Wishlist !== 'undefined' && Wishlist.getAll)
           ? Wishlist.getAll().then(function(data) {
               return (data.items || data || []).map(function(w) {
-                return {
-                  id:    w.productId || w.ProductId || w.id,
-                  name:  w.productName || w.name || "Sản phẩm",
-                  price: w.price || 0,
-                  image: w.imageUrl || w.image || ""
-                };
+                return { id: w.productId || w.ProductId || w.id, name: w.productName || w.name || 'Sản phẩm', price: w.price || 0, image: w.imageUrl || w.image || '' };
               });
             }).catch(function() { return localItems; })
           : Promise.resolve(localItems);
-
         fetchPromise.then(function(items) {
-          var countBadge = document.getElementById("wishCountBadge");
-          if (countBadge) countBadge.textContent = items.length + " sản phẩm";
-
+          var cb = document.getElementById('wishCountBadge');
+          if (cb) cb.textContent = items.length + ' sản phẩm';
           if (!items.length) {
             wrap.innerHTML = '<div class="empty-state"><i class="bi bi-heart"></i><p>Chưa có sản phẩm yêu thích</p><a href="shop.html" class="gh-btn-primary" style="text-decoration:none;display:inline-flex;margin-top:12px">Khám Phá Ngay</a></div>';
             return;
           }
-
-          var ph = "https://placehold.co/72x72/f5f0ea/888?text=IMG";
+          var ph = 'https://placehold.co/72x72/f5f0ea/888?text=IMG';
           wrap.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' +
             items.map(function(p) {
               var img = p.image || ph;
               return '<div style="display:flex;gap:12px;border:1px solid var(--border);padding:12px;background:#fafaf8">' +
-                '<a href="product.html?id=' + p.id + '" style="flex-shrink:0">' +
-                '<img src="' + img + '" style="width:72px;height:72px;object-fit:cover" onerror="this.src=\'' + ph + '\'"/></a>' +
+                '<a href="product.html?id=' + p.id + '" style="flex-shrink:0"><img src="' + img + '" style="width:72px;height:72px;object-fit:cover" onerror="this.src=\'' + ph + '\'"/></a>' +
                 '<div style="flex:1;min-width:0">' +
-                '<a href="product.html?id=' + p.id + '" style="font-size:13px;font-weight:500;color:#111;text-decoration:none;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + (p.name || "Sản phẩm") + '</a>' +
+                '<a href="product.html?id=' + p.id + '" style="font-size:13px;font-weight:500;color:#111;text-decoration:none;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + (p.name || 'Sản phẩm') + '</a>' +
                 '<div style="color:var(--pink);font-size:13px;margin:6px 0">' + fmtMoney(p.price) + '</div>' +
                 '<div style="display:flex;gap:8px">' +
                 '<button onclick="addWishToCart(' + p.id + ',' + JSON.stringify(p.name || '') + ',' + (p.price || 0) + ',' + JSON.stringify(img) + ')" style="font-size:10px;padding:5px 12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;letter-spacing:1px">Thêm Giỏ</button>' +
                 '<button onclick="removeWishItem(' + p.id + ')" style="font-size:10px;padding:5px 10px;border:1px solid var(--border);background:#fff;color:var(--gray);cursor:pointer">✕</button>' +
                 '</div></div></div>';
-            }).join("") + '</div>';
+            }).join('') + '</div>';
         });
       }
-
       function addWishToCart(id, name, price, img) {
-        if (typeof Cart !== "undefined") {
-          Cart.add({id:id, name:name, price:price, image:img});
-          toast("Đã thêm vào giỏ hàng!");
-        }
+        if (typeof Cart !== 'undefined') { Cart.add({ id: id, name: name, price: price, image: img }); toast('Đã thêm vào giỏ hàng!'); }
       }
-
       function removeWishItem(id) {
-        // Remove from API if available
-        if (typeof Wishlist !== "undefined" && Wishlist.remove) {
-          Wishlist.remove(id).catch(function(){});
-        }
-        // Remove from localStorage
-        var WISH_KEY = "glowhub_wishlist";
+        if (typeof Wishlist !== 'undefined' && Wishlist.remove) Wishlist.remove(id).catch(function(){});
+        var WISH_KEY = 'glowhub_wishlist';
         try {
-          var items = JSON.parse(localStorage.getItem(WISH_KEY) || "[]");
-          items = items.filter(function(p) { return p.id != id; });
-          localStorage.setItem(WISH_KEY, JSON.stringify(items));
+          var items = JSON.parse(localStorage.getItem(WISH_KEY) || '[]');
+          localStorage.setItem(WISH_KEY, JSON.stringify(items.filter(function(p) { return p.id != id; })));
         } catch(_) {}
         renderWishlistPage();
-        toast("Đã xóa khỏi yêu thích");
+        toast('Đã xóa khỏi yêu thích');
       }
 
       /* ══════════════════════════════
-         GIỎ HÀNG
+         VÍ
       ══════════════════════════════ */
-      function renderCart() {
-        var items = typeof Cart !== "undefined" ? Cart.getItems() : [];
-        var wrap = document.getElementById("cartPageWrap");
-        var footer = document.getElementById("cartPageFooter");
+      var walletTxPage = 1, walletTxType = '';
+      function loadWallet() {
+        if (typeof CustomerWallet === 'undefined') return;
+        CustomerWallet.get().then(function(r) {
+          document.getElementById('wBalanceVal').textContent  = fmtMoney(r.balance);
+          document.getElementById('wReceivedVal').textContent = fmtMoney(r.totalReceived);
+          document.getElementById('wSpentVal').textContent    = fmtMoney(r.totalSpent);
+        }).catch(function() { document.getElementById('wBalanceVal').textContent = 'Lỗi tải'; });
+        loadWalletTx(1, walletTxType);
+      }
+      function loadWalletTx(page, type) {
+        walletTxPage = page || 1;
+        walletTxType = type !== undefined ? type : walletTxType;
+        var list = document.getElementById('walletTxList');
+        list.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>Đang tải...</p></div>';
+        CustomerWallet.getTransactions({ type: walletTxType, page: walletTxPage, limit: 15 }).then(function(r) {
+          if (!r.items || r.items.length === 0) {
+            list.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>Chưa có giao dịch nào</p></div>';
+            document.getElementById('walletTxPager').innerHTML = ''; return;
+          }
+          var tLabel = { TOPUP: 'Nạp tiền', SPEND: 'Chi tiêu', REFUND: 'Hoàn tiền', ADJUSTMENT: 'Điều chỉnh' };
+          var tColor = { TOPUP: '#2e7d32', SPEND: '#c62828', REFUND: '#1565c0', ADJUSTMENT: '#6d4c41' };
+          var html = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="border-bottom:2px solid var(--border)">'
+            + '<th style="padding:8px;text-align:left">Loại</th>'
+            + '<th style="padding:8px;text-align:right">Số tiền</th>'
+            + '<th style="padding:8px;text-align:right">Số dư sau</th>'
+            + '<th style="padding:8px">Ghi chú</th>'
+            + '<th style="padding:8px">Thời gian</th></tr></thead><tbody>';
+          r.items.forEach(function(t) {
+            var sign = t.type === 'SPEND' ? '−' : '+';
+            var color = tColor[t.type] || '#333';
+            html += '<tr style="border-bottom:1px solid var(--border)">'
+              + '<td style="padding:8px"><span style="background:' + color + '1a;color:' + color + ';border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600">' + (tLabel[t.type] || t.type) + '</span></td>'
+              + '<td style="padding:8px;text-align:right;color:' + color + ';font-weight:600">' + sign + fmtMoney(Math.abs(t.amount)) + '</td>'
+              + '<td style="padding:8px;text-align:right">' + fmtMoney(t.balanceAfter) + '</td>'
+              + '<td style="padding:8px;color:var(--gray)">' + (t.note || '—') + '</td>'
+              + '<td style="padding:8px;color:var(--gray);white-space:nowrap">' + fmtDate(t.createdAt) + '</td></tr>';
+          });
+          html += '</tbody></table>';
+          list.innerHTML = html;
+          var pager = document.getElementById('walletTxPager');
+          pager.innerHTML = '';
+          if (r.totalPages > 1) {
+            for (var p = 1; p <= r.totalPages; p++) {
+              (function(pg) {
+                var btn = document.createElement('button');
+                btn.className = 'gh-btn-outline'; btn.textContent = pg;
+                if (pg === walletTxPage) btn.style.background = 'var(--pink)';
+                btn.onclick = function() { loadWalletTx(pg, walletTxType); };
+                pager.appendChild(btn);
+              })(p);
+            }
+          }
+        }).catch(function() {
+          list.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Lỗi tải giao dịch</p></div>';
+        });
+      }
+      function filterWalletTx(type, btn) {
+        document.querySelectorAll('.wtype-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        loadWalletTx(1, type);
+      }
+      function showTopUpModal() {
+        document.getElementById('topUpModal').style.display = 'flex';
+        document.getElementById('topUpAmount').value = '';
+        document.getElementById('topUpNote').value = '';
+      }
+      function hideTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; }
+      function doTopUp() {
+        var amount = parseFloat(document.getElementById('topUpAmount').value);
+        var note = document.getElementById('topUpNote').value.trim();
+        if (!amount || amount < 10000) { toast('Số tiền tối thiểu 10.000₫', 'err'); return; }
+        if (amount > 50000000) { toast('Tối đa 50.000.000₫ mỗi lần nạp', 'err'); return; }
+        CustomerWallet.topUp({ amount: amount, note: note || undefined }).then(function() {
+          hideTopUpModal();
+          toast('Nạp ' + fmtMoney(amount) + ' thành công!');
+          loadWallet();
+        }).catch(function(e) { toast((e && e.message) || 'Nạp tiền thất bại', 'err'); });
+      }
+      document.getElementById('topUpModal').addEventListener('click', function(e) { if (e.target === this) hideTopUpModal(); });
 
-        if (!items || !items.length) {
-          wrap.innerHTML =
-            '<div class="empty-state"><i class="bi bi-cart-x"></i><p>Giỏ hàng trống</p><a href="shop.html" class="gh-btn-primary" style="text-decoration:none;display:inline-flex;margin-top:12px">Mua Sắm Ngay</a></div>';
-          if (footer) footer.style.display = "none";
-          return;
+      /* ══════════════════════════════
+         ĐỊA CHỈ
+      ══════════════════════════════ */
+      var _profAddrCascadeReady = false, _profAddresses = [];
+      function loadProfAddresses() {
+        var listEl = document.getElementById('profAddrList');
+        listEl.innerHTML = '<div class="empty-state"><i class="bi bi-geo-alt"></i><p>Đang tải...</p></div>';
+        if (typeof Address === 'undefined' || typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-lock"></i><p>Vui lòng đăng nhập</p></div>'; return;
         }
-
-        var ph = "https://placehold.co/52x52/f5f0ea/888?text=IMG";
-        wrap.innerHTML = items
-          .map(function (item) {
-            var qty = item.qty || 1;
-            return (
-              '<div class="order-item-row" style="padding:10px 0">' +
-              '<img class="order-item-img" src="' +
-              (item.image || ph) +
-              '" onerror="this.src=\'' +
-              ph +
-              "'\"/>" +
-              '<div class="order-item-name">' +
-              (item.name || "Sản phẩm") +
-              "</div>" +
-              '<div style="display:flex;align-items:center;gap:8px;white-space:nowrap">' +
-              '<span style="font-size:12px;color:var(--gray)">×' +
-              qty +
-              "</span>" +
-              '<span class="order-item-price">' +
-              fmtMoney((item.price || 0) * qty) +
-              "</span>" +
-              '<button onclick="Cart.remove(' +
-              item.id +
-              ');renderCart()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0 4px" title="Xóa">×</button>' +
-              "</div>" +
-              "</div>"
-            );
-          })
-          .join("");
-
-        if (footer) {
-          footer.style.display = "";
-          var total = typeof Cart !== "undefined" ? Cart.totalPrice() : 0;
-          document.getElementById("cartPageTotal").textContent =
-            fmtMoney(total);
+        Address.getAll().then(function(list) {
+          _profAddresses = (list || []).map(function(a) {
+            return { id: a.Id || a.id, name: a.ReceiverName || a.receiverName || '', phone: a.Phone || a.phone || '', province: a.Province || a.province || '', district: a.District || a.district || '', ward: a.Ward || a.ward || '', detail: a.Detail || a.detail || '', isDefault: a.IsDefault || a.isDefault || false, fullAddress: a.FullAddress || a.fullAddress || '' };
+          });
+          renderProfAddrList();
+        }).catch(function() {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Lỗi tải địa chỉ</p></div>';
+        });
+      }
+      function renderProfAddrList() {
+        var listEl = document.getElementById('profAddrList');
+        if (!_profAddresses.length) {
+          listEl.innerHTML = '<div class="empty-state"><i class="bi bi-geo-alt"></i><p>Chưa có địa chỉ. Hãy thêm địa chỉ giao hàng.</p></div>'; return;
+        }
+        listEl.innerHTML = _profAddresses.map(function(a) {
+          var addrText = a.fullAddress || [a.detail, a.ward, a.district, a.province].filter(Boolean).join(', ');
+          return '<div style="padding:14px 16px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;position:relative">'
+            + (a.isDefault ? '<span style="position:absolute;top:12px;right:12px;background:var(--pink);color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600">Mặc Định</span>' : '')
+            + '<div style="font-size:14px;font-weight:600;margin-bottom:2px">' + a.name + ' — ' + a.phone + '</div>'
+            + '<div style="font-size:13px;color:var(--gray)">' + addrText + '</div>'
+            + '<div style="margin-top:10px;display:flex;gap:8px">'
+            + (!a.isDefault ? '<button class="gh-btn-outline" style="font-size:11px;padding:4px 10px" onclick="setProfAddrDefault(' + a.id + ')">Đặt mặc định</button>' : '')
+            + '<button class="gh-btn-outline" style="font-size:11px;padding:4px 10px;color:#ef4444;border-color:#ef4444" onclick="deleteProfAddr(' + a.id + ')">Xóa</button>'
+            + '</div></div>';
+        }).join('');
+      }
+      function toggleProfAddrForm(show) {
+        var form = document.getElementById('profAddrForm');
+        form.style.display = show ? 'block' : 'none';
+        if (show && !_profAddrCascadeReady && typeof VNProvinces !== 'undefined') {
+          _profAddrCascadeReady = true;
+          VNProvinces.setup({ prov: 'pafProv', dist: 'pafDist', ward: 'pafWard' });
         }
       }
+      function saveProfAddr() {
+        var name   = document.getElementById('pafName').value.trim();
+        var phone  = document.getElementById('pafPhone').value.trim();
+        var prov   = document.getElementById('pafProv');
+        var dist   = document.getElementById('pafDist');
+        var ward   = document.getElementById('pafWard');
+        var detail = document.getElementById('pafDetail').value.trim();
+        var isDef  = document.getElementById('pafDefault').checked;
+        if (!name || !phone || !prov.value || !dist.value || !detail) { toast('Vui lòng điền đầy đủ thông tin!', 'err'); return; }
+        var provName = prov.options[prov.selectedIndex].dataset.name || prov.options[prov.selectedIndex].textContent;
+        var distName = dist.options[dist.selectedIndex].dataset.name || dist.options[dist.selectedIndex].textContent;
+        var wardName = ward.selectedIndex > 0 ? (ward.options[ward.selectedIndex].dataset.name || ward.options[ward.selectedIndex].textContent) : '';
+        var btn = document.getElementById('pafSaveBtn');
+        btn.disabled = true; btn.textContent = 'Đang lưu...';
+        Address.create({ ReceiverName: name, Phone: phone, Province: provName, ProvinceCode: prov.value, District: distName, DistrictCode: dist.value, Ward: wardName, WardCode: ward.value || '', Detail: detail, IsDefault: isDef })
+          .then(function() {
+            toast('Đã lưu địa chỉ!');
+            toggleProfAddrForm(false);
+            ['pafName','pafPhone','pafDetail'].forEach(function(id) { document.getElementById(id).value = ''; });
+            document.getElementById('pafDefault').checked = false;
+            loadProfAddresses();
+          }).catch(function(e) { toast((e && e.message) || 'Lỗi lưu địa chỉ', 'err'); })
+          .finally(function() { btn.disabled = false; btn.innerHTML = '<i class="bi bi-floppy"></i> Lưu Địa Chỉ'; });
+      }
+      function deleteProfAddr(id) {
+        if (!confirm('Xóa địa chỉ này?')) return;
+        Address.delete(id).then(function() { toast('Đã xóa địa chỉ'); loadProfAddresses(); })
+          .catch(function(e) { toast((e && e.message) || 'Lỗi xóa', 'err'); });
+      }
+      function setProfAddrDefault(id) {
+        if (Address.setDefault) {
+          Address.setDefault(id).then(function() { toast('Đã đặt địa chỉ mặc định'); loadProfAddresses(); })
+            .catch(function(e) { toast(e.message || 'Lỗi', 'err'); });
+        } else { toast('Chức năng chưa hỗ trợ', 'err'); }
+      }
+
+      /* ══════════════════════════════
+         VOUCHER
+      ══════════════════════════════ */
+      function loadVouchers() {
+        var wrap = document.getElementById('voucherListWrap');
+        wrap.innerHTML = '<div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Đang tải voucher...</p></div>';
+        var token = localStorage.getItem('token') || '';
+        fetch(API_URL + '/api/vouchers/my', { headers: { 'Authorization': 'Bearer ' + token } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var items = Array.isArray(data) ? data : (data.items || data.data || []);
+            if (!items.length) {
+              wrap.innerHTML = '<div class="empty-state"><i class="bi bi-ticket"></i><p>Chưa có voucher nào</p><a href="vouchers.html" class="gh-btn-primary" style="text-decoration:none;display:inline-flex;margin-top:12px">Xem Ưu Đãi</a></div>';
+              return;
+            }
+            wrap.innerHTML = '<div class="voucher-grid">' + items.map(renderVoucherCard).join('') + '</div>';
+          })
+          .catch(function() {
+            wrap.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Lỗi tải voucher</p></div>';
+          });
+      }
+
+      function renderVoucherCard(v) {
+        var code       = v.code || v.Code || '';
+        var name       = v.name || v.Name || v.description || v.Description || 'Voucher';
+        var discPct    = v.discountPercent || v.DiscountPercent || 0;
+        var discAmt    = v.discountAmount  || v.DiscountAmount  || 0;
+        var isPercent  = discPct > 0;
+        var discVal    = isPercent ? discPct + '%' : fmtMoney(discAmt);
+        var minOrder   = v.minimumOrderAmount || v.MinimumOrderAmount || 0;
+        var maxDisc    = v.maxDiscountAmount  || v.MaxDiscountAmount  || 0;
+        var expiry     = v.expiryDate || v.ExpiryDate || v.validUntil || v.ValidUntil || '';
+        var isExpired  = expiry && new Date(expiry) < new Date();
+        var expText    = isExpired ? '⚠️ Đã hết hạn' : (expiry ? 'HSD: ' + fmtDate(expiry) : 'Không thời hạn');
+
+        return '<div class="voucher-card' + (isExpired ? ' expired' : '') + '">' +
+          '<div class="voucher-main">' +
+          '<div class="voucher-discount-val">' + discVal + '</div>' +
+          '<div class="voucher-name">' + name + '</div>' +
+          (minOrder > 0 ? '<div class="voucher-condition">Đơn tối thiểu ' + fmtMoney(minOrder) + '</div>' : '') +
+          (maxDisc  > 0 ? '<div class="voucher-condition">Giảm tối đa ' + fmtMoney(maxDisc) + '</div>' : '') +
+          '<div class="voucher-expiry">' + expText + '</div>' +
+          '</div>' +
+          '<div class="voucher-footer">' +
+          '<span class="voucher-code">' + code + '</span>' +
+          '<button class="voucher-copy-btn" onclick="copyVoucherCode(\'' + code + '\')" ' + (isExpired ? 'disabled' : '') + '>' +
+          '<i class="bi bi-clipboard"></i> Sao Chép</button>' +
+          '</div></div>';
+      }
+
+      function copyVoucherCode(code) {
+        navigator.clipboard.writeText(code).then(function() {
+          toast('Đã sao chép mã ' + code);
+        }).catch(function() {
+          toast('Mã: ' + code, 'err');
+        });
+      }
+
+      /* ══════════════════════════════
+         INIT
+      ══════════════════════════════ */
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+          window.location.href = 'login.html'; return;
+        }
+        var u = Auth.getCurrentUser();
+        if (!u) { window.location.href = 'login.html'; return; }
+
+        populateProfile(u);
+        loadOrderStats();
+        showTabByHash();
+      });
     </script>
   </body>
 </html>
