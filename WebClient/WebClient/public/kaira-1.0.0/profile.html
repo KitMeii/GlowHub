@@ -1222,11 +1222,15 @@
         var WISH_KEY = 'gh_wishlist';
         var localItems = [];
         try { localItems = JSON.parse(localStorage.getItem(WISH_KEY) || '[]'); } catch(_) {}
+        console.log('[Wishlist] read from localStorage:', localStorage.getItem(WISH_KEY));
         var fetchPromise = (typeof Wishlist !== 'undefined' && Wishlist.getAll)
           ? Wishlist.getAll().then(function(data) {
-              return (data.items || data || []).map(function(w) {
+              var apiItems = (data.items || data || []).map(function(w) {
                 return { id: w.productId || w.ProductId || w.id, name: w.productName || w.name || 'Sản phẩm', price: w.price || 0, image: w.imageUrl || w.image || '' };
               });
+              // product.html chỉ lưu vào localStorage (không POST lên API),
+              // nên khi API trả rỗng thì ưu tiên localStorage
+              return apiItems.length > 0 ? apiItems : localItems;
             }).catch(function() { return localItems; })
           : Promise.resolve(localItems);
         fetchPromise.then(function(items) {

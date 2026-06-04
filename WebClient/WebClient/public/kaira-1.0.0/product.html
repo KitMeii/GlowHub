@@ -1084,6 +1084,7 @@
                   showToast("❤️ Đã thêm vào yêu thích", "ok");
                 }
                 localStorage.setItem("gh_wishlist", JSON.stringify(wl));
+                console.log('[Wishlist] saved:', localStorage.getItem('gh_wishlist'));
                 window.dispatchEvent(new Event("wishlist-updated"));
               }
             });
