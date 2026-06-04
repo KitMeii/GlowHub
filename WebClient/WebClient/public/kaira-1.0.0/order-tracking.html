@@ -466,10 +466,8 @@
       btnReceived.style.display = "none";
       btnCancel.style.display   = "none";
 
-      if (data.currentStatus === "SHIPPING") {
-        btnReceived.style.display = "";
-        actionBar.style.display = "";
-      } else if (data.currentStatus === "PENDING") {
+      // Global confirm button removed — per-shop confirm buttons are inside each shop card
+      if (data.currentStatus === "PENDING") {
         btnCancel.style.display = "";
         actionBar.style.display = "";
       } else {
@@ -571,18 +569,44 @@
       const subOrders = o.subOrders || [];
       let shopSectionsHtml = "";
 
+      const SUB_STATUS_LABEL = {
+        PENDING: "⏳ Chờ xác nhận", CONFIRMED: "✅ Đã xác nhận",
+        SHIPPING: "🚚 Đang giao",   DELIVERED: "📦 Đã nhận hàng",
+        COMPLETED: "🎉 Hoàn thành", CANCELLED: "❌ Đã hủy",
+      };
+
       if (subOrders.length > 0) {
-        shopSectionsHtml = subOrders.map(so =>
-          `<div class="ot-shop-card">
-            <div class="ot-shop-card-hd">🏪 ${so.shopName || "Shop"}</div>
+        const allDelivered = subOrders.every(so => (so.status || "").toUpperCase() === "DELIVERED");
+        const allDeliveredBanner = allDelivered
+          ? `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px 18px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600;color:#15803d">🎉 Bạn đã nhận đủ hàng từ tất cả shop!</div>`
+          : "";
+
+        shopSectionsHtml = allDeliveredBanner + subOrders.map(so => {
+          const soStatus = (so.status || "").toUpperCase();
+          const soLabel  = SUB_STATUS_LABEL[soStatus] || soStatus;
+          const confirmBtn = soStatus === "SHIPPING"
+            ? `<button data-sub="${so.subOrderId}" onclick="confirmShopReceived(${currentOrderId}, ${so.subOrderId}, this)"
+                style="background:#16a34a;color:#fff;border:none;padding:7px 16px;font-size:12px;cursor:pointer;border-radius:4px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px"
+                onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <i class="bi bi-check2-circle"></i> Đã Nhận Hàng
+              </button>`
+            : soStatus === "DELIVERED"
+              ? `<button disabled style="background:#e2f4ea;color:#15803d;border:1px solid #86efac;padding:7px 16px;font-size:12px;border-radius:4px;letter-spacing:.5px;cursor:default">✓ Đã Nhận</button>`
+              : "";
+          return `<div class="ot-shop-card">
+            <div class="ot-shop-card-hd" style="display:flex;justify-content:space-between;align-items:center">
+              <span>🏪 ${so.shopName || "Shop"}</span>
+              <span style="font-size:12px;color:#555">${soLabel}</span>
+            </div>
             <div class="ot-shop-card-body">${(so.items || []).map(itemRow).join("")}</div>
             <div class="ot-shop-card-ft">
               <div class="ot-shop-ft-row"><span>Tạm tính shop</span><span>${fmtMoney(so.totalAmount)}</span></div>
               ${so.shopVoucherDiscount > 0 ? `<div class="ot-shop-ft-row discount"><span>Voucher shop</span><span>−${fmtMoney(so.shopVoucherDiscount)}</span></div>` : ""}
               <div class="ot-shop-ft-row"><span>Phí vận chuyển</span><span>+${fmtMoney(so.shippingFee)}</span></div>
+              ${confirmBtn ? `<div style="text-align:right;margin-top:10px">${confirmBtn}</div>` : ""}
             </div>
-          </div>`
-        ).join("");
+          </div>`;
+        }).join("");
       } else {
         shopSectionsHtml = (o.items || []).map(itemRow).join("");
       }
@@ -620,6 +644,25 @@
         showToast(err?.message || "Có lỗi xảy ra", "error");
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng';
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Confirm Received — per-shop
+    // ─────────────────────────────────────────────────────────
+    async function confirmShopReceived(orderId, subOrderId, btn) {
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...'; }
+      try {
+        const res = await Order.confirmReceived(orderId, subOrderId);
+        showToast(res.message || "Xác nhận thành công!", "success");
+        if (res.allDelivered) {
+          setTimeout(() => loadTracking(orderId), 600);
+        } else {
+          Order.getDetail(orderId).then(detail => renderDetailItems(detail)).catch(() => {});
+        }
+      } catch (err) {
+        showToast(err?.message || "Có lỗi xảy ra", "error");
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng'; }
       }
     }
 

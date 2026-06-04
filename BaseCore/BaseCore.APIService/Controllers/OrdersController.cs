@@ -248,48 +248,87 @@ namespace BaseCore.APIService.Controllers
             }
         }
 
-        /// <summary>POST /api/orders/my/{orderId}/received — Xác nhận đã nhận hàng (Shipping → Delivered)</summary>
+        /// <summary>POST /api/orders/my/{orderId}/received — Xác nhận đã nhận hàng (per-shop hoặc toàn đơn)</summary>
         [HttpPost("my/{orderId:int}/received")]
-        public async Task<IActionResult> ConfirmReceived(int orderId)
+        public async Task<IActionResult> ConfirmReceived(int orderId, [FromBody] ConfirmReceivedDto? dto = null)
         {
             var userId = GetUserId();
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var order = await _db.Orders
+                .Include(o => o.SubOrders)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
 
             if (order == null)
                 return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
-            if (order.Status != OrderStatus.Shipping)
-                return BadRequest(new { message = "Chỉ xác nhận nhận hàng khi đơn đang giao" });
-
             await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
-                order.Status       = OrderStatus.Delivered;
-                order.PayoutStatus = PayoutStatusValue.WaitingRelease;
-                order.UpdatedAt    = DateTime.UtcNow;
+                if (dto?.SubOrderId.HasValue == true)
+                {
+                    // ── Per-shop confirm ───────────────────────────────────
+                    var sub = order.SubOrders.FirstOrDefault(s => s.Id == dto.SubOrderId.Value);
+                    if (sub == null) return NotFound(new { message = "Không tìm thấy SubOrder" });
+                    if (sub.Status != OrderStatus.Shipping)
+                        return BadRequest(new { message = "Shop này chưa ở trạng thái đang giao" });
 
-                _db.OrderStatusHistories.Add(new OrderStatusHistory {
-                    OrderId   = orderId,
-                    Status    = OrderStatus.Delivered,
-                    Note      = "Khách xác nhận đã nhận hàng",
-                    ChangedBy = userId,
-                    ChangedAt = DateTime.UtcNow
-                });
+                    sub.Status      = OrderStatus.Delivered;
+                    sub.PayoutStatus = PayoutStatusValue.WaitingRelease;
+                    sub.UpdatedAt   = DateTime.UtcNow;
 
-                // Sync all SubOrders so seller sees DELIVERED + WaitingRelease
-                await _db.SubOrders
-                    .Where(s => s.OrderId == orderId)
-                    .ExecuteUpdateAsync(s =>
-                        s.SetProperty(x => x.Status,      OrderStatus.Delivered)
-                         .SetProperty(x => x.PayoutStatus, PayoutStatusValue.WaitingRelease)
-                         .SetProperty(x => x.UpdatedAt,   DateTime.UtcNow));
+                    // Check if all SubOrders are now DELIVERED
+                    var allDelivered = order.SubOrders.All(s => s.Status == OrderStatus.Delivered);
+                    if (allDelivered)
+                    {
+                        order.Status       = OrderStatus.Delivered;
+                        order.PayoutStatus = PayoutStatusValue.WaitingRelease;
+                        order.UpdatedAt    = DateTime.UtcNow;
+                        _db.OrderStatusHistories.Add(new OrderStatusHistory {
+                            OrderId   = orderId,
+                            Status    = OrderStatus.Delivered,
+                            Note      = "Khách xác nhận đã nhận hàng từ tất cả shop",
+                            ChangedBy = userId,
+                            ChangedAt = DateTime.UtcNow
+                        });
+                    }
 
-                await _db.SaveChangesAsync();
-                await tx.CommitAsync();
-                return Ok(new { message = "Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm." });
+                    await _db.SaveChangesAsync();
+                    await tx.CommitAsync();
+                    return Ok(new {
+                        message      = allDelivered ? "Bạn đã nhận đủ hàng từ tất cả shop!" : "Xác nhận nhận hàng từ shop thành công!",
+                        allDelivered = allDelivered
+                    });
+                }
+                else
+                {
+                    // ── Legacy: confirm toàn đơn ──────────────────────────
+                    if (order.Status != OrderStatus.Shipping)
+                        return BadRequest(new { message = "Chỉ xác nhận nhận hàng khi đơn đang giao" });
+
+                    order.Status       = OrderStatus.Delivered;
+                    order.PayoutStatus = PayoutStatusValue.WaitingRelease;
+                    order.UpdatedAt    = DateTime.UtcNow;
+
+                    _db.OrderStatusHistories.Add(new OrderStatusHistory {
+                        OrderId   = orderId,
+                        Status    = OrderStatus.Delivered,
+                        Note      = "Khách xác nhận đã nhận hàng",
+                        ChangedBy = userId,
+                        ChangedAt = DateTime.UtcNow
+                    });
+
+                    await _db.SubOrders
+                        .Where(s => s.OrderId == orderId)
+                        .ExecuteUpdateAsync(s =>
+                            s.SetProperty(x => x.Status,       OrderStatus.Delivered)
+                             .SetProperty(x => x.PayoutStatus, PayoutStatusValue.WaitingRelease)
+                             .SetProperty(x => x.UpdatedAt,    DateTime.UtcNow));
+
+                    await _db.SaveChangesAsync();
+                    await tx.CommitAsync();
+                    return Ok(new { message = "Xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm.", allDelivered = true });
+                }
             }
             catch (Exception ex)
             {
@@ -1444,6 +1483,11 @@ namespace BaseCore.APIService.Controllers
         /// <summary>POST /api/orders/my/{orderId}/received — Khách xác nhận nhận hàng → tất cả SubOrders WAITING_RELEASE</summary>
         // (Override lại endpoint đã có ở trên để sync SubOrders)
 
+    }
+
+    public class ConfirmReceivedDto
+    {
+        public int? SubOrderId { get; set; }
     }
 
     public class CheckoutDto
