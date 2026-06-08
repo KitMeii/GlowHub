@@ -4,25 +4,29 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using BaseCore.Repository;
 using BaseCore.Repository.EFCore;
+using BaseCore.Services;
 using System.Text;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
-{
-    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
 
-builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
 // Add services to the container
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        // Fix 1: Tránh circular reference (Order→OrderDetails→Product→Category→...)
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+
+        // Fix 2: Giữ PascalCase → frontend đọc Id, OrderDetails, Status đúng
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+
+        // Fix 3: Không cần CaseInsensitive vì đã dùng PascalCase nhất quán
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+
+        // Fix 4: Bỏ qua null để response gọn hơn
+        options.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -60,11 +64,11 @@ builder.Services.AddSwaggerGen(c =>
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
 });
-
-//app.UseCors("AllowAll");
 
 //MySQL Configuration with EF Core
 //var connectionString = builder.Configuration.GetConnectionString("MySQL")
@@ -85,6 +89,25 @@ builder.Services.AddScoped<ICategoryRepositoryEF, CategoryRepositoryEF>();
 builder.Services.AddScoped<IOrderRepositoryEF, OrderRepositoryEF>();
 builder.Services.AddScoped<IOrderDetailRepositoryEF, OrderDetailRepositoryEF>();
 builder.Services.AddScoped<ICartRepositoryEF, CartRepositoryEF>();
+builder.Services.AddScoped<IShopRepositoryEF, ShopRepositoryEF>();
+builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddSingleton<ShippingCalculatorService>();
+builder.Services.AddScoped<VNPayService>();
+
+// Store uploads OUTSIDE the project directory so Live Server / dotnet watch
+// file-watchers never detect new files and never trigger a browser reload.
+var uploadsPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+    "GlowHub", "uploads");
+Directory.CreateDirectory(uploadsPath);
+builder.Services.AddSingleton(new UploadsConfig(uploadsPath));
+
+// wwwroot still used for any other static assets bundled with the project
+var wwwrootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+Directory.CreateDirectory(wwwrootPath);
+builder.Environment.WebRootPath = wwwrootPath;
 
 // JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "YourSecretKeyForAuthenticationShouldBeLongEnough");
@@ -108,33 +131,11 @@ builder.Services.AddAuthentication(x =>
 
 var app = builder.Build();
 
-// Auto initialize database — EnsureCreated nếu DB chưa có; sau đó patch
-// schema để bổ sung các cột mới (idempotent — IF COL_LENGTH IS NULL).
+// Auto migrate database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MySqlDbContext>();
     db.Database.EnsureCreated();
-
-    // Schema patch idempotent: đảm bảo Orders có đủ cột checkout mới
-    // (CustomerName/Email/Phone, ShippingFee, VoucherCode, DiscountAmount).
-    // PaymentMethod đã được thêm bởi migration cũ nên không patch lại.
-    // Dùng IF COL_LENGTH để không lỗi nếu cột đã add từ trước.
-    db.Database.ExecuteSqlRaw(@"
-        IF COL_LENGTH('Orders', 'CustomerName') IS NULL
-            ALTER TABLE Orders ADD CustomerName nvarchar(200) NULL;
-        IF COL_LENGTH('Orders', 'CustomerEmail') IS NULL
-            ALTER TABLE Orders ADD CustomerEmail nvarchar(200) NULL;
-        IF COL_LENGTH('Orders', 'CustomerPhone') IS NULL
-            ALTER TABLE Orders ADD CustomerPhone nvarchar(50) NULL;
-        IF COL_LENGTH('Orders', 'ShippingFee') IS NULL
-            ALTER TABLE Orders ADD ShippingFee decimal(18,2) NOT NULL DEFAULT 0;
-        IF COL_LENGTH('Orders', 'VoucherCode') IS NULL
-            ALTER TABLE Orders ADD VoucherCode nvarchar(50) NULL;
-        IF COL_LENGTH('Orders', 'DiscountAmount') IS NULL
-            ALTER TABLE Orders ADD DiscountAmount decimal(18,2) NOT NULL DEFAULT 0;
-        IF COL_LENGTH('Orders', 'PaymentMethod') IS NULL
-            ALTER TABLE Orders ADD PaymentMethod nvarchar(20) NOT NULL DEFAULT 'COD';
-    ");
 }
 
 // Configure the HTTP request pipeline
@@ -143,16 +144,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-// Đảm bảo thư mục wwwroot tồn tại trước khi serve static (controller tạo
-// wwwroot/images/products/ lazy khi có upload đầu tiên, nên có thể chưa có).
-var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-if (!Directory.Exists(webRoot)) Directory.CreateDirectory(webRoot);
 
-// Serve ảnh upload: /images/products/{file}.jpg → wwwroot/images/products/{file}.jpg
 app.UseStaticFiles();
-
-app.UseRouting();
-app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+// Serve user-uploaded images from the external AppData folder at /uploads
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath  = "/uploads"
+});
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -160,3 +160,5 @@ app.MapControllers();
 Console.WriteLine("BaseCore API Service running on port 5001");
 Console.WriteLine("Endpoints: /api/products, /api/categories, /api/orders");
 app.Run();
+
+public record UploadsConfig(string Path);

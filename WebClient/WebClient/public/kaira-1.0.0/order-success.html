@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt Hàng Thành Công — GlowHub</title>
+    <meta name="robots" content="noindex" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/order-success.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
+  </head>
+  <body>
+
+    <!-- CONFETTI BAR -->
+    <div class="confetti-bar"></div>
+
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
+
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
+          </div>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
+        </div>
+      </div>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
+
+    <!-- SUCCESS SECTION -->
+    <div class="success-wrap">
+      <div class="success-card">
+
+        <!-- Animated icon -->
+        <div class="success-icon-wrap">
+          <div class="success-ring"></div>
+          <div class="success-ring-2"></div>
+          <div class="success-icon">
+            <i class="bi bi-check2-circle"></i>
+          </div>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="success-headline">Đặt Hàng Thành Công!</h1>
+        <p class="success-sub">
+          Cảm ơn bạn đã tin tưởng GlowHub.<br />
+          Đơn hàng của bạn đang được xử lý và sẽ sớm được giao tới bạn.
+        </p>
+
+        <!-- Order code -->
+        <div class="order-code-box">
+          <div style="text-align:left">
+            <div class="oc-label">Mã đơn hàng</div>
+            <div class="oc-value" id="order-code-display">—</div>
+          </div>
+          <button class="oc-copy" onclick="copyOrderCode()" id="copy-btn">
+            <i class="bi bi-copy me-1"></i> Sao chép
+          </button>
+        </div>
+
+        <!-- Order meta -->
+        <div class="order-meta" id="order-meta" style="display:none">
+          <div class="om-item">
+            <div class="om-icon"><i class="bi bi-credit-card"></i></div>
+            <div class="om-label">Thanh toán</div>
+            <div class="om-value" id="meta-payment">COD</div>
+          </div>
+          <div class="om-item">
+            <div class="om-icon"><i class="bi bi-truck"></i></div>
+            <div class="om-label">Vận chuyển</div>
+            <div class="om-value" id="meta-shipping">Tiêu chuẩn</div>
+          </div>
+          <div class="om-item">
+            <div class="om-icon"><i class="bi bi-cash-stack"></i></div>
+            <div class="om-label">Tổng thanh toán</div>
+            <div class="om-value" id="meta-total" style="color:var(--pink)">—</div>
+          </div>
+        </div>
+
+        <hr class="success-divider" />
+
+        <!-- CTA -->
+        <div class="cta-group">
+          <a href="#" id="btn-track" class="btn-cta-primary">
+            <i class="bi bi-truck"></i> Theo Dõi Đơn Hàng
+          </a>
+          <a href="shop.html" class="btn-cta-secondary">
+            <i class="bi bi-bag"></i> Tiếp Tục Mua Sắm
+          </a>
+        </div>
+
+        <div class="progress-note">
+          <i class="bi bi-bell"></i>
+          Bạn sẽ nhận được thông báo khi đơn hàng được xác nhận
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>&copy; 2025 GlowHub — <a href="policy.html">Chính sách</a> · <a href="policy.html#lien-he">Liên hệ</a></p>
+    </footer>
+
+    <!-- TOAST -->
+    <div id="toast" style="
+      position:fixed; bottom:24px; right:24px;
+      background:var(--dark); color:#fff;
+      padding:12px 20px; font-size:13px;
+      z-index:11000; opacity:0; transition:0.3s;
+      max-width:280px;
+    "></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    const fmt = n => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+    const PAYMENT_LABEL = { "COD": "Thanh toán khi nhận hàng", "BANK": "Chuyển khoản ngân hàng", "MOMO": "Ví MoMo", "ZALOPAY": "ZaloPay" };
+    const SHIPPING_LABEL = { standard: "Tiêu chuẩn", express: "Nhanh", same: "Hỏa tốc" };
+
+    let orderCode = "";
+    let orderId   = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const params = new URLSearchParams(location.search);
+      orderId   = params.get("orderId");
+      orderCode = params.get("orderCode") || "";
+
+      // Show order code immediately (from URL param)
+      if (orderCode) {
+        document.getElementById("order-code-display").textContent = orderCode;
+      } else if (orderId) {
+        document.getElementById("order-code-display").textContent = "ORD-" + String(orderId).padStart(6, "0");
+      } else {
+        // No order info — redirect to shop
+        document.getElementById("order-code-display").textContent = "—";
+      }
+
+      // Track button href
+      if (orderId) {
+        document.getElementById("btn-track").href = `order-tracking.html?orderId=${orderId}`;
+      } else {
+        document.getElementById("btn-track").href = "checkout.html";
+      }
+
+      // Nav cart count (should be 0 after checkout clears cart)
+      try {
+        const cnt = (CartDB ? CartDB.getAll() : []).reduce((s, i) => s + (i.quantity || 1), 0);
+        const el = document.getElementById("cart-count");
+        if (el) el.textContent = cnt;
+      } catch (_) {}
+
+      // Nav user area
+      try {
+        const user = await Auth.getProfile().catch(() => null);
+        const area = document.getElementById("nav-user-area");
+        if (area && user) {
+          area.innerHTML = `<a href="profile.html" class="nav-link">${user.fullName || user.email}</a>`;
+        }
+      } catch (_) {}
+
+      // Load order detail for payment/shipping/total info
+      if (orderId) {
+        try {
+          const detail = await Order.getDetail(parseInt(orderId, 10));
+          document.getElementById("meta-payment").textContent =
+            PAYMENT_LABEL[detail.paymentMethod] || "COD";
+          document.getElementById("meta-total").textContent =
+            fmt(detail.finalAmount || detail.totalAmount || 0);
+          // Shipping label from note or default
+          document.getElementById("meta-shipping").textContent = "Tiêu chuẩn";
+          document.getElementById("order-meta").style.display = "";
+
+          // Update code if we got it from API
+          if (detail.orderCode) {
+            orderCode = detail.orderCode;
+            document.getElementById("order-code-display").textContent = detail.orderCode;
+          }
+        } catch (_) {
+          // Non-critical, just skip meta
+        }
+      }
+    });
+
+    // Copy order code
+    function copyOrderCode() {
+      if (!orderCode) return;
+      navigator.clipboard.writeText(orderCode).then(() => {
+        showToast("Đã sao chép mã đơn hàng!", "");
+        const btn = document.getElementById("copy-btn");
+        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Đã sao chép';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="bi bi-copy me-1"></i> Sao chép';
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const el = document.createElement("textarea");
+        el.value = orderCode;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        showToast("Đã sao chép!", "");
+      });
+    }
+
+    function showToast(msg, type) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.background = type === "error" ? "#dc2626" : "#111";
+      t.style.opacity = "1";
+      t.style.transform = "translateY(0)";
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => { t.style.opacity = "0"; }, 2800);
+    }
+    </script>
+    <script src="js/navbar.js" defer></script>
+  </body>
+</html>

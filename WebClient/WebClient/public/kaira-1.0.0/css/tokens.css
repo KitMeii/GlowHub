@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════
+   GLOWHUB — tokens.css
+   Màu chủ đạo: Trắng (#fff) & Hồng (#f759ab)
+   File này định nghĩa TOÀN BỘ biến CSS cho hệ thống.
+   Import vào đầu MỌI trang.
+═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand Colors ── */
+  --pink:        #f759ab;
+  --pink-light:  #fce7f3;
+  --pink-soft:   #fff0f8;
+  --pink-hover:  #d946a0;
+  --dark:        #111111;
+  --dark-soft:   #1a1a1a;
+  --white:       #ffffff;
+  --cream:       #f8f5f0;
+  --cream-soft:  #fffdf9;
+  --border:      #e2ddd8;
+  --border-soft: #eeeeee;
+  --gray:        #888888;
+  --gray-light:  #aaaaaa;
+  --success:     #22c55e;
+  --error:       #dc2626;
+  --warning:     #f59e0b;
+
+  /* ── Typography ── */
+  --font-display: "Cormorant Garamond", "Georgia", serif;
+  --font-body:    "Jost", sans-serif;
+  --font-brand:   "Marcellus", serif;
+
+  /* ── Easing ── */
+  --ease-lux:  cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-exp:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-std:  cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Spacing ── */
+  --section-v: clamp(60px, 8vw, 100px);
+  --container: 1200px;
+  --gutter:    40px;
+  --gutter-sm: 20px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 2px;
+  --radius:    4px;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.06);
+  --shadow:     0 4px 24px rgba(0,0,0,0.09);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,0.12);
+  --shadow-nav: 0 2px 20px rgba(0,0,0,0.07);
+
+  /* ── Z-Index Scale ── */
+  --z-dropdown: 9000;
+  --z-nav:      9000;
+  --z-panel:    10999;
+  --z-overlay:  10998;
+  --z-cursor:   99999;
+  --z-admin:    99998;
+  --z-toast:    11000;
+}
+
+/* ── Global performance & UX ── */
+html { scroll-behavior: smooth; }
+*, *::before, *::after { box-sizing: border-box; }
+img { max-width: 100%; height: auto; }
+::selection { background: var(--pink); color: var(--white); }

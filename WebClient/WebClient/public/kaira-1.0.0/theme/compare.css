@@ -1,0 +1,384 @@
+/* ═══════════════════════════════════════════════════════
+   GlowHub — compare.css
+   Compare page + floating compare bar used in shop/product
+   ════════════════════════════════════════════════════════ */
+
+/* ── COMPARE BUTTON on product cards ── */
+.btn-compare-card {
+  display: block;
+  width: 100%;
+  padding: 7px;
+  margin-top: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-compare-card:hover,
+.btn-compare-card.active {
+  background: var(--dark);
+  color: #fff;
+  border-color: var(--dark);
+}
+
+/* ── COMPARE BUTTON on product page ── */
+.prd-btn-compare {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.prd-btn-compare:hover,
+.prd-btn-compare.wished {
+  background: var(--dark);
+  color: #fff;
+  border-color: var(--dark);
+}
+
+/* ── FLOATING COMPARE BAR ── */
+.cmp-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10990;
+  background: #fff;
+  border-top: 2px solid var(--dark);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 12px 0;
+}
+.cmp-bar.show { transform: translateY(0); }
+
+.cmp-bar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cmp-bar-slots {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.cmp-slot {
+  width: 80px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--gray);
+}
+.cmp-slot.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1px dashed var(--border);
+  padding: 10px 4px;
+  border-radius: 2px;
+}
+.cmp-slot.empty i { font-size: 18px; color: var(--border); }
+
+.cmp-slot.filled {
+  position: relative;
+}
+.cmp-slot.filled img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--border);
+}
+.cmp-slot-name {
+  font-size: 9px;
+  color: var(--dark);
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+.cmp-slot-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.18s;
+}
+.cmp-slot-remove:hover { background: var(--error); }
+
+.cmp-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.cmp-btn-go {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.cmp-btn-go:hover { background: var(--pink); }
+.cmp-btn-clear {
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.cmp-btn-clear:hover { background: var(--cream); color: var(--dark); }
+
+/* ── COMPARE PAGE ── */
+.cmp-page-nav {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+}
+.cmp-page-nav-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 14px var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cmp-brand {
+  font-family: var(--font-brand);
+  letter-spacing: 4px;
+  font-size: 1.3rem;
+  color: var(--dark);
+  text-decoration: none;
+}
+
+.cmp-page-header {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 40px var(--gutter) 0;
+}
+.cmp-page-title {
+  font-family: var(--font-brand);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: 4px;
+  color: var(--dark);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ── COMPARISON TABLE ── */
+.cmp-table-wrap {
+  max-width: var(--container);
+  margin: 32px auto 60px;
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+}
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.cmp-table th,
+.cmp-table td {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  text-align: center;
+  vertical-align: top;
+}
+
+.cmp-table .cmp-row-label {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray);
+  background: var(--cream);
+  width: 160px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Product header cell */
+.cmp-col-header {
+  position: relative;
+  min-width: 200px;
+}
+.cmp-col-header img {
+  width: 100%;
+  max-width: 160px;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 10px;
+  border: 1px solid var(--border);
+}
+.cmp-col-name {
+  font-family: var(--font-brand);
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.cmp-col-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--dark);
+  transition: background 0.18s;
+}
+.cmp-col-remove:hover { background: var(--error); color: #fff; }
+
+/* Highlight best value */
+.cmp-best {
+  background: #f0fdf4;
+  color: var(--success);
+  font-weight: 700;
+  position: relative;
+}
+.cmp-best::after {
+  content: "✓ Tốt nhất";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--success);
+  opacity: 0.7;
+}
+.cmp-worst { color: var(--error); }
+
+/* Price cell */
+.cmp-price-sale {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--pink);
+  font-family: var(--font-body);
+}
+.cmp-price-orig {
+  font-size: 11px;
+  color: var(--gray);
+  text-decoration: line-through;
+}
+
+/* Stars */
+.cmp-stars { color: #f59e0b; font-size: 13px; letter-spacing: 1px; }
+
+/* CTA row */
+.cmp-btn-row { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.cmp-btn-buy {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--dark);
+  color: #fff;
+  text-decoration: none;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: background 0.2s;
+  width: 100%;
+  text-align: center;
+}
+.cmp-btn-buy:hover { background: var(--pink); color: #fff; }
+
+/* Empty/error state */
+.cmp-empty {
+  text-align: center;
+  padding: 80px 16px;
+  color: var(--gray);
+}
+.cmp-empty i {
+  font-size: 3rem;
+  opacity: 0.2;
+  display: block;
+  margin-bottom: 16px;
+}
+.cmp-empty h3 {
+  font-family: var(--font-brand);
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+/* ── FOOTER ── */
+footer.cmp-footer {
+  background: var(--dark);
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+footer.cmp-footer a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+}
+footer.cmp-footer a:hover { color: var(--pink); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .cmp-bar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .cmp-bar-slots { flex-wrap: wrap; }
+}

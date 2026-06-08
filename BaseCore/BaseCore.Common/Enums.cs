@@ -125,8 +125,9 @@ namespace BaseCore.Common
 
         public enum UserType
         {
-            SystemAdmin = 1,
-            Doctor = 2
+            Customer = 0,
+            Admin = 1,
+            Seller = 2
         }
 
         public enum RoleType

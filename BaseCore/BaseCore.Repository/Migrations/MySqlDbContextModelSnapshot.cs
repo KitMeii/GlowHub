@@ -204,22 +204,6 @@ namespace BaseCore.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CustomerEmail")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CustomerName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CustomerPhone")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("DiscountAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -228,19 +212,10 @@ namespace BaseCore.Repository.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("ShippingFee")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -258,10 +233,6 @@ namespace BaseCore.Repository.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("VoucherCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -300,45 +271,6 @@ namespace BaseCore.Repository.Migrations
                     b.ToTable("OrderDetails", (string)null);
                 });
 
-            modelBuilder.Entity("BaseCore.Entities.OrderStatusLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ChangedBy")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NewStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("OldStatus")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderStatusLogs", (string)null);
-                });
-
             modelBuilder.Entity("BaseCore.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -350,10 +282,16 @@ namespace BaseCore.Repository.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("DiscountPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -361,6 +299,9 @@ namespace BaseCore.Repository.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNew")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -378,6 +319,9 @@ namespace BaseCore.Repository.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -392,55 +336,70 @@ namespace BaseCore.Repository.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
+                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(2996),
                             Description = "High-performance laptop",
                             ImageUrl = "",
                             IsActive = true,
+                            IsNew = false,
                             Name = "Laptop Dell XPS 15",
                             Price = 35000000m,
+                            SortOrder = 0,
                             Stock = 10
                         },
                         new
                         {
                             Id = 2,
                             CategoryId = 1,
+                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3018),
                             Description = "Latest Apple smartphone",
                             ImageUrl = "",
                             IsActive = true,
+                            IsNew = false,
                             Name = "iPhone 15 Pro",
                             Price = 28000000m,
+                            SortOrder = 0,
                             Stock = 15
                         },
                         new
                         {
                             Id = 3,
                             CategoryId = 2,
+                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3019),
                             Description = "Comfortable cotton t-shirt",
                             ImageUrl = "",
                             IsActive = true,
+                            IsNew = false,
                             Name = "T-Shirt Cotton",
                             Price = 250000m,
+                            SortOrder = 0,
                             Stock = 100
                         },
                         new
                         {
                             Id = 4,
                             CategoryId = 3,
+                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3020),
                             Description = "Learn programming basics",
                             ImageUrl = "",
                             IsActive = true,
+                            IsNew = false,
                             Name = "Programming Book",
                             Price = 450000m,
+                            SortOrder = 0,
                             Stock = 50
                         },
                         new
                         {
                             Id = 5,
                             CategoryId = 4,
+                            CreatedAt = new DateTime(2026, 4, 29, 13, 41, 53, 213, DateTimeKind.Utc).AddTicks(3020),
                             Description = "Complete gardening toolkit",
                             ImageUrl = "",
                             IsActive = true,
+                            IsNew = false,
                             Name = "Garden Tools Set",
                             Price = 850000m,
+                            SortOrder = 0,
                             Stock = 25
                         });
                 });
@@ -578,6 +537,90 @@ namespace BaseCore.Repository.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("BaseCore.Entities.UserAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DistrictCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MapAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ProvinceCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReceiverName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Ward")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("WardCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("BaseCore.Entities.Voucher", b =>
@@ -775,6 +818,17 @@ namespace BaseCore.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BaseCore.Entities.UserAddress", b =>
+                {
+                    b.HasOne("BaseCore.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

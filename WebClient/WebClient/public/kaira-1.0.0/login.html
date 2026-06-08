@@ -4,59 +4,366 @@
     <title>Đăng Nhập — GlowHub</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Đăng nhập vào tài khoản GlowHub của bạn"
+    />
+    <meta property="og:title" content="Đăng Nhập — GlowHub" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f759ab" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Marcellus&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/glowhub-theme.css" />
-    <style>
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-      }
-      .shake-animation { animation: shake .2s ease-in-out 0s 2; }
-      .is-invalid { border-color: var(--gh-danger) !important; }
-      #login-error { color: var(--gh-danger); font-weight: 500; }
-    </style>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="theme/auth.css" />
   </head>
-
   <body>
-    <div class="gh-auth-shell">
-      <div class="gh-auth-card">
-        <div class="gh-auth-card__brand"><a href="index.html" style="text-decoration:none;color:inherit">GLOWHUB</a></div>
-        <h1 class="gh-auth-card__title">Đăng Nhập</h1>
+    <div class="gh-topbar">
+      🌸 Miễn phí vận chuyển đơn từ 500.000₫ &nbsp;·&nbsp; Giao hàng toàn quốc
+    </div>
 
-        <form id="login-form">
-          <label class="gh-label">Tên đăng nhập</label>
-          <input type="text" id="username" class="gh-input mb-3" placeholder="Nhập username" required />
+    <nav class="gh-nav">
+      <a href="shop.html" class="gh-nav-link">← Cửa Hàng</a>
+      <a href="index.html" class="gh-logo">GlowHub</a>
+      <div style="text-align: right">
+        <a href="register.html" class="gh-nav-link">Đăng Ký</a>
+      </div>
+    </nav>
 
-          <label class="gh-label">Mật khẩu</label>
-          <input type="password" id="password" class="gh-input mb-2" placeholder="••••••••" required />
+    <div class="page-wrap">
+      <div class="auth-card">
+        <div class="auth-eyebrow">Chào Mừng Trở Lại</div>
+        <h1 class="auth-title">Đăng Nhập</h1>
+        <p class="auth-sub">Truy cập tài khoản GlowHub của bạn</p>
 
-          <div id="login-error" class="small mt-1 mb-3" style="display:none">
-            <span id="error-message"></span>
+        <div class="alert alert-err" id="errorAlert"></div>
+        <div class="alert alert-ok" id="successAlert"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="username">Tên Đăng Nhập</label>
+            <input
+              type="text"
+              class="form-input"
+              id="username"
+              placeholder="Nhập tên đăng nhập"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Mật Khẩu</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="password"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="input-toggle"
+                onclick="togglePwd('password', this)"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center mb-4" style="font-size:13px">
-            <label class="d-flex gap-1 align-items-center"><input type="checkbox" /> Ghi nhớ</label>
-            <a href="#" id="forgot-link" style="color:var(--gh-primary);text-decoration:none">Quên mật khẩu?</a>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 24px;
+            "
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                color: var(--gray);
+                cursor: pointer;
+              "
+            >
+              <input
+                type="checkbox"
+                id="rememberMe"
+                style="accent-color: var(--pink)"
+              />
+              Ghi nhớ đăng nhập
+            </label>
+            <a
+              href="policy.html#lien-he"
+              style="
+                font-size: 11px;
+                color: var(--gray);
+                text-decoration: none;
+                letter-spacing: 0.5px;
+              "
+            >
+              Quên mật khẩu?
+            </a>
           </div>
 
-          <button type="submit" class="gh-btn gh-btn--dark gh-btn--block gh-btn--lg">Đăng Nhập</button>
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">Đăng Nhập</span>
+            <div class="spinner"></div>
+          </button>
         </form>
 
-        <div class="gh-auth-card__foot">
-          Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+        <!-- OAuth social login -->
+        <div class="oauth-divider">Hoặc đăng nhập với</div>
+        <a href="http://localhost:5000/api/oauth/google" class="oauth-btn google">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg>
+          Tiếp tục với Google
+        </a>
+        <a href="http://localhost:5000/api/oauth/facebook" class="oauth-btn facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Tiếp tục với Facebook
+        </a>
+
+        <div class="auth-divider"></div>
+        <p
+          style="
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+          "
+        >
+          Chưa có tài khoản?
+        </p>
+        <a href="register.html" class="btn-outline">Tạo Tài Khoản Mới</a>
+
+        <div
+          style="
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gray);
+          "
+        >
+          <i
+            class="bi bi-shield-check"
+            style="color: #22c55e; margin-right: 4px"
+          ></i>
+          Thông tin được bảo mật với SSL 256-bit
         </div>
       </div>
     </div>
 
-    <script src="js/api.js"></script>
+    <footer>
+      <p>© 2026 GlowHub. Bảo lưu mọi quyền.</p>
+      <div style="display: flex; gap: 20px">
+        <a href="policy.html#bao-mat">Bảo Mật</a>
+        <a href="policy.html#dieu-khoan">Điều Khoản</a>
+        <a href="policy.html#lien-he">Hỗ Trợ</a>
+      </div>
+    </footer>
+
+    <script src="js/api.js" defer></script>
     <script>
-      document.getElementById('forgot-link').addEventListener('click', e => {
+      // @ts-nocheck
+      /* eslint-disable */
+
+      function handleLogin(e) {
         e.preventDefault();
-        showGlobalToast('Tính năng đang phát triển', 'error');
+        var username = document.getElementById("username").value.trim();
+        var password = document.getElementById("password").value;
+        var remember = document.getElementById("rememberMe").checked;
+
+        // Validate
+        if (!username || !password) {
+          showAlert("err", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!");
+          return;
+        }
+
+        // UI loading state
+        var btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        hideAlert();
+
+        // Call API
+        var doLogin =
+          typeof Auth !== "undefined"
+            ? Auth.login({ Username: username, Password: password })
+            : Promise.reject(new Error("API chưa sẵn sàng"));
+
+        doLogin
+          .then(function (result) {
+            var token = result.token || result.Token;
+            var user = result.user || result.User || result;
+
+            if (!token)
+              throw new Error("Đăng nhập thất bại — không nhận được token");
+
+            // Save to localStorage
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            // Remember me — extend session
+            if (remember) localStorage.setItem("gh_remember", "1");
+
+            showAlert("ok", "✓ Đăng nhập thành công! Đang chuyển hướng...");
+
+            // Redirect based on role
+            setTimeout(function () {
+              var isAdmin = false;
+              try {
+                var u = JSON.parse(localStorage.getItem("user") || "{}");
+                var t = u.userType || u.UserType || u.role || u.Role || 0;
+                isAdmin = t === 1 || t === "Admin" || t === "admin";
+              } catch (e) {}
+
+              if (isAdmin) {
+                window.location.href = "admin.html";
+              } else {
+                // Redirect to previous page or home
+                var prev =
+                  sessionStorage.getItem("gh_redirect") || "index.html";
+                sessionStorage.removeItem("gh_redirect");
+                window.location.href = prev;
+              }
+            }, 900);
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.classList.remove("loading");
+            var msg = err.message || "Tên đăng nhập hoặc mật khẩu không đúng!";
+            if (msg.includes("401") || msg.includes("Unauthorized"))
+              msg = "Sai tên đăng nhập hoặc mật khẩu!";
+            if (msg.includes("Network") || msg.includes("fetch"))
+              msg = "Không thể kết nối máy chủ. Vui lòng thử lại!";
+            showAlert("err", msg);
+            document.getElementById("password").classList.add("error");
+            document.getElementById("password").focus();
+          });
+      }
+
+      function togglePwd(id, btn) {
+        var inp = document.getElementById(id);
+        var icon = btn.querySelector("i");
+        if (inp.type === "password") {
+          inp.type = "text";
+          icon.className = "bi bi-eye-slash";
+        } else {
+          inp.type = "password";
+          icon.className = "bi bi-eye";
+        }
+      }
+
+      function showAlert(type, msg) {
+        var errEl = document.getElementById("errorAlert");
+        var okEl = document.getElementById("successAlert");
+        if (type === "err") {
+          errEl.textContent = msg;
+          errEl.classList.add("show");
+          okEl.classList.remove("show");
+        } else {
+          okEl.textContent = msg;
+          okEl.classList.add("show");
+          errEl.classList.remove("show");
+        }
+      }
+      function hideAlert() {
+        document.getElementById("errorAlert").classList.remove("show");
+        document.getElementById("successAlert").classList.remove("show");
+      }
+
+      // Clear error on input
+      document.addEventListener("DOMContentLoaded", function () {
+        // Xử lý OAuth redirect: ?token=...&userId=...&role=...&name=...&email=...
+        var params = new URLSearchParams(location.search);
+        var oauthToken = params.get('token');
+        if (oauthToken) {
+          var oauthUser = {
+            id: params.get('userId') || '',
+            Id: params.get('userId') || '',
+            name: decodeURIComponent(params.get('name') || ''),
+            Name: decodeURIComponent(params.get('name') || ''),
+            email: decodeURIComponent(params.get('email') || ''),
+            Email: decodeURIComponent(params.get('email') || ''),
+            userType: params.get('role') === 'Admin' ? 1 : 0,
+            roles: [params.get('role') || 'User']
+          };
+          localStorage.setItem('token', oauthToken);
+          localStorage.setItem('user', JSON.stringify(oauthUser));
+          showAlert('ok', '✓ Đăng nhập thành công! Đang chuyển hướng...');
+          setTimeout(function() {
+            var redirect = sessionStorage.getItem('gh_redirect') || 'index.html';
+            sessionStorage.removeItem('gh_redirect');
+            if (params.get('role') === 'Admin') redirect = 'admin.html';
+            window.location.href = redirect;
+          }, 800);
+          return;
+        }
+
+        // Auto-redirect nếu đã đăng nhập
+        if (localStorage.getItem("token") && localStorage.getItem("user")) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Clear error on typing
+        ["username", "password"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el)
+            el.addEventListener("input", function () {
+              this.classList.remove("error");
+              hideAlert();
+            });
+        });
+
+        // Enter key
+        document
+          .getElementById("loginForm")
+          .addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleLogin(e);
+            }
+          });
+      });
+
+    </script>
+    <script src="js/gsap.js" defer></script>
+    <script>
+      function toggleUserMenu(btn) {
+        var open = btn.classList.contains("open");
+        document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+          b.classList.remove("open");
+        });
+        if (!open) btn.classList.add("open");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".gh-user-btn"))
+          document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+            b.classList.remove("open");
+          });
       });
     </script>
   </body>

@@ -1,100 +1,87 @@
+using BaseCore.Entities;
+using BaseCore.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BaseCore.Entities;
-using BaseCore.Repository.EFCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseCore.APIService.Controllers
 {
-    /// <summary>
-    /// Category API Controller
-    /// Teaching: RESTful API, CRUD Operations (Bài 10)
-    /// </summary>
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepositoryEF _categoryRepository;
+        private readonly MySqlDbContext _db;
+        public CategoriesController(MySqlDbContext db) => _db = db;
 
-        public CategoriesController(ICategoryRepositoryEF categoryRepository)
-        {
-            _categoryRepository = categoryRepository;
-        }
-
-        /// <summary>
-        /// Get all categories
-        /// </summary>
+        // GET /api/categories
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return Ok(categories);
+            var cats = await _db.Categories
+                .Where(c => !c.IsDeleted)
+                .Select(c => new {
+                    c.Id,
+                    c.Name,
+                    c.Description,
+                    ProductCount = _db.Products.Count(p => p.CategoryId == c.Id)
+                })
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+            return Ok(cats);
         }
 
-        /// <summary>
-        /// Get category by ID
-        /// </summary>
+        // GET /api/categories/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
-
-            return Ok(category);
+            var cat = await _db.Categories.FindAsync(id);
+            if (cat == null) return NotFound(new { message = "Không tìm thấy danh mục" });
+            return Ok(cat);
         }
 
-        /// <summary>
-        /// Create new category
-        /// </summary>
+        // POST /api/categories (Admin)
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CategoryDto dto)
         {
-            var existing = await _categoryRepository.GetByNameAsync(dto.Name);
-            if (existing != null)
-                return BadRequest(new { message = "Category name already exists" });
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest(new { message = "Tên danh mục là bắt buộc" });
 
-            var category = new Category
-            {
-                Name = dto.Name,
-                Description = dto.Description ?? ""
-            };
+            var exists = await _db.Categories.AnyAsync(c => c.Name == dto.Name.Trim());
+            if (exists) return Conflict(new { message = "Danh mục đã tồn tại" });
 
-            await _categoryRepository.AddAsync(category);
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
+            var cat = new Category { Name = dto.Name.Trim(), Description = dto.Description };
+            _db.Categories.Add(cat);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã tạo danh mục", category = cat });
         }
 
-        /// <summary>
-        /// Update category
-        /// </summary>
+        // PUT /api/categories/{id} (Admin)
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryDto dto)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            var cat = await _db.Categories.FindAsync(id);
+            if (cat == null) return NotFound(new { message = "Không tìm thấy danh mục" });
 
-            category.Name = dto.Name ?? category.Name;
-            category.Description = dto.Description ?? category.Description;
+            if (!string.IsNullOrWhiteSpace(dto.Name)) cat.Name = dto.Name.Trim();
+            if (dto.Description != null) cat.Description = dto.Description;
 
-            await _categoryRepository.UpdateAsync(category);
-            return Ok(category);
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã cập nhật danh mục", category = cat });
         }
 
-        /// <summary>
-        /// Delete category
-        /// </summary>
+        // DELETE /api/categories/{id} (Admin) — soft delete
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            var cat = await _db.Categories.FindAsync(id);
+            if (cat == null || cat.IsDeleted) return NotFound(new { message = "Không tìm thấy danh mục" });
 
-            await _categoryRepository.DeleteAsync(category);
-            return Ok(new { message = "Category deleted successfully" });
+            cat.IsDeleted = true;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã xóa danh mục" });
         }
     }
 

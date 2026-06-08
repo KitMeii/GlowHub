@@ -1,404 +1,1573 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <title>GlowHub — Mỹ Phẩm & Thời Trang Cho Phái Đẹp</title>
+    <title>GlowHub — Mỹ Phẩm & Làm Đẹp Cao Cấp</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GlowHub" />
+    <meta property="og:title" content="GlowHub — Mỹ Phẩm & Làm Đẹp Cao Cấp" />
+    <meta
+      property="og:description"
+      content="Khám phá mỹ phẩm, skincare, nước hoa chính hãng mới nhất tại GlowHub."
+    />
+    <meta
+      property="og:image"
+      content="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1200&q=85"
+    />
+    <meta property="og:url" content="https://glowhub.vn" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f759ab" />
+    <link rel="canonical" href="https://glowhub.vn" />
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GlowHub — Cửa hàng mỹ phẩm và thời trang hàng đầu Việt Nam" />
+    <meta
+      name="description"
+      content="GlowHub - Cửa hàng mỹ phẩm và làm đẹp cao cấp hàng đầu Việt Nam"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1400&q=85"
+      fetchpriority="high"
+    />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://img.vietqr.io" />
+    <link rel="dns-prefetch" href="https://provinces.open-api.vn" />
+<noscript
+      >
+</noscript>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <!-- GSAP Animations -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "GlowHub",
+        "description": "Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam",
+        "url": "https://glowhub.vn",
+        "telephone": "+84-1800-0000",
+        "currenciesAccepted": "VND",
+        "paymentAccepted": "Cash, Credit Card, MoMo, ZaloPay"
+      }
+    </script>
+  
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Marcellus&display=swap" rel="stylesheet" />
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="css/glowhub-theme.css" />
-  </head>
-
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
   <body>
-    <div id="gh-layout-header"></div>
+    <!-- Admin bar -->
+    <div class="gh-admin" id="adminBar">
+      <span
+        style="
+          font-family: var(--font-disp);
+          letter-spacing: 4px;
+          color: rgba(255, 255, 255, 0.8);
+        "
+        >GLOWHUB</span
+      >
+      <div>
+        <button class="gh-admin-btn" onclick="savePageChanges()">Lưu</button>
+        <a href="admin.html" class="gh-admin-link">Dashboard</a>
+      </div>
+    </div>
 
-    <main>
-      <!-- ========== HERO SWIPER (Banners) ========== -->
-      <section class="gh-hero">
-        <div class="swiper gh-hero-swiper">
-          <div class="swiper-wrapper" id="hero-wrapper">
-            <!-- 1 slide fallback luôn có khi không có banner -->
-            <div class="swiper-slide">
-              <div class="container">
-                <div class="gh-hero__slide">
-                  <div class="gh-hero__content">
-                    <span class="gh-eyebrow">Bộ Sưu Tập Mới</span>
-                    <h1 class="gh-hero__title">Vẻ Đẹp Tinh Tế<br/>Cho Người Hiện Đại</h1>
-                    <p class="gh-hero__sub">Khám phá những xu hướng mỹ phẩm và thời trang mới nhất tại GlowHub. Chất lượng vượt trội — phong cách tinh tế.</p>
-                    <a href="shop.html" class="gh-btn gh-btn--primary gh-btn--lg">Khám Phá Ngay</a>
-                  </div>
-                  <div class="gh-hero__media">
-                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900&q=80" alt="GlowHub" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="swiper-pagination"></div>
-          <div class="swiper-button-prev" style="color:var(--gh-text)"></div>
-          <div class="swiper-button-next" style="color:var(--gh-text)"></div>
-        </div>
-      </section>
+    <!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
 
-      <!-- ========== CATEGORIES ========== -->
-      <section class="gh-section">
-        <div class="container">
-          <div class="text-center mb-5">
-            <span class="gh-eyebrow">Mua Sắm Theo Danh Mục</span>
-            <h2 class="gh-section-title">Danh Mục Nổi Bật</h2>
-          </div>
-          <div class="row g-4" id="categories-grid">
-            <!-- categories render here -->
-          </div>
-        </div>
-      </section>
-
-      <hr class="gh-divider" />
-
-      <!-- ========== NEW ARRIVALS ========== -->
-      <section class="gh-section gh-section--surface">
-        <div class="container">
-          <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
             <div>
-              <span class="gh-eyebrow">Hàng Mới Về</span>
-              <h2 class="gh-section-title">Sản Phẩm Mới Nhất</h2>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
             </div>
-            <a href="shop.html?section=new" class="gh-btn gh-btn--ghost">Xem Tất Cả →</a>
           </div>
-          <div class="row g-4" id="new-arrivals-grid">
-            <!-- products render here -->
-          </div>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
         </div>
-      </section>
+      </div>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
 
-      <!-- ========== PROMO STRIP ========== -->
-      <section class="gh-promo-strip">
-        <div class="container">
-          <span class="gh-eyebrow" id="promo-eyebrow">Ưu Đãi Đặc Biệt</span>
-          <h2 id="promo-title">Giảm Đến 25% Cho Đơn Hàng Đầu Tiên</h2>
-          <p class="gh-text-muted" id="promo-subtitle">Áp dụng mã giảm giá ngay khi thanh toán — chỉ trong tuần này.</p>
-          <a href="shop.html" id="promo-cta" class="gh-btn gh-btn--dark gh-btn--lg gh-mt-s5">Mua Sắm Ngay</a>
+    <!-- ══════════════════════════════
+     HERO — Full viewport
+══════════════════════════════ -->
+    <section class="gh-hero" id="heroSection">
+      <div class="gh-hero-media">
+        <img
+          id="heroImg"
+          src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1400&q=85"
+          alt="GlowHub Collection"
+          loading="eager"
+          onerror="
+            this.src =
+              'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85'
+          "
+        />
+      </div>
+      <div class="gh-hero-gradient"></div>
+      <div class="gh-hero-content">
+        <div class="gh-hero-eyebrow" id="heroEyebrow">
+          Bộ Sưu Tập Mới · 2026
         </div>
-      </section>
+        <h1 class="gh-hero-title" id="heroTitle">
+          Vẻ Đẹp Rạng Rỡ<br />Từ Bên Trong
+        </h1>
+        <p class="gh-hero-sub" id="heroSub">
+          Skincare · Makeup · Nước Hoa · Chính Hãng
+        </p>
+        <a id="heroCta" href="shop.html?section=new" class="gh-hero-cta">
+          <span id="heroCtaText">Khám Phá Ngay</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="gh-hero-scroll">
+        <div class="gh-hero-scroll-line"></div>
+        <span>Cuộn</span>
+      </div>
+    </section>
 
-      <!-- ========== BEST SELLERS ========== -->
-      <section class="gh-section">
-        <div class="container">
-          <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
-            <div>
-              <span class="gh-eyebrow">Bán Chạy Nhất</span>
-              <h2 class="gh-section-title">Khách Hàng Yêu Thích</h2>
-            </div>
-            <a href="shop.html?section=best" class="gh-btn gh-btn--ghost">Xem Tất Cả →</a>
-          </div>
-          <div class="row g-4" id="best-sellers-grid">
-            <!-- products render here -->
-          </div>
-        </div>
-      </section>
+    <!-- ══════════════════════════════
+     FLASH SALE SECTION
+══════════════════════════════ -->
+    <section id="flash-sale-section" style="display:none; background:linear-gradient(135deg,#fff0f8 0%,#fce7f3 100%); padding:48px 0 56px; border-top:1px solid #e2ddd8; border-bottom:1px solid #e2ddd8;">
+      <div style="max-width:var(--container); margin:0 auto; padding:0 var(--gutter);">
 
-      <hr class="gh-divider" />
-
-      <!-- ========== TESTIMONIALS ========== -->
-      <section class="gh-section gh-section--surface">
-        <div class="container">
-          <div class="text-center mb-5">
-            <span class="gh-eyebrow">Khách Hàng Nói Gì</span>
-            <h2 class="gh-section-title">Đánh Giá Thực Tế</h2>
-          </div>
-          <div class="row g-4" id="testimonials-grid">
-            <!-- testimonials render here -->
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== FEATURES ========== -->
-      <section class="gh-section gh-section--sm">
-        <div class="container">
-          <div class="row g-4">
-            <div class="col-6 col-md-3">
-              <div class="gh-feature">
-                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-cart"></use></svg></div>
-                <h4 class="gh-feature__title">Miễn Phí Vận Chuyển</h4>
-                <p class="gh-feature__desc">Cho đơn hàng từ 500.000₫</p>
+        <!-- Header row -->
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
+          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <h2 style="
+              font-family:'Marcellus',serif;
+              font-size:clamp(1.4rem,3vw,2rem);
+              color:#111;
+              letter-spacing:4px;
+              text-transform:uppercase;
+              margin:0;
+            ">⚡ FLASH SALE</h2>
+            <!-- Inline countdown -->
+            <div id="idx-fs-countdown" style="display:none; align-items:center; gap:6px;">
+              <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
+                <span id="idx-cd-h" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Giờ</span>
+              </div>
+              <span style="color:#f759ab; font-size:1.1rem; font-weight:700;">:</span>
+              <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
+                <span id="idx-cd-m" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Phút</span>
+              </div>
+              <span style="color:#f759ab; font-size:1.1rem; font-weight:700;">:</span>
+              <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
+                <span id="idx-cd-s" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Giây</span>
               </div>
             </div>
-            <div class="col-6 col-md-3">
-              <div class="gh-feature">
-                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-heart"></use></svg></div>
-                <h4 class="gh-feature__title">Hàng Chính Hãng</h4>
-                <p class="gh-feature__desc">Cam kết 100%</p>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="gh-feature">
-                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-user"></use></svg></div>
-                <h4 class="gh-feature__title">Hỗ Trợ 24/7</h4>
-                <p class="gh-feature__desc">Tư vấn tận tâm</p>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="gh-feature">
-                <div class="gh-feature__icon"><svg width="22" height="22"><use xlink:href="#gh-i-search"></use></svg></div>
-                <h4 class="gh-feature__title">Đổi Trả Dễ Dàng</h4>
-                <p class="gh-feature__desc">Trong 7 ngày</p>
-              </div>
-            </div>
+          </div>
+          <a href="flash-sale.html" style="
+            font-size:11px; letter-spacing:2px; text-transform:uppercase;
+            color:#111; text-decoration:none; border:1px solid #111;
+            padding:8px 20px; transition:all 0.2s;
+          " onmouseover="this.style.background='#111';this.style.color='#fff';"
+             onmouseout="this.style.background='transparent';this.style.color='#111';">
+            Xem Tất Cả →
+          </a>
+        </div>
+
+        <!-- Horizontal scroll product strip -->
+        <div id="idx-fs-strip" style="
+          display:flex; gap:16px; overflow-x:auto; padding-bottom:12px;
+          scrollbar-width:thin; scrollbar-color:#fce7f3 transparent;
+        "></div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     SPLIT PANELS — từ Banner API
+══════════════════════════════ -->
+    <section style="padding: 3px 0">
+      <div class="gh-split" id="splitPanels">
+        <!-- Skeleton -->
+        <div
+          class="gh-split-panel"
+          style="
+            background: var(--cream);
+            min-height: clamp(420px, 65vh, 720px);
+          "
+        >
+          <div
+            style="
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                #f0ece6 25%,
+                #e8e3dc 50%,
+                #f0ece6 75%
+              );
+              background-size: 400% 100%;
+              animation: luxSk 1.4s ease infinite;
+            "
+          ></div>
+        </div>
+        <div
+          class="gh-split-panel"
+          style="
+            background: var(--cream);
+            min-height: clamp(420px, 65vh, 720px);
+          "
+        >
+          <div
+            style="
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                #f0ece6 25%,
+                #e8e3dc 50%,
+                #f0ece6 75%
+              );
+              background-size: 400% 100%;
+              animation: luxSk 1.4s ease infinite;
+            "
+          ></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     HÀNG MỚI VỀ — Asymmetric Grid
+══════════════════════════════ -->
+    <section>
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Bộ Sưu Tập</span>
+        <h2>Hàng Mới Về</h2>
+        <p>Những sản phẩm mỹ phẩm mới nhất vừa cập nhật</p>
+        <a href="shop.html?section=new" class="gh-view-all">
+          Xem Tất Cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="gh-asym-skel" id="newGridSkel">
+        <div class="gh-skel-item s-lg"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+        <div class="gh-skel-item" style="min-height: 260px"></div>
+      </div>
+      <div class="gh-asym" id="newGrid" style="display: none">
+        <!-- FEATURED — large left (2 rows) -->
+        <div
+          class="gh-asym-card featured"
+          onclick="location.href = 'product.html?id=4'"
+        >
+          <span class="gh-asym-badge">Mới</span>
+          <img
+            src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=700&q=80"
+            alt="Estée Lauder Advanced Night Repair"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=700&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Night Repair Serum</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="4"
+              data-name="Estée Lauder Night Repair"
+              data-price="2480000"
+              data-img="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Chăm Sóc Da Mặt</div>
+            <div class="name">Estée Lauder Night Repair</div>
+            <div class="price">2.480.000 ₫</div>
           </div>
         </div>
-      </section>
-    </main>
+        <!-- Top right -->
+        <div class="gh-asym-card" onclick="location.href = 'product.html?id=3'">
+          <span class="gh-asym-badge">Mới</span>
+          <img
+            src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=500&q=80"
+            alt="Shiseido Ultimune"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Shiseido Ultimune Serum</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="3"
+              data-name="Shiseido Ultimune"
+              data-price="3100000"
+              data-img="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=500"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Chăm Sóc Da Mặt</div>
+            <div class="name">Shiseido Ultimune Serum</div>
+            <div class="price">3.100.000 ₫</div>
+          </div>
+        </div>
+        <!-- Mid right -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=16'"
+        >
+          <span class="gh-asym-badge sale">-10%</span>
+          <img
+            src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=500&q=80"
+            alt="Chanel N°5"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Chanel N°5 EDP 50ml</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="16"
+              data-name="Chanel N°5 EDP"
+              data-price="4800000"
+              data-img="https://images.unsplash.com/photo-1541643600914-78b084683702?w=500"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Nước Hoa</div>
+            <div class="name">Chanel N°5 Eau de Parfum</div>
+            <div class="price">4.800.000 ₫</div>
+          </div>
+        </div>
+        <!-- Bottom right 1 -->
+        <div class="gh-asym-card" onclick="location.href = 'product.html?id=7'">
+          <span class="gh-asym-badge">Hot</span>
+          <img
+            src="https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=500&q=80"
+            alt="Dior Rouge Dior"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">Dior Rouge Dior Satin</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="7"
+              data-name="Dior Rouge Dior Satin"
+              data-price="1050000"
+              data-img="https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=500"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Trang Điểm</div>
+            <div class="name">Dior Rouge Dior Satin</div>
+            <div class="price">1.050.000 ₫</div>
+          </div>
+        </div>
+        <!-- Bottom right 2 -->
+        <div
+          class="gh-asym-card"
+          onclick="location.href = 'product.html?id=21'"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500&q=80"
+            alt="L'Oréal Absolut Repair"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1585669893762-7cfbf5e54765?w=500&q=80'
+            "
+          />
+          <div class="gh-asym-ghost">
+            <span class="gh-asym-ghost-name">L'Oréal Absolut Repair</span>
+            <button
+              class="gh-asym-ghost-btn"
+              onclick="
+                event.stopPropagation();
+                addCard(this);
+              "
+              data-id="21"
+              data-name="L'Oréal Absolut Repair"
+              data-price="580000"
+              data-img="https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500"
+            >
+              + Thêm giỏ
+            </button>
+          </div>
+          <div class="gh-asym-info">
+            <div class="cat">Chăm Sóc Tóc</div>
+            <div class="name">L'Oréal Absolut Repair</div>
+            <div class="price">580.000 ₫</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <div id="gh-layout-footer"></div>
+    <!-- ══════════════════════════════
+     LIFESTYLE — Editorial strip
+══════════════════════════════ -->
+    <section style="padding-top: 3px">
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Khám Phá</span>
+        <h2>Danh Mục Nổi Bật</h2>
+        <p>Khám phá danh mục làm đẹp phù hợp với bạn</p>
+      </div>
+      <div class="gh-lifestyle">
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?cat=1'"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80"
+            alt="Chăm Sóc Da Mặt"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">5 Sản Phẩm</div>
+            <div class="title">Chăm Sóc Da Mặt</div>
+            <a href="shop.html?cat=1" class="link"
+              >Khám Phá <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?cat=2'"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=700&q=80"
+            alt="Trang Điểm"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">5 Sản Phẩm</div>
+            <div class="title">Trang Điểm</div>
+            <a href="shop.html?cat=2" class="link"
+              >Khám Phá <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+        <div
+          class="gh-lifestyle-item"
+          onclick="location.href = 'shop.html?cat=4'"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80"
+            alt="Nước Hoa"
+            loading="lazy"
+            onerror="
+              this.src =
+                'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&q=80'
+            "
+          />
+          <div class="gh-lifestyle-overlay"></div>
+          <div class="gh-lifestyle-label">
+            <div class="cat">5 Sản Phẩm</div>
+            <div class="title">Nước Hoa</div>
+            <a href="shop.html?cat=4" class="link"
+              >Xem Ngay <i class="bi bi-arrow-right"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/layout.js"></script>
+    <!-- ══════════════════════════════
+     PROMO BAND — Dior text
+══════════════════════════════ -->
+    <section class="gh-promo-band">
+      <div class="g-reveal">
+        <p>Ưu Đãi Đặc Biệt</p>
+        <h2>Giảm 25% Cho Đơn Hàng<br />Mỹ Phẩm Đầu Tiên</h2>
+        <p>Đăng ký thành viên ngay hôm nay để nhận ưu đãi độc quyền</p>
+        <div
+          style="
+            margin-top: 36px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+          "
+        >
+          <a href="register.html" class="gh-btn-primary">Đăng Ký Ngay</a>
+          <a href="policy.html#doi-tra" class="gh-btn-outline">Tìm Hiểu Thêm</a>
+        </div>
+      </div>
+    </section>
 
+    <!-- ══════════════════════════════
+     BÁN CHẠY — Từ Product API
+══════════════════════════════ -->
+    <section style="background: #fff">
+      <div class="gh-sec-hd g-reveal">
+        <span class="eyebrow">Được Yêu Thích</span>
+        <h2>Bán Chạy Nhất</h2>
+        <p>Sản phẩm được khách hàng tin dùng nhất</p>
+        <a href="shop.html?section=best" class="gh-view-all">
+          Xem Tất Cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <!-- Strip từ Product API (best seller) -->
+      <div class="gh-strip" id="bestStrip">
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+        <div
+          class="gh-skel-item"
+          style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
+        ></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+     NEWSLETTER
+══════════════════════════════ -->
+    <section class="gh-newsletter">
+      <div class="g-reveal">
+        <h3>Nhận Thông Tin Mới Nhất</h3>
+        <p>Đăng ký để nhận tips làm đẹp & ưu đãi mỹ phẩm độc quyền</p>
+        <form class="gh-newsletter-form" onsubmit="subNewsletter(event)">
+          <input type="email" placeholder="Địa chỉ email của bạn" required />
+          <button type="submit">Đăng Ký</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FEATURE BAR -->
+    <div class="gh-feature">
+      <div class="gh-feature-item">
+        <i class="bi bi-truck"></i>
+        <h6>Miễn Phí Vận Chuyển</h6>
+        <p>Đơn hàng từ 500.000₫</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-arrow-return-left"></i>
+        <h6>Đổi Trả Dễ Dàng</h6>
+        <p>Trong vòng 30 ngày</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-shield-check"></i>
+        <h6>Thanh Toán An Toàn</h6>
+        <p>Mã hóa SSL 256-bit</p>
+      </div>
+      <div class="gh-feature-item">
+        <i class="bi bi-headset"></i>
+        <h6>Hỗ Trợ 24/7</h6>
+        <p>Hotline: 1800 0000</p>
+      </div>
+    </div>
+
+    <!-- RECENTLY VIEWED -->
+    <section id="idx-recently-section" style="display:none; padding:48px 0; background:#fff; border-top:1px solid var(--border);">
+      <div style="max-width:var(--container); margin:0 auto; padding:0 var(--gutter);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+          <h2 style="font-family:'Marcellus',serif; font-size:clamp(1.2rem,3vw,1.6rem); letter-spacing:3px; color:var(--dark); text-transform:uppercase; margin:0;">
+            Xem Gần Đây
+          </h2>
+          <a href="shop.html" style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--pink)'" onmouseout="this.style.color='var(--gray)'">Xem Tất Cả →</a>
+        </div>
+        <div id="idx-recently-strip" style="
+          display:flex; gap:16px; overflow-x:auto; padding-bottom:10px;
+          scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+        "></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="gh-footer">
+      <div class="gh-footer-top">
+        <div>
+          <a href="index.html" class="gh-footer-logo">GlowHub</a>
+          <p class="gh-footer-desc">
+            Cửa hàng mỹ phẩm và làm đẹp cao cấp hàng đầu Việt Nam. Skincare,
+            makeup, nước hoa chính hãng cho mọi phụ nữ.
+          </p>
+          <div class="gh-footer-social">
+            <a href="https://facebook.com" target="_blank" rel="noopener"
+              ><i class="bi bi-facebook"></i
+            ></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener"
+              ><i class="bi bi-instagram"></i
+            ></a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener"
+              ><i class="bi bi-tiktok"></i
+            ></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener"
+              ><i class="bi bi-youtube"></i
+            ></a>
+          </div>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Cửa Hàng</h5>
+          <ul>
+            <li><a href="shop.html?section=new">Hàng Mới Về</a></li>
+            <li><a href="shop.html?cat=1">Chăm Sóc Da Mặt</a></li>
+            <li><a href="shop.html?cat=2">Trang Điểm</a></li>
+            <li><a href="shop.html?cat=4">Nước Hoa</a></li>
+            <li><a href="shop.html?section=sale">Khuyến Mãi</a></li>
+          </ul>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Hỗ Trợ</h5>
+          <ul>
+            <li><a href="policy.html#huong-dan">Hướng Dẫn Mua Hàng</a></li>
+            <li><a href="policy.html#doi-tra">Chính Sách Đổi Trả</a></li>
+            <li><a href="policy.html#van-chuyen">Vận Chuyển</a></li>
+            <li><a href="policy.html#faq">Câu Hỏi Thường Gặp</a></li>
+            <li><a href="policy.html#lien-he">Liên Hệ</a></li>
+          </ul>
+        </div>
+        <div class="gh-footer-col">
+          <h5>Tài Khoản</h5>
+          <ul>
+            <li><a href="login.html">Đăng Nhập</a></li>
+            <li><a href="register.html">Đăng Ký</a></li>
+            <li><a href="checkout.html?tab=profile">Hồ Sơ</a></li>
+            <li><a href="checkout.html?tab=orders">Đơn Hàng</a></li>
+            <li><a href="admin.html">Quản Trị</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="gh-footer-bottom">
+        <p>© 2026 GlowHub. Bảo lưu mọi quyền.</p>
+        <div class="gh-footer-bottom-links">
+          <a href="policy.html#dieu-khoan">Điều Khoản</a>
+          <a href="policy.html#bao-mat">Bảo Mật</a>
+          <a href="policy.html#lien-he">Liên Hệ</a>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/api.js" defer></script>
     <script>
-      // ========== PRODUCT CARD RENDER ==========
-      function _renderProductCard(p) {
-        const id    = p.Id || p.id;
-        const name  = (p.Name || p.name || 'Sản phẩm').replace(/'/g, "\\'");
-        const price = p.Price || p.price || 0;
-        const img   = pickFirstImage(p.ImageUrl || p.imageUrl || p.Image || p.image) ||
-                      'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80';
-        const isNew = p.IsNew || p.isNew;
-        const sale  = p.SalePercent || p.salePercent || p.discount;
-        const cat   = p.CategoryName || p.categoryName || '';
+      // @ts-nocheck
+      /* eslint-disable */
 
-        return `
-          <div class="col-6 col-md-3">
-            <div class="gh-product-card" data-product-id="${id}">
-              ${isNew ? '<span class="gh-badge gh-badge--new">Mới</span>' : ''}
-              ${sale  ? `<span class="gh-badge gh-badge--sale">-${sale}%</span>` : ''}
-              <a href="product.html?id=${id}" class="gh-product-card__media">
-                <img src="${img}" alt="${name}" loading="lazy"
-                     onerror="this.src='https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80'"/>
-              </a>
-              <div class="gh-product-card__body">
-                ${cat ? `<span class="gh-product-card__cat">${cat}</span>` : ''}
-                <a href="product.html?id=${id}" class="gh-product-card__title">${name}</a>
-                <div class="gh-product-card__stars">★★★★★</div>
-                <span class="gh-product-card__price">${_fmtMoney(price)}</span>
-              </div>
-              <button class="gh-product-card__cta"
-                onclick='Cart.add(${JSON.stringify(p).replace(/'/g, "&apos;")}).then(()=>showGlobalToast("Đã thêm vào giỏ"))'>
-                Thêm Vào Giỏ
-              </button>
-            </div>
-          </div>
-        `;
+      var _fmtP = function (n) {
+        return new Intl.NumberFormat("vi-VN").format(n || 0) + " ₫";
+      };
+      var PH =
+        "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&q=80";
+
+      // ── ADD TO CART ──
+      function addCard(btn) {
+        var id = btn.dataset.id,
+          name = btn.dataset.name || "SP";
+        var price = parseFloat(btn.dataset.price) || 0,
+          img = btn.dataset.img || "";
+        if (typeof Cart !== "undefined")
+          Cart.add({ id: id, name: name, price: price, image: img });
+        if (typeof showGlobalToast !== "undefined")
+          showGlobalToast('✓ Đã thêm "' + name + '"');
+      }
+      function addStrip(btn) {
+        addCard(btn);
       }
 
-      function _renderEmptyGrid(host, msg) {
-        host.innerHTML = `<div class="col-12"><div class="gh-empty-state">${msg}</div></div>`;
+      function subNewsletter(e) {
+        e.preventDefault();
+        var btn = e.target.querySelector("button");
+        btn.textContent = "✓ Đã đăng ký!";
+        btn.style.color = "#4ade80";
+        setTimeout(function () {
+          btn.textContent = "Đăng Ký";
+          btn.style.color = "";
+        }, 3000);
+      }
+      function savePageChanges() {
+        if (typeof SiteSettings !== "undefined")
+          SiteSettings.bulkUpdate(window._pageEdits || {})
+            .then(function () {
+              if (typeof showGlobalToast !== "undefined")
+                showGlobalToast("✓ Đã lưu!");
+            })
+            .catch(function () {});
       }
 
-      function _extractList(res) {
-        if (!res) return [];
-        if (Array.isArray(res)) return res;
-        if (Array.isArray(res.data)) return res.data;
-        if (Array.isArray(res.items)) return res.items;
-        if (Array.isArray(res.products)) return res.products;
-        return [];
+      // ── RENDER HELPERS ──
+      function _renderNewGrid(items) {
+        var sk = document.getElementById("newGridSkel");
+        var ng = document.getElementById("newGrid");
+        if (sk) sk.style.display = "none";
+        if (ng) ng.style.display = "grid";
+        if (!ng || !items.length) return;
+        ng.innerHTML = items
+          .slice(0, 5)
+          .map(function (p, i) {
+            var id = p.Id || p.id,
+              name = p.Name || p.name || "SP";
+            var price =
+              p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+            var oldP = p.DiscountPrice ? p.Price || p.price || 0 : 0;
+            var disc = oldP ? Math.round((1 - price / oldP) * 100) : 0;
+            var img = p.ImageUrl || p.imageUrl || PH;
+            var isNew = p.IsNew || p.isNew;
+            var cat =
+              (p.Category && (p.Category.Name || p.Category.name)) || "";
+            var featured = i === 0 ? " featured" : "";
+            var sn = name.replace(/'/g, "&#39;");
+            var badgeHtml = isNew
+              ? '<span class="gh-asym-badge">Mới</span>'
+              : disc > 0
+                ? `<span class="gh-asym-badge sale">-${disc}%</span>`
+                : "";
+            var oldPHtml = oldP
+              ? `<span class="old">${_fmtP(oldP)}</span>`
+              : "";
+            return `<div class="gh-asym-card${featured}" onclick="location.href='product.html?id=${id}'">
+      ${badgeHtml}
+      <img src="${img}" alt="${sn}" loading="lazy" onerror="this.src='${PH}'"/>
+      <div class="gh-asym-ghost">
+        <span class="gh-asym-ghost-name">${name}</span>
+        <button class="gh-asym-ghost-btn"
+          onclick="event.stopPropagation();addCard(this)"
+          data-id="${id}" data-name="${sn}"
+          data-price="${price}" data-img="${img}">+ Giỏ</button>
+      </div>
+      <div class="gh-asym-info">
+        <div class="cat">${cat}</div>
+        <div class="name">${name}</div>
+        <div class="price">${_fmtP(price)}${oldPHtml}</div>
+      </div>
+    </div>`;
+          })
+          .join("");
       }
 
-      function _featuredToProducts(featuredList) {
-        return _extractList(featuredList)
-          .map(fp => fp.Product || fp.product || fp)
-          .filter(Boolean);
+      function _renderBestStrip(items) {
+        var strip = document.getElementById("bestStrip");
+        if (!strip) return;
+        strip.innerHTML = items
+          .slice(0, 6)
+          .map(function (p) {
+            var id = p.Id || p.id,
+              name = p.Name || p.name || "SP";
+            var price =
+              p.DiscountPrice || p.discountPrice || p.Price || p.price || 0;
+            var oldP = p.DiscountPrice ? p.Price || p.price || 0 : 0;
+            var disc = oldP ? Math.round((1 - price / oldP) * 100) : 0;
+            var img = p.ImageUrl || p.imageUrl || PH;
+            var isNew = p.IsNew || p.isNew;
+            var sn = name.replace(/'/g, "&#39;");
+            var badge2 = isNew
+              ? '<span class="badge-new">Mới</span>'
+              : disc > 0
+                ? `<span class="badge-sale">-${disc}%</span>`
+                : "";
+            var oldP2Html = oldP
+              ? `<span style="text-decoration:line-through;color:var(--gray);font-size:10px;margin-left:6px">${_fmtP(oldP)}</span>`
+              : "";
+            return `<div class="gh-strip-card" onclick="location.href='product.html?id=${id}'">
+      ${badge2}
+      <img src="${img}" alt="${sn}" loading="lazy" onerror="this.src='${PH}'"/>
+      <div class="gh-strip-ghost">
+        <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase">${name}</span>
+        <button style="background:none;border:none;color:var(--pink);font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-body);cursor:none"
+          onclick="event.stopPropagation();addCard(this)"
+          data-id="${id}" data-name="${sn}"
+          data-price="${price}" data-img="${img}">+ Giỏ</button>
+      </div>
+      <div class="gh-strip-info">
+        <a href="product.html?id=${id}" class="name">${name}</a>
+        <div class="stars">★★★★★</div>
+        <div class="price">${_fmtP(price)}${oldP2Html}</div>
+      </div>
+    </div>`;
+          })
+          .join("");
       }
 
-      // ========== HERO SWIPER ==========
-      async function renderHero() {
-        const wrapper = document.getElementById('hero-wrapper');
-        let banners = [];
-        try { banners = await Banner.getAll(); } catch (_) {}
-        banners = _extractList(banners);
-
-        if (banners.length > 0) {
-          wrapper.innerHTML = banners.map(b => {
-            const title    = b.Title || b.title || 'Bộ sưu tập';
-            const sub      = b.Subtitle || b.subtitle || '';
-            const img      = b.ImageUrl || b.imageUrl || '';
-            const link     = b.LinkUrl || b.linkUrl || 'shop.html';
-            const btn      = b.ButtonText || b.buttonText || 'Khám Phá';
-            const bg       = b.BgColor || b.bgColor || 'var(--gh-surface)';
-            return `
-              <div class="swiper-slide">
-                <div style="background:${bg}">
-                  <div class="container">
-                    <div class="gh-hero__slide">
-                      <div class="gh-hero__content">
-                        <span class="gh-eyebrow">GlowHub</span>
-                        <h2 class="gh-hero__title">${title}</h2>
-                        ${sub ? `<p class="gh-hero__sub">${sub}</p>` : ''}
-                        <a href="${link}" class="gh-btn gh-btn--primary gh-btn--lg">${btn}</a>
-                      </div>
-                      <div class="gh-hero__media">
-                        <img src="${img}" alt="${title}" onerror="this.style.display='none'"/>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        new Swiper('.gh-hero-swiper', {
-          loop: wrapper.children.length > 1,
-          pagination: { el: '.swiper-pagination', clickable: true },
-          navigation: { prevEl: '.swiper-button-prev', nextEl: '.swiper-button-next' },
-          autoplay: wrapper.children.length > 1 ? { delay: 5000, disableOnInteraction: false } : false,
-          speed: 700,
+      function _renderSplitPanels(banners) {
+        var wrap = document.getElementById("splitPanels");
+        if (!wrap) return;
+        // Lấy 2 banner đầu tiên, fallback nếu không có
+        var b1 = banners[0] || {
+          ImageUrl:
+            "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900&q=85",
+          Title: "Trang Điểm",
+          Link: "shop.html?cat=2",
+          SubTitle: "Bộ Sưu Tập",
+        };
+        var b2 = banners[1] || {
+          ImageUrl:
+            "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=900&q=85",
+          Title: "Chăm Sóc Da",
+          Link: "shop.html?cat=1",
+          SubTitle: "Skincare Cao Cấp",
+        };
+        [b1, b2].forEach(function (b, i) {
+          var img = b.ImageUrl || b.imageUrl || b.Image || "";
+          var title = b.Title || b.title || "";
+          var sub = b.SubTitle || b.subTitle || "Khám Phá";
+          var link = b.Link || b.link || b.Url || "shop.html";
+          var card = wrap.children[i];
+          if (!card) return;
+          card.onclick = function () {
+            location.href = link;
+          };
+          var fallbackImg =
+            "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900&q=80";
+          card.innerHTML = `
+      <img src="${img}" alt="${title}" loading="lazy"
+           onerror="this.src='${fallbackImg}'"/>
+      <div class="gh-split-overlay"></div>
+      <div class="gh-split-content">
+        <div class="gh-split-label">${sub}</div>
+        <div class="gh-split-title">${title}</div>
+        <a href="${link}" class="gh-split-btn">Mua Ngay <i class="bi bi-arrow-right"></i></a>
+      </div>`;
         });
       }
 
-      // ========== CATEGORIES ==========
-      async function renderCategories() {
-        const host = document.getElementById('categories-grid');
-        let cats = [];
-        try { cats = await Category.getAll(); } catch (_) {}
-        cats = _extractList(cats);
-        if (!cats.length) {
-          _renderEmptyGrid(host, 'Chưa có danh mục nào.');
-          return;
-        }
-        const fallbackImgs = [
-          'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80',
-          'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80',
-          'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&q=80',
-          'https://images.unsplash.com/photo-1583241800698-9c2e2b4d8eb6?w=600&q=80',
-          'https://images.unsplash.com/photo-1631214540242-6e23f57d5d7c?w=600&q=80',
-          'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600&q=80',
+      function _renderCategories(cats) {
+        var strip = document.getElementById("lifestyleStrip");
+        if (!strip) return;
+        // Category entity: {Id, Name, Description, ProductCount}
+        // Không có ImageUrl → dùng ảnh local + CDN fallback theo index
+        var localImgs = [
+          "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80",
+          "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=700&q=80",
+          "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80",
         ];
-        host.innerHTML = cats.slice(0, 6).map((c, i) => {
-          const id   = c.Id || c.id;
-          const name = c.Name || c.name || 'Danh mục';
-          const img  = c.ImageUrl || c.imageUrl || fallbackImgs[i % fallbackImgs.length];
-          return `
-            <div class="col-6 col-md-4">
-              <a href="shop.html?category=${id}" class="gh-category-card d-block">
-                <img src="${img}" alt="${name}" loading="lazy"/>
-                <div class="gh-category-card__overlay">
-                  <h3 class="gh-category-card__name">${name}</h3>
-                </div>
-              </a>
-            </div>
-          `;
-        }).join('');
-      }
-
-      // ========== FEATURED SECTION (with fallback) ==========
-      async function renderSection(hostId, section, fallbackParams) {
-        const host = document.getElementById(hostId);
-        let list = [];
-        try {
-          const featured = await Featured.getBySection(section);
-          list = _featuredToProducts(featured);
-        } catch (_) {}
-
-        if (!list.length) {
-          try {
-            const res = await Product.getAll({ isActive: true, ...fallbackParams });
-            list = _extractList(res);
-          } catch (_) {}
-        }
-
-        if (!list.length) {
-          _renderEmptyGrid(host, 'Chưa có sản phẩm trong section này.');
+        var cdnImgs = [
+          "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80",
+          "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=700&q=80",
+          "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80",
+        ];
+        var items = cats.length ? cats.slice(0, 3) : [];
+        if (!items.length) {
+          strip.innerHTML = "";
           return;
         }
-        host.innerHTML = list.slice(0, 8).map(_renderProductCard).join('');
+        strip.innerHTML = items
+          .map(function (c, i) {
+            var id = c.Id || c.id || i + 1;
+            var name = c.Name || c.name || "Danh Mục " + (i + 1);
+            var desc = c.Description || c.description || "";
+            var count = c.ProductCount || c.productCount || "";
+            var local = localImgs[i] || localImgs[0];
+            var cdn = cdnImgs[i] || cdnImgs[0];
+            var countStr = count ? `${count} Sản Phẩm` : "Khám Phá";
+            return `<div class="gh-lifestyle-item" onclick="location.href='shop.html?cat=${id}'">
+      <img src="${local}" alt="${name}" loading="lazy" onerror="this.src='${cdn}'"/>
+      <div class="gh-lifestyle-overlay"></div>
+      <div class="gh-lifestyle-label">
+        <div class="cat">${countStr}</div>
+        <div class="title">${name}</div>
+        <a href="shop.html?cat=${id}" class="link">Xem Ngay <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>`;
+          })
+          .join("");
       }
 
-      // ========== PROMO from SiteSettings ==========
-      async function renderPromo() {
-        try {
-          const settings = await SiteSettings.getAll('homepage');
-          const list = _extractList(settings);
-          const map = {};
-          list.forEach(s => { map[s.Key || s.key] = s.Value || s.value; });
-          const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
-          set('promo-title',    map.promo_title);
-          set('promo-subtitle', map.promo_subtitle);
-          if (map.promo_cta_text) document.getElementById('promo-cta').textContent = map.promo_cta_text;
-          if (map.promo_cta_link) document.getElementById('promo-cta').href = map.promo_cta_link;
-        } catch (_) {}
-      }
+      // ── MAIN INIT ──
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof renderNavUser !== "undefined") renderNavUser();
+        if (typeof Cart !== "undefined") Cart._updateUI();
 
-      // ========== TESTIMONIALS (top-rated reviews) ==========
-      async function renderTestimonials() {
-        const host = document.getElementById('testimonials-grid');
-        const seed = [];
-        try {
-          // Lấy 6 sản phẩm bán chạy / mới làm seed cho review
-          const featured = await Featured.getBySection('best_sellers').catch(() => null);
-          let prods = _featuredToProducts(featured);
-          if (prods.length < 3) {
-            const res = await Product.getAll({ isActive: true, pageSize: 6 });
-            prods = _extractList(res);
+        // Admin bar
+        if (
+          typeof Auth !== "undefined" &&
+          Auth.isLoggedIn &&
+          Auth.isLoggedIn() &&
+          Auth.isAdmin &&
+          Auth.isAdmin()
+        ) {
+          var ab = document.getElementById("adminBar");
+          if (ab) {
+            ab.classList.add("show");
+            document.body.style.paddingTop = "40px";
           }
-          for (const p of prods.slice(0, 6)) {
-            const pid = p.Id || p.id;
-            try {
-              const reviews = await Review.getByProduct(pid);
-              _extractList(reviews).forEach(r => {
-                const rating = r.Rating ?? r.rating ?? 0;
-                if (rating >= 4 && (r.Comment || r.comment)) {
-                  seed.push({
-                    rating,
-                    text: r.Comment || r.comment,
-                    name: r.UserName || r.userName || r.User?.Name || 'Khách hàng',
-                    productName: p.Name || p.name,
-                  });
-                }
-              });
-            } catch (_) {}
-            if (seed.length >= 6) break;
-          }
-        } catch (_) {}
-
-        const picks = seed.slice(0, 3);
-        if (!picks.length) {
-          // Không có review → ẩn section bằng cách bỏ test
-          host.innerHTML = `<div class="col-12"><div class="gh-empty-state">Chưa có đánh giá nào — hãy là người đầu tiên!</div></div>`;
-          return;
         }
 
-        host.innerHTML = picks.map(t => `
-          <div class="col-md-4">
-            <div class="gh-testimonial">
-              <div class="gh-testimonial__stars">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
-              <p class="gh-testimonial__text">"${t.text}"</p>
-              <div class="gh-testimonial__author">${t.name}</div>
-              <div class="gh-testimonial__role">Đánh giá: ${t.productName}</div>
-            </div>
-          </div>
-        `).join('');
+        // ── 1. SiteSettings → Hero content ──
+        if (typeof SiteSettings !== "undefined") {
+          SiteSettings.getAll("homepage")
+            .then(function (s) {
+              if (!s) return;
+              var m = {
+                heroTitle: "heroTitle",
+                heroSub: "heroSub",
+                heroEyebrow: "heroEyebrow",
+                heroCta: "heroCtaText",
+                heroImg: null,
+              };
+              if (s.hero_title && document.getElementById("heroTitle"))
+                document.getElementById("heroTitle").innerHTML = s.hero_title;
+              if (s.hero_sub && document.getElementById("heroSub"))
+                document.getElementById("heroSub").textContent = s.hero_sub;
+              if (s.hero_eyebrow && document.getElementById("heroEyebrow"))
+                document.getElementById("heroEyebrow").textContent =
+                  s.hero_eyebrow;
+              if (s.hero_cta && document.getElementById("heroCtaText"))
+                document.getElementById("heroCtaText").textContent = s.hero_cta;
+              if (s.hero_img && document.getElementById("heroImg")) {
+                document.getElementById("heroImg").src = s.hero_img;
+                document.querySelector('link[rel="preload"]') &&
+                  (document.querySelector('link[rel="preload"]').href =
+                    s.hero_img);
+              }
+            })
+            .catch(function () {});
+        }
+
+        // ── 2. Banner API → Split Panels ──
+        if (typeof Banner !== "undefined") {
+          Banner.getAll()
+            .then(function (data) {
+              var banners = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              if (banners.length) _renderSplitPanels(banners);
+            })
+            .catch(function () {
+              // Fallback static
+              _renderSplitPanels([]);
+            });
+        } else {
+          _renderSplitPanels([]);
+        }
+
+        // ── 3. Product API → Hàng Mới (newGrid) ──
+        if (typeof Product !== "undefined") {
+          Product.getAll({ isNew: true, limit: 5 })
+            .then(function (data) {
+              var ps = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              if (ps.length) {
+                _renderNewGrid(ps);
+              } else {
+                // Try Featured API fallback
+                return typeof Featured !== "undefined"
+                  ? Featured.getBySection("new_arrivals").then(function (fd) {
+                      var fps = Array.isArray(fd)
+                        ? fd
+                        : fd && fd.items
+                          ? fd.items
+                          : [];
+                      var mapped = fps.map(function (f) {
+                        return f.Product || f.product || f;
+                      });
+                      _renderNewGrid(
+                        mapped.length ? mapped : _demoProducts().slice(0, 5),
+                      );
+                    })
+                  : Promise.resolve(
+                      _renderNewGrid(_demoProducts().slice(0, 5)),
+                    );
+              }
+            })
+            .catch(function () {
+              _renderNewGrid(_demoProducts().slice(0, 5));
+            });
+        } else {
+          _renderNewGrid(_demoProducts().slice(0, 5));
+        }
+
+        // ── 4. Product API → Bán Chạy (bestStrip) ──
+        if (typeof Product !== "undefined") {
+          Product.getAll({ limit: 8 })
+            .then(function (data) {
+              var ps = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderBestStrip(ps.length ? ps : _demoProducts());
+            })
+            .catch(function () {
+              _renderBestStrip(_demoProducts());
+            });
+        } else {
+          _renderBestStrip(_demoProducts());
+        }
+
+        // ── 5. Category API → Lifestyle Strip ──
+        if (typeof Category !== "undefined") {
+          Category.getAll()
+            .then(function (data) {
+              var cats = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderCategories(cats.slice(0, 3));
+            })
+            .catch(function () {
+              _renderCategories([]);
+            });
+        } else {
+          // Category module chưa load - thử gọi trực tiếp
+          apiFetch(PRODUCT_API, "/api/categories", "GET")
+            .then(function (data) {
+              var cats = Array.isArray(data)
+                ? data
+                : data && data.items
+                  ? data.items
+                  : [];
+              _renderCategories(cats.slice(0, 3));
+            })
+            .catch(function () {
+              _renderCategories([]);
+            });
+        }
+      });
+
+      // ── DEMO FALLBACK ──
+      function _demoProducts() {
+        return [
+          {
+            Id: 1,
+            Name: "Estée Lauder Night Repair",
+            Price: 2480000,
+            DiscountPrice: null,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500",
+            IsNew: true,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+          },
+          {
+            Id: 3,
+            Name: "Shiseido Ultimune Serum",
+            Price: 3100000,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=500",
+            IsNew: true,
+            Category: { Name: "Chăm Sóc Da Mặt" },
+          },
+          {
+            Id: 7,
+            Name: "Dior Rouge Dior Satin",
+            Price: 1050000,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=500",
+            IsNew: false,
+            Category: { Name: "Trang Điểm" },
+          },
+          {
+            Id: 16,
+            Name: "Chanel N°5 EDP 50ml",
+            Price: 4800000,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1541643600914-78b084683702?w=500",
+            IsNew: false,
+            Category: { Name: "Nước Hoa" },
+          },
+          {
+            Id: 9,
+            Name: "Charlotte Tilbury Filter",
+            Price: 1200000,
+            DiscountPrice: 1200000,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1583241475880-083f84372725?w=500",
+            IsNew: true,
+            Category: { Name: "Trang Điểm" },
+          },
+          {
+            Id: 21,
+            Name: "L'Oréal Absolut Repair",
+            Price: 580000,
+            ImageUrl:
+              "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500",
+            IsNew: false,
+            Category: { Name: "Chăm Sóc Tóc" },
+          },
+        ];
       }
+    </script>
+    <script src="js/gsap.js" defer></script>
+    <script>
+      function toggleUserMenu(btn) {
+        var open = btn.classList.contains("open");
+        document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+          b.classList.remove("open");
+        });
+        if (!open) btn.classList.add("open");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".gh-user-btn"))
+          document.querySelectorAll(".gh-user-btn.open").forEach(function (b) {
+            b.classList.remove("open");
+          });
+      });
 
-      // ========== BOOT ==========
-      document.addEventListener('DOMContentLoaded', () => {
-        mountLayout({ active: 'home' });
+      // ════════════════════════════════════════
+      //  WISHLIST — localStorage + Offcanvas
+      // ════════════════════════════════════════
+      var WISH_KEY = "glowhub_wishlist";
 
-        renderHero();
-        renderCategories();
-        renderSection('new-arrivals-grid', 'new_arrivals', { pageSize: 8 });
-        renderSection('best-sellers-grid', 'best_sellers', { pageSize: 8 });
-        renderPromo();
-        renderTestimonials();
+      function _getWishlist() {
+        try {
+          return JSON.parse(localStorage.getItem(WISH_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+      function _saveWishlist(items) {
+        localStorage.setItem(WISH_KEY, JSON.stringify(items));
+        _updateWishUI();
+      }
+      function _updateWishUI() {
+        var items = _getWishlist();
+        var count = items.length;
+        var badge = document.getElementById("wish-count");
+        var icon = document.getElementById("navHeartIcon");
+        if (badge) {
+          badge.textContent = count;
+          badge.style.display = count > 0 ? "" : "none";
+        }
+        if (icon) {
+          icon.className = count > 0 ? "bi bi-heart-fill" : "bi bi-heart";
+          icon.style.color = count > 0 ? "var(--pink)" : "";
+        }
+        // render panel nếu đang mở
+        var panel = document.getElementById("wishPanel");
+        if (panel && panel.classList.contains("open")) _renderWishPanel();
+      }
+      function _renderWishPanel() {
+        var items = _getWishlist();
+        var list = document.getElementById("wishList");
+        if (!list) return;
+        if (!items.length) {
+          list.innerHTML =
+            '<div style="text-align:center;padding:60px 20px;color:#bbb"><i class="bi bi-heart" style="font-size:40px"></i><p style="margin-top:12px;font-size:13px">Chưa có sản phẩm yêu thích</p></div>';
+          return;
+        }
+        list.innerHTML = items
+          .map(function (p) {
+            var img =
+              p.image || "https://placehold.co/64x64/f5f0ea/888?text=IMG";
+            return (
+              '<div style="display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid #f0f0f0">' +
+              '<a href="product.html?id=' +
+              p.id +
+              '" style="flex-shrink:0">' +
+              '<img src="' +
+              img +
+              '" style="width:64px;height:64px;object-fit:cover;border-radius:4px" onerror="this.src=\'https://placehold.co/64x64/f5f0ea/888?text=IMG\'"/></a>' +
+              '<div style="flex:1;min-width:0">' +
+              '<a href="product.html?id=' +
+              p.id +
+              '" style="font-size:13px;font-weight:500;color:#111;text-decoration:none;line-height:1.4;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+              (p.name || "Sản phẩm") +
+              "</a>" +
+              '<div style="font-size:13px;color:var(--pink,#f759ab);margin-top:4px">' +
+              _fmtWish(p.price) +
+              "</div>" +
+              '<button onclick="removeFromWishlist(' +
+              p.id +
+              ')" style="margin-top:6px;background:none;border:none;font-size:11px;color:#aaa;cursor:pointer;padding:0;letter-spacing:.5px">✕ Xóa</button>' +
+              "</div></div>"
+            );
+          })
+          .join("");
+      }
+      function _fmtWish(n) {
+        if (!n && n !== 0) return "--";
+        return new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+      }
+      function openWishPanel() {
+        var panel = document.getElementById("wishPanel");
+        if (!panel) return;
+        panel.style.transform = "translateX(0)";
+        _renderWishPanel();
+        var ov = document.getElementById("wishOverlay");
+        if (ov) ov.style.display = "block";
+        document.body.style.overflow = "hidden";
+      }
+      function closeWishPanel() {
+        var panel = document.getElementById("wishPanel");
+        if (panel) panel.style.transform = "translateX(100%)";
+        var ov = document.getElementById("wishOverlay");
+        if (ov) ov.style.display = "none";
+        document.body.style.overflow = "";
+      }
+      function removeFromWishlist(id) {
+        var items = _getWishlist().filter(function (p) {
+          return p.id != id;
+        });
+        _saveWishlist(items);
+      }
+      // Init
+      document.addEventListener("DOMContentLoaded", function () {
+        _updateWishUI();
       });
     </script>
+
+    <!-- ── WISHLIST OFFCANVAS PANEL ── -->
+    <div
+      id="wishOverlay"
+      onclick="closeWishPanel()"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 10998;
+      "
+    ></div>
+    <div
+      id="wishPanel"
+      style="
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 360px;
+        max-width: 95vw;
+        height: 100vh;
+        background: #fff;
+        z-index: 10999;
+        transform: translateX(100%);
+        transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -4px 0 32px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      "
+    >
+      <!-- Header -->
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 22px;
+          border-bottom: 1px solid #f0f0f0;
+        "
+      >
+        <span
+          style="
+            font-family: &quot;Marcellus&quot;, serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+          "
+          >YÊU THÍCH</span
+        >
+        <button
+          onclick="closeWishPanel()"
+          style="
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+          "
+        >
+          ×
+        </button>
+      </div>
+      <!-- List -->
+      <div
+        id="wishList"
+        style="flex: 1; overflow-y: auto; padding: 0 22px"
+      ></div>
+      <!-- Footer -->
+      <div style="padding: 16px 22px; border-top: 1px solid #f0f0f0">
+        <a
+          href="shop.html"
+          onclick="closeWishPanel()"
+          style="
+            display: block;
+            text-align: center;
+            background: #111;
+            color: #fff;
+            padding: 13px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+          "
+        >
+          TIẾP TỤC MUA SẮM
+        </a>
+      </div>
+    </div>
+
+    <!-- ── FLASH SALE INDEX SCRIPT ── -->
+    <script>
+    (function () {
+      var _cdInterval = null;
+
+      function _pad(n) { return String(n).padStart(2, "0"); }
+      function _fmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
+
+      function _startCountdown(secs) {
+        var remaining = Math.max(0, secs);
+        var el = document.getElementById("idx-fs-countdown");
+        if (el) el.style.display = "flex";
+        clearInterval(_cdInterval);
+        function tick() {
+          if (remaining <= 0) { clearInterval(_cdInterval); return; }
+          var h = Math.floor(remaining / 3600);
+          var m = Math.floor((remaining % 3600) / 60);
+          var s = remaining % 60;
+          document.getElementById("idx-cd-h").textContent = _pad(h);
+          document.getElementById("idx-cd-m").textContent = _pad(m);
+          document.getElementById("idx-cd-s").textContent = _pad(s);
+          remaining--;
+        }
+        tick();
+        _cdInterval = setInterval(tick, 1000);
+      }
+
+      function _renderCard(p) {
+        var pct = p.totalQuantity > 0
+          ? Math.min(100, Math.round(p.soldCount / p.totalQuantity * 100)) : 100;
+        var soldOut = p.remainingQuantity <= 0;
+        return '<a href="product.html?id=' + p.productId + '" style="text-decoration:none; flex:0 0 180px; background:#fff; border:1px solid #e2ddd8; display:flex; flex-direction:column; overflow:hidden; transition:transform 0.22s, box-shadow 0.22s;" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 24px rgba(0,0,0,0.1)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">'
+          + '<div style="position:relative; aspect-ratio:1; overflow:hidden; background:#f8f5f0;">'
+          + '<img src="' + (p.image || "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300&q=70") + '" alt="' + p.name + '" loading="lazy" style="width:100%; height:100%; object-fit:cover;" onerror="this.src=\'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300&q=70\'">'
+          + '<span style="position:absolute; top:8px; left:8px; background:#f759ab; color:#fff; font-size:10px; font-weight:700; padding:3px 7px; border-radius:2px;">⚡ -' + p.discountPercent + '%</span>'
+          + (soldOut ? '<div style="position:absolute; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center;"><span style="color:#fff; font-size:11px; letter-spacing:2px; border:1px solid rgba(255,255,255,0.6); padding:5px 10px;">HẾT HÀNG</span></div>' : '')
+          + '</div>'
+          + '<div style="padding:10px 12px 12px; flex:1; display:flex; flex-direction:column; gap:6px;">'
+          + '<div style="font-size:12px; color:#111; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em;">' + p.name + '</div>'
+          + '<div style="display:flex; flex-direction:column; gap:2px; min-height:3.2em;">'
+          + '<span style="font-size:10px; color:#888; text-decoration:line-through; display:block; min-height:1.4em;">' + _fmt(p.originalPrice) + '</span>'
+          + '<span style="font-size:1.05rem; font-weight:700; color:#f759ab; font-family:Jost,sans-serif; display:block;">' + _fmt(p.salePrice) + '</span>'
+          + '</div>'
+          + '<div style="height:4px; background:#e2ddd8; border-radius:999px; overflow:hidden; margin-top:auto;">'
+          + '<div style="height:100%; background:linear-gradient(90deg,#d946a0,#f759ab); border-radius:999px; width:0%; transition:width 1s ease;" data-pct="' + pct + '"></div>'
+          + '</div>'
+          + '<div style="font-size:9px; color:#888; display:flex; justify-content:space-between;">'
+          + '<span>Đã bán ' + p.soldCount + '</span><span>Còn ' + Math.max(0, p.remainingQuantity) + '</span>'
+          + '</div>'
+          + '</div>'
+          + '</a>';
+      }
+
+      function _animateBars() {
+        document.querySelectorAll("#idx-fs-strip [data-pct]").forEach(function (el) {
+          var pct = el.dataset.pct || 0;
+          requestAnimationFrame(function () {
+            setTimeout(function () { el.style.width = pct + "%"; }, 150);
+          });
+        });
+      }
+
+      async function loadIndexFlashSale() {
+        try {
+          var sale = await FlashSale.getActive();
+          if (!sale || !sale.products || sale.products.length === 0) return;
+
+          document.getElementById("flash-sale-section").style.display = "";
+          _startCountdown(sale.secondsRemaining);
+
+          var strip = document.getElementById("idx-fs-strip");
+          strip.innerHTML = sale.products.slice(0, 8).map(_renderCard).join("");
+          _animateBars();
+        } catch (_) {}
+      }
+
+      // ── Recently Viewed ──────────────────────────────
+      function _rvFmt(n) { return new Intl.NumberFormat("vi-VN").format(n) + "₫"; }
+
+      function _rvCard(p) {
+        var id    = p.id || p.Id;
+        var name  = p.name || p.Name || "Sản phẩm";
+        var price = p.price || p.Price || 0;
+        var img   = p.imageUrl || p.ImageUrl || p.image || "";
+        var discP = p.discountPrice || p.DiscountPrice || 0;
+        return '<a href="product.html?id=' + id + '" style="text-decoration:none; flex:0 0 160px; background:#fff; border:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; transition:transform 0.22s, box-shadow 0.22s;" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 24px rgba(0,0,0,0.1)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">'
+          + '<div style="aspect-ratio:1; overflow:hidden; background:var(--cream);">'
+          + (img ? '<img src="' + img + '" alt="' + name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'images/product-item-1.jpg\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍</div>')
+          + '</div>'
+          + '<div style="padding:10px 12px;">'
+          + '<div style="font-size:12px;color:var(--dark);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;">' + name + '</div>'
+          + '<div style="font-size:13px;font-weight:700;color:var(--pink);">' + _rvFmt(discP || price) + '</div>'
+          + '</div>'
+          + '</a>';
+      }
+
+      async function loadIndexRecentlyViewed() {
+        var strip   = document.getElementById("idx-recently-strip");
+        var section = document.getElementById("idx-recently-section");
+        if (!strip || !section) return;
+
+        var items = [];
+
+        // Try API first (logged in)
+        try {
+          var token = Auth && Auth.getToken ? Auth.getToken() : null;
+          if (token) {
+            var res = await fetch("/api/recently-viewed", { headers: { "Authorization": "Bearer " + token } });
+            if (res.ok) items = await res.json();
+          }
+        } catch(_) {}
+
+        // Fallback: localStorage
+        if (items.length === 0) {
+          try { items = JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]"); } catch(_) {}
+        }
+
+        if (!items || items.length === 0) return;
+        strip.innerHTML = items.slice(0, 10).map(_rvCard).join("");
+        section.style.display = "";
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        loadIndexFlashSale();
+        loadIndexRecentlyViewed();
+      });
+    })();
+    </script>
+    <script src="js/cart-limit.js" defer></script>
+    <script src="js/navbar.js" defer></script>
   </body>
 </html>

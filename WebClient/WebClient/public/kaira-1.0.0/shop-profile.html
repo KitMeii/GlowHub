@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <title id="pageTitle">Shop — GlowHub</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="theme-color" content="#f759ab"/>
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'"/>
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&family=Marcellus&display=swap" rel="stylesheet"/></noscript>
+  <link rel="stylesheet" href="css/tokens.css"/>
+  <link rel="stylesheet" href="theme/shop-profile.css"/>
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<!-- ── TOPBAR ── -->
+<div class="gh-topbar">
+  🌸 MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500.000₫ &nbsp;·&nbsp; MỸ PHẨM CHÍNH HÃNG 100% &nbsp;·&nbsp; GIAO HÀNG TOÀN QUỐC
+</div>
+
+<!-- ── NAVBAR ── -->
+<nav class="gh-nav" id="ghNav">
+  <div class="gh-nav-inner">
+    <a href="index.html" class="gh-logo">GLOWHUB</a>
+    <ul class="gh-menu">
+      <li><a href="shop.html" data-page="shop">Cửa Hàng</a></li>
+      <li><a href="flash-sale.html" data-page="flash-sale">Flash Sale</a></li>
+      <li class="gh-has-dropdown">
+        <a href="#">Danh Mục ▾</a>
+        <ul class="gh-cat-dropdown gh-dropdown">
+          <li class="gh-dropdown-loading">Đang tải...</li>
+        </ul>
+      </li>
+      <li><a href="vouchers.html" data-page="vouchers">Ưu Đãi</a></li>
+    </ul>
+    <div class="gh-nav-right">
+      <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+      </a>
+      <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="gh-badge gh-cart-badge" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="gh-login-cta" id="ghLoginBtn">Đăng Nhập</a>
+      <div class="gh-user-wrap" id="ghUserWrap" style="display:none">
+        <button class="gh-user-trigger" id="ghUserTrigger">
+          <span class="gh-avatar">?</span>
+          <span class="gh-username"></span>
+          <span class="gh-caret">▾</span>
+        </button>
+        <div class="gh-user-dropdown" id="ghUserDropdown">
+          <div class="gh-dropdown-header">
+            <span class="gh-avatar-lg">?</span>
+            <div>
+              <p class="gh-dropdown-name gh-fullname"></p>
+              <p class="gh-dropdown-role gh-role-label"></p>
+            </div>
+          </div>
+          <a href="profile.html" class="gh-dropdown-item"><span class="gh-item-icon">👤</span>Hồ Sơ Của Tôi</a>
+          <a href="profile.html#orders" class="gh-dropdown-item"><span class="gh-item-icon">📦</span>Đơn Hàng<span class="gh-dropdown-badge gh-orders-badge" style="display:none">0</span></a>
+          <a href="profile.html#wishlist" class="gh-dropdown-item"><span class="gh-item-icon">❤️</span>Yêu Thích</a>
+          <a href="profile.html#wallet" class="gh-dropdown-item"><span class="gh-item-icon">💳</span>Ví GlowHub<span class="gh-dropdown-bal gh-wallet-bal"></span></a>
+          <a href="vouchers.html" class="gh-dropdown-item"><span class="gh-item-icon">🎫</span>Kho Voucher</a>
+          <hr class="gh-dropdown-divider">
+          <a href="seller-dashboard.html" class="gh-dropdown-item gh-seller-only" style="display:none"><span class="gh-item-icon">🏪</span>Quản Lý Shop</a>
+          <a href="admin.html" class="gh-dropdown-item gh-admin-only" style="display:none"><span class="gh-item-icon">⚙️</span>Quản Trị Hệ Thống</a>
+          <hr class="gh-dropdown-divider">
+          <button class="gh-dropdown-item gh-logout" id="ghLogoutBtn"><span class="gh-item-icon">🚪</span>Đăng Xuất</button>
+        </div>
+      </div>
+      <button class="gh-hamburger" id="ghHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="gh-search-overlay" id="ghSearchOverlay" style="display:none">
+    <div class="gh-search-wrap">
+      <input type="search" class="gh-search-input" id="ghSearchInput" placeholder="Tìm kiếm sản phẩm mỹ phẩm..." autocomplete="off">
+      <button class="gh-search-close" id="ghSearchClose">✕</button>
+    </div>
+    <div class="gh-search-body" id="ghSearchBody"></div>
+  </div>
+</nav>
+<div class="gh-overlay" id="ghOverlay"></div>
+<div class="gh-drawer" id="ghDrawer">
+  <div class="gh-drawer-top">
+    <a href="index.html" class="gh-drawer-logo">GLOWHUB</a>
+    <button class="gh-drawer-close" id="ghDrawerClose">✕</button>
+  </div>
+  <div class="gh-drawer-user" id="ghDrawerUser" style="display:none">
+    <span class="gh-avatar">?</span>
+    <div class="gh-drawer-user-info">
+      <div class="name" id="ghDrawerUserName"></div>
+      <div class="role gh-role-label"></div>
+    </div>
+  </div>
+  <nav class="gh-drawer-nav">
+    <a href="index.html">Trang Chủ</a>
+    <a href="shop.html">Cửa Hàng</a>
+    <a href="flash-sale.html">Flash Sale</a>
+    <a href="vouchers.html">Ưu Đãi</a>
+    <div id="ghDrawerCats"></div>
+    <a href="profile.html" id="ghDrawerProfile" style="display:none">Hồ Sơ Của Tôi</a>
+  </nav>
+  <div class="gh-drawer-footer">
+    <a href="login.html" class="gh-btn-dark" id="ghDrawerLogin">Đăng Nhập</a>
+    <button class="gh-btn-ghost" id="ghDrawerLogout" style="display:none">Đăng Xuất</button>
+  </div>
+</div>
+
+<!-- SHOP HEADER -->
+<div class="sp-header" id="shopHeaderSection">
+  <div class="sp-banner" id="shopBanner"></div>
+  <div class="sp-header-inner">
+    <div class="sp-avatar-wrap">
+      <div class="sp-avatar-fallback" id="shopAvatarFallback">G</div>
+      <img class="sp-avatar" id="shopAvatarImg" src="" alt="" style="display:none"/>
+    </div>
+    <div class="sp-info">
+      <div class="sp-name" id="shopName">Đang tải...</div>
+      <span class="sp-verified"><i class="bi bi-patch-check-fill"></i> Đã xác minh</span>
+      <div class="sp-stats">
+        <div class="sp-stat">
+          <div class="sp-stat-val" id="statProducts">—</div>
+          <div class="sp-stat-lbl">Sản phẩm</div>
+        </div>
+        <div class="sp-stat">
+          <div class="sp-stat-val" id="statSold">—</div>
+          <div class="sp-stat-lbl">Đã bán</div>
+        </div>
+        <div class="sp-stat">
+          <div class="sp-stat-val" id="statRating">—</div>
+          <div class="sp-stat-lbl">⭐ Đánh giá</div>
+        </div>
+        <div class="sp-stat">
+          <div class="sp-stat-val" id="statJoined">—</div>
+          <div class="sp-stat-lbl">Tham gia</div>
+        </div>
+      </div>
+    </div>
+    <div class="sp-actions">
+      <button class="sp-btn-chat" id="chatBtn" onclick="handleChatShop()">
+        <i class="bi bi-chat-dots"></i> Chat
+      </button>
+      <button class="sp-btn-follow" id="followBtn" onclick="toggleFollow()">
+        <i class="bi bi-heart"></i> Theo Dõi
+      </button>
+    </div>
+  </div>
+  <div class="sp-desc-wrap">
+    <p class="sp-desc" id="shopDesc">Đang tải thông tin shop...</p>
+    <button class="sp-desc-more" id="descMore" style="display:none" onclick="toggleDesc()">Xem thêm ↓</button>
+  </div>
+</div>
+
+<!-- SHOP VOUCHERS -->
+<div class="sp-vouchers" id="shopVoucherSection">
+  <div class="sp-vouchers-header">
+    <span class="sp-vouchers-title">🏷 Voucher Của Shop</span>
+    <a class="sp-vouchers-more" id="shopVouchersMoreLink" href="vouchers.html" style="display:none">Xem tất cả →</a>
+  </div>
+  <div class="sp-vouchers-grid" id="shopVoucherGrid">
+    <div class="sp-vc-skel"></div>
+    <div class="sp-vc-skel"></div>
+    <div class="sp-vc-skel"></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="sp-filter-wrap">
+  <div class="sp-filter-inner" id="filterBar">
+    <button class="sp-cat-tab active" data-cat="" onclick="setCat('',this)">Tất Cả</button>
+    <div class="sp-filter-sep"></div>
+    <select class="sp-select" id="sortSelect" onchange="applyFilters()">
+      <option value="newest">Mới Nhất</option>
+      <option value="best-seller">Bán Chạy</option>
+      <option value="price-asc">Giá Tăng</option>
+      <option value="price-desc">Giá Giảm</option>
+    </select>
+    <select class="sp-select" id="priceFilter" onchange="applyFilters()">
+      <option value="">Tất cả giá</option>
+      <option value="0-100000">Dưới 100k</option>
+      <option value="100000-500000">100k – 500k</option>
+      <option value="500000-1000000">500k – 1tr</option>
+      <option value="1000000-">Trên 1tr</option>
+    </select>
+  </div>
+</div>
+
+<!-- PRODUCT GRID -->
+<div class="sp-content">
+  <div class="sp-grid" id="productGrid">
+    <!-- skeletons -->
+    <div class="sp-card"><div class="sp-skel" style="aspect-ratio:3/4"></div><div class="sp-skel" style="height:14px;margin-top:10px"></div><div class="sp-skel" style="height:12px;margin-top:6px;width:60%"></div></div>
+    <div class="sp-card"><div class="sp-skel" style="aspect-ratio:3/4"></div><div class="sp-skel" style="height:14px;margin-top:10px"></div><div class="sp-skel" style="height:12px;margin-top:6px;width:60%"></div></div>
+    <div class="sp-card"><div class="sp-skel" style="aspect-ratio:3/4"></div><div class="sp-skel" style="height:14px;margin-top:10px"></div><div class="sp-skel" style="height:12px;margin-top:6px;width:60%"></div></div>
+    <div class="sp-card"><div class="sp-skel" style="aspect-ratio:3/4"></div><div class="sp-skel" style="height:14px;margin-top:10px"></div><div class="sp-skel" style="height:12px;margin-top:6px;width:60%"></div></div>
+  </div>
+  <div class="sp-load-more" id="loadMoreWrap" style="display:none">
+    <button class="sp-btn-more" onclick="loadMore()">Xem Thêm Sản Phẩm</button>
+  </div>
+</div>
+
+<!-- BOTTOM TABS: Đánh Giá + Thông Tin -->
+<div class="sp-tabs-section">
+  <div class="sp-tabs-inner">
+    <div class="sp-tab-bar">
+      <button class="sp-tab active" onclick="switchBottomTab('reviews',this)">Đánh Giá Shop</button>
+      <button class="sp-tab" onclick="switchBottomTab('info',this)">Thông Tin Shop</button>
+    </div>
+
+    <!-- TAB: ĐÁNH GIÁ -->
+    <div class="sp-tab-pane active" id="tab-reviews">
+      <div class="sp-rv-header">
+        <div>
+          <div class="sp-rv-big" id="rvBig">—</div>
+          <div class="sp-rv-stars" id="rvStars">★★★★★</div>
+          <div class="sp-rv-count" id="rvCount">0 đánh giá</div>
+        </div>
+        <div class="sp-rv-bars" id="rvBars"></div>
+      </div>
+      <div class="sp-rv-filter" id="rvFilterRow">
+        <button class="sp-rv-filter-btn active" data-rating="" onclick="setRvFilter('',this)">Tất Cả</button>
+        <button class="sp-rv-filter-btn" data-rating="5" onclick="setRvFilter('5',this)">5 ★</button>
+        <button class="sp-rv-filter-btn" data-rating="4" onclick="setRvFilter('4',this)">4 ★</button>
+        <button class="sp-rv-filter-btn" data-rating="3" onclick="setRvFilter('3',this)">3 ★</button>
+        <button class="sp-rv-filter-btn" data-rating="2" onclick="setRvFilter('2',this)">2 ★</button>
+        <button class="sp-rv-filter-btn" data-rating="1" onclick="setRvFilter('1',this)">1 ★</button>
+      </div>
+      <div id="rvList"><div class="sp-empty">Đang tải...</div></div>
+      <div class="sp-rv-pager" id="rvPager"></div>
+    </div>
+
+    <!-- TAB: THÔNG TIN -->
+    <div class="sp-tab-pane" id="tab-info">
+      <div class="sp-info-grid">
+        <div class="sp-info-item">
+          <i class="bi bi-geo-alt"></i>
+          <div>
+            <div class="sp-info-label">Địa chỉ</div>
+            <div class="sp-info-val" id="infoAddress">—</div>
+          </div>
+        </div>
+        <div class="sp-info-item">
+          <i class="bi bi-telephone"></i>
+          <div>
+            <div class="sp-info-label">Điện thoại</div>
+            <div class="sp-info-val" id="infoPhone">—</div>
+          </div>
+        </div>
+        <div class="sp-info-item">
+          <i class="bi bi-chat-dots"></i>
+          <div>
+            <div class="sp-info-label">Tỷ lệ phản hồi câu hỏi</div>
+            <div class="sp-info-val" id="infoResponseRate">—</div>
+          </div>
+        </div>
+        <div class="sp-info-item">
+          <i class="bi bi-calendar3"></i>
+          <div>
+            <div class="sp-info-label">Tham gia</div>
+            <div class="sp-info-val" id="infoJoined">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="sp-policy">
+        <h4>Chính Sách Đổi Trả</h4>
+        <ul>
+          <li>Đổi trả trong vòng 30 ngày kể từ ngày nhận hàng</li>
+          <li>Sản phẩm phải còn nguyên vẹn, chưa qua sử dụng</li>
+          <li>Hoàn tiền 100% nếu hàng lỗi hoặc sai mô tả</li>
+          <li>Miễn phí vận chuyển khi đổi trả do lỗi shop</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="gh-footer">
+  <div class="gh-footer-top">
+    <div>
+      <a href="index.html" class="gh-footer-logo">GlowHub</a>
+      <p class="gh-footer-desc">Cửa hàng thời trang và làm đẹp hàng đầu Việt Nam. Mang lại vẻ đẹp và sự tự tin cho hàng triệu phụ nữ.</p>
+      <div class="gh-footer-social">
+        <a href="https://facebook.com" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
+      </div>
+    </div>
+    <div class="gh-footer-col">
+      <h5>Cửa Hàng</h5>
+      <ul>
+        <li><a href="shop.html?section=new">Hàng Mới Về</a></li>
+        <li><a href="shop.html">Tất Cả Sản Phẩm</a></li>
+        <li><a href="shop.html?section=sale">Khuyến Mãi</a></li>
+      </ul>
+    </div>
+    <div class="gh-footer-col">
+      <h5>Hỗ Trợ</h5>
+      <ul>
+        <li><a href="policy.html#doi-tra">Đổi Trả</a></li>
+        <li><a href="policy.html#van-chuyen">Vận Chuyển</a></li>
+        <li><a href="policy.html#lien-he">Liên Hệ</a></li>
+      </ul>
+    </div>
+    <div class="gh-footer-col">
+      <h5>Tài Khoản</h5>
+      <ul>
+        <li><a href="login.html">Đăng Nhập</a></li>
+        <li><a href="register.html">Đăng Ký</a></li>
+        <li><a href="profile.html">Hồ Sơ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="gh-footer-bottom">
+    <p>© 2026 GlowHub. Bảo lưu mọi quyền.</p>
+    <div class="gh-footer-bottom-links">
+      <a href="policy.html#dieu-khoan">Điều Khoản</a>
+      <a href="policy.html#bao-mat">Bảo Mật</a>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div id="ghToast"></div>
+
+<script src="js/api.js" defer></script>
+<script>
+// @ts-nocheck
+var _shopId      = null;
+var _shopData    = null;
+var _svSavedIds  = new Set(); // IDs of vouchers already saved by user
+var _currentPage = 1;
+var _currentCat  = null;   // stores categoryId (int) or null
+var _currentSort = 'newest';
+var _currentMinPrice = null;
+var _currentMaxPrice = null;
+var _totalPages  = 1;
+var _rvPage      = 1;
+var _rvRating    = null;
+var _followed    = false;
+var _catIdMap    = {};      // categoryName → categoryId
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderNavUser !== 'undefined') renderNavUser();
+  if (typeof Cart !== 'undefined') Cart._updateUI();
+
+  var params = new URLSearchParams(location.search);
+  _shopId = params.get('id');
+  if (!_shopId) { location.href = 'shop.html'; return; }
+
+  loadShopProfile();
+
+  // Navbar scroll
+  window.addEventListener('scroll', function() {
+    var nav = document.getElementById('mainNav');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+  }, {passive: true});
+
+  // Infinite scroll via IntersectionObserver
+  var sentinel = document.getElementById('loadMoreWrap');
+  if ('IntersectionObserver' in window && sentinel) {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && _currentPage < _totalPages) {
+        _currentPage++;
+        loadProducts(false);
+      }
+    }, { rootMargin: '200px' });
+    obs.observe(sentinel);
+  }
+});
+
+// ── LOAD SHOP PROFILE ──
+function loadShopProfile() {
+  if (typeof ShopPublic === 'undefined') {
+    showToast('Không thể kết nối API', 'error');
+    return;
+  }
+  ShopPublic.getProfile(_shopId).then(function(data) {
+    _shopData = data;
+    renderShopHeader(data);
+    ShopPublic.getStats(_shopId).then(renderStats).catch(function(){});
+    loadCategories();
+    loadProducts();
+    loadReviewStats();
+    loadReviews();
+    loadShopVouchers();
+  }).catch(function() {
+    document.getElementById('shopName').textContent = 'Shop không tồn tại';
+    showToast('Không thể tải thông tin shop', 'error');
+  });
+}
+
+function renderShopHeader(d) {
+  document.title = d.shopName + ' — GlowHub';
+  document.getElementById('shopName').textContent = d.shopName || 'Shop';
+
+  // Avatar
+  if (d.logo) {
+    var img = document.getElementById('shopAvatarImg');
+    img.src = d.logo;
+    img.style.display = 'block';
+    document.getElementById('shopAvatarFallback').style.display = 'none';
+  } else {
+    document.getElementById('shopAvatarFallback').textContent = (d.shopName || 'S')[0].toUpperCase();
+  }
+
+  // Header stats
+  document.getElementById('statProducts').textContent = d.totalProducts || 0;
+  document.getElementById('statSold').textContent     = formatSold(d.totalSold || 0);
+  document.getElementById('statRating').textContent   = d.avgRating ? d.avgRating.toFixed(1) : '—';
+  document.getElementById('statJoined').textContent   = formatJoined(d.joinedDate);
+
+  // Description
+  var descEl = document.getElementById('shopDesc');
+  var moreEl = document.getElementById('descMore');
+  if (d.description) {
+    descEl.textContent = d.description;
+    if (d.description.length > 120) moreEl.style.display = 'block';
+  } else {
+    descEl.textContent = 'Chào mừng đến với ' + (d.shopName || 'shop') + '!';
+  }
+
+  // Info tab
+  document.getElementById('infoAddress').textContent = d.address || '—';
+  document.getElementById('infoPhone').textContent   = d.phone   || '—';
+  document.getElementById('infoJoined').textContent  = d.joinedDate
+    ? new Date(d.joinedDate).toLocaleDateString('vi-VN') : '—';
+
+  initFollowBtn(_shopId);
+}
+
+function renderStats(s) {
+  document.getElementById('infoResponseRate').textContent =
+    (s.responseRate != null ? s.responseRate : '—') + '%';
+}
+
+// ── REVIEW STATS (header of reviews tab) ──
+function loadReviewStats() {
+  // Use cached _shopData for big number + stars
+  var avg = (_shopData && _shopData.avgRating) || 0;
+  var total = (_shopData && _shopData.totalReviews) || 0;
+  document.getElementById('rvBig').textContent  = avg ? avg.toFixed(1) : '—';
+  document.getElementById('rvCount').textContent = total + ' đánh giá';
+  document.getElementById('rvStars').innerHTML   = buildStars(avg);
+
+  // Fetch ALL reviews (up to 200) once to build accurate distribution bars
+  if (typeof ShopPublic === 'undefined') return;
+  ShopPublic.getReviews(_shopId, 1, null, 200).then(function(data) {
+    renderRvBars(data.items || [], total);
+  }).catch(function(){});
+}
+
+// ── CATEGORIES ──
+function loadCategories() {
+  if (typeof ShopPublic === 'undefined') return;
+  // Fetch categories API + shop products in parallel
+  var catPromise = (typeof Category !== 'undefined') ? Category.getAll() : Promise.resolve([]);
+  var prodPromise = ShopPublic.getProducts(_shopId, {page:1, limit:500});
+
+  Promise.all([catPromise, prodPromise]).then(function(results) {
+    var allCats  = results[0] || [];
+    var products = (results[1].items || []);
+
+    // Build name → id map from Category API
+    allCats.forEach(function(c) {
+      var name = c.name || c.Name;
+      var id   = c.id   || c.Id;
+      if (name && id) _catIdMap[name] = id;
+    });
+
+    // Collect unique category names present in this shop
+    var catNames = {};
+    products.forEach(function(p) {
+      if (p.categoryName) catNames[p.categoryName] = true;
+    });
+
+    var names = Object.keys(catNames);
+    if (!names.length) return;
+
+    var bar = document.getElementById('filterBar');
+    names.forEach(function(name) {
+      var btn = document.createElement('button');
+      btn.className = 'sp-cat-tab';
+      btn.textContent = name;
+      var catId = _catIdMap[name] || null;
+      btn.onclick = function() { setCat(catId, btn); };
+      bar.insertBefore(btn, bar.querySelector('.sp-filter-sep'));
+    });
+  }).catch(function(){});
+}
+
+// ── LOAD PRODUCTS ──
+function loadProducts(reset) {
+  if (reset) { _currentPage = 1; }
+  var params = { page: _currentPage, limit: 12, sort: _currentSort };
+  if (_currentCat    != null) params.categoryId = _currentCat;
+  if (_currentMinPrice !== null) params.minPrice  = _currentMinPrice;
+  if (_currentMaxPrice !== null) params.maxPrice  = _currentMaxPrice;
+
+  if (_currentPage === 1) {
+    document.getElementById('productGrid').innerHTML = [1,2,3,4].map(function() {
+      return '<div class="sp-card"><div class="sp-skel" style="aspect-ratio:3/4"></div><div class="sp-skel" style="height:14px;margin-top:10px"></div><div class="sp-skel" style="height:12px;margin-top:6px;width:60%"></div></div>';
+    }).join('');
+  }
+
+  if (typeof ShopPublic === 'undefined') return;
+  ShopPublic.getProducts(_shopId, params).then(function(data) {
+    _totalPages = data.totalPages || 1;
+    var items   = data.items || [];
+    if (_currentPage === 1) {
+      document.getElementById('productGrid').innerHTML = items.length
+        ? items.map(renderCard).join('')
+        : '<div class="sp-empty"><i class="bi bi-box-seam"></i>Chưa có sản phẩm</div>';
+    } else {
+      document.getElementById('productGrid').insertAdjacentHTML('beforeend', items.map(renderCard).join(''));
+    }
+    // Show/hide infinite scroll sentinel
+    var wrap = document.getElementById('loadMoreWrap');
+    wrap.style.display = _currentPage < _totalPages ? 'flex' : 'none';
+  }).catch(function() {
+    document.getElementById('productGrid').innerHTML = '<div class="sp-empty"><i class="bi bi-exclamation-circle"></i>Không thể tải sản phẩm</div>';
+  });
+}
+
+function renderCard(p) {
+  var pid = p.id || p.Id;
+  var fmtP = function(n) { return new Intl.NumberFormat('vi-VN').format(n||0) + ' ₫'; };
+  var price      = p.price || p.Price || 0;
+  var finalPrice = p.discountPrice || price;
+  var oldPrice   = p.discountPrice ? price : 0;
+  var avg = p.avgRating || 0;
+  var starsHtml = buildStars(avg);
+  var badge = p.isNew
+    ? '<span class="sp-card-badge new-badge">Mới</span>'
+    : (p.discountPct > 0 ? '<span class="sp-card-badge sale-badge">-' + p.discountPct + '%</span>' : '');
+  var imgHtml = p.image
+    ? '<img src="' + p.image + '" alt="' + escHtml(p.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>'
+    : '<div style="aspect-ratio:3/4;background:#f5f0ea"></div>';
+  var safeNameJson = JSON.stringify(p.name  || '').replace(/"/g, '&quot;');
+  var safeImgJson  = JSON.stringify(p.image || '').replace(/"/g, '&quot;');
+  return '<div class="sp-card" onclick="location.href=\'product.html?id=' + pid + '\'" style="cursor:pointer">' +
+    '<div class="sp-card-img-wrap">' + badge + imgHtml +
+    '<button class="sp-card-wish" data-id="' + pid + '" onclick="event.stopPropagation();toggleWish(' + pid + ',this)" title="Yêu thích"><i class="bi bi-heart"></i></button>' +
+    '<button class="sp-card-add" onclick="event.stopPropagation();quickAddCart(' + pid + ',' + safeNameJson + ',' + finalPrice + ',' + safeImgJson + ')"><i class="bi bi-bag-plus"></i> Thêm Giỏ</button>' +
+    '</div>' +
+    '<div class="sp-card-info">' +
+    '<div class="sp-card-name">' + escHtml(p.name||'') + '</div>' +
+    (avg > 0 ? '<div class="sp-card-rating">' + starsHtml + '<span>(' + (p.reviewCount||0) + ')</span></div>' : '') +
+    '<div class="sp-card-price-row">' +
+    '<span class="sp-card-price">' + fmtP(finalPrice) + '</span>' +
+    (oldPrice ? '<span class="sp-card-price-old">' + fmtP(oldPrice) + '</span>' : '') +
+    '</div>' +
+    '</div></div>';
+}
+
+function loadMore() {
+  if (_currentPage < _totalPages) {
+    _currentPage++;
+    loadProducts(false);
+  }
+}
+
+// ── FILTERS ──
+function setCat(catId, btn) {
+  _currentCat = catId;
+  document.querySelectorAll('.sp-cat-tab').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  var sort  = document.getElementById('sortSelect').value;
+  var price = document.getElementById('priceFilter').value;
+  _currentSort     = sort;
+  _currentMinPrice = null;
+  _currentMaxPrice = null;
+  if (price) {
+    var parts = price.split('-');
+    _currentMinPrice = parts[0] ? parseFloat(parts[0]) : null;
+    _currentMaxPrice = parts[1] ? parseFloat(parts[1]) : null;
+  }
+  loadProducts(true);
+}
+
+// ── LOAD REVIEWS ──
+function loadReviews() {
+  if (typeof ShopPublic === 'undefined') return;
+  ShopPublic.getReviews(_shopId, _rvPage, _rvRating).then(function(data) {
+    renderReviews(data);
+  }).catch(function() {
+    document.getElementById('rvList').innerHTML = '<div class="sp-empty">Không có đánh giá nào</div>';
+  });
+}
+
+function renderRvBars(items, total) {
+  var dist = {5:0,4:0,3:0,2:0,1:0};
+  items.forEach(function(r) {
+    var rt = Math.min(5, Math.max(1, r.Rating || r.rating || 5));
+    dist[rt]++;
+  });
+  // Use items.length as denominator if total not provided
+  var denom = total || items.length || 1;
+  var html = [5,4,3,2,1].map(function(s) {
+    var w = denom > 0 ? Math.round((dist[s] / denom) * 100) : 0;
+    return '<div class="sp-rv-bar-row"><span>' + s + '★</span>' +
+      '<div class="sp-rv-bar-bg"><div class="sp-rv-bar-fill" style="width:' + w + '%"></div></div>' +
+      '<span>' + dist[s] + '</span></div>';
+  }).join('');
+  document.getElementById('rvBars').innerHTML = html;
+}
+
+function renderReviews(data) {
+  var items = data.items || [];
+  var fmtD  = function(dt) { return dt ? new Date(dt).toLocaleDateString('vi-VN') : ''; };
+  var html  = items.length ? items.map(function(r) {
+    var rating = r.Rating || r.rating || 5;
+    var starsHtml = '';
+    for (var i = 1; i <= 5; i++) starsHtml += i <= rating ? '★' : '☆';
+    var imgHtml = '';
+    if (r.Images) {
+      var imgs = r.Images.split(',').filter(Boolean);
+      imgHtml = imgs.map(function(u) {
+        return '<img class="sp-rv-img" src="' + u + '" loading="lazy" onclick="window.open(\'' + escHtml(u) + '\')">';
+      }).join('');
+      if (imgHtml) imgHtml = '<div class="sp-rv-images">' + imgHtml + '</div>';
+    }
+    var replyHtml = r.sellerReply
+      ? '<div class="sp-rv-reply"><div class="sp-rv-reply-label">Phản hồi từ Shop</div>' + escHtml(r.sellerReply) + '</div>'
+      : '';
+    return '<div class="sp-rv-card">' +
+      '<div class="sp-rv-card-meta">' +
+      '<div style="display:flex;align-items:center">' +
+      '<div class="sp-rv-avatar">' + (r.customerName || 'K')[0].toUpperCase() + '</div>' +
+      '<div><div class="sp-rv-author">' + escHtml(r.customerName || 'Khách hàng') + '</div>' +
+      (r.isVerifiedPurchase ? '<span class="sp-rv-verified"><i class="bi bi-check-circle"></i> Đã mua hàng</span>' : '') +
+      '</div></div>' +
+      '<div class="sp-rv-date">' + fmtD(r.createdAt || r.CreatedAt) + '</div>' +
+      '</div>' +
+      '<div class="sp-rv-stars-row">' + starsHtml + '</div>' +
+      (r.productName ? '<div class="sp-rv-product">Sản phẩm: <a href="product.html?id=' + (r.id || r.Id) + '">' + escHtml(r.productName) + '</a></div>' : '') +
+      '<div class="sp-rv-text">' + escHtml(r.comment || r.Comment || '') + '</div>' +
+      imgHtml + replyHtml + '</div>';
+  }).join('')
+    : '<div class="sp-empty"><i class="bi bi-star"></i>Chưa có đánh giá nào</div>';
+  document.getElementById('rvList').innerHTML = html;
+
+  // Pager
+  var totalPages = data.totalPages || 1;
+  var pHtml = '';
+  if (totalPages > 1) {
+    if (_rvPage > 1) pHtml += '<button onclick="goRvPage(' + (_rvPage-1) + ')">‹</button>';
+    for (var pg = 1; pg <= totalPages; pg++) {
+      pHtml += '<button class="' + (pg === _rvPage ? 'active' : '') + '" onclick="goRvPage(' + pg + ')">' + pg + '</button>';
+    }
+    if (_rvPage < totalPages) pHtml += '<button onclick="goRvPage(' + (_rvPage+1) + ')">›</button>';
+  }
+  document.getElementById('rvPager').innerHTML = pHtml;
+}
+
+function setRvFilter(rating, btn) {
+  _rvRating = rating || null;
+  _rvPage   = 1;
+  document.querySelectorAll('.sp-rv-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  loadReviews();
+}
+
+function goRvPage(p) {
+  _rvPage = p;
+  loadReviews();
+  document.getElementById('tab-reviews').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── BOTTOM TABS ──
+function switchBottomTab(id, btn) {
+  document.querySelectorAll('.sp-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.sp-tab-pane').forEach(function(p) { p.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var pane = document.getElementById('tab-' + id);
+  if (pane) pane.classList.add('active');
+}
+
+// ── WISHLIST ──
+function toggleWish(productId, btn) {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    showToast('Vui lòng đăng nhập để yêu thích', 'error'); return;
+  }
+  if (typeof Wishlist === 'undefined') return;
+  var wished = btn.classList.contains('wished');
+  if (wished) {
+    Wishlist.remove(productId).then(function() {
+      btn.classList.remove('wished');
+      btn.innerHTML = '<i class="bi bi-heart"></i>';
+      showToast('Đã xóa khỏi yêu thích');
+    }).catch(function() { showToast('Lỗi khi xóa', 'error'); });
+  } else {
+    Wishlist.add(productId).then(function() {
+      btn.classList.add('wished');
+      btn.innerHTML = '<i class="bi bi-heart-fill"></i>';
+      showToast('♥ Đã thêm vào yêu thích');
+    }).catch(function() { showToast('Lỗi khi thêm', 'error'); });
+  }
+}
+
+// ── CART ──
+function quickAddCart(id, name, price, img) {
+  if (typeof Cart !== 'undefined') {
+    Cart.add({
+      id: id, name: name, price: price, image: img,
+      shopId:   _shopId || "",
+      shopName: (_shopData && _shopData.shopName) || ""
+    });
+    showToast('✓ Đã thêm "' + name + '" vào giỏ');
+  }
+}
+
+// ── FOLLOW ──
+var _FOLLOW_KEY = 'gh_followed_shops';
+
+function initFollowBtn(shopId) {
+  // Optimistic init from localStorage
+  var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
+  _followed = list.some(function(s) { return String(s.id) === String(shopId); });
+  _syncFollowBtn();
+
+  // Sync from DB if logged in
+  if (typeof Auth !== 'undefined' && Auth.isLoggedIn() && typeof Shop !== 'undefined' && Shop.getFollowed) {
+    Shop.getFollowed().then(function(res) {
+      var items = (res && res.items) || [];
+      _followed = items.some(function(s) { return String(s.shopId) === String(shopId); });
+      // Rebuild localStorage from DB state
+      var local = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]')
+        .filter(function(s) { return String(s.id) !== String(shopId); });
+      if (_followed) local.push({ id: shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+      localStorage.setItem(_FOLLOW_KEY, JSON.stringify(local));
+      _syncFollowBtn();
+    }).catch(function() {});
+  }
+}
+
+function _syncFollowBtn() {
+  var btn = document.getElementById('followBtn');
+  if (!btn) return;
+  if (_followed) {
+    btn.innerHTML = '<i class="bi bi-heart-fill"></i> Đang Theo Dõi';
+    btn.classList.add('active');
+  } else {
+    btn.innerHTML = '<i class="bi bi-heart"></i> Theo Dõi';
+    btn.classList.remove('active');
+  }
+}
+
+function toggleFollow() {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    showToast('Vui lòng đăng nhập để theo dõi shop', 'error');
+    setTimeout(function() { location.href = 'login.html'; }, 1200);
+    return;
+  }
+  var list = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]');
+  var wasFollowed = _followed;
+  _followed = !_followed;
+  _syncFollowBtn();
+
+  if (_followed) {
+    list.push({ id: _shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+    localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
+    showToast('♥ Đã theo dõi shop ' + ((_shopData && _shopData.shopName) || ''));
+    if (typeof Shop !== 'undefined' && Shop.follow) {
+      Shop.follow(_shopId).catch(function() {
+        // Rollback on error
+        _followed = wasFollowed;
+        _syncFollowBtn();
+        var l = JSON.parse(localStorage.getItem(_FOLLOW_KEY) || '[]')
+          .filter(function(s) { return String(s.id) !== String(_shopId); });
+        localStorage.setItem(_FOLLOW_KEY, JSON.stringify(l));
+        showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+      });
+    }
+  } else {
+    list = list.filter(function(s) { return String(s.id) !== String(_shopId); });
+    localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
+    showToast('Đã bỏ theo dõi shop');
+    if (typeof Shop !== 'undefined' && Shop.unfollow) {
+      Shop.unfollow(_shopId).catch(function() {
+        // Rollback on error
+        _followed = wasFollowed;
+        _syncFollowBtn();
+        list.push({ id: _shopId, name: (_shopData && _shopData.shopName) || '', logo: (_shopData && _shopData.logo) || '' });
+        localStorage.setItem(_FOLLOW_KEY, JSON.stringify(list));
+        showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+      });
+    }
+  }
+}
+
+// ── CHAT ──
+function handleChatShop() {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    showToast('Vui lòng đăng nhập để chat với shop', 'error');
+    setTimeout(function() { location.href = 'login.html'; }, 1200);
+    return;
+  }
+  openChatWidget();
+}
+
+var _CHAT_KEY_PREFIX = 'gh_chat_';
+var _chatOpen = false;
+
+function _chatKey() { return _CHAT_KEY_PREFIX + _shopId; }
+
+function _getChatMsgs() { return JSON.parse(localStorage.getItem(_chatKey()) || '[]'); }
+
+function _saveChatMsgs(msgs) { localStorage.setItem(_chatKey(), JSON.stringify(msgs)); }
+
+function openChatWidget() {
+  var widget = document.getElementById('spChatWidget');
+  if (!widget) { _buildChatWidget(); widget = document.getElementById('spChatWidget'); }
+  widget.classList.add('open');
+  _chatOpen = true;
+  _renderChatMsgs();
+  var input = document.getElementById('spChatInput');
+  if (input) input.focus();
+}
+
+function closeChatWidget() {
+  var widget = document.getElementById('spChatWidget');
+  if (widget) widget.classList.remove('open');
+  _chatOpen = false;
+}
+
+function _buildChatWidget() {
+  var shopName = (_shopData && _shopData.shopName) || 'Shop';
+  var fab = document.createElement('button');
+  fab.id = 'spChatFab';
+  fab.className = 'visible';
+  fab.title = 'Chat với ' + shopName;
+  fab.innerHTML = '<i class="bi bi-chat-dots"></i><span class="sp-chat-badge" id="spChatBadge"></span>';
+  fab.onclick = function() { openChatWidget(); };
+  document.body.appendChild(fab);
+
+  var widget = document.createElement('div');
+  widget.id = 'spChatWidget';
+  widget.innerHTML =
+    '<div class="sp-chat-head">' +
+      '<i class="bi bi-chat-dots"></i>' +
+      '<span class="sp-chat-head-name">Chat với ' + escHtml(shopName) + '</span>' +
+      '<button class="sp-chat-close" onclick="closeChatWidget()" title="Đóng">×</button>' +
+    '</div>' +
+    '<div class="sp-chat-msgs" id="spChatMsgs"><p class="sp-chat-empty">Bắt đầu cuộc trò chuyện với shop!</p></div>' +
+    '<div class="sp-chat-foot">' +
+      '<input class="sp-chat-input" id="spChatInput" placeholder="Nhập tin nhắn..." />' +
+      '<button class="sp-chat-send" onclick="sendChatMsg()" title="Gửi"><i class="bi bi-send"></i></button>' +
+    '</div>';
+  document.body.appendChild(widget);
+
+  document.getElementById('spChatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMsg(); }
+  });
+}
+
+function _renderChatMsgs() {
+  var box = document.getElementById('spChatMsgs');
+  if (!box) return;
+  var msgs = _getChatMsgs();
+  if (!msgs.length) {
+    box.innerHTML = '<p class="sp-chat-empty">Bắt đầu cuộc trò chuyện với shop!</p>';
+    return;
+  }
+  box.innerHTML = msgs.map(function(m) {
+    return '<div class="sp-chat-bubble ' + (m.from === 'me' ? 'me' : 'them') + '">' +
+      escHtml(m.text) +
+      '<span class="sp-chat-ts">' + m.time + '</span></div>';
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendChatMsg() {
+  var input = document.getElementById('spChatInput');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text) return;
+  var msgs = _getChatMsgs();
+  var now = new Date();
+  var timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  msgs.push({ from: 'me', text: text, time: timeStr });
+  _saveChatMsgs(msgs);
+  input.value = '';
+  _renderChatMsgs();
+
+  // Simulated auto-reply after 1.2s
+  setTimeout(function() {
+    var replies = ['Xin chào! Shop sẽ phản hồi sớm nhất có thể 😊', 'Cảm ơn bạn đã liên hệ!', 'Bạn cần hỗ trợ gì ạ?', 'Shop đang kiểm tra, bạn chờ shop chút nhé!'];
+    var reply = replies[Math.floor(Math.random() * replies.length)];
+    var now2 = new Date();
+    var t2 = now2.getHours() + ':' + String(now2.getMinutes()).padStart(2,'0');
+    msgs.push({ from: 'shop', text: reply, time: t2 });
+    _saveChatMsgs(msgs);
+    if (_chatOpen) _renderChatMsgs();
+    else {
+      var badge = document.getElementById('spChatBadge');
+      if (badge) badge.classList.add('has'), badge.textContent = '+1';
+    }
+  }, 1200);
+}
+
+// ── DESC TOGGLE ──
+function toggleDesc() {
+  var el  = document.getElementById('shopDesc');
+  var btn = document.getElementById('descMore');
+  var expanded = el.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Thu gọn ↑' : 'Xem thêm ↓';
+}
+
+// ── HELPERS ──
+function buildStars(avg) {
+  var html = '';
+  for (var s = 1; s <= 5; s++) {
+    html += s <= Math.floor(avg) ? '★' : (s - 0.5 <= avg ? '⭑' : '☆');
+  }
+  return html;
+}
+
+// ── SHOP VOUCHER SECTION ──────────────────────────────────
+function _svFmt(n) { return new Intl.NumberFormat('vi-VN').format(n) + '₫'; }
+function _svFmtK(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'tr';
+  if (n >= 1000)    return (n / 1000).toFixed(0) + 'k';
+  return _svFmt(n);
+}
+
+function renderShopVoucherCard(v) {
+  var isShip = v.DiscountType === 'freeship' ||
+               (v.Code && v.Code.includes('SHIP')) ||
+               (v.Description && /freeship|vận chuyển/i.test(v.Description));
+  var label = isShip ? 'FREESHIP'
+            : v.DiscountType === 'percent' ? '-' + v.DiscountValue + '%'
+            : '-' + _svFmtK(v.DiscountValue);
+  var minLine = v.MinOrderAmount > 0
+    ? 'Đơn ' + _svFmtK(v.MinOrderAmount)
+    : 'Mọi đơn hàng';
+  var descLine = v.Description ? v.Description : v.Code;
+  var isSaved = _svSavedIds.has(v.Id);
+  var btn = '';
+  if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+    btn = isSaved
+      ? '<button class="sp-vc-btn saved" disabled>✓ Đã Lưu</button>'
+      : '<button class="sp-vc-btn" onclick="saveShopVoucher(this,\'' + v.Code + '\',' + v.Id + ')">Lưu</button>';
+  }
+  return '<div class="sp-vc-card" id="spvc-' + v.Id + '">' +
+    '<div class="sp-vc-discount">' + label + '</div>' +
+    '<div class="sp-vc-label">' + escHtml(descLine) + '</div>' +
+    '<div class="sp-vc-min">' + minLine + '</div>' +
+    '<div class="sp-vc-code">' + v.Code + '</div>' +
+    btn +
+    '</div>';
+}
+
+function loadShopVouchers() {
+  // Fetch saved voucher IDs first (if logged in), then public list
+  var savedPromise = (typeof Auth !== 'undefined' && Auth.isLoggedIn())
+    ? fetch(PRODUCT_API + '/api/vouchers/my', {
+        headers: { Authorization: 'Bearer ' + Auth.getToken() }
+      }).then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; })
+    : Promise.resolve([]);
+
+  var publicPromise = fetch(PRODUCT_API + '/api/vouchers/public')
+    .then(function(r){ return r.ok ? r.json() : []; })
+    .catch(function(){ return []; });
+
+  Promise.all([savedPromise, publicPromise]).then(function(results) {
+    var saved  = results[0];
+    var all    = results[1];
+
+    // Populate saved IDs
+    saved.forEach(function(cv) {
+      var v = cv.voucher || cv;
+      if (v && v.Id) _svSavedIds.add(v.Id);
+    });
+
+    // Filter to this shop only
+    var shopVouchers = all.filter(function(v) {
+      return String(v.ShopId) === String(_shopId);
+    });
+
+    var section  = document.getElementById('shopVoucherSection');
+    var grid     = document.getElementById('shopVoucherGrid');
+    var moreLink = document.getElementById('shopVouchersMoreLink');
+
+    if (!shopVouchers.length) {
+      section.style.display = 'none'; // hide only after we know there are none
+      return;
+    }
+
+    var display = shopVouchers.slice(0, 3);
+    grid.innerHTML = display.map(renderShopVoucherCard).join('');
+
+    if (shopVouchers.length > 3 && moreLink) {
+      moreLink.href = 'vouchers.html?tab=shop';
+      moreLink.style.display = '';
+    }
+  });
+}
+
+function saveShopVoucher(btn, code, id) {
+  if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+    location.href = 'login.html';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '...';
+  fetch(PRODUCT_API + '/api/vouchers/save/' + code, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + Auth.getToken() }
+  }).then(function(r) {
+    if (r.ok) {
+      _svSavedIds.add(id);
+      btn.classList.add('saved');
+      btn.textContent = '✓ Đã Lưu';
+      showToast && showToast('Đã lưu voucher ' + code + '!');
+    } else {
+      return r.json().then(function(d) {
+        showToast && showToast(d.message || 'Không thể lưu voucher', false);
+        btn.disabled = false;
+        btn.textContent = 'Lưu';
+      });
+    }
+  }).catch(function() {
+    showToast && showToast('Lỗi kết nối', false);
+    btn.disabled = false;
+    btn.textContent = 'Lưu';
+  });
+}
+
+function formatSold(n) {
+  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'k';
+  return n;
+}
+
+function formatJoined(dt) {
+  if (!dt) return '—';
+  var days = Math.floor((Date.now() - new Date(dt).getTime()) / 86400000);
+  if (days < 30)  return days + ' ngày';
+  if (days < 365) return Math.floor(days / 30) + ' tháng';
+  return Math.floor(days / 365) + ' năm';
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type) {
+  var c  = document.getElementById('ghToast');
+  var el = document.createElement('div');
+  el.className = 'gh-toast-item';
+  var icon = type === 'error' ? 'bi-exclamation-circle' : 'bi-check-circle';
+  el.innerHTML = '<i class="bi ' + icon + '"></i> ' + msg;
+  c.appendChild(el);
+  setTimeout(function() {
+    el.style.transition = 'opacity .3s';
+    el.style.opacity = '0';
+    setTimeout(function() { el.remove(); }, 350);
+  }, 2800);
+}
+</script>
+<script src="js/navbar.js" defer></script>
+</body>
+</html>

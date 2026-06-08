@@ -1,131 +1,50 @@
-# ============================================================
-#  .NET / Visual Studio
-# ============================================================
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-
-# Visual Studio cache/options directory
-.vs/
-.vscode/
-*.suo
+# ── .NET Build Output ──────────────────────────────────────
+bin/
+obj/
 *.user
+*.suo
 *.userosscache
 *.sln.docstates
-*.userprefs
 
-# Build server
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-*.VisualState.xml
-TestResult.xml
-nunit-*.xml
-
-# Rider / JetBrains
+# ── Visual Studio ───────────────────────────────────────────
+.vs/
+*.rsuser
 .idea/
-*.sln.iml
-
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
 *.DotSettings.user
 
-# NuGet
+# ── Publish / Packages ──────────────────────────────────────
+publish/
+[Pp]ackages/
 *.nupkg
 *.snupkg
-**/[Pp]ackages/*
-!**/[Pp]ackages/build/
-*.nuget.props
-*.nuget.targets
 
-# StyleCop
-StyleCopReport.xml
-
-# Files built by Visual Studio
-*_i.c
-*_p.c
-*_h.h
-*.ilk
-*.meta
-*.obj
-*.iobj
-*.pch
-*.pdb
-*.ipdb
-*.pgc
-*.pgd
-*.rsp
-*.sbr
-*.tlb
-*.tli
-*.tlh
+# ── Logs & Temp ─────────────────────────────────────────────
+*.log
 *.tmp
-*.tmp_proj
-*_wpftmp.csproj
-*.log
-*.tlog
-*.vspscc
-*.vssscc
-.builds
-*.pidb
-*.svclog
-*.scc
-
-# Chutzpah Test files
-_Chutzpah*
-
-# Visual C++ cache files
-ipch/
-*.aps
-*.ncb
-*.opendb
-*.opensdf
-*.sdf
-*.cachefile
-*.VC.db
-*.VC.VC.opendb
-
-# Windows
+*.temp
 Thumbs.db
-ehthumbs.db
 Desktop.ini
-$RECYCLE.BIN/
 
-# macOS
-.DS_Store
-
-# ============================================================
-#  Runtime data — không commit lên git
-# ============================================================
-# Ảnh user upload (mỗi server có dữ liệu khác nhau)
-BaseCore/BaseCore.APIService/wwwroot/images/products/
-
-# Logs runtime
-*.log
-
-# ============================================================
-#  Node / WebClient (đã có .gitignore riêng trong WebClient/WebClient)
-# ============================================================
-node_modules/
-dist/
-dist-ssr/
-*.local
-
-# ============================================================
-#  Local secrets / env
-# ============================================================
+# ── Environment / Secrets ───────────────────────────────────
 *.env
-.env.*
-appsettings.Local.json
-appsettings.Development.json.local
+appsettings.local.json
+appsettings.*.local.json
+secrets.json
+
+# ── Node / Frontend ─────────────────────────────────────────
+node_modules/
+npm-debug.log*
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+ehthumbs.db
+
+# ── Archives ────────────────────────────────────────────────
+*.zip
+*.rar
+*.7z
+
+# ── Admin files (excluded from Kittt branch) ────────────────
+WebClient/WebClient/public/kaira-1.0.0/admin.html
+WebClient/WebClient/public/kaira-1.0.0/theme/admin.css
+BaseCore/BaseCore.APIService/Controllers/AdminController.cs

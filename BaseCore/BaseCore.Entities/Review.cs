@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,11 +25,21 @@ namespace BaseCore.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        [StringLength(500)]
+        public string? SellerReply { get; set; }
+
+        public DateTime? ReplyAt { get; set; }
+
+        [StringLength(1000)]
+        public string? Images { get; set; }
+
+        public bool IsVerifiedPurchase { get; set; } = false;
+
         // Navigation property
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
-        
+
         [ForeignKey("UserId")]
-        public IdentityUser User { get; set; }
+        public User User { get; set; }
     }
 }

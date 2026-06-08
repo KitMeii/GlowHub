@@ -1,6 +1,9 @@
 using BaseCore.Repository;
 using BaseCore.Repository.Authen;
 using BaseCore.Services.Authen;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +40,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "BaseCore Auth Service API",
         Version = "v1",
-        Description = "Authentication Microservice - Login, Register, User Management (Bài 10, 11)"
+        Description = "Authentication Microservice - Login, Register, OAuth, User Management"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -73,12 +76,23 @@ builder.Services.AddDbContext<MySqlDbContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// JWT Authentication Key
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "YourSecretKeyForAuthenticationShouldBeLongEnough");
-builder.Services.AddAuthentication(x =>
+// JWT key
+var jwtKey = Encoding.ASCII.GetBytes(
+    builder.Configuration["AppSettings:Secret"] ??
+    builder.Configuration["Jwt:SecretKey"] ??
+    "YourSecretKeyForAuthenticationShouldBeLongEnough");
+
+builder.Services.AddAuthentication(options =>
 {
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme       = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.Cookie.SameSite    = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.LoginPath          = "/api/oauth/google";
 })
 .AddJwtBearer(x =>
 {
@@ -87,10 +101,24 @@ builder.Services.AddAuthentication(x =>
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
+        IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
         ValidateIssuer = false,
         ValidateAudience = false
     };
+})
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+{
+    options.ClientId     = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    options.CallbackPath = "/api/oauth/google/callback";
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
+{
+    options.AppId      = builder.Configuration["Authentication:Facebook:AppId"] ?? "";
+    options.AppSecret  = builder.Configuration["Authentication:Facebook:AppSecret"] ?? "";
+    options.CallbackPath = "/api/oauth/facebook/callback";
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 });
 
 var app = builder.Build();
@@ -113,7 +141,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseStaticFiles(); // phải có để phục vụ ảnh
+
 Console.WriteLine("BaseCore Auth Service running on port 5002");
-Console.WriteLine("Endpoints: /api/auth, /api/users, /api/roles");
+Console.WriteLine("Endpoints: /api/auth, /api/users, /api/roles, /api/oauth");
 app.Run();

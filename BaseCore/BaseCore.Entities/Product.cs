@@ -1,13 +1,11 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;   // Thêm dòng này
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseCore.Entities
 {
     public class Product
     {
-        [BsonId]
+        [Key]
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -24,23 +22,39 @@ namespace BaseCore.Entities
 
         public bool IsActive { get; set; } = true;
 
+        /// <summary>Optimistic Concurrency — SQL Server tự cập nhật, EF tự kiểm tra khi UPDATE</summary>
         [Timestamp]
         public byte[] RowVersion { get; set; }
 
-        [BsonIgnore]
         public Category Category { get; set; }
 
-        // 👇 Thêm [NotMapped] cho các thuộc tính không có trong DB
-        [NotMapped]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? DiscountPrice { get; set; }
 
-        [NotMapped]
         public bool IsNew { get; set; } = false;
 
-        [NotMapped]
         public int SortOrder { get; set; } = 0;
 
-        [NotMapped]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>Shop owning this product — null if seeded or admin-created</summary>
+        public string? ShopId { get; set; }
+
+        public Shop? Shop { get; set; }
+
+        /// <summary>JSON array of additional image URLs (max 5)</summary>
+        public string? Images { get; set; }
+
+        /// <summary>JSON key-value specifications</summary>
+        public string? Specifications { get; set; }
+
+        /// <summary>Cached sold count — incremented when order completes</summary>
+        public int SoldCount { get; set; } = 0;
+
+        /// <summary>Cached view count — incremented on product detail page load</summary>
+        public int ViewCount { get; set; } = 0;
+
+        /// <summary>Trọng lượng tính phí ship (gram) — mặc định 500g</summary>
+        public int WeightGram { get; set; } = 500;
     }
 }

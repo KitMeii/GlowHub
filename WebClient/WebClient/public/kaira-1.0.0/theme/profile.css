@@ -1,0 +1,631 @@
+/* ═══════════════════════════════════════════════════════
+   GlowHub — profile.css
+   CSS trích xuất từ profile.html — KHÔNG chỉnh sửa trực tiếp
+   Thay đổi màu sắc tổng thể qua tokens.css
+   ════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;700&family=Marcellus&display=swap');
+
+:root {
+        --pink: #f759ab;
+        --pink-light: #fff0f8;
+        --dark: #111;
+        --cream: #f8f5f0;
+        --border: #e2ddd8;
+        --gray: #888;
+        --font-disp: "Cormorant Garamond", Georgia, serif;
+        --font-body: "Jost", sans-serif;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: #fafafa;
+        color: var(--dark);
+      }
+
+      /* ── Profile Layout ── */
+      .profile-shell {
+        min-height: 100vh;
+        padding: 40px 0 80px;
+        background: linear-gradient(135deg, #fafafa 0%, #fff0f8 100%);
+      }
+
+      /* ── Sidebar Card ── */
+      .profile-sidebar {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        position: sticky;
+        top: 90px;
+      }
+
+      .profile-banner {
+        height: 80px;
+        background: linear-gradient(135deg, #111 0%, #f759ab 100%);
+        position: relative;
+      }
+
+      .profile-avatar-wrap {
+        position: absolute;
+        bottom: -32px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .profile-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        background: var(--pink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-disp);
+        font-size: 26px;
+        font-weight: 500;
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(247, 89, 171, 0.3);
+      }
+
+      .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-sidebar-body {
+        padding: 44px 20px 20px;
+        text-align: center;
+      }
+
+      .profile-name {
+        font-family: var(--font-disp);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--dark);
+        margin-bottom: 2px;
+      }
+
+      .profile-username {
+        font-size: 12px;
+        color: var(--gray);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .profile-email {
+        font-size: 12px;
+        color: var(--gray);
+        margin-bottom: 12px;
+      }
+
+      .profile-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .profile-badge.admin {
+        background: #111;
+        color: #fff;
+      }
+
+      .profile-badge.customer {
+        background: var(--pink-light);
+        color: var(--pink);
+      }
+
+      .profile-stats-row {
+        display: flex;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin: 0 -20px 16px;
+      }
+
+      .pstat-item {
+        flex: 1;
+        padding: 12px 8px;
+        text-align: center;
+        border-right: 1px solid var(--border);
+      }
+
+      .pstat-item:last-child {
+        border-right: none;
+      }
+
+      .pstat-num {
+        font-family: var(--font-disp);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--dark);
+        line-height: 1;
+      }
+
+      .pstat-label {
+        font-size: 10px;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 2px;
+      }
+
+      /* ── Sidebar Nav ── */
+      .profile-nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 11px 14px;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 500;
+        color: #555;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s;
+        margin-bottom: 2px;
+        letter-spacing: 0.5px;
+      }
+
+      .profile-nav-btn:hover {
+        background: var(--cream);
+        color: var(--dark);
+      }
+
+      .profile-nav-btn.active {
+        background: var(--pink-light);
+        color: var(--pink);
+      }
+
+      .profile-nav-btn.danger {
+        color: #dc2626;
+      }
+
+      .profile-nav-btn.danger:hover {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+
+      /* ── Main Content ── */
+      .profile-content-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+
+      .pcard-header {
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .pcard-title {
+        font-family: var(--font-disp);
+        font-size: 22px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+
+      .pcard-body {
+        padding: 24px;
+      }
+
+      /* ── Section show/hide ── */
+      .psec {
+        display: none;
+      }
+
+      .psec.active {
+        display: block;
+      }
+
+      /* ── Info Grid ── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      @media (max-width: 576px) {
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .info-field {
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      .info-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--gray);
+        margin-bottom: 4px;
+      }
+
+      .info-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--dark);
+        word-break: break-all;
+      }
+
+      .info-field.full {
+        grid-column: 1 / -1;
+      }
+
+      /* ── Edit Form ── */
+      .gh-form-group {
+        margin-bottom: 16px;
+      }
+
+      .gh-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--gray);
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+
+      .gh-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--dark);
+        background: #fff;
+        transition: border-color 0.2s;
+        outline: none;
+      }
+
+      .gh-input:focus {
+        border-color: var(--pink);
+      }
+
+      .gh-input[readonly] {
+        background: #fafafa;
+        color: var(--gray);
+        cursor: not-allowed;
+      }
+
+      /* ── Buttons ── */
+      .gh-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 22px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .gh-btn-primary:hover {
+        background: var(--pink);
+      }
+
+      .gh-btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 22px;
+        background: #fff;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .gh-btn-outline:hover {
+        border-color: var(--dark);
+      }
+
+      /* ── Orders ── */
+      .order-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        transition: box-shadow 0.2s;
+      }
+
+      .order-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      }
+
+      .order-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .order-id {
+        font-weight: 600;
+        color: var(--pink);
+        font-size: 14px;
+      }
+
+      .order-date {
+        font-size: 12px;
+        color: var(--gray);
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+
+      .status-PENDING {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-CONFIRMED {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .status-SHIPPING {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+
+      .status-COMPLETED {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-CANCELLED {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .status-WAITING_PAYMENT {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+
+      .status-PENDING_BANK_CONFIRM {
+        background: #ede9fe;
+        color: #5b21b6;
+      }
+
+      .order-countdown {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9a3412;
+        background: #ffedd5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 1px;
+      }
+
+      .order-countdown.urgent {
+        color: #991b1b;
+        background: #fee2e2;
+        animation: cd-pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes cd-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.55; }
+      }
+
+      .pay-now-btn {
+        display: inline-block;
+        font-size: 10px;
+        padding: 5px 14px;
+        background: var(--pink, #f759ab);
+        color: #fff !important;
+        border: none;
+        cursor: pointer;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: background .2s;
+      }
+
+      .pay-now-btn:hover { background: #d6479a; }
+
+      .order-body {
+        padding: 12px 16px;
+      }
+
+      .order-item-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .order-item-row:last-child {
+        border-bottom: none;
+      }
+
+      .order-item-img {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+        background: #f3f4f6;
+      }
+
+      .order-item-name {
+        font-size: 13px;
+        font-weight: 500;
+        flex: 1;
+        color: var(--dark);
+      }
+
+      .order-item-price {
+        font-size: 13px;
+        color: var(--pink);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .order-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: #fafafa;
+        border-top: 1px solid var(--border);
+      }
+
+      .order-total {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .order-total span {
+        color: var(--pink);
+      }
+
+      /* ── Password form ── */
+      .pwd-strength {
+        height: 3px;
+        border-radius: 2px;
+        background: #e5e7eb;
+        margin-top: 4px;
+        overflow: hidden;
+      }
+
+      .pwd-strength-bar {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.3s,
+          background 0.3s;
+        width: 0%;
+        background: var(--pink);
+      }
+
+      /* ── Empty state ── */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--gray);
+      }
+
+      .empty-state i {
+        font-size: 40px;
+        margin-bottom: 12px;
+        opacity: 0.4;
+        display: block;
+      }
+
+      /* ── Loading skeleton ── */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e8e8e8 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 4px;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* ── Toast ── */
+      #profileToast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .toast-msg {
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #fff;
+        background: #111;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-left: 3px solid var(--pink);
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+      }
+
+      .toast-msg.err {
+        background: #dc2626;
+        border-left-color: #ff6b6b;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 767px) {
+        .profile-sidebar {
+          position: static;
+          margin-bottom: 20px;
+        }
+
+        .pcard-body {
+          padding: 16px;
+        }
+      }
