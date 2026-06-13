@@ -207,7 +207,7 @@
       .gh-hero {
         position: relative;
         width: 100%;
-        height: clamp(380px, 55vh, 600px);
+        height: calc(100vh - 88px);
         overflow: hidden;
         background: var(--cream);
       }
@@ -467,10 +467,9 @@
       .gh-asym {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
+        grid-template-rows: auto auto;
         gap: 3px;
         margin: 0 3px;
-        height: clamp(360px, calc(100vh - 250px), 500px);
       }
       .gh-asym-card {
         position: relative;
@@ -483,13 +482,13 @@
       }
       .gh-asym-card img {
         width: 100%;
-        height: 100%;
+        aspect-ratio: 3/4;
         object-fit: cover;
         display: block;
         transition: transform 1s var(--ease-lux);
       }
       .gh-asym-card.featured img {
-        height: 100%;
+        aspect-ratio: 2/3;
       }
       .gh-asym-card:hover img {
         transform: scale(1.06);
@@ -592,7 +591,7 @@
         }
         .gh-asym-card img,
         .gh-asym-card.featured img {
-          min-height: 200px;
+          aspect-ratio: 3/4;
         }
         .gh-split {
           grid-template-columns: 1fr;
@@ -690,7 +689,6 @@
       .gh-strip-card img {
         width: 100%;
         aspect-ratio: 3/4;
-        max-height: 240px;
         object-fit: cover;
         display: block;
         transition: transform 1s var(--ease-lux);
