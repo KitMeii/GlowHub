@@ -2142,12 +2142,13 @@
         );
         previewProductImg();
         hideAlert("productAlertBox");
-        // Load gallery ảnh đã lưu
+        // Load gallery ảnh đã lưu — loại ảnh chính để tránh trùng
         galleryReset();
+        const _mainImg = product?.imageUrl || product?.ImageUrl || "";
         const existingImages = product?.images || product?.Images || [];
         const imgs = Array.isArray(existingImages) ? existingImages
           : (existingImages ? String(existingImages).split(",").map(s=>s.trim()).filter(Boolean) : []);
-        _galleryUrls = imgs.slice();
+        _galleryUrls = imgs.filter(function(u) { return u && u !== _mainImg; });
         galleryRenderSaved(_galleryUrls);
         openModal("productModal");
       }
