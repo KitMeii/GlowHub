@@ -207,7 +207,7 @@
       .gh-hero {
         position: relative;
         width: 100%;
-        height: calc(100vh - 88px);
+        height: clamp(380px, 55vh, 600px);
         overflow: hidden;
         background: var(--cream);
       }
@@ -249,17 +249,17 @@
         letter-spacing: 5px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 18px;
+        margin-bottom: 10px;
         font-weight: 400;
       }
       .gh-hero-title {
         font-family: var(--font-disp);
-        font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+        font-size: clamp(2.2rem, 4.5vw, 4.5rem);
         font-weight: 300;
         line-height: 1.05;
         letter-spacing: 2px;
         color: var(--dark);
-        margin-bottom: 20px;
+        margin-bottom: 14px;
         font-style: italic;
       }
       .gh-hero-sub {
@@ -267,7 +267,7 @@
         letter-spacing: 3px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 40px;
+        margin-bottom: 28px;
         font-weight: 300;
       }
       .gh-hero-cta {
@@ -388,7 +388,7 @@
       .gh-split-panel {
         position: relative;
         overflow: hidden;
-        height: clamp(420px, 65vh, 720px);
+        height: clamp(300px, 42vh, 500px);
         cursor: pointer;
       }
       .gh-split-panel img {
@@ -425,7 +425,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 40px;
+        padding: 24px 32px;
         color: #fff;
       }
       .gh-split-label {
@@ -485,11 +485,11 @@
         height: 100%;
         object-fit: cover;
         display: block;
-        min-height: 200px;
+        min-height: 160px;
         transition: transform 1s var(--ease-lux);
       }
       .gh-asym-card.featured img {
-        min-height: 380px;
+        min-height: 300px;
       }
       .gh-asym-card:hover img {
         transform: scale(1.06);
@@ -605,7 +605,7 @@
         grid-template-columns: 5fr 4fr 3fr;
         gap: 3px;
         margin: 0 3px;
-        height: clamp(300px, 42vh, 500px);
+        height: clamp(220px, 30vh, 360px);
       }
       .gh-lifestyle-item {
         position: relative;
@@ -1027,14 +1027,14 @@
           right: 5%;
         }
         .gh-hero-title {
-          font-size: 2.4rem;
+          font-size: 2rem;
         }
         .gh-lifestyle {
           grid-template-columns: 1fr;
           height: auto;
         }
         .gh-lifestyle-item {
-          height: 240px;
+          height: 180px;
         }
         .gh-strip-card {
           flex: 0 0 68vw;
@@ -1148,7 +1148,7 @@
       }
       .gh-asym-skel .s-lg {
         grid-row: 1/3;
-        min-height: 380px;
+        min-height: 300px;
       }
       .gh-skel-item {
         background: linear-gradient(
