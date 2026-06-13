@@ -601,10 +601,10 @@
       /* ── LIFESTYLE STRIP — Dior editorial ── */
       .gh-lifestyle {
         display: grid;
-        grid-template-columns: 5fr 4fr 3fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 3px;
         margin: 0 3px;
-        height: clamp(300px, 42vh, 500px);
+        height: clamp(280px, 38vh, 460px);
       }
       .gh-lifestyle-item {
         position: relative;
@@ -1065,7 +1065,7 @@
           height: auto;
         }
         .gh-lifestyle-item {
-          height: 240px;
+          height: 200px;
         }
         .gh-strip-card {
           flex: 0 0 68vw;
