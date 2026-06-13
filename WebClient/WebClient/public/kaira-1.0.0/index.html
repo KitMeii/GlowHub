@@ -644,6 +644,9 @@
         </a>
       </div>
       <!-- Strip từ Product API (best seller) -->
+      <div class="gh-strip-wrap">
+        <button class="gh-strip-arrow prev" onclick="document.getElementById('bestStrip').scrollBy({left:-460,behavior:'smooth'})" aria-label="Trước">&#8592;</button>
+        <button class="gh-strip-arrow next" onclick="document.getElementById('bestStrip').scrollBy({left:460,behavior:'smooth'})" aria-label="Tiếp">&#8594;</button>
       <div class="gh-strip" id="bestStrip">
         <div
           class="gh-skel-item"
@@ -662,6 +665,7 @@
           style="flex: 0 0 25%; min-width: 220px; aspect-ratio: 3/4"
         ></div>
       </div>
+      </div><!-- /.gh-strip-wrap -->
     </section>
 
     <!-- ══════════════════════════════
@@ -907,19 +911,24 @@
             var oldP2Html = oldP
               ? `<span style="text-decoration:line-through;color:var(--gray);font-size:10px;margin-left:6px">${_fmtP(oldP)}</span>`
               : "";
+            var rating = p.avgRating || p.AvgRating || 0;
+            var fullS = Math.round(rating);
+            var starsHtml = rating > 0
+              ? `<span style="color:#f59e0b">${'★'.repeat(fullS)}${'☆'.repeat(5-fullS)}</span> <span style="color:var(--gray);font-size:9px">${rating.toFixed(1)}</span>`
+              : '';
             return `<div class="gh-strip-card" onclick="location.href='product.html?id=${id}'">
       ${badge2}
       <img src="${img}" alt="${sn}" loading="lazy" onerror="this.src='${PH}'"/>
       <div class="gh-strip-ghost">
         <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase">${name}</span>
-        <button style="background:none;border:none;color:var(--pink);font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-body);cursor:none"
+        <button style="background:none;border:none;color:var(--pink);font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-body);cursor:pointer"
           onclick="event.stopPropagation();addCard(this)"
           data-id="${id}" data-name="${sn}"
           data-price="${price}" data-img="${img}">+ Giỏ</button>
       </div>
       <div class="gh-strip-info">
         <a href="product.html?id=${id}" class="name">${name}</a>
-        <div class="stars">★★★★★</div>
+        <div class="stars">${starsHtml}</div>
         <div class="price">${_fmtP(price)}${oldP2Html}</div>
       </div>
     </div>`;
