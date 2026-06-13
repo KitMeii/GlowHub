@@ -792,7 +792,7 @@
       /* ── PROMO BAND — Dior text-focused ── */
       .gh-promo-band {
         background: var(--cream);
-        padding: clamp(60px, 8vw, 100px) 40px;
+        padding: 40px 40px;
         text-align: center;
       }
       .gh-promo-band h2 {
@@ -914,8 +914,12 @@
       .gh-feature {
         border-top: 1px solid var(--border);
         border-bottom: 1px solid var(--border);
+      }
+      .gh-feature-inner {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
+        max-width: var(--container, 1400px);
+        margin: 0 auto;
       }
       .gh-feature-item {
         padding: 28px 20px;
@@ -952,7 +956,9 @@
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr;
         gap: 40px;
-        padding: 60px 60px 40px;
+        padding: 60px 40px 40px;
+        max-width: var(--container, 1400px);
+        margin: 0 auto;
       }
       .gh-footer-logo {
         font-family: var(--font-disp);
@@ -1010,10 +1016,12 @@
       }
       .gh-footer-bottom {
         border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 20px 60px;
+        padding: 20px 40px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        max-width: var(--container, 1400px);
+        margin: 0 auto;
       }
       .gh-footer-bottom p {
         font-size: 10px;
@@ -1062,7 +1070,7 @@
         .gh-strip-card {
           flex: 0 0 68vw;
         }
-        .gh-feature {
+        .gh-feature-inner {
           grid-template-columns: 1fr 1fr;
         }
         .gh-feature-item:nth-child(2) {
