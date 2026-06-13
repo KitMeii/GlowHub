@@ -470,7 +470,7 @@
         grid-template-rows: 1fr 1fr;
         gap: 3px;
         margin: 0 3px;
-        height: clamp(400px, 54vh, 560px);
+        height: clamp(520px, 68vh, 700px);
       }
       .gh-asym-card {
         position: relative;
@@ -690,7 +690,7 @@
       .gh-strip-card img {
         width: 100%;
         aspect-ratio: 3/4;
-        max-height: 300px;
+        max-height: 380px;
         object-fit: cover;
         display: block;
         transition: transform 1s var(--ease-lux);
