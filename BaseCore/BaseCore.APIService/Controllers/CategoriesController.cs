@@ -23,6 +23,7 @@ namespace BaseCore.APIService.Controllers
                     c.Id,
                     c.Name,
                     c.Description,
+                    c.ImageUrl,
                     ProductCount = _db.Products.Count(p => p.CategoryId == c.Id)
                 })
                 .OrderBy(c => c.Name)
@@ -50,7 +51,7 @@ namespace BaseCore.APIService.Controllers
             var exists = await _db.Categories.AnyAsync(c => c.Name == dto.Name.Trim());
             if (exists) return Conflict(new { message = "Danh mục đã tồn tại" });
 
-            var cat = new Category { Name = dto.Name.Trim(), Description = dto.Description };
+            var cat = new Category { Name = dto.Name.Trim(), Description = dto.Description, ImageUrl = dto.ImageUrl };
             _db.Categories.Add(cat);
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã tạo danh mục", category = cat });
@@ -66,6 +67,7 @@ namespace BaseCore.APIService.Controllers
 
             if (!string.IsNullOrWhiteSpace(dto.Name)) cat.Name = dto.Name.Trim();
             if (dto.Description != null) cat.Description = dto.Description;
+            if (dto.ImageUrl != null) cat.ImageUrl = dto.ImageUrl;
 
             await _db.SaveChangesAsync();
             return Ok(new { message = "Đã cập nhật danh mục", category = cat });
@@ -89,5 +91,6 @@ namespace BaseCore.APIService.Controllers
     {
         public string Name { get; set; } = "";
         public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

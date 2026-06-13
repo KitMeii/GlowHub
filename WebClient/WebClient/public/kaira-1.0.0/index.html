@@ -979,11 +979,6 @@
           "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=700&q=80",
           "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80",
         ];
-        var cdnImgs = [
-          "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80",
-          "https://images.unsplash.com/photo-1586495777744-4e6232bf2919?w=700&q=80",
-          "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80",
-        ];
         var items = cats.length ? cats.slice(0, 3) : [];
         if (!items.length) {
           strip.innerHTML = "";
@@ -995,8 +990,8 @@
             var name = c.Name || c.name || "Danh Mục " + (i + 1);
             var desc = c.Description || c.description || "";
             var count = c.ProductCount || c.productCount || "";
-            var local = localImgs[i] || localImgs[0];
-            var cdn = cdnImgs[i] || cdnImgs[0];
+            var local = c.ImageUrl || c.imageUrl || localImgs[i] || localImgs[0];
+            var cdn = localImgs[i] || localImgs[0];
             var countStr = count ? `${count} Sản Phẩm` : "Khám Phá";
             return `<div class="gh-lifestyle-item" onclick="location.href='shop.html?cat=${id}'">
       <img src="${local}" alt="${name}" loading="lazy" onerror="this.src='${cdn}'"/>
@@ -1122,7 +1117,7 @@
 
         // ── 4. Product API → Bán Chạy (bestStrip) ──
         if (typeof Product !== "undefined") {
-          Product.getAll({ limit: 8 })
+          Product.getAll({ limit: 8, sort: 'bestseller' })
             .then(function (data) {
               var ps = Array.isArray(data)
                 ? data
