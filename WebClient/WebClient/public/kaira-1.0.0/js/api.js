@@ -272,9 +272,17 @@ const Product = {
 // ============================================================
 const Order = {
   // ── Admin ──
-  getAll()        { return apiFetch(ORDER_API, "/api/orders/all", "GET"); },
-  getById(id)     { return apiFetch(ORDER_API, "/api/orders/" + id, "GET"); },
-  updateStatus(id, status) { return apiFetch(ORDER_API, "/api/orders/" + id + "/status", "PUT", { status }); },
+  getAll() {
+    return apiFetch(ORDER_API, "/api/orders/all", "GET");
+  },
+  getById(id) {
+    return apiFetch(ORDER_API, "/api/orders/" + id, "GET");
+  },
+  updateStatus(id, status) {
+    return apiFetch(ORDER_API, "/api/orders/" + id + "/status", "PUT", {
+      status,
+    });
+  },
 
   // ── Customer — new /my routes ──
   getMy(status, page = 1, limit = 10) {
@@ -283,21 +291,40 @@ const Order = {
     return apiFetch(ORDER_API, "/api/orders/my?" + qs.toString(), "GET");
   },
 
-  getMyOrders() { return this.getMy(); }, // backwards-compat alias
+  getMyOrders() {
+    return this.getMy();
+  }, // backwards-compat alias
 
-  getDetail(id)  { return apiFetch(ORDER_API, "/api/orders/my/" + id, "GET"); },
-
-  getTracking(id) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/track", "GET"); },
-
-  cancel(id, reason) {
-    return apiFetch(ORDER_API, "/api/orders/my/" + id + "/cancel", "POST", { Reason: reason || "" });
+  getDetail(id) {
+    return apiFetch(ORDER_API, "/api/orders/my/" + id, "GET");
   },
 
-  confirmReceived(id, subOrderId) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/received", "POST", subOrderId ? { subOrderId } : undefined); },
+  getTracking(id) {
+    return apiFetch(ORDER_API, "/api/orders/my/" + id + "/track", "GET");
+  },
+
+  cancel(id, reason) {
+    return apiFetch(ORDER_API, "/api/orders/my/" + id + "/cancel", "POST", {
+      Reason: reason || "",
+    });
+  },
+
+  confirmReceived(id, subOrderId) {
+    return apiFetch(
+      ORDER_API,
+      "/api/orders/my/" + id + "/received",
+      "POST",
+      subOrderId ? { subOrderId } : undefined,
+    );
+  },
 
   // Checkout v2 — gửi đủ ReceiverName, ReceiverPhone, PaymentMethod, VoucherCode, ShippingMethod
-  checkout(data) { return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data); },
-  create(data)   { return this.checkout(data); }, // backwards-compat alias
+  checkout(data) {
+    return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data);
+  },
+  create(data) {
+    return this.checkout(data);
+  }, // backwards-compat alias
 };
 
 // ============================================================
@@ -314,7 +341,11 @@ const Voucher = {
   getAvailable(shopId, orderAmount) {
     const qs = new URLSearchParams({ orderAmount: orderAmount || 0 });
     if (shopId) qs.set("shopId", shopId);
-    return apiFetch(PRODUCT_API, "/api/Vouchers/available?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/Vouchers/available?" + qs.toString(),
+      "GET",
+    );
   },
 };
 
@@ -322,11 +353,25 @@ const Voucher = {
 //  ADDRESS MODULE  (Customer saved addresses)
 // ============================================================
 const Address = {
-  getAll()           { return apiFetch(PRODUCT_API, "/api/addresses", "GET"); },
-  create(data)       { return apiFetch(PRODUCT_API, "/api/addresses", "POST", data); },
-  update(id, data)   { return apiFetch(PRODUCT_API, "/api/addresses/" + id, "PUT", data); },
-  delete(id)         { return apiFetch(PRODUCT_API, "/api/addresses/" + id, "DELETE"); },
-  setDefault(id)     { return apiFetch(PRODUCT_API, "/api/addresses/" + id + "/set-default", "PUT"); },
+  getAll() {
+    return apiFetch(PRODUCT_API, "/api/addresses", "GET");
+  },
+  create(data) {
+    return apiFetch(PRODUCT_API, "/api/addresses", "POST", data);
+  },
+  update(id, data) {
+    return apiFetch(PRODUCT_API, "/api/addresses/" + id, "PUT", data);
+  },
+  delete(id) {
+    return apiFetch(PRODUCT_API, "/api/addresses/" + id, "DELETE");
+  },
+  setDefault(id) {
+    return apiFetch(
+      PRODUCT_API,
+      "/api/addresses/" + id + "/set-default",
+      "PUT",
+    );
+  },
 };
 
 // ============================================================
@@ -352,7 +397,11 @@ const Shop = {
 
   // Admin endpoints
   async adminGetAll(page = 1, pageSize = 20) {
-    return apiFetch(PRODUCT_API, `/api/shops/admin/all?page=${page}&pageSize=${pageSize}`, "GET");
+    return apiFetch(
+      PRODUCT_API,
+      `/api/shops/admin/all?page=${page}&pageSize=${pageSize}`,
+      "GET",
+    );
   },
 
   async adminApprove(id) {
@@ -384,7 +433,7 @@ const SellerShop = {
   getStats(from, to) {
     const qs = new URLSearchParams();
     if (from) qs.set("from", from);
-    if (to)   qs.set("to", to);
+    if (to) qs.set("to", to);
     return apiFetch(PRODUCT_API, "/api/shops/my/stats?" + qs.toString(), "GET");
   },
   getInfo() {
@@ -408,12 +457,26 @@ const SellerProduct = {
     if (status) qs.set("status", status);
     return apiFetch(PRODUCT_API, "/api/products/my?" + qs.toString(), "GET");
   },
-  create(data)         { return apiFetch(PRODUCT_API, "/api/products", "POST", data); },
-  update(id, data)     { return apiFetch(PRODUCT_API, "/api/products/" + id, "PUT", data); },
-  delete(id)           { return apiFetch(PRODUCT_API, "/api/products/" + id, "DELETE"); },
-  toggle(id)           { return apiFetch(PRODUCT_API, "/api/products/" + id + "/toggle", "PATCH"); },
-  getStats(id)         { return apiFetch(PRODUCT_API, "/api/products/" + id + "/stats", "GET"); },
-  addImages(id, urls)  { return apiFetch(PRODUCT_API, "/api/products/" + id + "/images", "POST", { ImageUrls: urls }); },
+  create(data) {
+    return apiFetch(PRODUCT_API, "/api/products", "POST", data);
+  },
+  update(id, data) {
+    return apiFetch(PRODUCT_API, "/api/products/" + id, "PUT", data);
+  },
+  delete(id) {
+    return apiFetch(PRODUCT_API, "/api/products/" + id, "DELETE");
+  },
+  toggle(id) {
+    return apiFetch(PRODUCT_API, "/api/products/" + id + "/toggle", "PATCH");
+  },
+  getStats(id) {
+    return apiFetch(PRODUCT_API, "/api/products/" + id + "/stats", "GET");
+  },
+  addImages(id, urls) {
+    return apiFetch(PRODUCT_API, "/api/products/" + id + "/images", "POST", {
+      ImageUrls: urls,
+    });
+  },
 };
 
 // ============================================================
@@ -424,23 +487,51 @@ const SellerOrder = {
   getAll(status = "", page = 1, limit = 10) {
     const qs = new URLSearchParams({ page, limit });
     if (status) qs.set("status", status);
-    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/shop/suborders?" + qs.toString(),
+      "GET",
+    );
   },
-  confirmSub(id) { return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT"); },
+  confirmSub(id) {
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/shop/suborders/" + id + "/confirm",
+      "PUT",
+    );
+  },
   shipSub(id, trackingCode) {
-    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { TrackingCode: trackingCode || null });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/shop/suborders/" + id + "/ship",
+      "PUT",
+      { TrackingCode: trackingCode || null },
+    );
   },
   cancelSub(id, reason) {
-    return apiFetch(PRODUCT_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { Reason: reason });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/shop/suborders/" + id + "/cancel",
+      "PUT",
+      { Reason: reason },
+    );
   },
   // Overview / legacy — parent order endpoints
-  getDetail(id)  { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id, "GET"); },
-  confirm(id)    { return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/confirm", "PUT"); },
+  getDetail(id) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id, "GET");
+  },
+  confirm(id) {
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/confirm", "PUT");
+  },
   ship(id, trackingCode) {
-    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/ship", "PUT", { TrackingCode: trackingCode || null });
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/ship", "PUT", {
+      TrackingCode: trackingCode || null,
+    });
   },
   cancel(id, reason) {
-    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/cancel", "PUT", { Reason: reason });
+    return apiFetch(PRODUCT_API, "/api/orders/shop/" + id + "/cancel", "PUT", {
+      Reason: reason,
+    });
   },
 };
 
@@ -448,10 +539,16 @@ const SellerOrder = {
 //  INVENTORY MODULE
 // ============================================================
 const Inventory = {
-  getAll()              { return apiFetch(PRODUCT_API, "/api/inventory/my", "GET"); },
-  getLowStock()         { return apiFetch(PRODUCT_API, "/api/inventory/low-stock", "GET"); },
+  getAll() {
+    return apiFetch(PRODUCT_API, "/api/inventory/my", "GET");
+  },
+  getLowStock() {
+    return apiFetch(PRODUCT_API, "/api/inventory/low-stock", "GET");
+  },
   update(productId, stock) {
-    return apiFetch(PRODUCT_API, "/api/inventory/" + productId, "PUT", { Stock: stock });
+    return apiFetch(PRODUCT_API, "/api/inventory/" + productId, "PUT", {
+      Stock: stock,
+    });
   },
 };
 
@@ -459,10 +556,18 @@ const Inventory = {
 //  SELLER VOUCHER MODULE
 // ============================================================
 const SellerVoucher = {
-  getAll()         { return apiFetch(PRODUCT_API, "/api/seller/vouchers", "GET"); },
-  create(data)     { return apiFetch(PRODUCT_API, "/api/seller/vouchers", "POST", data); },
-  update(id, data) { return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "PUT", data); },
-  delete(id)       { return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "DELETE"); },
+  getAll() {
+    return apiFetch(PRODUCT_API, "/api/seller/vouchers", "GET");
+  },
+  create(data) {
+    return apiFetch(PRODUCT_API, "/api/seller/vouchers", "POST", data);
+  },
+  update(id, data) {
+    return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "PUT", data);
+  },
+  delete(id) {
+    return apiFetch(PRODUCT_API, "/api/seller/vouchers/" + id, "DELETE");
+  },
 };
 
 // ============================================================
@@ -471,12 +576,17 @@ const SellerVoucher = {
 const SellerReview = {
   getAll(page = 1, rating = null, replied = null) {
     const qs = new URLSearchParams({ page, limit: 10 });
-    if (rating  != null) qs.set("rating",  rating);
+    if (rating != null) qs.set("rating", rating);
     if (replied != null) qs.set("replied", replied);
     return apiFetch(PRODUCT_API, "/api/reviews/shop?" + qs.toString(), "GET");
   },
   reply(reviewId, replyText) {
-    return apiFetch(PRODUCT_API, "/api/reviews/" + reviewId + "/reply", "POST", { Reply: replyText });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/reviews/" + reviewId + "/reply",
+      "POST",
+      { Reply: replyText },
+    );
   },
   getStats() {
     return apiFetch(PRODUCT_API, "/api/reviews/shop/stats", "GET");
@@ -494,7 +604,9 @@ const QnA = {
     return apiFetch(PRODUCT_API, "/api/qna/shop?" + qs.toString(), "GET");
   },
   answer(questionId, answerText) {
-    return apiFetch(PRODUCT_API, "/api/qna/" + questionId + "/answer", "POST", { Answer: answerText });
+    return apiFetch(PRODUCT_API, "/api/qna/" + questionId + "/answer", "POST", {
+      Answer: answerText,
+    });
   },
   getStats() {
     return apiFetch(PRODUCT_API, "/api/qna/shop/stats", "GET");
@@ -504,7 +616,10 @@ const QnA = {
     return apiFetch(PRODUCT_API, "/api/qna/customer/" + productId, "GET");
   },
   ask(productId, question) {
-    return apiFetch(PRODUCT_API, "/api/qna/customer/ask", "POST", { ProductId: productId, Question: question });
+    return apiFetch(PRODUCT_API, "/api/qna/customer/ask", "POST", {
+      ProductId: productId,
+      Question: question,
+    });
   },
 };
 
@@ -515,7 +630,11 @@ const Notification = {
   getAll(page = 1, isRead = null) {
     const qs = new URLSearchParams({ page, limit: 20 });
     if (isRead != null) qs.set("isRead", isRead);
-    return apiFetch(PRODUCT_API, "/api/notifications/my?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/notifications/my?" + qs.toString(),
+      "GET",
+    );
   },
   getUnreadCount() {
     return apiFetch(PRODUCT_API, "/api/notifications/unread-count", "GET");
@@ -538,31 +657,46 @@ const SellerReport = {
   getRevenue(from, to) {
     const qs = new URLSearchParams();
     if (from) qs.set("from", from);
-    if (to)   qs.set("to",   to);
-    return apiFetch(PRODUCT_API, "/api/reports/seller/revenue?" + qs.toString(), "GET");
+    if (to) qs.set("to", to);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/reports/seller/revenue?" + qs.toString(),
+      "GET",
+    );
   },
   getTopProducts(limit = 10, from = null, to = null) {
     const qs = new URLSearchParams({ limit });
     if (from) qs.set("from", from);
-    if (to)   qs.set("to",   to);
-    return apiFetch(PRODUCT_API, "/api/reports/seller/products?" + qs.toString(), "GET");
+    if (to) qs.set("to", to);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/reports/seller/products?" + qs.toString(),
+      "GET",
+    );
   },
   getSummary() {
     return apiFetch(PRODUCT_API, "/api/reports/seller/summary", "GET");
   },
   exportCSV(from, to) {
-    const rows = [...document.querySelectorAll('#statsTable tr')];
-    if (!rows.length) { showGlobalToast('Không có dữ liệu để xuất', 'error'); return; }
-    const headers = ['Ngày', 'Số Đơn', 'Doanh Thu', 'Hoa Hồng', 'Thực Nhận'];
+    const rows = [...document.querySelectorAll("#statsTable tr")];
+    if (!rows.length) {
+      showGlobalToast("Không có dữ liệu để xuất", "error");
+      return;
+    }
+    const headers = ["Ngày", "Số Đơn", "Doanh Thu", "Hoa Hồng", "Thực Nhận"];
     const csv = [
-      headers.join(','),
-      ...rows.map(row => [...row.cells].map(c => '"' + c.textContent.trim().replace(/"/g, '""') + '"').join(','))
-    ].join('\n');
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `bao_cao_${from || 'all'}_${to || 'all'}.csv`;
+      headers.join(","),
+      ...rows.map((row) =>
+        [...row.cells]
+          .map((c) => '"' + c.textContent.trim().replace(/"/g, '""') + '"')
+          .join(","),
+      ),
+    ].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bao_cao_${from || "all"}_${to || "all"}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   },
@@ -578,7 +712,11 @@ const SellerWallet = {
   getTransactions(type = "", page = 1, limit = 15) {
     const qs = new URLSearchParams({ page, limit });
     if (type) qs.set("type", type);
-    return apiFetch(PRODUCT_API, "/api/seller/wallet/transactions?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/seller/wallet/transactions?" + qs.toString(),
+      "GET",
+    );
   },
 };
 
@@ -595,8 +733,12 @@ const AdminWallet = {
   getTransactions(shopId = "", type = "", page = 1, limit = 20) {
     const qs = new URLSearchParams({ page, limit });
     if (shopId) qs.set("shopId", shopId);
-    if (type)   qs.set("type", type);
-    return apiFetch(PRODUCT_API, "/api/admin/wallet/transactions?" + qs.toString(), "GET");
+    if (type) qs.set("type", type);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/wallet/transactions?" + qs.toString(),
+      "GET",
+    );
   },
 };
 
@@ -619,7 +761,7 @@ const Cart = {
   _save(items) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
     this._updateUI();
-    window.dispatchEvent(new Event('cart-updated'));
+    window.dispatchEvent(new Event("cart-updated"));
   },
 
   /** Thêm sản phẩm vào giỏ */
@@ -630,8 +772,8 @@ const Cart = {
     if (idx > -1) {
       items[idx].qty = (items[idx].qty || 1) + qty;
       // Upgrade shopId/shopName on existing items if previously missing
-      if (!items[idx].shopId   && (product.shopId   || product.ShopId))
-        items[idx].shopId   = product.shopId   || product.ShopId;
+      if (!items[idx].shopId && (product.shopId || product.ShopId))
+        items[idx].shopId = product.shopId || product.ShopId;
       if (!items[idx].shopName && (product.shopName || product.ShopName))
         items[idx].shopName = product.shopName || product.ShopName;
     } else {
@@ -653,7 +795,7 @@ const Cart = {
           product.Category ||
           product.category ||
           "",
-        shopId:   product.shopId   || product.ShopId   || "",
+        shopId: product.shopId || product.ShopId || "",
         shopName: product.shopName || product.ShopName || "",
         qty: qty,
       });
@@ -684,7 +826,7 @@ const Cart = {
   clear() {
     localStorage.removeItem(this.STORAGE_KEY);
     this._updateUI();
-    window.dispatchEvent(new Event('cart-updated'));
+    window.dispatchEvent(new Event("cart-updated"));
   },
 
   /** Tổng số lượng */
@@ -795,16 +937,20 @@ function showGlobalToast(msg, type) {
     ghToast.textContent = msg;
     ghToast.className = "show";
     if (type === "error" || type === "err") ghToast.classList.add("toast-err");
-    else if (type === "warn" || type === "warning") ghToast.classList.add("toast-warn");
-    else if (type === "ok" || type === "success") ghToast.classList.add("toast-ok");
+    else if (type === "warn" || type === "warning")
+      ghToast.classList.add("toast-warn");
+    else if (type === "ok" || type === "success")
+      ghToast.classList.add("toast-ok");
     clearTimeout(ghToast._tid);
-    ghToast._tid = setTimeout(function() { ghToast.className = ""; }, 3200);
+    ghToast._tid = setTimeout(function () {
+      ghToast.className = "";
+    }, 3200);
     return;
   }
 
   // Fallback: create floating toast
-  var isErr = (type === "error" || type === "err");
-  var isWarn = (type === "warn" || type === "warning");
+  var isErr = type === "error" || type === "err";
+  var isWarn = type === "warn" || type === "warning";
   var borderColor = isErr ? "#dc2626" : isWarn ? "#f59e0b" : "#f759ab";
   var icon = isErr ? "✕" : isWarn ? "⚠" : "✓";
 
@@ -819,14 +965,20 @@ function showGlobalToast(msg, type) {
   var t = document.createElement("div");
   t.style.cssText =
     "padding:12px 20px;background:#111;color:#fff;font-size:12px;letter-spacing:.5px;" +
-    "box-shadow:0 4px 16px rgba(0,0,0,.2);border-left:3px solid " + borderColor +
+    "box-shadow:0 4px 16px rgba(0,0,0,.2);border-left:3px solid " +
+    borderColor +
     ";transform:translateX(120%);transition:transform 0.3s ease;display:flex;align-items:center;gap:8px;max-width:320px";
-  t.innerHTML = '<span style="font-size:14px">' + icon + '</span><span>' + msg + '</span>';
+  t.innerHTML =
+    '<span style="font-size:14px">' + icon + "</span><span>" + msg + "</span>";
   container.appendChild(t);
-  requestAnimationFrame(function() { t.style.transform = "translateX(0)"; });
-  setTimeout(function() {
+  requestAnimationFrame(function () {
+    t.style.transform = "translateX(0)";
+  });
+  setTimeout(function () {
     t.style.transform = "translateX(120%)";
-    setTimeout(function() { t.remove(); }, 350);
+    setTimeout(function () {
+      t.remove();
+    }, 350);
   }, 3000);
 }
 
@@ -1029,8 +1181,16 @@ function addToCartFromCard(btn) {
   var img = btn.dataset.img || "";
   var shopId = btn.dataset.shopId || "";
   var shopName = btn.dataset.shopName || "";
-  Cart.add({ id: id, name: name, price: price, image: img, shopId: shopId, shopName: shopName });
-  if (typeof showGlobalToast !== "undefined") showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
+  Cart.add({
+    id: id,
+    name: name,
+    price: price,
+    image: img,
+    shopId: shopId,
+    shopName: shopName,
+  });
+  if (typeof showGlobalToast !== "undefined")
+    showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
 }
 
 /** Gắn sự kiện cho các nút tĩnh trong HTML (khi API chưa sẵn sàng) */
@@ -1059,7 +1219,8 @@ function _attachStaticCartButtons() {
           ? card.dataset.productId
           : null) || Date.now();
       const shopId = (card && card.dataset.shopId) || btn.dataset.shopId || "";
-      const shopName = (card && card.dataset.shopName) || btn.dataset.shopName || "";
+      const shopName =
+        (card && card.dataset.shopName) || btn.dataset.shopName || "";
 
       Cart.add({ id, name, price, image: img, shopId, shopName });
       showGlobalToast('✓ Đã thêm "' + name + '" vào giỏ hàng');
@@ -1338,18 +1499,27 @@ const ShopPublic = {
   getProducts(shopId, params) {
     params = params || {};
     const qs = new URLSearchParams();
-    qs.set("page",  params.page  || 1);
+    qs.set("page", params.page || 1);
     qs.set("limit", params.limit || 12);
-    if (params.categoryId != null && params.categoryId !== "") qs.set("categoryId", params.categoryId);
-    if (params.minPrice   != null) qs.set("minPrice",   params.minPrice);
-    if (params.maxPrice   != null) qs.set("maxPrice",   params.maxPrice);
-    if (params.sort)               qs.set("sort",        params.sort);
-    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/products?" + qs.toString(), "GET");
+    if (params.categoryId != null && params.categoryId !== "")
+      qs.set("categoryId", params.categoryId);
+    if (params.minPrice != null) qs.set("minPrice", params.minPrice);
+    if (params.maxPrice != null) qs.set("maxPrice", params.maxPrice);
+    if (params.sort) qs.set("sort", params.sort);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shops/" + shopId + "/products?" + qs.toString(),
+      "GET",
+    );
   },
   getReviews(shopId, page, rating, limit) {
     const qs = new URLSearchParams({ page: page || 1, limit: limit || 10 });
     if (rating) qs.set("rating", rating);
-    return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/reviews?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shops/" + shopId + "/reviews?" + qs.toString(),
+      "GET",
+    );
   },
   getStats(shopId) {
     return apiFetch(PRODUCT_API, "/api/shops/" + shopId + "/stats", "GET");
@@ -1383,7 +1553,11 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/admin/dashboard", "GET");
   },
   getRevenueStats(qs) {
-    return apiFetch(PRODUCT_API, "/api/admin/stats/revenue" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/stats/revenue" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   getSummary() {
     return apiFetch(PRODUCT_API, "/api/admin/stats/summary", "GET");
@@ -1391,7 +1565,11 @@ const Admin = {
 
   // ── Users ──
   getUsers(qs) {
-    return apiFetch(PRODUCT_API, "/api/admin/users" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/users" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   getUserById(id) {
     return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "GET");
@@ -1403,7 +1581,9 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/unban", "PUT");
   },
   changeRole(id, role) {
-    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/role", "PUT", { Role: role });
+    return apiFetch(PRODUCT_API, "/api/admin/users/" + id + "/role", "PUT", {
+      Role: role,
+    });
   },
   deleteUser(id) {
     return apiFetch(PRODUCT_API, "/api/admin/users/" + id, "DELETE");
@@ -1411,18 +1591,31 @@ const Admin = {
 
   // ── Orders ──
   getOrders(qs) {
-    return apiFetch(PRODUCT_API, "/api/orders/admin/orders" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/admin/orders" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   getOrderDetail(id) {
     return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id, "GET");
   },
   updateOrderStatus(id, status, note) {
-    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id + "/status", "PUT", { Status: status, Note: note || null });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/orders/admin/orders/" + id + "/status",
+      "PUT",
+      { Status: status, Note: note || null },
+    );
   },
 
   // ── Shops ──
   getShopStats(qs) {
-    return apiFetch(PRODUCT_API, "/api/shops/admin/stats" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shops/admin/stats" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   approveShop(id) {
     return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/approve", "PUT");
@@ -1431,10 +1624,19 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/ban", "PUT");
   },
   updateCommission(id, rate) {
-    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/commission", "PUT", { CommissionRate: rate });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shops/admin/" + id + "/commission",
+      "PUT",
+      { CommissionRate: rate },
+    );
   },
   getShopStatsById(id, qs) {
-    return apiFetch(PRODUCT_API, "/api/shops/admin/" + id + "/stats" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shops/admin/" + id + "/stats" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
 
   // ── Categories ──
@@ -1442,10 +1644,16 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/categories", "GET");
   },
   createCategory(data) {
-    return apiFetch(PRODUCT_API, "/api/categories", "POST", { Name: data.name, Description: data.description });
+    return apiFetch(PRODUCT_API, "/api/categories", "POST", {
+      Name: data.name,
+      Description: data.description,
+    });
   },
   updateCategory(id, data) {
-    return apiFetch(PRODUCT_API, "/api/categories/" + id, "PUT", { Name: data.name, Description: data.description });
+    return apiFetch(PRODUCT_API, "/api/categories/" + id, "PUT", {
+      Name: data.name,
+      Description: data.description,
+    });
   },
   deleteCategory(id) {
     return apiFetch(PRODUCT_API, "/api/categories/" + id, "DELETE");
@@ -1470,7 +1678,11 @@ const Admin = {
 
   // ── Flash Sale ──
   getFlashSales(qs) {
-    return apiFetch(PRODUCT_API, "/api/flashsale/admin/list" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/flashsale/admin/list" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   getFlashSaleDetail(id) {
     return apiFetch(PRODUCT_API, "/api/flashsale/" + id, "GET");
@@ -1488,10 +1700,19 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/toggle", "PUT");
   },
   addFlashSaleProduct(id, data) {
-    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products", "POST", data);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/flashsale/" + id + "/products",
+      "POST",
+      data,
+    );
   },
   removeFlashSaleProduct(id, productId) {
-    return apiFetch(PRODUCT_API, "/api/flashsale/" + id + "/products/" + productId, "DELETE");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/flashsale/" + id + "/products/" + productId,
+      "DELETE",
+    );
   },
 
   // ── Vouchers ──
@@ -1508,7 +1729,11 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/Vouchers/" + id, "DELETE");
   },
   getVoucherUsage(id, qs) {
-    return apiFetch(PRODUCT_API, "/api/Vouchers/" + id + "/usage" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/Vouchers/" + id + "/usage" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
 
   // ── System Config ──
@@ -1519,7 +1744,10 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/admin/config", "PUT", items);
   },
   updateConfigKey(key, value) {
-    return apiFetch(PRODUCT_API, "/api/admin/config/" + key, "PUT", { Key: key, Value: value });
+    return apiFetch(PRODUCT_API, "/api/admin/config/" + key, "PUT", {
+      Key: key,
+      Value: value,
+    });
   },
 
   // ── Commission (Hoa Hồng) ──
@@ -1527,13 +1755,26 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/admin/commission/summary", "GET");
   },
   getCommissionShops(qs) {
-    return apiFetch(PRODUCT_API, "/api/admin/commission/shops" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/commission/shops" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
   createPayout(shopId, data) {
-    return apiFetch(PRODUCT_API, "/api/admin/commission/payout/" + shopId, "POST", data);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/commission/payout/" + shopId,
+      "POST",
+      data,
+    );
   },
   getPayoutHistory(qs) {
-    return apiFetch(PRODUCT_API, "/api/admin/commission/history" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/commission/history" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
 
   // ── Disputes (Khiếu Nại) ──
@@ -1547,12 +1788,21 @@ const Admin = {
     return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/process", "PUT");
   },
   resolveDispute(id, data) {
-    return apiFetch(PRODUCT_API, "/api/disputes/" + id + "/resolve", "PUT", data);
+    return apiFetch(
+      PRODUCT_API,
+      "/api/disputes/" + id + "/resolve",
+      "PUT",
+      data,
+    );
   },
 
   // ── Audit Log ──
   getAuditLogs(qs) {
-    return apiFetch(PRODUCT_API, "/api/admin/audit-logs" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/admin/audit-logs" + (qs ? "?" + qs : ""),
+      "GET",
+    );
   },
 };
 
@@ -1626,22 +1876,37 @@ const VoucherPublic = {
 const Compare = {
   _key: "gh_compare",
   _get: function () {
-    try { return JSON.parse(localStorage.getItem(this._key) || "[]"); } catch (_) { return []; }
+    try {
+      return JSON.parse(localStorage.getItem(this._key) || "[]");
+    } catch (_) {
+      return [];
+    }
   },
   _save: function (list) {
-    try { localStorage.setItem(this._key, JSON.stringify(list)); } catch (_) {}
+    try {
+      localStorage.setItem(this._key, JSON.stringify(list));
+    } catch (_) {}
   },
-  getAll: function () { return Promise.resolve(this._get()); },
+  getAll: function () {
+    return Promise.resolve(this._get());
+  },
   add: function (product) {
     var list = this._get();
-    if (list.find(function (p) { return p.id === product.id; })) return Promise.resolve(list);
+    if (
+      list.find(function (p) {
+        return p.id === product.id;
+      })
+    )
+      return Promise.resolve(list);
     if (list.length >= 3) return Promise.reject(new Error("Max 3 products"));
     list.push(product);
     this._save(list);
     return Promise.resolve(list);
   },
   remove: function (productId) {
-    var list = this._get().filter(function (p) { return p.id !== productId; });
+    var list = this._get().filter(function (p) {
+      return p.id !== productId;
+    });
     this._save(list);
     return Promise.resolve(list);
   },
@@ -1659,15 +1924,32 @@ const RecentlyViewed = {
     // Try API, fallback to localStorage
     var token = Auth && Auth.getToken ? Auth.getToken() : null;
     if (token) {
-      return apiFetch(PRODUCT_API, "/api/recently-viewed", "GET").catch(function () {
-        try { return JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]"); } catch (_) { return []; }
-      });
+      return apiFetch(PRODUCT_API, "/api/recently-viewed", "GET").catch(
+        function () {
+          try {
+            return JSON.parse(
+              localStorage.getItem("gh_recently_viewed") || "[]",
+            );
+          } catch (_) {
+            return [];
+          }
+        },
+      );
     }
-    try { return Promise.resolve(JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]")); }
-    catch (_) { return Promise.resolve([]); }
+    try {
+      return Promise.resolve(
+        JSON.parse(localStorage.getItem("gh_recently_viewed") || "[]"),
+      );
+    } catch (_) {
+      return Promise.resolve([]);
+    }
   },
   add: function (productId) {
-    return apiFetch(PRODUCT_API, "/api/recently-viewed/" + productId, "POST").catch(function () {});
+    return apiFetch(
+      PRODUCT_API,
+      "/api/recently-viewed/" + productId,
+      "POST",
+    ).catch(function () {});
   },
 };
 
@@ -1692,14 +1974,22 @@ const DisputeApi = {
 // ============================================================
 const Shipping = {
   calculate: function (fromRegion, toRegion, weightGram) {
-    var qs = new URLSearchParams({ fromRegion: fromRegion, toRegion: toRegion, weightGram: weightGram });
-    return apiFetch(PRODUCT_API, "/api/shipping/calculate?" + qs.toString(), "GET");
+    var qs = new URLSearchParams({
+      fromRegion: fromRegion,
+      toRegion: toRegion,
+      weightGram: weightGram,
+    });
+    return apiFetch(
+      PRODUCT_API,
+      "/api/shipping/calculate?" + qs.toString(),
+      "GET",
+    );
   },
   calculateCart: function (fromShopId, toProvince, items) {
     return apiFetch(PRODUCT_API, "/api/shipping/calculate-cart", "POST", {
       fromShopId: fromShopId,
       toProvince: toProvince,
-      items: items
+      items: items,
     });
   },
   getRegions: function () {
@@ -1721,16 +2011,34 @@ Cart.getGrouped = function (toProvince) {
 const SellerSubOrder = {
   getAll: function (params) {
     var qs = new URLSearchParams(params || {});
-    return apiFetch(ORDER_API, "/api/orders/shop/suborders?" + qs.toString(), "GET");
+    return apiFetch(
+      ORDER_API,
+      "/api/orders/shop/suborders?" + qs.toString(),
+      "GET",
+    );
   },
   confirm: function (id) {
-    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/confirm", "PUT");
+    return apiFetch(
+      ORDER_API,
+      "/api/orders/shop/suborders/" + id + "/confirm",
+      "PUT",
+    );
   },
   ship: function (id, trackingCode) {
-    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/ship", "PUT", { trackingCode: trackingCode });
+    return apiFetch(
+      ORDER_API,
+      "/api/orders/shop/suborders/" + id + "/ship",
+      "PUT",
+      { trackingCode: trackingCode },
+    );
   },
   cancel: function (id, reason) {
-    return apiFetch(ORDER_API, "/api/orders/shop/suborders/" + id + "/cancel", "PUT", { reason: reason });
+    return apiFetch(
+      ORDER_API,
+      "/api/orders/shop/suborders/" + id + "/cancel",
+      "PUT",
+      { reason: reason },
+    );
   },
 };
 
@@ -1743,7 +2051,11 @@ const CustomerWallet = {
   },
   getTransactions: function (params) {
     var qs = new URLSearchParams(params || {});
-    return apiFetch(PRODUCT_API, "/api/customer/wallet/transactions?" + qs.toString(), "GET");
+    return apiFetch(
+      PRODUCT_API,
+      "/api/customer/wallet/transactions?" + qs.toString(),
+      "GET",
+    );
   },
   topUp: function (data) {
     return apiFetch(PRODUCT_API, "/api/customer/wallet/topup", "POST", data);
@@ -1757,7 +2069,7 @@ FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
   return apiFetch(PRODUCT_API, "/api/flashsale/buy", "POST", {
     flashSaleProductId: flashSaleProductId,
     quantity: quantity || 1,
-    shippingAddress: shippingAddress || ""
+    shippingAddress: shippingAddress || "",
   });
 };
 
@@ -1769,7 +2081,9 @@ FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
   Cart.add = function (product, qty) {
     var items = this.getItems();
     var id = product.Id || product.id || product._id;
-    var idx = items.findIndex(function (i) { return (i.id || i.Id) == id; });
+    var idx = items.findIndex(function (i) {
+      return (i.id || i.Id) == id;
+    });
     if (idx > -1) {
       items[idx].qty = (items[idx].qty || 1) + (qty || 1);
     } else {
@@ -1777,8 +2091,19 @@ FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
         id: id,
         name: product.Name || product.name,
         price: product.Price || product.price,
-        image: product.ImageUrl || product.imageUrl || product.Image || product.image || "",
-        category: (product.Category && (product.Category.Name || product.Category.name)) || product.CategoryName || product.Category || product.category || "",
+        image:
+          product.ImageUrl ||
+          product.imageUrl ||
+          product.Image ||
+          product.image ||
+          "",
+        category:
+          (product.Category &&
+            (product.Category.Name || product.Category.name)) ||
+          product.CategoryName ||
+          product.Category ||
+          product.category ||
+          "",
         shopId: product.ShopId || product.shopId || null,
         shopName: product.ShopName || product.shopName || null,
         weightGram: product.WeightGram || product.weightGram || 500,
@@ -1797,40 +2122,55 @@ FlashSale.buy = function (flashSaleProductId, quantity, shippingAddress) {
 //  Cache: localStorage 24h
 // ============================================================
 var VNProvinces = (function () {
-  var BASE = 'https://provinces.open-api.vn/api';
-  var TTL  = 86400000; // 24h
+  var BASE = "https://provinces.open-api.vn/api";
+  var TTL = 86400000; // 24h
 
   function _write(key, data) {
-    try { localStorage.setItem(key, JSON.stringify({ d: data, t: Date.now() })); } catch (_) {}
+    try {
+      localStorage.setItem(key, JSON.stringify({ d: data, t: Date.now() }));
+    } catch (_) {}
   }
   function _read(key) {
     try {
       var c = JSON.parse(localStorage.getItem(key));
-      return (c && (Date.now() - c.t) < TTL) ? c.d : null;
-    } catch (_) { return null; }
+      return c && Date.now() - c.t < TTL ? c.d : null;
+    } catch (_) {
+      return null;
+    }
   }
   function _fetch(url, cacheKey) {
     var hit = _read(cacheKey);
     if (hit) return Promise.resolve(hit);
     return fetch(url)
-      .then(function (r) { return r.json(); })
-      .then(function (d) { _write(cacheKey, d); return d; });
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (d) {
+        _write(cacheKey, d);
+        return d;
+      });
   }
 
   function getProvinces() {
-    return _fetch(BASE + '/p/?depth=1', 'gh_vnp');
+    return _fetch(BASE + "/p/?depth=1", "gh_vnp");
   }
   function getDistricts(pCode) {
     // Correct endpoint: /p/{code}?depth=2 returns { districts: [...] }
     // /d/?p= is NOT a supported filter — returns ALL ~700 districts (wrong)
-    return _fetch(BASE + '/p/' + pCode + '?depth=2', 'gh_vnd2_' + pCode)
-      .then(function (d) { return d.districts || []; });
+    return _fetch(BASE + "/p/" + pCode + "?depth=2", "gh_vnd2_" + pCode).then(
+      function (d) {
+        return d.districts || [];
+      },
+    );
   }
   function getWards(dCode) {
     // Correct endpoint: /d/{code}?depth=2 returns { wards: [...] }
     // /w/?d= is NOT a supported filter — returns ALL wards (wrong)
-    return _fetch(BASE + '/d/' + dCode + '?depth=2', 'gh_vnw2_' + dCode)
-      .then(function (d) { return d.wards || []; });
+    return _fetch(BASE + "/d/" + dCode + "?depth=2", "gh_vnw2_" + dCode).then(
+      function (d) {
+        return d.wards || [];
+      },
+    );
   }
 
   // Fill one <select> element; returns Promise
@@ -1839,9 +2179,10 @@ var VNProvinces = (function () {
     sel.disabled = true;
     return (items instanceof Promise ? items : Promise.resolve(items))
       .then(function (list) {
-        sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+        sel.innerHTML =
+          '<option value="">' + (placeholder || "-- Chọn --") + "</option>";
         (list || []).forEach(function (item) {
-          var o = document.createElement('option');
+          var o = document.createElement("option");
           o.value = item.code;
           o.textContent = item.name;
           o.dataset.name = item.name;
@@ -1850,7 +2191,8 @@ var VNProvinces = (function () {
         sel.disabled = false;
       })
       .catch(function () {
-        sel.innerHTML = '<option value="">Lỗi tải dữ liệu. Nhập thủ công.</option>';
+        sel.innerHTML =
+          '<option value="">Lỗi tải dữ liệu. Nhập thủ công.</option>';
         sel.disabled = false;
       });
   }
@@ -1858,7 +2200,8 @@ var VNProvinces = (function () {
   // Reset one select to empty/disabled state
   function resetSel(sel, placeholder) {
     if (!sel) return;
-    sel.innerHTML = '<option value="">' + (placeholder || '-- Chọn --') + '</option>';
+    sel.innerHTML =
+      '<option value="">' + (placeholder || "-- Chọn --") + "</option>";
     sel.disabled = true;
   }
 
@@ -1874,124 +2217,311 @@ var VNProvinces = (function () {
     var wardSel = opts.ward ? document.getElementById(opts.ward) : null;
     if (!provSel) return;
 
-    if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
-    if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
+    if (distSel) resetSel(distSel, "-- Chọn quận/huyện --");
+    if (wardSel) resetSel(wardSel, "-- Chọn phường/xã --");
 
-    fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
+    fillSel(provSel, getProvinces(), "-- Chọn tỉnh/thành --").then(function () {
       provSel.disabled = false;
     });
 
-    provSel.addEventListener('change', function () {
+    provSel.addEventListener("change", function () {
       var pCode = provSel.value;
-      var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
-      if (distSel) resetSel(distSel, '-- Chọn quận/huyện --');
-      if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
-      if (onChange) onChange({ provCode: pCode, provName: pName, distCode: '', distName: '', wardCode: '', wardName: '' });
+      var pName = pCode
+        ? provSel.options[provSel.selectedIndex].dataset.name ||
+          provSel.options[provSel.selectedIndex].textContent
+        : "";
+      if (distSel) resetSel(distSel, "-- Chọn quận/huyện --");
+      if (wardSel) resetSel(wardSel, "-- Chọn phường/xã --");
+      if (onChange)
+        onChange({
+          provCode: pCode,
+          provName: pName,
+          distCode: "",
+          distName: "",
+          wardCode: "",
+          wardName: "",
+        });
       if (!pCode || !distSel) return;
-      fillSel(distSel, getDistricts(pCode), '-- Chọn quận/huyện --').then(function () {
-        distSel.disabled = false;
-      });
+      fillSel(distSel, getDistricts(pCode), "-- Chọn quận/huyện --").then(
+        function () {
+          distSel.disabled = false;
+        },
+      );
     });
 
     if (distSel) {
-      distSel.addEventListener('change', function () {
+      distSel.addEventListener("change", function () {
         var pCode = provSel.value;
-        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
+        var pName = pCode
+          ? provSel.options[provSel.selectedIndex].dataset.name ||
+            provSel.options[provSel.selectedIndex].textContent
+          : "";
         var dCode = distSel.value;
-        var dName = dCode ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
-        if (wardSel) resetSel(wardSel, '-- Chọn phường/xã --');
-        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: '', wardName: '' });
+        var dName = dCode
+          ? distSel.options[distSel.selectedIndex].dataset.name ||
+            distSel.options[distSel.selectedIndex].textContent
+          : "";
+        if (wardSel) resetSel(wardSel, "-- Chọn phường/xã --");
+        if (onChange)
+          onChange({
+            provCode: pCode,
+            provName: pName,
+            distCode: dCode,
+            distName: dName,
+            wardCode: "",
+            wardName: "",
+          });
         if (!dCode || !wardSel) return;
-        fillSel(wardSel, getWards(dCode), '-- Chọn phường/xã --').then(function () {
-          wardSel.disabled = false;
-        });
+        fillSel(wardSel, getWards(dCode), "-- Chọn phường/xã --").then(
+          function () {
+            wardSel.disabled = false;
+          },
+        );
       });
     }
 
     if (wardSel) {
-      wardSel.addEventListener('change', function () {
+      wardSel.addEventListener("change", function () {
         var pCode = provSel.value;
-        var pName = pCode ? (provSel.options[provSel.selectedIndex].dataset.name || provSel.options[provSel.selectedIndex].textContent) : '';
-        var dCode = distSel ? distSel.value : '';
-        var dName = (dCode && distSel) ? (distSel.options[distSel.selectedIndex].dataset.name || distSel.options[distSel.selectedIndex].textContent) : '';
+        var pName = pCode
+          ? provSel.options[provSel.selectedIndex].dataset.name ||
+            provSel.options[provSel.selectedIndex].textContent
+          : "";
+        var dCode = distSel ? distSel.value : "";
+        var dName =
+          dCode && distSel
+            ? distSel.options[distSel.selectedIndex].dataset.name ||
+              distSel.options[distSel.selectedIndex].textContent
+            : "";
         var wCode = wardSel.value;
-        var wName = wCode ? (wardSel.options[wardSel.selectedIndex].dataset.name || wardSel.options[wardSel.selectedIndex].textContent) : '';
-        if (onChange) onChange({ provCode: pCode, provName: pName, distCode: dCode, distName: dName, wardCode: wCode, wardName: wName });
+        var wName = wCode
+          ? wardSel.options[wardSel.selectedIndex].dataset.name ||
+            wardSel.options[wardSel.selectedIndex].textContent
+          : "";
+        if (onChange)
+          onChange({
+            provCode: pCode,
+            provName: pName,
+            distCode: dCode,
+            distName: dName,
+            wardCode: wCode,
+            wardName: wName,
+          });
       });
     }
   }
 
   // Map province name → shipping region code (mirrors ShippingRegion.Normalize in C#)
   function getRegion(provinceName) {
-    if (!provinceName) return 'OTHER';
+    if (!provinceName) return "OTHER";
     var n = provinceName.toLowerCase();
-    var SOUTH = ['hồ chí minh','ho chi minh','hcm','tphcm','tp.hcm','sài gòn','saigon','sai gon',
-      'bình dương','binh duong','đồng nai','dong nai','bà rịa','ba ria','vũng tàu','vung tau',
-      'long an','tiền giang','tien giang','bến tre','ben tre','vĩnh long','vinh long',
-      'trà vinh','tra vinh','đồng tháp','dong thap','an giang','kiên giang','kien giang',
-      'cần thơ','can tho','hậu giang','hau giang','sóc trăng','soc trang',
-      'bạc liêu','bac lieu','cà mau','ca mau','tây ninh','tay ninh','bình phước','binh phuoc'];
-    var NORTH = ['hà nội','ha noi','hanoi','hải phòng','hai phong','quảng ninh','quang ninh',
-      'hải dương','hai duong','hưng yên','hung yen','thái bình','thai binh','nam định','nam dinh',
-      'hà nam','ha nam','ninh bình','ninh binh','vĩnh phúc','vinh phuc','bắc ninh','bac ninh',
-      'bắc giang','bac giang','thái nguyên','thai nguyen','lạng sơn','lang son','cao bằng','cao bang',
-      'bắc kạn','bac kan','tuyên quang','tuyen quang','hà giang','ha giang','lào cai','lao cai',
-      'yên bái','yen bai','phú thọ','phu tho','sơn la','son la','điện biên','dien bien',
-      'lai châu','lai chau','hòa bình','hoa binh'];
-    var ISLAND = ['phú quốc','phu quoc','côn đảo','con dao','hoàng sa','hoang sa','trường sa','truong sa','lý sơn','ly son'];
-    if (ISLAND.some(function (k) { return n.includes(k); })) return 'ISLAND';
-    if (SOUTH.some(function (k) { return n.includes(k); })) return 'SOUTH';
-    if (NORTH.some(function (k) { return n.includes(k); })) return 'NORTH';
+    var SOUTH = [
+      "hồ chí minh",
+      "ho chi minh",
+      "hcm",
+      "tphcm",
+      "tp.hcm",
+      "sài gòn",
+      "saigon",
+      "sai gon",
+      "bình dương",
+      "binh duong",
+      "đồng nai",
+      "dong nai",
+      "bà rịa",
+      "ba ria",
+      "vũng tàu",
+      "vung tau",
+      "long an",
+      "tiền giang",
+      "tien giang",
+      "bến tre",
+      "ben tre",
+      "vĩnh long",
+      "vinh long",
+      "trà vinh",
+      "tra vinh",
+      "đồng tháp",
+      "dong thap",
+      "an giang",
+      "kiên giang",
+      "kien giang",
+      "cần thơ",
+      "can tho",
+      "hậu giang",
+      "hau giang",
+      "sóc trăng",
+      "soc trang",
+      "bạc liêu",
+      "bac lieu",
+      "cà mau",
+      "ca mau",
+      "tây ninh",
+      "tay ninh",
+      "bình phước",
+      "binh phuoc",
+    ];
+    var NORTH = [
+      "hà nội",
+      "ha noi",
+      "hanoi",
+      "hải phòng",
+      "hai phong",
+      "quảng ninh",
+      "quang ninh",
+      "hải dương",
+      "hai duong",
+      "hưng yên",
+      "hung yen",
+      "thái bình",
+      "thai binh",
+      "nam định",
+      "nam dinh",
+      "hà nam",
+      "ha nam",
+      "ninh bình",
+      "ninh binh",
+      "vĩnh phúc",
+      "vinh phuc",
+      "bắc ninh",
+      "bac ninh",
+      "bắc giang",
+      "bac giang",
+      "thái nguyên",
+      "thai nguyen",
+      "lạng sơn",
+      "lang son",
+      "cao bằng",
+      "cao bang",
+      "bắc kạn",
+      "bac kan",
+      "tuyên quang",
+      "tuyen quang",
+      "hà giang",
+      "ha giang",
+      "lào cai",
+      "lao cai",
+      "yên bái",
+      "yen bai",
+      "phú thọ",
+      "phu tho",
+      "sơn la",
+      "son la",
+      "điện biên",
+      "dien bien",
+      "lai châu",
+      "lai chau",
+      "hòa bình",
+      "hoa binh",
+    ];
+    var ISLAND = [
+      "phú quốc",
+      "phu quoc",
+      "côn đảo",
+      "con dao",
+      "hoàng sa",
+      "hoang sa",
+      "trường sa",
+      "truong sa",
+      "lý sơn",
+      "ly son",
+    ];
+    if (
+      ISLAND.some(function (k) {
+        return n.includes(k);
+      })
+    )
+      return "ISLAND";
+    if (
+      SOUTH.some(function (k) {
+        return n.includes(k);
+      })
+    )
+      return "SOUTH";
+    if (
+      NORTH.some(function (k) {
+        return n.includes(k);
+      })
+    )
+      return "NORTH";
     // Miền Trung: Thanh Hóa → Lâm Đồng — fallback
-    return 'CENTRAL';
+    return "CENTRAL";
   }
 
   // setupCascade — same as setup() but accepts {province, district, ward} key names
   function setupCascade(ids, onChange) {
     return setup(
-      { prov: ids.province || ids.prov, dist: ids.district || ids.dist, ward: ids.ward },
-      onChange
+      {
+        prov: ids.province || ids.prov,
+        dist: ids.district || ids.dist,
+        ward: ids.ward,
+      },
+      onChange,
     );
   }
 
   // setValues — fill + pre-select all 3 levels (for edit-address forms)
   function setValues(ids, values) {
-    var provId   = ids.province || ids.prov;
-    var distId   = ids.district || ids.dist;
-    var wardId   = ids.ward;
-    var provSel  = provId ? document.getElementById(provId) : null;
-    var distSel  = distId ? document.getElementById(distId) : null;
-    var wardSel  = wardId ? document.getElementById(wardId) : null;
-    var provCode = String(values.provinceCode || '');
-    var distCode = String(values.districtCode || '');
-    var wardCode = String(values.wardCode     || '');
+    var provId = ids.province || ids.prov;
+    var distId = ids.district || ids.dist;
+    var wardId = ids.ward;
+    var provSel = provId ? document.getElementById(provId) : null;
+    var distSel = distId ? document.getElementById(distId) : null;
+    var wardSel = wardId ? document.getElementById(wardId) : null;
+    var provCode = String(values.provinceCode || "");
+    var distCode = String(values.districtCode || "");
+    var wardCode = String(values.wardCode || "");
 
     if (!provSel || !provCode) return Promise.resolve();
 
-    return fillSel(provSel, getProvinces(), '-- Chọn tỉnh/thành --').then(function () {
-      for (var i = 0; i < provSel.options.length; i++) {
-        if (String(provSel.options[i].value) === provCode) { provSel.selectedIndex = i; break; }
-      }
-      if (!distSel || !distCode) return;
-      return fillSel(distSel, getDistricts(provCode), '-- Chọn quận/huyện --').then(function () {
-        distSel.disabled = false;
-        for (var i = 0; i < distSel.options.length; i++) {
-          if (String(distSel.options[i].value) === distCode) { distSel.selectedIndex = i; break; }
-        }
-        if (!wardSel || !wardCode) return;
-        return fillSel(wardSel, getWards(distCode), '-- Chọn phường/xã --').then(function () {
-          wardSel.disabled = false;
-          for (var i = 0; i < wardSel.options.length; i++) {
-            if (String(wardSel.options[i].value) === wardCode) { wardSel.selectedIndex = i; break; }
+    return fillSel(provSel, getProvinces(), "-- Chọn tỉnh/thành --").then(
+      function () {
+        for (var i = 0; i < provSel.options.length; i++) {
+          if (String(provSel.options[i].value) === provCode) {
+            provSel.selectedIndex = i;
+            break;
           }
+        }
+        if (!distSel || !distCode) return;
+        return fillSel(
+          distSel,
+          getDistricts(provCode),
+          "-- Chọn quận/huyện --",
+        ).then(function () {
+          distSel.disabled = false;
+          for (var i = 0; i < distSel.options.length; i++) {
+            if (String(distSel.options[i].value) === distCode) {
+              distSel.selectedIndex = i;
+              break;
+            }
+          }
+          if (!wardSel || !wardCode) return;
+          return fillSel(
+            wardSel,
+            getWards(distCode),
+            "-- Chọn phường/xã --",
+          ).then(function () {
+            wardSel.disabled = false;
+            for (var i = 0; i < wardSel.options.length; i++) {
+              if (String(wardSel.options[i].value) === wardCode) {
+                wardSel.selectedIndex = i;
+                break;
+              }
+            }
+          });
         });
-      });
-    });
+      },
+    );
   }
 
   return {
-    getProvinces: getProvinces, getDistricts: getDistricts, getWards: getWards,
-    setup: setup, setupCascade: setupCascade, setValues: setValues, getRegion: getRegion
+    getProvinces: getProvinces,
+    getDistricts: getDistricts,
+    getWards: getWards,
+    setup: setup,
+    setupCascade: setupCascade,
+    setValues: setValues,
+    getRegion: getRegion,
   };
 })();
 
@@ -1999,35 +2529,46 @@ var VNProvinces = (function () {
 //  PAYMENT — VNPay + Bank Transfer + Auto-expire
 // ============================================================
 var Payment = (function () {
-
   // Tạo URL thanh toán VNPay cho đơn hàng
   function createVNPayUrl(orderId) {
-    return apiFetch(PRODUCT_API, '/api/payment/vnpay/create', 'POST', { orderId: orderId });
+    return apiFetch(PRODUCT_API, "/api/payment/vnpay/create", "POST", {
+      orderId: orderId,
+    });
   }
 
   // Lấy thông tin chuyển khoản ngân hàng + QR code
   function getBankInfo(orderId) {
-    return apiFetch(PRODUCT_API, '/api/payment/bank/info?orderId=' + orderId, 'GET');
+    return apiFetch(
+      PRODUCT_API,
+      "/api/payment/bank/info?orderId=" + orderId,
+      "GET",
+    );
   }
 
   // Khách xác nhận đã chuyển khoản
   function submitBankTransfer(orderId) {
-    return apiFetch(PRODUCT_API, '/api/payment/bank/submit', 'POST', { orderId: orderId });
+    return apiFetch(PRODUCT_API, "/api/payment/bank/submit", "POST", {
+      orderId: orderId,
+    });
   }
 
   // Admin xác nhận nhận tiền chuyển khoản
   function adminConfirmBank(orderId) {
-    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/confirm/' + orderId, 'POST');
+    return apiFetch(
+      PRODUCT_API,
+      "/api/payment/admin/bank/confirm/" + orderId,
+      "POST",
+    );
   }
 
   // Admin: danh sách đơn chờ xác nhận CK
   function getPendingBankOrders() {
-    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/pending', 'GET');
+    return apiFetch(PRODUCT_API, "/api/payment/admin/bank/pending", "GET");
   }
 
   // Kích hoạt auto-expire (gọi định kỳ hoặc khi cần)
   function expireOrders() {
-    return apiFetch(PRODUCT_API, '/api/payment/expire', 'POST');
+    return apiFetch(PRODUCT_API, "/api/payment/expire", "POST");
   }
 
   // Redirect tới trang thanh toán VNPay
@@ -2036,7 +2577,7 @@ var Payment = (function () {
       if (res && res.paymentUrl) {
         window.location.href = res.paymentUrl;
       } else {
-        throw new Error('Không tạo được URL thanh toán VNPay');
+        throw new Error("Không tạo được URL thanh toán VNPay");
       }
     });
   }
@@ -2047,17 +2588,32 @@ var Payment = (function () {
       if (!containerEl) return info;
       containerEl.innerHTML =
         '<div class="text-center">' +
-        '<img src="' + info.qrUrl + '" alt="QR chuyển khoản" style="max-width:220px;border:1px solid #eee;padding:8px;" onerror="this.style.display=\'none\'">' +
-        '</div>' +
+        '<img src="' +
+        info.qrUrl +
+        '" alt="QR chuyển khoản" style="max-width:220px;border:1px solid #eee;padding:8px;" onerror="this.style.display=\'none\'">' +
+        "</div>" +
         '<table class="table table-sm mt-3" style="font-size:13px">' +
-        '<tr><td><b>Ngân hàng</b></td><td>' + info.bankName + '</td></tr>' +
-        '<tr><td><b>Số tài khoản</b></td><td><b>' + info.accountNumber + '</b></td></tr>' +
-        '<tr><td><b>Tên tài khoản</b></td><td>' + info.accountName + '</td></tr>' +
-        '<tr><td><b>Số tiền</b></td><td><b>' + info.amount.toLocaleString('vi-VN') + '₫</b></td></tr>' +
-        '<tr><td><b>Nội dung CK</b></td><td><b>' + info.orderCode + '</b></td></tr>' +
-        '</table>' +
-        (info.expireAt ? '<p class="text-danger" style="font-size:12px">⏱ Hết hạn: ' +
-          new Date(info.expireAt).toLocaleString('vi-VN') + '</p>' : '');
+        "<tr><td><b>Ngân hàng</b></td><td>" +
+        info.bankName +
+        "</td></tr>" +
+        "<tr><td><b>Số tài khoản</b></td><td><b>" +
+        info.accountNumber +
+        "</b></td></tr>" +
+        "<tr><td><b>Tên tài khoản</b></td><td>" +
+        info.accountName +
+        "</td></tr>" +
+        "<tr><td><b>Số tiền</b></td><td><b>" +
+        info.amount.toLocaleString("vi-VN") +
+        "₫</b></td></tr>" +
+        "<tr><td><b>Nội dung CK</b></td><td><b>" +
+        info.orderCode +
+        "</b></td></tr>" +
+        "</table>" +
+        (info.expireAt
+          ? '<p class="text-danger" style="font-size:12px">⏱ Hết hạn: ' +
+            new Date(info.expireAt).toLocaleString("vi-VN") +
+            "</p>"
+          : "");
       return info;
     });
   }
@@ -2070,27 +2626,27 @@ var Payment = (function () {
     getPendingBankOrders: getPendingBankOrders,
     expireOrders: expireOrders,
     redirectToVNPay: redirectToVNPay,
-    showBankTransferModal: showBankTransferModal
+    showBankTransferModal: showBankTransferModal,
   };
 })();
 
 // ============================================================
 //  CLOUDINARY UPLOAD — dùng chung toàn site
 // ============================================================
-const CLOUDINARY_CLOUD = 'dcucbyzdo';
-const CLOUDINARY_PRESET = 'GlowHub_Upload';
+const CLOUDINARY_CLOUD = "dcucbyzdo";
+const CLOUDINARY_PRESET = "GlowHub_Upload";
 
 async function uploadToCloudinary(file) {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_PRESET);
   const res = await fetch(
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
-    { method: 'POST', body: formData }
+    { method: "POST", body: formData },
   );
-  if (!res.ok) throw new Error('Upload thất bại: ' + res.status);
+  if (!res.ok) throw new Error("Upload thất bại: " + res.status);
   const data = await res.json();
-  if (!data.secure_url) throw new Error('Cloudinary không trả URL');
+  if (!data.secure_url) throw new Error("Cloudinary không trả URL");
   return data.secure_url;
 }
 
@@ -2103,29 +2659,52 @@ async function uploadToCloudinary(file) {
  * @param {Function} [onSuccess] - callback(url) tuỳ chọn
  */
 async function ghUploadImage(file, urlInputId, previewId, statusId, onSuccess) {
-  const statusEl  = document.getElementById(statusId);
-  const urlInput  = document.getElementById(urlInputId);
+  const statusEl = document.getElementById(statusId);
+  const urlInput = document.getElementById(urlInputId);
   const previewEl = previewId ? document.getElementById(previewId) : null;
 
-  if (!file || !file.type.startsWith('image/')) {
-    if (statusEl) { statusEl.textContent = '⚠ Vui lòng chọn file ảnh'; statusEl.style.color = '#f59e0b'; }
+  if (!file || !file.type.startsWith("image/")) {
+    if (statusEl) {
+      statusEl.textContent = "⚠ Vui lòng chọn file ảnh";
+      statusEl.style.color = "#f59e0b";
+    }
     return;
   }
   if (file.size > 10 * 1024 * 1024) {
-    if (statusEl) { statusEl.textContent = '⚠ File quá lớn (tối đa 10MB)'; statusEl.style.color = '#f59e0b'; }
+    if (statusEl) {
+      statusEl.textContent = "⚠ File quá lớn (tối đa 10MB)";
+      statusEl.style.color = "#f59e0b";
+    }
     return;
   }
 
-  if (statusEl) { statusEl.textContent = '⏳ Đang tải lên...'; statusEl.style.color = '#888'; }
+  if (statusEl) {
+    statusEl.textContent = "⏳ Đang tải lên...";
+    statusEl.style.color = "#888";
+  }
 
   try {
     const url = await uploadToCloudinary(file);
-    if (urlInput)  urlInput.value = url;
-    if (previewEl) { previewEl.src = url; previewEl.style.display = 'block'; }
-    if (statusEl)  { statusEl.textContent = '✓ Tải lên thành công!'; statusEl.style.color = '#22c55e'; }
+    if (urlInput) urlInput.value = url;
+    if (previewEl) {
+      previewEl.src = url;
+      previewEl.style.display = "block";
+    }
+    if (statusEl) {
+      statusEl.textContent = "✓ Tải lên thành công!";
+      statusEl.style.color = "#22c55e";
+    }
     if (onSuccess) onSuccess(url);
-    setTimeout(() => { if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; } }, 3000);
+    setTimeout(() => {
+      if (statusEl) {
+        statusEl.textContent = "";
+        statusEl.style.color = "";
+      }
+    }, 3000);
   } catch (e) {
-    if (statusEl) { statusEl.textContent = '✗ ' + e.message; statusEl.style.color = '#ef4444'; }
+    if (statusEl) {
+      statusEl.textContent = "✗ " + e.message;
+      statusEl.style.color = "#ef4444";
+    }
   }
 }
