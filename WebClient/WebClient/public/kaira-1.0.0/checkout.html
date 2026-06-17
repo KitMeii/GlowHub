@@ -1655,6 +1655,7 @@
       document.getElementById("coVoucherPickerBackdrop").classList.add("show");
       document.body.style.overflow = "hidden";
       if (!_coVpLoaded) loadCoVoucherPicker();
+      else coVpRender(_coVpVouchers, _coVpSaved);
     }
     function closeCoVoucherPicker() {
       document.getElementById("coVoucherPickerBackdrop").classList.remove("show");
@@ -1740,10 +1741,14 @@
         return (b.DiscountValue || 0) - (a.DiscountValue || 0);
       }
 
-      var allShip = [...savedList.filter(_coIsShip), ...publicList.filter(_coIsShip)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
+      var _coCartLSItems = []; try { _coCartLSItems = JSON.parse(localStorage.getItem('gh_cart') || '[]'); } catch(_){}
       var _coCartShopIds = new Set(
-        (_cartGrouped && _cartGrouped.groups ? _cartGrouped.groups : []).map(function(g){return g.shopId;}).filter(Boolean)
+        ((_cartGrouped && _cartGrouped.groups && _cartGrouped.groups.length)
+          ? _cartGrouped.groups.map(function(g){ return g.shopId; })
+          : _coCartLSItems.map(function(i){ return i.shopId || i.ShopId; })
+        ).filter(Boolean)
       );
+      var allShip = [...savedList.filter(v=>_coIsShip(v)&&!v.ShopId), ...publicList.filter(v=>_coIsShip(v)&&!v.ShopId)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
       var allDisc = [...savedList.filter(v=>!_coIsShip(v)), ...publicList.filter(v=>!_coIsShip(v))]
         .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
         .filter(v => !v.ShopId || _coCartShopIds.has(v.ShopId));

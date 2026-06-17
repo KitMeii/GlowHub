@@ -856,6 +856,7 @@
       document.getElementById("voucherPickerBackdrop").classList.add("show");
       document.body.style.overflow = "hidden";
       if (!_vpLoaded) loadVoucherPicker();
+      else vpRender(_vpVouchers, _vpSaved);
     }
     function closeVoucherPicker() {
       document.getElementById("voucherPickerBackdrop").classList.remove("show");
@@ -941,9 +942,9 @@
         return (b.DiscountValue || 0) - (a.DiscountValue || 0);
       }
 
-      var allShip = [...savedList.filter(_isShipV), ...publicList.filter(_isShipV)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
       var _cartItemsNow = typeof Cart !== "undefined" ? Cart.getItems() : _localCart();
       var _cartShopIds = new Set(_cartItemsNow.map(i => i.shopId || i.ShopId).filter(Boolean));
+      var allShip = [...savedList.filter(v=>_isShipV(v)&&!v.ShopId), ...publicList.filter(v=>_isShipV(v)&&!v.ShopId)].filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i);
       var allDisc = [...savedList.filter(v=>!_isShipV(v)), ...publicList.filter(v=>!_isShipV(v))]
         .filter((v,i,a)=>a.findIndex(x=>x.Code===v.Code)===i)
         .filter(v => !v.ShopId || _cartShopIds.has(v.ShopId));
