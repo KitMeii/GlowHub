@@ -11,6 +11,8 @@ namespace BaseCore.Entities
 
         public string Description { get; set; }
 
+        public string? ImageUrl { get; set; }
+
         public bool IsDeleted { get; set; } = false;
     }
 }

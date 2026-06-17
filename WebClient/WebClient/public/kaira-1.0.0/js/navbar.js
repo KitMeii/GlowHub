@@ -64,11 +64,8 @@
 
   function updateWishlistBadge() {
     try {
-      var wl = JSON.parse(localStorage.getItem('gh_wishlist') || localStorage.getItem('glowhub_wishlist') || '[]');
+      var wl = JSON.parse(localStorage.getItem('gh_wishlist') || '[]');
       var count = wl.length;
-      $$('.gh-wish-dot').forEach(function(el) {
-        el.style.display = count > 0 ? 'block' : 'none';
-      });
       $$('.gh-wishlist-badge').forEach(function(el) {
         if (count <= 0) { el.style.display = 'none'; return; }
         var txt = count > 99 ? '99+' : String(count);

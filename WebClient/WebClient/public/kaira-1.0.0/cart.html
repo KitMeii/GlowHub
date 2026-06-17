@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
   <head>
     <meta property="og:title" content="Giỏ Hàng — GlowHub" />
@@ -68,7 +68,7 @@
       </button>
       <a href="profile.html#wishlist" class="gh-icon-btn" aria-label="Yêu thích">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span class="gh-dot gh-wish-dot" style="display:none"></span>
+        <span class="gh-badge gh-wishlist-badge" style="display:none">0</span>
       </a>
       <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -403,14 +403,14 @@
         const img = getProductImage(item);
         const cat = item.category || item.Category || "";
 
-        const imgHTML = `<a href="product.html?id=${id}" target="_blank" style="flex-shrink:0"><img loading="lazy" class="item-img" src="${img}" alt="${name}"
+        const imgHTML = `<a href="product.html?id=${id}" style="flex-shrink:0"><img loading="lazy" class="item-img" src="${img}" alt="${name}"
                         onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" /></a>`;
 
         return `
                 <div class="cart-item" id="item-row-${id}" data-id="${id}">
                   ${imgHTML}
                   <div class="item-info">
-                    <a href="product.html?id=${id}" target="_blank" class="item-name">${name}</a>
+                    <a href="product.html?id=${id}" class="item-name">${name}</a>
                     ${cat ? `<div class="item-cat">${cat}</div>` : ""}
                   </div>
                   <div class="item-price-col">

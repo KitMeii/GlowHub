@@ -24,6 +24,7 @@
       .profile-hero-inner { max-width: 920px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
       .ph-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--pink, #f759ab), #ff9eb5); color: #fff; font-size: 32px; font-family: var(--font-disp, "Cormorant Garamond"), serif; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
       .ph-avatar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+      .ph-avatar:hover .ph-avatar-overlay { opacity: 1 !important; }
       .ph-info { flex: 1; min-width: 0; }
       .ph-name { font-family: var(--font-disp, "Cormorant Garamond"), serif; font-size: 26px; font-weight: 500; color: var(--dark, #111); line-height: 1.2; }
       .ph-meta { font-size: 13px; color: var(--gray, #888); margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
@@ -88,6 +89,25 @@
         .profile-shell { margin-top: 64px; }
         .profile-tabs-bar { top: 64px; }
       }
+
+      /* ── Wishlist List (cart-style) ── */
+      .wl-list { background: #fff; border: 1px solid var(--border, #e2ddd8); }
+      .wl-item { display: grid; grid-template-columns: 80px 1fr auto auto auto; gap: 16px; align-items: center; padding: 20px 24px; border-bottom: 1px solid #f5f5f5; transition: background .15s; }
+      .wl-item:last-child { border-bottom: none; }
+      .wl-item:hover { background: #fafafa; }
+      .wl-item-img { width: 80px; height: 80px; object-fit: cover; border: 1px solid var(--border, #e2ddd8); border-radius: 8px; display: block; }
+      .wl-item-name { font-size: 14px; font-weight: 500; color: var(--dark, #111); text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .wl-item-name:hover { color: var(--pink, #f759ab); }
+      .wl-item-price { font-size: 14px; font-weight: 600; color: var(--pink, #f759ab); white-space: nowrap; text-align: right; min-width: 90px; }
+      .wl-btn-cart { padding: 8px 16px; background: #111; color: #fff; border: none; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: "Jost", sans-serif; white-space: nowrap; transition: background .2s; }
+      .wl-btn-cart:hover { background: var(--pink, #f759ab); }
+      .wl-btn-remove { width: 32px; height: 32px; border: 1px solid var(--border, #e2ddd8); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray, #888); transition: .2s; border-radius: 2px; }
+      .wl-btn-remove:hover { border-color: #e11d48; color: #e11d48; background: #fff5f5; }
+      @media (max-width: 600px) {
+        .wl-item { grid-template-columns: 64px 1fr auto; gap: 10px; padding: 14px 16px; }
+        .wl-item-price { display: none; }
+        .wl-btn-cart { font-size: 10px; padding: 7px 10px; }
+      }
     </style>
   </head>
 
@@ -113,7 +133,7 @@
           <button class="gh-icon-btn" id="ghSearchBtn" aria-label="Tìm kiếm"><i class="bi bi-search"></i></button>
           <a class="gh-icon-btn" href="profile.html#wishlist" aria-label="Yêu thích" style="position:relative">
             <i class="bi bi-heart"></i>
-            <span class="gh-dot gh-wish-dot" style="display:none"></span>
+            <span class="gh-badge gh-wishlist-badge" style="display:none">0</span>
           </a>
           <a class="gh-icon-btn" href="cart.html" aria-label="Giỏ hàng" style="position:relative">
             <i class="bi bi-bag"></i>
@@ -193,7 +213,12 @@
       <!-- ── Profile Hero ── -->
       <div class="profile-hero">
         <div class="profile-hero-inner">
-          <div class="ph-avatar" id="phAvatar">?</div>
+          <div class="ph-avatar" id="phAvatar" title="Click để đổi ảnh" style="cursor:pointer;position:relative" onclick="document.getElementById('avatarFileInput').click()">?
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;font-size:20px" class="ph-avatar-overlay">📷</div>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none"
+            onchange="ghUploadAvatar(this.files[0])">
+          <span id="avatarStatus" style="font-size:11px;display:none;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap"></span>
           <div class="ph-info">
             <div class="ph-name" id="phName">Đang tải...</div>
             <div class="ph-meta">
@@ -544,6 +569,38 @@
       var currentFilter = 'all';
 
       /* ── Toast ── */
+      /* ── Avatar upload via Cloudinary ── */
+      async function ghUploadAvatar(file) {
+        var statusEl = document.getElementById('avatarStatus');
+        if (!file) return;
+        statusEl.textContent = '⏳ Đang tải...';
+        statusEl.style.color = '#888';
+        statusEl.style.display = 'block';
+        try {
+          var url = await uploadToCloudinary(file);
+          // Cập nhật hiển thị avatar
+          var avatarEl = document.getElementById('phAvatar');
+          avatarEl.innerHTML = '<img src="' + url + '" onerror="this.parentElement.textContent=\'?\'" />'
+            + '<div style="position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;font-size:20px" class="ph-avatar-overlay">📷</div>';
+          // Lưu vào user object & localStorage
+          var u = {};
+          try { u = JSON.parse(localStorage.getItem('user') || '{}'); } catch(_) {}
+          u.avatarUrl = u.AvatarUrl = url;
+          localStorage.setItem('user', JSON.stringify(u));
+          // Gọi API cập nhật (nếu có)
+          if (typeof Users !== 'undefined' && Users.updateProfile) {
+            Users.updateProfile({ AvatarUrl: url }).catch(function(){});
+          }
+          statusEl.textContent = '✓ Cập nhật ảnh thành công!';
+          statusEl.style.color = '#22c55e';
+          toast('Đã cập nhật ảnh đại diện');
+        } catch(e) {
+          statusEl.textContent = '✗ ' + e.message;
+          statusEl.style.color = '#ef4444';
+        }
+        setTimeout(function() { statusEl.style.display = 'none'; }, 3000);
+      }
+
       function toast(msg, type) {
         if (!type) type = 'ok';
         var c = document.getElementById('profileToast');
@@ -942,9 +999,9 @@
               var iprice = it.UnitPrice || it.unitPrice || it.Price || it.price || 0;
               var iqty  = it.Quantity || it.quantity || 1;
               var ipid  = it.ProductId || it.productId || '';
-              var imgEl = ipid ? '<a href="product.html?id=' + ipid + '" target="_blank"><img class="order-item-img" src="' + iimg + '" onerror="this.src=\'' + ph + '\'" /></a>'
+              var imgEl = ipid ? '<a href="product.html?id=' + ipid + '"><img class="order-item-img" src="' + iimg + '" onerror="this.src=\'' + ph + '\'" /></a>'
                                : '<img class="order-item-img" src="' + iimg + '" onerror="this.src=\'' + ph + '\'" />';
-              var nameEl = ipid ? '<a href="product.html?id=' + ipid + '" target="_blank" style="color:inherit;text-decoration:none">' + iname + '</a>' : iname;
+              var nameEl = ipid ? '<a href="product.html?id=' + ipid + '" style="color:inherit;text-decoration:none">' + iname + '</a>' : iname;
               return '<div class="order-item-row">' +
                 imgEl +
                 '<div class="order-item-name">' + nameEl + ' <span style="color:var(--gray);font-weight:400">×' + iqty + '</span></div>' +
@@ -1049,9 +1106,9 @@
                     'style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px" ' +
                     'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">⭐ Đánh Giá Sản Phẩm</a></div>'
                   : '';
-                var _imgEl = pid ? '<a href="product.html?id=' + pid + '" target="_blank"><img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" /></a>'
+                var _imgEl = pid ? '<a href="product.html?id=' + pid + '"><img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" /></a>'
                                  : '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />';
-                var _nameEl = pid ? '<a href="product.html?id=' + pid + '" target="_blank" style="color:inherit;text-decoration:none;font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</a>'
+                var _nameEl = pid ? '<a href="product.html?id=' + pid + '" style="color:inherit;text-decoration:none;font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</a>'
                                   : '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>';
                 return '<div style="border-bottom:1px solid #f5f4f2">' +
                   '<div style="display:flex;align-items:center;gap:12px;padding:10px 0">' +
@@ -1089,9 +1146,9 @@
           } else {
             shopSectionsHtml = (o.items || []).map(function(i) {
               var _pid = i.productId || i.ProductId || '';
-              var _imgEl = _pid ? '<a href="product.html?id=' + _pid + '" target="_blank"><img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" /></a>'
+              var _imgEl = _pid ? '<a href="product.html?id=' + _pid + '"><img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" /></a>'
                                 : '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />';
-              var _nameEl = _pid ? '<a href="product.html?id=' + _pid + '" target="_blank" style="color:inherit;text-decoration:none;font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</a>'
+              var _nameEl = _pid ? '<a href="product.html?id=' + _pid + '" style="color:inherit;text-decoration:none;font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</a>'
                                  : '<div style="font-size:13px;font-weight:500;line-height:1.4">' + (i.productName || 'Sản phẩm') + '</div>';
               return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f4f2">' +
                 _imgEl +
@@ -1222,33 +1279,41 @@
         var WISH_KEY = 'gh_wishlist';
         var localItems = [];
         try { localItems = JSON.parse(localStorage.getItem(WISH_KEY) || '[]'); } catch(_) {}
+        console.log('[Wishlist] read from localStorage:', localStorage.getItem(WISH_KEY));
         var fetchPromise = (typeof Wishlist !== 'undefined' && Wishlist.getAll)
           ? Wishlist.getAll().then(function(data) {
-              return (data.items || data || []).map(function(w) {
+              var apiItems = (data.items || data || []).map(function(w) {
                 return { id: w.productId || w.ProductId || w.id, name: w.productName || w.name || 'Sản phẩm', price: w.price || 0, image: w.imageUrl || w.image || '' };
               });
+              // product.html chỉ lưu vào localStorage (không POST lên API),
+              // nên khi API trả rỗng thì ưu tiên localStorage
+              return apiItems.length > 0 ? apiItems : localItems;
             }).catch(function() { return localItems; })
           : Promise.resolve(localItems);
         fetchPromise.then(function(items) {
           var cb = document.getElementById('wishCountBadge');
           if (cb) cb.textContent = items.length + ' sản phẩm';
+          // Sync navbar badge
+          window.dispatchEvent(new Event('wishlist-updated'));
           if (!items.length) {
             wrap.innerHTML = '<div class="empty-state"><i class="bi bi-heart"></i><p>Chưa có sản phẩm yêu thích</p><a href="shop.html" class="gh-btn-primary" style="text-decoration:none;display:inline-flex;margin-top:12px">Khám Phá Ngay</a></div>';
             return;
           }
-          var ph = 'https://placehold.co/72x72/f5f0ea/888?text=IMG';
-          wrap.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' +
+          var ph = 'https://placehold.co/80x80/f5f0ea/888?text=IMG';
+          wrap.innerHTML = '<div class="wl-list">' +
             items.map(function(p) {
               var img = p.image || ph;
-              return '<div style="display:flex;gap:12px;border:1px solid var(--border);padding:12px;background:#fafaf8">' +
-                '<a href="product.html?id=' + p.id + '" target="_blank" style="flex-shrink:0"><img src="' + img + '" style="width:72px;height:72px;object-fit:cover" onerror="this.src=\'' + ph + '\'"/></a>' +
-                '<div style="flex:1;min-width:0">' +
-                '<a href="product.html?id=' + p.id + '" target="_blank" style="font-size:13px;font-weight:500;color:#111;text-decoration:none;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + (p.name || 'Sản phẩm') + '</a>' +
-                '<div style="color:var(--pink);font-size:13px;margin:6px 0">' + fmtMoney(p.price) + '</div>' +
-                '<div style="display:flex;gap:8px">' +
-                '<button onclick="addWishToCart(' + p.id + ',' + JSON.stringify(p.name || '') + ',' + (p.price || 0) + ',' + JSON.stringify(img) + ')" style="font-size:10px;padding:5px 12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;letter-spacing:1px">Thêm Giỏ</button>' +
-                '<button onclick="removeWishItem(' + p.id + ')" style="font-size:10px;padding:5px 10px;border:1px solid var(--border);background:#fff;color:var(--gray);cursor:pointer">✕</button>' +
-                '</div></div></div>';
+              return '<div class="wl-item">' +
+                '<a href="product.html?id=' + p.id + '" style="flex-shrink:0">' +
+                  '<img class="wl-item-img" src="' + img + '" alt="' + (p.name || '') + '" onerror="this.src=\'' + ph + '\'"/>' +
+                '</a>' +
+                '<a href="product.html?id=' + p.id + '" class="wl-item-name">' + (p.name || 'Sản phẩm') + '</a>' +
+                '<div class="wl-item-price">' + fmtMoney(p.price) + '</div>' +
+                '<button class="wl-btn-cart" onclick="addWishToCart(' + p.id + ',' + JSON.stringify(p.name || '') + ',' + (p.price || 0) + ',' + JSON.stringify(img) + ')">Thêm Giỏ</button>' +
+                '<button class="wl-btn-remove" onclick="removeWishItem(' + p.id + ')" title="Xóa">' +
+                  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+                '</button>' +
+              '</div>';
             }).join('') + '</div>';
         });
       }

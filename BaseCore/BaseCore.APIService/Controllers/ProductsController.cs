@@ -478,6 +478,33 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { isActive = product.IsActive });
         }
 
+        /// <summary>POST /api/products/{id}/images — Thêm/thay gallery ảnh (JSON array)</summary>
+        [HttpPost("{id:int}/images")]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> AddImages(int id, [FromBody] ProductImagesDto dto)
+        {
+            var product = await _db.Products.FindAsync(id);
+            if (product == null) return NotFound(new { message = "Sản phẩm không tồn tại" });
+
+            if (User.IsInRole(RoleConstant.Seller) && !User.IsInRole(RoleConstant.Admin))
+            {
+                var (shop, err) = await GetActiveShopAsync();
+                if (err != null) return err;
+                if (product.ShopId != shop!.Id) return Forbid();
+            }
+
+            var urls = (dto.ImageUrls ?? new List<string>())
+                .Where(u => !string.IsNullOrWhiteSpace(u))
+                .Distinct()
+                .Take(10)
+                .ToList();
+
+            product.Images = System.Text.Json.JsonSerializer.Serialize(urls);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Đã lưu ảnh gallery", count = urls.Count, images = urls });
+        }
+
         /// <summary>POST /api/products/{id}/view — Tăng view count + ghi recently viewed</summary>
         [HttpPost("{id:int}/view")]
         public async Task<IActionResult> RecordView(int id)
@@ -547,5 +574,10 @@ namespace BaseCore.APIService.Controllers
         public string? ImageUrl { get; set; }
         public decimal? DiscountPrice { get; set; }
         public bool? IsActive { get; set; }
+    }
+
+    public class ProductImagesDto
+    {
+        public List<string> ImageUrls { get; set; } = new();
     }
 }

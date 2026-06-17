@@ -88,7 +88,7 @@
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
               />
             </svg>
-            <span class="gh-dot gh-wish-dot" style="display: none"></span>
+            <span class="gh-badge gh-wishlist-badge" style="display:none">0</span>
           </a>
           <a href="cart.html" class="gh-icon-btn" aria-label="Giỏ hàng">
             <svg viewBox="0 0 24 24">
@@ -839,9 +839,11 @@
           const catId = norm(p, "categoryId", "CategoryId");
           const imageUrl = norm(p, "imageUrl", "ImageUrl") || "";
           const rawImages = norm(p, "images", "Images") || [];
-          const images = (rawImages.length ? rawImages : [imageUrl]).filter(
-            Boolean,
-          );
+          // rawImages từ API đã chứa imageUrl ở đầu → deduplicate để tránh hiện 2 lần trong gallery
+          const galleryExtra = rawImages.filter(function(u) { return u && u !== imageUrl; });
+          const images = imageUrl
+            ? [imageUrl, ...galleryExtra]
+            : galleryExtra.filter(Boolean);
           const reviews = norm(p, "reviews", "Reviews") || [];
           const related = norm(p, "relatedProducts", "RelatedProducts") || [];
           const shopId = norm(p, "shopId", "ShopId");
@@ -1084,6 +1086,7 @@
                   showToast("❤️ Đã thêm vào yêu thích", "ok");
                 }
                 localStorage.setItem("gh_wishlist", JSON.stringify(wl));
+                console.log('[Wishlist] saved:', localStorage.getItem('gh_wishlist'));
                 window.dispatchEvent(new Event("wishlist-updated"));
               }
             });
@@ -1149,27 +1152,26 @@
             }, 150);
           }
 
-          // Mô tả
+          // Mô tả — parse trước để tìm ảnh minh họa, rồi bỏ ảnh đó ra khỏi nội dung
+          const _dParser = new DOMParser();
+          const _dDoc = _dParser.parseFromString(desc || "", "text/html");
+          const _illust = _dDoc.querySelector(".desc-illustration-img");
+          const _illustSrc = _illust ? _illust.getAttribute("src") || "" : "";
+          if (_illust) _illust.remove(); // tránh hiện 2 lần trong nội dung
+
           const descEl = $("productDesc");
           if (descEl) {
             descEl.innerHTML =
-              desc ||
+              _dDoc.body.innerHTML ||
               '<p style="color:rgba(0,0,0,0.35);font-style:italic">Chưa có mô tả sản phẩm</p>';
           }
 
-          // Ảnh minh họa tab mô tả
+          // Ảnh minh họa tab mô tả — chỉ dùng ảnh từ desc HTML, không fallback gallery
           const _descImg = $("descImage");
           const _tabDescRight = $("tabDescRight");
           if (_descImg) {
-            const _dParser = new DOMParser();
-            const _dDoc = _dParser.parseFromString(desc || "", "text/html");
-            const _illust = _dDoc.querySelector(".desc-illustration-img");
-            const _descSrc =
-              (_illust && _illust.getAttribute("src")) ||
-              currentImages[1] ||
-              "";
-            if (_descSrc) {
-              _descImg.src = _descSrc;
+            if (_illustSrc) {
+              _descImg.src = _illustSrc;
               _descImg.onerror = function () {
                 if (_tabDescRight) _tabDescRight.style.display = "none";
               };

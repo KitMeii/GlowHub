@@ -222,7 +222,7 @@
         height: 100%;
         object-fit: cover;
         transform-origin: center center;
-        transition: transform 8s var(--ease-lux);
+        transition: transform 0.6s ease;
       }
       .gh-hero:hover .gh-hero-media img {
         transform: scale(1.04);
@@ -249,17 +249,17 @@
         letter-spacing: 5px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 18px;
+        margin-bottom: 10px;
         font-weight: 400;
       }
       .gh-hero-title {
         font-family: var(--font-disp);
-        font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+        font-size: clamp(2.2rem, 4.5vw, 4.5rem);
         font-weight: 300;
         line-height: 1.05;
         letter-spacing: 2px;
         color: var(--dark);
-        margin-bottom: 20px;
+        margin-bottom: 14px;
         font-style: italic;
       }
       .gh-hero-sub {
@@ -267,7 +267,7 @@
         letter-spacing: 3px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 40px;
+        margin-bottom: 28px;
         font-weight: 300;
       }
       .gh-hero-cta {
@@ -331,14 +331,14 @@
       /* ── SECTION HEADER — Dior minimal ── */
       .gh-sec-hd {
         text-align: center;
-        padding: clamp(60px, 8vw, 100px) 40px clamp(40px, 5vw, 60px);
+        padding: 40px 40px 20px;
       }
       .gh-sec-hd .eyebrow {
         font-size: 9px;
         letter-spacing: 5px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 16px;
+        margin-bottom: 8px;
         font-weight: 300;
         display: block;
       }
@@ -348,7 +348,7 @@
         font-weight: 300;
         letter-spacing: 3px;
         color: var(--dark);
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
       .gh-sec-hd p {
         font-size: 11px;
@@ -368,7 +368,7 @@
         text-decoration: none;
         border-bottom: 1px solid var(--border);
         padding-bottom: 2px;
-        margin-top: 16px;
+        margin-top: 12px;
         transition:
           border-color 0.3s,
           color 0.3s;
@@ -388,7 +388,7 @@
       .gh-split-panel {
         position: relative;
         overflow: hidden;
-        height: clamp(420px, 65vh, 720px);
+        height: clamp(300px, 42vh, 500px);
         cursor: pointer;
       }
       .gh-split-panel img {
@@ -425,7 +425,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 40px;
+        padding: 24px 32px;
         color: #fff;
       }
       .gh-split-label {
@@ -470,6 +470,7 @@
         grid-template-rows: 1fr 1fr;
         gap: 3px;
         margin: 0 3px;
+        height: clamp(760px, 90vh, 1000px);
       }
       .gh-asym-card {
         position: relative;
@@ -485,11 +486,10 @@
         height: 100%;
         object-fit: cover;
         display: block;
-        min-height: 260px;
         transition: transform 1s var(--ease-lux);
       }
       .gh-asym-card.featured img {
-        min-height: 520px;
+        height: 100%;
       }
       .gh-asym-card:hover img {
         transform: scale(1.06);
@@ -566,9 +566,10 @@
         text-transform: uppercase;
         color: var(--dark);
         margin-bottom: 4px;
-        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
       .gh-asym-info .price {
         font-size: 12px;
@@ -591,7 +592,7 @@
         }
         .gh-asym-card img,
         .gh-asym-card.featured img {
-          min-height: 200px;
+          height: 100%;
         }
         .gh-split {
           grid-template-columns: 1fr;
@@ -604,7 +605,7 @@
         grid-template-columns: 5fr 4fr 3fr;
         gap: 3px;
         margin: 0 3px;
-        height: clamp(300px, 42vh, 500px);
+        height: clamp(300px, 46vh, 520px);
       }
       .gh-lifestyle-item {
         position: relative;
@@ -689,6 +690,7 @@
       .gh-strip-card img {
         width: 100%;
         aspect-ratio: 3/4;
+        max-height: 560px;
         object-fit: cover;
         display: block;
         transition: transform 1s var(--ease-lux);
@@ -768,7 +770,7 @@
       /* ── PROMO BAND — Dior text-focused ── */
       .gh-promo-band {
         background: var(--cream);
-        padding: clamp(60px, 8vw, 100px) 40px;
+        padding: 50px 40px;
         text-align: center;
       }
       .gh-promo-band h2 {
@@ -778,14 +780,14 @@
         letter-spacing: 3px;
         line-height: 1.1;
         color: var(--dark);
-        margin-bottom: 20px;
+        margin-bottom: 12px;
       }
       .gh-promo-band p {
         font-size: 11px;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: var(--gray);
-        margin-bottom: 36px;
+        margin-bottom: 24px;
       }
       .gh-btn-primary {
         display: inline-flex;
@@ -833,7 +835,7 @@
       .gh-newsletter {
         background: var(--dark);
         color: #fff;
-        padding: clamp(50px, 7vw, 80px) 40px;
+        padding: 48px 40px;
         text-align: center;
       }
       .gh-newsletter h3 {
@@ -841,14 +843,14 @@
         font-weight: 300;
         font-size: clamp(1.4rem, 3vw, 2.2rem);
         letter-spacing: 3px;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
       .gh-newsletter p {
         font-size: 10px;
         letter-spacing: 3px;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 32px;
+        margin-bottom: 24px;
       }
       .gh-newsletter-form {
         display: flex;
@@ -1026,14 +1028,14 @@
           right: 5%;
         }
         .gh-hero-title {
-          font-size: 2.4rem;
+          font-size: 2rem;
         }
         .gh-lifestyle {
           grid-template-columns: 1fr;
           height: auto;
         }
         .gh-lifestyle-item {
-          height: 240px;
+          height: 200px;
         }
         .gh-strip-card {
           flex: 0 0 68vw;
@@ -1147,7 +1149,6 @@
       }
       .gh-asym-skel .s-lg {
         grid-row: 1/3;
-        min-height: 520px;
       }
       .gh-skel-item {
         background: linear-gradient(
