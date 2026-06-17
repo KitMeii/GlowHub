@@ -43,8 +43,3 @@ ehthumbs.db
 *.zip
 *.rar
 *.7z
-
-# ── Admin files (excluded from Kittt branch) ────────────────
-WebClient/WebClient/public/kaira-1.0.0/admin.html
-WebClient/WebClient/public/kaira-1.0.0/theme/admin.css
-BaseCore/BaseCore.APIService/Controllers/AdminController.cs
