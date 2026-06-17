@@ -1262,8 +1262,14 @@
               return o;
             });
             renderOrders(currentFilter);
+            viewOrderDetail(orderId);
+          } else {
+            viewOrderDetail(orderId);
+            Order.getMyOrders().then(function(r) {
+              allOrders = Array.isArray(r) ? r : (r && r.items) || (r && r.data) || [];
+              renderOrders(currentFilter);
+            });
           }
-          viewOrderDetail(orderId);
         }).catch(function(e) {
           toast('Lỗi: ' + (e && e.message || 'Không thể xác nhận'), 'err');
           if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Đã Nhận Hàng'; }

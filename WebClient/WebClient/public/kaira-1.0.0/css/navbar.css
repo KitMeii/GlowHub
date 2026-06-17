@@ -83,7 +83,7 @@
 .gh-dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 20px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   background: var(--white);
@@ -92,7 +92,7 @@
   box-shadow: 0 12px 40px rgba(0,0,0,0.1);
   z-index: 100;
   list-style: none;
-  padding: 8px 0;
+  padding: 20px 0 8px;
   margin: 0;
 }
 .gh-has-dropdown:hover .gh-dropdown {
