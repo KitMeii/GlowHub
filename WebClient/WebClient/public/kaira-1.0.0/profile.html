@@ -1082,9 +1082,18 @@
           var payMap = { COD: 'Thanh toán khi nhận', BANK: 'Chuyển khoản', MOMO: 'MoMo', VNPAY: 'VNPay', ZALOPAY: 'ZaloPay' };
           var status = (o.status || '').toUpperCase();
           var ph = 'https://placehold.co/48x48/f5f0ea/888?text=IMG';
-          var statusColor = statusColors[status] || '#888';
 
           var subOrders = o.subOrders || [];
+          if (subOrders.length > 0) {
+            var _allDel  = subOrders.every(function(s){ return (s.status||'').toUpperCase() === 'DELIVERED'; });
+            var _anyDel  = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'DELIVERED'; });
+            var _anyShip = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'SHIPPING';  });
+            var _anyCon  = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'CONFIRMED'; });
+            if (_allDel)                   status = 'DELIVERED';
+            else if (_anyShip || _anyDel)  status = 'SHIPPING';
+            else if (_anyCon)              status = 'CONFIRMED';
+          }
+          var statusColor = statusColors[status] || '#888';
           var shopSectionsHtml = '';
           var subStatusLabel = {
             PENDING: '⏳ Chờ xác nhận', CONFIRMED: '✅ Đã xác nhận',
