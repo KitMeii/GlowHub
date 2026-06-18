@@ -402,6 +402,8 @@
         const qty = item.qty || 1;
         const img = getProductImage(item);
         const cat = item.category || item.Category || "";
+        const stock = item.stock || item.Stock || 0;
+        const atMax = stock > 0 && qty >= stock;
 
         const imgHTML = `<a href="product.html?id=${id}" style="flex-shrink:0"><img loading="lazy" class="item-img" src="${img}" alt="${name}"
                         onerror="this.src='https://placehold.co/300x300/f8f5f0/ccc?text=GlowHub'" /></a>`;
@@ -412,6 +414,7 @@
                   <div class="item-info">
                     <a href="product.html?id=${id}" class="item-name">${name}</a>
                     ${cat ? `<div class="item-cat">${cat}</div>` : ""}
+                    ${atMax ? `<div style="color:#e53e3e;font-size:11px;margin-top:2px">Đã đạt giới hạn tồn kho (${stock})</div>` : ""}
                   </div>
                   <div class="item-price-col">
                     <span class="unit-price">${fmt(price)} / cái</span>
@@ -419,9 +422,10 @@
                   </div>
                   <div class="qty-control">
                     <button class="qty-btn" onclick="changeQty('${id}', ${qty - 1})" title="Giảm">−</button>
-                    <input class="qty-input" type="number" value="${qty}" min="1" max="99"
+                    <input class="qty-input" type="number" value="${qty}" min="1" max="${stock > 0 ? stock : 99}"
                            onchange="changeQty('${id}', parseInt(this.value)||1)" />
-                    <button class="qty-btn" onclick="changeQty('${id}', ${qty + 1})" title="Tăng">+</button>
+                    <button class="qty-btn" onclick="changeQty('${id}', ${qty + 1})" title="${atMax ? 'Đã đạt giới hạn tồn kho' : 'Tăng'}"
+                      ${atMax ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''}>+</button>
                   </div>
                   <button class="remove-btn" onclick="removeItem('${id}')" title="Xóa sản phẩm">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -552,6 +556,16 @@
       function changeQty(id, newQty) {
         if (newQty <= 0) {
           removeItem(id);
+          return;
+        }
+        // Stock check: read item's stored stock, reject if newQty exceeds it
+        var _allItems = typeof CartLimit !== 'undefined' ? CartLimit._read()
+          : JSON.parse(localStorage.getItem('gh_cart') || '[]');
+        var _item = _allItems.find(function(i){ return String(i.id || i.Id) === String(id); });
+        var _stock = _item ? (_item.stock || _item.Stock || 0) : 0;
+        if (_stock > 0 && newQty > _stock) {
+          if (typeof showToast === 'function') showToast('Chỉ còn ' + _stock + ' sản phẩm trong kho!', 'warn');
+          else toast('Chỉ còn ' + _stock + ' sản phẩm trong kho!', 'warn');
           return;
         }
         if (typeof Cart !== "undefined") Cart.setQty(id, newQty);

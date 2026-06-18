@@ -1345,7 +1345,7 @@
       }
 
       // ── Place Order ──
-      function placeOrder() {
+      async function placeOrder() {
         if (!cartItems.length) { showToast('Giỏ hàng trống!', 'err'); return; }
         if (!selectedAddrId) { goStep(1); showToast('Vui lòng chọn địa chỉ giao hàng!', 'err'); return; }
 
@@ -1356,6 +1356,33 @@
 
         var btn = document.getElementById('placeOrderBtn');
         btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang kiểm tra kho...';
+
+        // Stock validation: fetch live stock for each item before placing order
+        try {
+          var stockChecks = await Promise.all(cartItems.map(async function(item) {
+            var pid = item.id || item.Id;
+            try {
+              var p = typeof Product !== 'undefined' ? await Product.getById(pid) : null;
+              if (!p) return { ok: true };
+              var avail = p.Stock !== undefined ? p.Stock : (p.stock !== undefined ? p.stock : 999);
+              var need  = item.qty || 1;
+              return need > avail
+                ? { ok: false, name: item.name || item.Name || ('SP#' + pid), avail: avail, need: need }
+                : { ok: true };
+            } catch(e) { return { ok: true }; }
+          }));
+          var exceeded = stockChecks.filter(function(c){ return !c.ok; });
+          if (exceeded.length) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-bag-check me-2"></i> Đặt Hàng Ngay';
+            showToast('Vượt tồn kho: ' + exceeded.map(function(c){
+              return '"' + c.name + '" còn ' + c.avail + ' (bạn chọn ' + c.need + ')';
+            }).join(' · '), 'err');
+            return;
+          }
+        } catch(e) { /* network issue — let backend reject if stock ran out */ }
+
         btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Đang xử lý...';
 
         var payMap  = { cod: 0, bank: 1, momo: 2, vnpay: 4 };
