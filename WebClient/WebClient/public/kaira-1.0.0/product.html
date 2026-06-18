@@ -315,6 +315,7 @@
               />
               <button class="qty-btn" id="qtyPlus" aria-label="Tăng">+</button>
             </div>
+            <div id="qtyHint" style="font-size:11px;color:#888;margin-top:5px;display:none"></div>
           </div>
 
           <!-- 6–7. Action group -->
@@ -931,8 +932,28 @@
           // Qty controls
           const qtyInput = $("qtyInput");
           const qtyMinus = $("qtyMinus");
-          const qtyPlus = $("qtyPlus");
-          if (qtyInput) qtyInput.max = stock;
+          const qtyPlus  = $("qtyPlus");
+          const qtyHint  = $("qtyHint");
+
+          // Tính lượng đã có trong giỏ → max có thể thêm = stock - inCart
+          const _cartNowQ = typeof CartLimit !== "undefined" ? CartLimit._read()
+            : JSON.parse(localStorage.getItem('gh_cart') || '[]');
+          const _existQ   = _cartNowQ.find(function(i){ return String(i.id) === String(productId); });
+          const _inCartQ  = _existQ ? (_existQ.qty || 1) : 0;
+          const maxAllowed = Math.max(0, stock - _inCartQ);
+
+          if (qtyInput) {
+            qtyInput.max = maxAllowed;
+            // Clamp hiện tại về maxAllowed nếu cần
+            if (parseInt(qtyInput.value) > maxAllowed) qtyInput.value = maxAllowed || 1;
+          }
+
+          // Hint: "Có thể thêm tối đa: X (đã có Y trong giỏ)"
+          if (qtyHint && _inCartQ > 0 && stock > 0) {
+            qtyHint.textContent = 'Có thể thêm tối đa: ' + maxAllowed + ' (đã có ' + _inCartQ + ' trong giỏ)';
+            qtyHint.style.display = 'block';
+          }
+
           if (qtyMinus)
             qtyMinus.addEventListener("click", function () {
               const v = parseInt(qtyInput.value || 1);
@@ -941,8 +962,24 @@
           if (qtyPlus)
             qtyPlus.addEventListener("click", function () {
               const v = parseInt(qtyInput.value || 1);
-              if (v < stock) qtyInput.value = v + 1;
+              if (v < maxAllowed) qtyInput.value = v + 1;
             });
+
+          // Validate nhập tay: clamp về [1, maxAllowed]
+          if (qtyInput) {
+            qtyInput.addEventListener('change', function () {
+              let val = parseInt(this.value) || 1;
+              if (val < 1) val = 1;
+              if (val > maxAllowed) {
+                val = maxAllowed;
+                const hint = _inCartQ > 0
+                  ? 'Kho còn ' + stock + ', đã có ' + _inCartQ + ' trong giỏ → tối đa thêm ' + maxAllowed
+                  : 'Chỉ còn ' + stock + ' sản phẩm trong kho';
+                showToast(hint, 'warn');
+              }
+              this.value = val;
+            });
+          }
 
           // Nút Thêm giỏ
           const btnCart = $("btnAddCart");

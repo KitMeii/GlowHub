@@ -423,6 +423,7 @@
                   <div class="qty-control">
                     <button class="qty-btn" onclick="changeQty('${id}', ${qty - 1})" title="Giảm">−</button>
                     <input class="qty-input" type="number" value="${qty}" min="1" max="${stock > 0 ? stock : 99}"
+                           oninput="var mx=${stock > 0 ? stock : 99}; var v=parseInt(this.value); if(v>mx) this.value=mx; if(v<1&&this.value!=='') this.value=1;"
                            onchange="changeQty('${id}', parseInt(this.value)||1)" />
                     <button class="qty-btn" onclick="changeQty('${id}', ${qty + 1})" title="${atMax ? 'Đã đạt giới hạn tồn kho' : 'Tăng'}"
                       ${atMax ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''}>+</button>
@@ -566,6 +567,12 @@
         if (_stock > 0 && newQty > _stock) {
           if (typeof showToast === 'function') showToast('Chỉ còn ' + _stock + ' sản phẩm trong kho!', 'warn');
           else toast('Chỉ còn ' + _stock + ' sản phẩm trong kho!', 'warn');
+          // Reset DOM input về giá trị hợp lệ (qty hiện tại trong giỏ, không vượt stock)
+          var _row = document.getElementById('item-row-' + id);
+          if (_row) {
+            var _inp = _row.querySelector('.qty-input');
+            if (_inp) _inp.value = Math.min(_item ? (_item.qty || 1) : 1, _stock);
+          }
           return;
         }
         if (typeof Cart !== "undefined") Cart.setQty(id, newQty);
