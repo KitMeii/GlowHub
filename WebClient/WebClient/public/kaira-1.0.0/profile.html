@@ -542,6 +542,31 @@
       </div>
     </div>
 
+    <!-- ── Cancel Item Modal ── -->
+    <div id="cancelItemModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9200;align-items:center;justify-content:center;padding:16px">
+      <div style="background:#fff;max-width:480px;width:100%;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.2);padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;color:#111">Hủy sản phẩm</div>
+          <button onclick="closeCancelItemModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;line-height:1">×</button>
+        </div>
+        <div id="cancelItemName" style="font-size:13px;color:#555;margin-bottom:14px;padding:8px 12px;background:#fafaf8;border-radius:4px;border-left:3px solid #dc2626"></div>
+        <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:10px">Lý do hủy <span style="color:#dc2626">*</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="Tôi muốn thay đổi địa chỉ giao hàng" style="accent-color:#dc2626"> Tôi muốn thay đổi địa chỉ giao hàng</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="Tôi muốn thay đổi sản phẩm/size/màu" style="accent-color:#dc2626"> Tôi muốn thay đổi sản phẩm/size/màu</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="Tôi tìm được nơi mua rẻ hơn" style="accent-color:#dc2626"> Tôi tìm được nơi mua rẻ hơn</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="Đặt nhầm sản phẩm" style="accent-color:#dc2626"> Đặt nhầm sản phẩm</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="Không còn nhu cầu mua nữa" style="accent-color:#dc2626"> Không còn nhu cầu mua nữa</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="cancelItemReason" value="__other__" style="accent-color:#dc2626"> Lý do khác</label>
+        </div>
+        <textarea id="cancelItemOtherText" placeholder="Nhập lý do khác..." style="width:100%;padding:8px 12px;border:1px solid #ede8e2;border-radius:4px;font-size:13px;resize:vertical;min-height:64px;display:none;box-sizing:border-box"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+          <button onclick="closeCancelItemModal()" style="padding:8px 20px;border:1px solid #d1cdc9;background:#fff;border-radius:4px;cursor:pointer;font-size:13px">Giữ lại</button>
+          <button id="confirmCancelItemBtn" onclick="submitCancelItem()" style="padding:8px 20px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600">Xác Nhận Hủy</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Order Detail Modal ── -->
     <div id="orderDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px">
       <div style="background:#fff;max-width:680px;width:100%;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative;margin:auto">
@@ -1051,6 +1076,65 @@
         }).catch(function(e) { toast('Lỗi: ' + (e && e.message || 'Không thể hủy'), 'err'); });
       }
 
+      var _ciOrderId = null;
+      var _ciItemId  = null;
+
+      function openCancelItemModal(orderId, itemId, itemName) {
+        _ciOrderId = orderId;
+        _ciItemId  = itemId;
+        document.getElementById('cancelItemName').textContent = itemName || 'Sản phẩm';
+        document.querySelectorAll('input[name="cancelItemReason"]').forEach(function(r){ r.checked = false; });
+        document.getElementById('cancelItemOtherText').style.display = 'none';
+        document.getElementById('cancelItemOtherText').value = '';
+        document.getElementById('cancelItemModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeCancelItemModal() {
+        document.getElementById('cancelItemModal').style.display = 'none';
+        document.body.style.overflow = '';
+        _ciOrderId = null; _ciItemId = null;
+      }
+
+      // Show/hide custom text when "Lý do khác" selected
+      document.addEventListener('change', function(e) {
+        if (e.target && e.target.name === 'cancelItemReason') {
+          var txt = document.getElementById('cancelItemOtherText');
+          if (txt) txt.style.display = e.target.value === '__other__' ? 'block' : 'none';
+        }
+      });
+
+      function submitCancelItem() {
+        if (!_ciOrderId || !_ciItemId) return;
+        var selected = document.querySelector('input[name="cancelItemReason"]:checked');
+        if (!selected) { toast('Vui lòng chọn lý do hủy', 'warn'); return; }
+        var reason = selected.value === '__other__'
+          ? (document.getElementById('cancelItemOtherText').value.trim())
+          : selected.value;
+        if (!reason) { toast('Vui lòng nhập lý do hủy', 'warn'); return; }
+
+        var btn = document.getElementById('confirmCancelItemBtn');
+        btn.disabled = true;
+        btn.textContent = 'Đang xử lý...';
+
+        if (typeof Order === 'undefined' || !Order.cancelItem) {
+          toast('Không thể kết nối API', 'err');
+          btn.disabled = false; btn.textContent = 'Xác Nhận Hủy';
+          return;
+        }
+        var _savedOid = _ciOrderId;
+        Order.cancelItem(_ciOrderId, _ciItemId, reason)
+          .then(function() {
+            toast('Đã hủy sản phẩm thành công');
+            closeCancelItemModal();
+            viewOrderDetail(_savedOid);
+          })
+          .catch(function(e) {
+            toast('Lỗi: ' + (e && e.message || 'Không thể hủy'), 'err');
+            btn.disabled = false; btn.textContent = 'Xác Nhận Hủy';
+          });
+      }
+
       function viewOrderDetail(orderId) {
         var modal = document.getElementById('orderDetailModal');
         var body  = document.getElementById('odmBody');
@@ -1085,13 +1169,18 @@
 
           var subOrders = o.subOrders || [];
           if (subOrders.length > 0) {
-            var _allDel  = subOrders.every(function(s){ return (s.status||'').toUpperCase() === 'DELIVERED'; });
-            var _anyDel  = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'DELIVERED'; });
-            var _anyShip = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'SHIPPING';  });
-            var _anyCon  = subOrders.some(function(s){  return (s.status||'').toUpperCase() === 'CONFIRMED'; });
-            if (_allDel)                   status = 'DELIVERED';
-            else if (_anyShip || _anyDel)  status = 'SHIPPING';
-            else if (_anyCon)              status = 'CONFIRMED';
+            var _activeSubs = subOrders.filter(function(s){ return (s.status||'').toUpperCase() !== 'CANCELLED'; });
+            if (_activeSubs.length === 0) {
+              status = 'CANCELLED';
+            } else {
+              var _allDel  = _activeSubs.every(function(s){ return (s.status||'').toUpperCase() === 'DELIVERED'; });
+              var _anyShip = _activeSubs.some(function(s){  return (s.status||'').toUpperCase() === 'SHIPPING';  });
+              var _anyDel  = _activeSubs.some(function(s){  return (s.status||'').toUpperCase() === 'DELIVERED'; });
+              var _anyCon  = _activeSubs.some(function(s){  return (s.status||'').toUpperCase() === 'CONFIRMED'; });
+              if (_allDel)                   status = 'DELIVERED';
+              else if (_anyShip || _anyDel)  status = 'SHIPPING';
+              else if (_anyCon)              status = 'CONFIRMED';
+            }
           }
           var statusColor = statusColors[status] || '#888';
           var shopSectionsHtml = '';
@@ -1109,11 +1198,17 @@
               var soStatus = (so.status || '').toUpperCase();
               var soLabel  = subStatusLabel[soStatus] || soStatus;
               var soItemsHtml = (so.items || []).map(function(i) {
-                var pid = i.productId || i.ProductId || '';
+                var pid  = i.productId || i.ProductId || '';
+                var iid  = i.itemId || i.id || i.Id || '';
                 var reviewBtn = (soStatus === 'DELIVERED' && pid)
                   ? '<div style="padding:5px 0 3px 0"><a href="product.html?id=' + pid + '#reviews" ' +
                     'style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px" ' +
                     'onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">⭐ Đánh Giá Sản Phẩm</a></div>'
+                  : '';
+                var cancelItemBtn = (soStatus === 'PENDING' && iid)
+                  ? '<div style="padding:4px 0 3px 0"><button onclick="openCancelItemModal(' + o.orderId + ',' + iid + ',\'' + (i.productName || 'Sản phẩm').replace(/'/g, '') + '\')" ' +
+                    'style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.3px" ' +
+                    'onmouseover="this.style.background=\'#fef2f2\'" onmouseout="this.style.background=\'#fff\'">✕ Hủy sản phẩm</button></div>'
                   : '';
                 var _imgEl = pid ? '<a href="product.html?id=' + pid + '"><img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" /></a>'
                                  : '<img src="' + (i.imageUrl || ph) + '" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src=\'' + ph + '\'" />';
@@ -1129,6 +1224,7 @@
                     '<div style="font-size:13px;font-weight:600;flex-shrink:0">' + fmtMoney(i.subtotal || (i.unitPrice * (i.qty || 1))) + '</div>' +
                   '</div>' +
                   reviewBtn +
+                  cancelItemBtn +
                   '</div>';
               }).join('');
               var confirmBtn = soStatus === 'SHIPPING'

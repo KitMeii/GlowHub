@@ -167,6 +167,7 @@ namespace BaseCore.APIService.Controllers
                     finalAmount         = s.FinalAmount,
                     status              = s.Status,
                     items = s.Items.Select(i => new {
+                        itemId      = i.Id,
                         productId   = i.ProductId,
                         productName = i.Product != null ? i.Product.Name : "",
                         imageUrl    = i.Product != null ? i.Product.ImageUrl : "",
@@ -240,6 +241,69 @@ namespace BaseCore.APIService.Controllers
                 await tx.CommitAsync();
 
                 return Ok(new { message = "Đã hủy đơn hàng thành công" });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>DELETE /api/orders/my/{orderId}/items/{itemId} — Hủy từng SubOrderItem (chỉ khi SubOrder.Status = PENDING)</summary>
+        [HttpDelete("my/{orderId:int}/items/{itemId:int}")]
+        public async Task<IActionResult> CancelOrderItem(int orderId, int itemId, [FromBody] CancelItemDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto?.Reason))
+                return BadRequest(new { message = "Lý do hủy là bắt buộc" });
+
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var item = await _db.SubOrderItems
+                    .Include(i => i.SubOrder).ThenInclude(s => s.Order)
+                    .FirstOrDefaultAsync(i =>
+                        i.Id == itemId &&
+                        i.SubOrder.OrderId == orderId &&
+                        i.SubOrder.Order.UserId == userId);
+
+                if (item == null)
+                    return NotFound(new { message = "Không tìm thấy sản phẩm trong đơn hàng" });
+
+                var sub = item.SubOrder;
+                if (sub.Status != OrderStatus.Pending)
+                    return BadRequest(new { message = "Chỉ có thể hủy sản phẩm khi SubOrder đang chờ xác nhận (PENDING)" });
+
+                // Restore stock
+                var product = await _db.Products.FindAsync(item.ProductId);
+                if (product != null) product.Stock += item.Quantity;
+
+                _db.SubOrderItems.Remove(item);
+                await _db.SaveChangesAsync();
+
+                // Check remaining items
+                var remaining = await _db.SubOrderItems.Where(i => i.SubOrderId == sub.Id).ToListAsync();
+                if (!remaining.Any())
+                {
+                    sub.Status       = OrderStatus.Cancelled;
+                    sub.CancelReason = dto.Reason;
+                }
+                else
+                {
+                    sub.TotalAmount = remaining.Sum(i => i.UnitPrice * i.Quantity);
+                    sub.FinalAmount = sub.TotalAmount + sub.ShippingFee - sub.ShopVoucherDiscount;
+                }
+                sub.UpdatedAt = DateTime.UtcNow;
+
+                var order = await _db.Orders.Include(o => o.SubOrders)
+                    .FirstOrDefaultAsync(o => o.Id == orderId);
+                if (order != null) { SyncOrderStatus(order); order.UpdatedAt = DateTime.UtcNow; }
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                return Ok(new { message = "Đã hủy sản phẩm thành công" });
             }
             catch (Exception ex)
             {
@@ -1115,11 +1179,14 @@ namespace BaseCore.APIService.Controllers
         {
             var statuses = order.SubOrders.Select(s => s.Status).ToList();
             if (!statuses.Any()) return;
-            if (statuses.All(s => s == OrderStatus.Delivered))
+            // Exclude cancelled SubOrders; if all cancelled → Order becomes Cancelled
+            var active = statuses.Where(s => s != OrderStatus.Cancelled).ToList();
+            if (!active.Any()) { order.Status = OrderStatus.Cancelled; return; }
+            if (active.All(s => s == OrderStatus.Delivered))
                 order.Status = OrderStatus.Delivered;
-            else if (statuses.Any(s => s == OrderStatus.Shipping))
-                order.Status = OrderStatus.Shipping;
-            else if (statuses.Any(s => s == OrderStatus.Confirmed))
+            else if (active.Any(s => s == OrderStatus.Shipping || s == OrderStatus.Delivered))
+                order.Status = OrderStatus.Shipping;   // partial delivery → still shipping
+            else if (active.Any(s => s == OrderStatus.Confirmed))
                 order.Status = OrderStatus.Confirmed;
         }
 
@@ -1540,6 +1607,11 @@ namespace BaseCore.APIService.Controllers
     }
 
     public class CancelShopOrderDto
+    {
+        public string Reason { get; set; } = "";
+    }
+
+    public class CancelItemDto
     {
         public string Reason { get; set; } = "";
     }

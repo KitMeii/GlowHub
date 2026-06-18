@@ -295,6 +295,10 @@ const Order = {
 
   confirmReceived(id, subOrderId) { return apiFetch(ORDER_API, "/api/orders/my/" + id + "/received", "POST", subOrderId ? { subOrderId } : undefined); },
 
+  cancelItem(orderId, itemId, reason) {
+    return apiFetch(ORDER_API, "/api/orders/my/" + orderId + "/items/" + itemId, "DELETE", { Reason: reason || "" });
+  },
+
   // Checkout v2 — gửi đủ ReceiverName, ReceiverPhone, PaymentMethod, VoucherCode, ShippingMethod
   checkout(data) { return apiFetch(ORDER_API, "/api/orders/checkout", "POST", data); },
   create(data)   { return this.checkout(data); }, // backwards-compat alias

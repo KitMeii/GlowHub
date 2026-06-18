@@ -257,6 +257,31 @@
     </div>
     <!-- /tracking-wrap -->
 
+    <!-- CANCEL ITEM MODAL -->
+    <div id="cancelItemModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9200;align-items:center;justify-content:center;padding:16px">
+      <div style="background:#fff;max-width:480px;width:100%;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.2);padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;color:#111">Hủy sản phẩm</div>
+          <button onclick="closeCancelItemModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;line-height:1">×</button>
+        </div>
+        <div id="cancelItemName" style="font-size:13px;color:#555;margin-bottom:14px;padding:8px 12px;background:#fafaf8;border-radius:4px;border-left:3px solid #dc2626"></div>
+        <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:10px">Lý do hủy <span style="color:#dc2626">*</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="Tôi muốn thay đổi địa chỉ giao hàng" style="accent-color:#dc2626"> Tôi muốn thay đổi địa chỉ giao hàng</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="Tôi muốn thay đổi sản phẩm/size/màu" style="accent-color:#dc2626"> Tôi muốn thay đổi sản phẩm/size/màu</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="Tôi tìm được nơi mua rẻ hơn" style="accent-color:#dc2626"> Tôi tìm được nơi mua rẻ hơn</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="Đặt nhầm sản phẩm" style="accent-color:#dc2626"> Đặt nhầm sản phẩm</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="Không còn nhu cầu mua nữa" style="accent-color:#dc2626"> Không còn nhu cầu mua nữa</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="radio" name="otCancelItemReason" value="__other__" style="accent-color:#dc2626"> Lý do khác</label>
+        </div>
+        <textarea id="cancelItemOtherText" placeholder="Nhập lý do khác..." style="width:100%;padding:8px 12px;border:1px solid #ede8e2;border-radius:4px;font-size:13px;resize:vertical;min-height:64px;display:none;box-sizing:border-box"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+          <button onclick="closeCancelItemModal()" style="padding:8px 20px;border:1px solid #d1cdc9;background:#fff;border-radius:4px;cursor:pointer;font-size:13px">Giữ lại</button>
+          <button id="confirmCancelItemBtn" onclick="submitCancelItem()" style="padding:8px 20px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600">Xác Nhận Hủy</button>
+        </div>
+      </div>
+    </div>
+
     <!-- CANCEL MODAL -->
     <div class="modal-overlay" id="cancel-modal">
       <div class="modal-box">
@@ -555,12 +580,18 @@
       const ph = "https://placehold.co/48x48/f5f0ea/888?text=IMG";
       const fmtMoney = n => (n == null ? "—" : new Intl.NumberFormat("vi-VN").format(n) + " ₫");
 
-      function itemRow(i, showReview) {
+      function itemRow(i, showReview, showCancel) {
         const pid = i.productId || i.ProductId || "";
+        const iid = i.itemId || i.id || i.Id || "";
         const reviewBtn = (showReview && pid)
           ? `<div style="padding:5px 0 3px 0"><a href="product.html?id=${pid}#reviews"
               style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#e91e8c;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:.3px"
               onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">⭐ Đánh Giá Sản Phẩm</a></div>`
+          : "";
+        const cancelBtn = (showCancel && iid)
+          ? `<div style="padding:4px 0 3px 0"><button onclick="openCancelItemModal(${currentOrderId},${iid},'${(i.productName||'Sản phẩm').replace(/'/g,'')}')"
+              style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.3px"
+              onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#fff'">✕ Hủy sản phẩm</button></div>`
           : "";
         const _imgEl = pid ? `<a href="product.html?id=${pid}"><img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" /></a>`
                            : `<img src="${i.imageUrl || ph}" style="width:48px;height:60px;object-fit:cover;background:#f5f0ea;flex-shrink:0" onerror="this.src='${ph}'" />`;
@@ -575,7 +606,7 @@
             </div>
             <div style="font-size:13px;font-weight:600;flex-shrink:0">${fmtMoney(i.subtotal || (i.unitPrice * (i.qty || i.quantity || 1)))}</div>
           </div>
-          ${reviewBtn}
+          ${reviewBtn}${cancelBtn}
         </div>`;
       }
 
@@ -611,7 +642,7 @@
               <span>🏪 ${so.shopName || "Shop"}</span>
               <span style="font-size:12px;color:#555">${soLabel}</span>
             </div>
-            <div class="ot-shop-card-body">${(so.items || []).map(i => itemRow(i, soStatus === "DELIVERED")).join("")}</div>
+            <div class="ot-shop-card-body">${(so.items || []).map(i => itemRow(i, soStatus === "DELIVERED", soStatus === "PENDING")).join("")}</div>
             <div class="ot-shop-card-ft">
               <div class="ot-shop-ft-row"><span>Tạm tính shop</span><span>${fmtMoney(so.totalAmount)}</span></div>
               ${so.shopVoucherDiscount > 0 ? `<div class="ot-shop-ft-row discount"><span>Voucher shop</span><span>−${fmtMoney(so.shopVoucherDiscount)}</span></div>` : ""}
@@ -716,6 +747,56 @@
         showToast(err?.message || "Có lỗi xảy ra", "error");
         btn.disabled = false;
         btn.textContent = "Xác nhận hủy";
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Cancel Item
+    // ─────────────────────────────────────────────────────────
+    let _ciItemId = null;
+
+    function openCancelItemModal(orderId, itemId, itemName) {
+      _ciItemId = itemId;
+      document.getElementById("cancelItemName").textContent = itemName || "Sản phẩm";
+      document.querySelectorAll("input[name='otCancelItemReason']").forEach(r => r.checked = false);
+      const txt = document.getElementById("cancelItemOtherText");
+      txt.style.display = "none"; txt.value = "";
+      document.getElementById("cancelItemModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCancelItemModal() {
+      document.getElementById("cancelItemModal").style.display = "none";
+      document.body.style.overflow = "";
+      _ciItemId = null;
+    }
+
+    document.addEventListener("change", e => {
+      if (e.target && e.target.name === "otCancelItemReason") {
+        const txt = document.getElementById("cancelItemOtherText");
+        if (txt) txt.style.display = e.target.value === "__other__" ? "block" : "none";
+      }
+    });
+
+    async function submitCancelItem() {
+      const selected = document.querySelector("input[name='otCancelItemReason']:checked");
+      if (!selected) { showToast("Vui lòng chọn lý do hủy", "error"); return; }
+      const reason = selected.value === "__other__"
+        ? document.getElementById("cancelItemOtherText").value.trim()
+        : selected.value;
+      if (!reason) { showToast("Vui lòng nhập lý do hủy", "error"); return; }
+
+      const btn = document.getElementById("confirmCancelItemBtn");
+      btn.disabled = true; btn.textContent = "Đang xử lý...";
+
+      try {
+        const res = await Order.cancelItem(currentOrderId, _ciItemId, reason);
+        closeCancelItemModal();
+        showToast(res.message || "Đã hủy sản phẩm thành công", "success");
+        setTimeout(() => loadTracking(currentOrderId), 600);
+      } catch (err) {
+        showToast(err?.message || "Có lỗi xảy ra", "error");
+        btn.disabled = false; btn.textContent = "Xác Nhận Hủy";
       }
     }
 

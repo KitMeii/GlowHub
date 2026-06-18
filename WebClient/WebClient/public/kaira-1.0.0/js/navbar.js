@@ -93,12 +93,12 @@
       .then(function(cats) {
         if (!Array.isArray(cats) || !cats.length) return;
         var html = cats.map(function(c) {
-          return '<li><a href="shop.html?category=' + (c.id || c.Id) + '">' + (c.name || c.Name) + '</a></li>';
+          return '<li><a href="shop.html?cat=' + (c.id || c.Id) + '">' + (c.name || c.Name) + '</a></li>';
         }).join('');
         drops.forEach(function(d) { d.innerHTML = html; });
         if (drawerCats) {
           drawerCats.innerHTML = cats.map(function(c) {
-            return '<a href="shop.html?category=' + (c.id || c.Id) + '">' + (c.name || c.Name) + '</a>';
+            return '<a href="shop.html?cat=' + (c.id || c.Id) + '">' + (c.name || c.Name) + '</a>';
           }).join('');
         }
       })
