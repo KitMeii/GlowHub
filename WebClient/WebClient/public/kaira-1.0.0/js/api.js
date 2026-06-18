@@ -20,9 +20,10 @@
 // ============================================================
 //  CONFIG
 // ============================================================
-const API_BASE = "http://localhost:5002"; // ← AuthService port (từ ảnh debug)
-const PRODUCT_API = "http://localhost:5001"; // APIService
-const ORDER_API = "http://localhost:5001"; // APIService
+// Override khi deploy bằng: <script>window.GH_CONFIG = {API_URL:'...',AUTH_URL:'...'}</script>
+const API_BASE    = (window.GH_CONFIG && window.GH_CONFIG.AUTH_URL) || "http://localhost:5002"; // AuthService
+const PRODUCT_API = (window.GH_CONFIG && window.GH_CONFIG.API_URL)  || "http://localhost:5001"; // APIService
+const ORDER_API   = (window.GH_CONFIG && window.GH_CONFIG.API_URL)  || "http://localhost:5001"; // APIService
 
 // ============================================================
 //  HTTP HELPER
@@ -1410,13 +1411,13 @@ const Admin = {
 
   // ── Orders ──
   getOrders(qs) {
-    return apiFetch(PRODUCT_API, "/api/orders/admin/orders" + (qs ? "?" + qs : ""), "GET");
+    return apiFetch(PRODUCT_API, "/api/admin/orders" + (qs ? "?" + qs : ""), "GET");
   },
   getOrderDetail(id) {
-    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id, "GET");
+    return apiFetch(PRODUCT_API, "/api/admin/orders/" + id, "GET");
   },
   updateOrderStatus(id, status, note) {
-    return apiFetch(PRODUCT_API, "/api/orders/admin/orders/" + id + "/status", "PUT", { Status: status, Note: note || null });
+    return apiFetch(PRODUCT_API, "/api/admin/orders/" + id + "/status", "PUT", { Status: status, Note: note || null });
   },
 
   // ── Shops ──
@@ -2014,14 +2015,19 @@ var Payment = (function () {
     return apiFetch(PRODUCT_API, '/api/payment/bank/submit', 'POST', { orderId: orderId });
   }
 
-  // Admin xác nhận nhận tiền chuyển khoản
+  // Admin xác nhận nhận tiền chuyển khoản (route mới — Sprint 2 refactor)
   function adminConfirmBank(orderId) {
-    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/confirm/' + orderId, 'POST');
+    return apiFetch(PRODUCT_API, '/api/admin/bank-confirmation/' + orderId + '/confirm', 'POST');
+  }
+
+  // Admin từ chối xác nhận CK (hủy đơn + hoàn kho)
+  function adminRejectBank(orderId, note) {
+    return apiFetch(PRODUCT_API, '/api/admin/bank-confirmation/' + orderId + '/reject', 'POST', { note: note || null });
   }
 
   // Admin: danh sách đơn chờ xác nhận CK
   function getPendingBankOrders() {
-    return apiFetch(PRODUCT_API, '/api/payment/admin/bank/pending', 'GET');
+    return apiFetch(PRODUCT_API, '/api/admin/bank-confirmation/pending', 'GET');
   }
 
   // Kích hoạt auto-expire (gọi định kỳ hoặc khi cần)
@@ -2066,6 +2072,7 @@ var Payment = (function () {
     getBankInfo: getBankInfo,
     submitBankTransfer: submitBankTransfer,
     adminConfirmBank: adminConfirmBank,
+    adminRejectBank: adminRejectBank,
     getPendingBankOrders: getPendingBankOrders,
     expireOrders: expireOrders,
     redirectToVNPay: redirectToVNPay,

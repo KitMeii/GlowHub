@@ -103,8 +103,11 @@ namespace BaseCore.AuthService.Controllers
 
         private IActionResult BuildTokenRedirect(BaseCore.Entities.User user)
         {
+            if (!user.IsActive)
+                return Redirect($"{FrontendUrl}/login.html?error=account_banned");
+
             var role  = user.UserType switch { 1 => RoleConstant.Admin, 2 => RoleConstant.Seller, _ => RoleConstant.User };
-            var token = TokenHelper.GenerateToken(SecretKey, TokenExpirationMinutes, user.Id, user.UserName, role);
+            var token = TokenHelper.GenerateToken(SecretKey, TokenExpirationMinutes, user.Id, user.UserName, role, user.TokenVersion);
 
             var url = $"{FrontendUrl}/login.html" +
                       $"?token={Uri.EscapeDataString(token)}" +

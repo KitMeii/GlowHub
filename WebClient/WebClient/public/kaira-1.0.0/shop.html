@@ -635,7 +635,7 @@
     <!-- RECENTLY VIEWED (shop) -->
     <section id="shop-recently-section" style="display:none; padding:40px 0; background:var(--cream);">
       <div class="container" style="max-width:1200px;">
-        <h2 style="font-family:'Marcellus',serif; font-size:1.2rem; letter-spacing:3px; text-transform:uppercase; color:var(--dark); margin-bottom:20px;">
+        <h2 style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; font-size:1.2rem; letter-spacing:3px; text-transform:uppercase; color:var(--dark); margin-bottom:20px;">
           Xem Gần Đây
         </h2>
         <div id="shop-recently-strip" style="
@@ -1007,13 +1007,13 @@
               if (wrap)
                 wrap.innerHTML =
                   '<div class="empty-state"><i class="bi bi-exclamation-triangle"></i>' +
-                  "<h4 style=\"font-family:'Marcellus',serif;color:var(--gray)\">Không thể tải sản phẩm</h4>" +
+                  "<h4 style=\"font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--gray)\">Không thể tải sản phẩm</h4>" +
                   '<p style="font-size:13px">' +
                   (err.message || "Vui lòng thử lại sau") +
                   "</p>" +
                   '<button onclick="state.loading=false;state.page=1;loadProducts()" style="background:var(--dark);color:#fff;border:none;' +
                   "padding:10px 24px;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;" +
-                  "font-family:'Jost',sans-serif;margin-top:12px\">Thử Lại</button></div>";
+                  "font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin-top:12px\">Thử Lại</button></div>";
               state.loading = false;
               return;
             }
@@ -1077,11 +1077,11 @@
         if (!page || !page.length) {
           wrap.innerHTML =
             '<div class="empty-state"><i class="bi bi-search"></i>' +
-            "<h4 style=\"font-family:'Marcellus',serif;color:var(--gray)\">Không tìm thấy sản phẩm</h4>" +
+            "<h4 style=\"font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--gray)\">Không tìm thấy sản phẩm</h4>" +
             '<p style="font-size:13px">Thử tìm kiếm với từ khóa khác</p>' +
             '<button onclick="clearAllFilters()" style="background:var(--dark);color:#fff;border:none;' +
             "padding:10px 24px;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;" +
-            "font-family:'Jost',sans-serif;margin-top:12px\">Xóa Bộ Lọc</button></div>";
+            "font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin-top:12px\">Xóa Bộ Lọc</button></div>";
           return;
         }
 
@@ -1200,7 +1200,7 @@
           '<div style="flex:1;padding:18px 20px;display:flex;flex-direction:column;justify-content:center">' +
           '<a href="product.html?id=' +
           id +
-          '" style="font-family:\'Marcellus\',serif;font-size:15px;color:var(--dark);text-decoration:none;display:block;margin-bottom:6px">' +
+          '" style="font-family:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;color:var(--dark);text-decoration:none;display:block;margin-bottom:6px">' +
           name +
           "</a>" +
           '<p style="font-size:13px;color:var(--gray);margin:0 0 12px;line-height:1.6">' +
@@ -1223,7 +1223,7 @@
           price +
           ",'" +
           img +
-          "','" + shopId + "','" + shopName + "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Jost',sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +
+          "','" + shopId + "','" + shopName + "')\" style=\"background:var(--dark);color:#fff;border:none;padding:9px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin-left:auto\">Thêm Vào Giỏ</button>" +
           "</div></div></div>"
         );
       }

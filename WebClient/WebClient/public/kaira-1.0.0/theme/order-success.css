@@ -6,7 +6,7 @@
 
 body {
   background: #fffdf9;
-  font-family: "Jost", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--dark);
   display: flex;
   flex-direction: column;
@@ -16,12 +16,12 @@ body {
 footer { margin-top: auto; }
 
 h1, h2, h3, h4 {
-  font-family: "Marcellus", serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-weight: 400;
 }
 
 .brand-name {
-  font-family: "Marcellus", serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 4px;
   color: var(--dark);
   text-decoration: none;
@@ -114,7 +114,7 @@ h1, h2, h3, h4 {
 
 /* ── HEADLINE ── */
 .success-headline {
-  font-family: "Marcellus", serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(1.5rem, 4vw, 2rem);
   letter-spacing: 2px;
   margin: 0 0 10px;
@@ -149,7 +149,7 @@ h1, h2, h3, h4 {
 }
 
 .oc-value {
-  font-family: "Marcellus", serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 1.4rem;
   letter-spacing: 3px;
   color: var(--dark);
@@ -161,7 +161,7 @@ h1, h2, h3, h4 {
   padding: 8px 12px;
   font-size: 11px;
   cursor: pointer;
-  font-family: "Jost", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--gray);
   transition: 0.2s;
   white-space: nowrap;
@@ -222,7 +222,7 @@ h1, h2, h3, h4 {
   background: var(--dark);
   color: #fff;
   border: none;
-  font-family: "Jost", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -243,7 +243,7 @@ h1, h2, h3, h4 {
   background: #fff;
   color: var(--dark);
   border: 1px solid var(--border);
-  font-family: "Jost", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 2px;

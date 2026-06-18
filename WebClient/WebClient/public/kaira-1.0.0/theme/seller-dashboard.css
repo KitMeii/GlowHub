@@ -2,8 +2,8 @@
   --pink: #f759ab;
   --dark: #111;
   --sidebar: 240px;
-  --font-body: "Jost", sans-serif;
-  --font-heading: "Marcellus", serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 * {
   box-sizing: border-box;

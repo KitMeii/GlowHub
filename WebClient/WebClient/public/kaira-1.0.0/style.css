@@ -31,7 +31,7 @@ body {
   --swiper-theme-color: #8c907e;
 
   /* bootstrap */
-  --bs-body-font-family: "Jost", Roboto, sans-serif;
+  --bs-body-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --bs-body-font-size: 18px;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5;

@@ -32,6 +32,7 @@ namespace BaseCore.Repository
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+        public DbSet<OrderStatusLog> OrderStatusLogs { get; set; }
         public DbSet<FlashSale> FlashSales { get; set; }
         public DbSet<FlashSaleProduct> FlashSaleProducts { get; set; }
         public DbSet<RecentlyViewed> RecentlyVieweds { get; set; }

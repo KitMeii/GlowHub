@@ -15,12 +15,14 @@ namespace BaseCore.APIService.Controllers
         private readonly MySqlDbContext _db;
         private readonly VNPayService _vnpay;
         private readonly IConfiguration _config;
+        private readonly AuditLogService _audit;
 
-        public PaymentController(MySqlDbContext db, VNPayService vnpay, IConfiguration config)
+        public PaymentController(MySqlDbContext db, VNPayService vnpay, IConfiguration config, AuditLogService audit)
         {
             _db     = db;
             _vnpay  = vnpay;
             _config = config;
+            _audit  = audit;
         }
 
         private string? GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -75,10 +77,23 @@ namespace BaseCore.APIService.Controllers
             var order = await _db.Orders.FindAsync(orderId);
             if (order != null && order.PaymentStatus == PaymentStatusValue.WaitingPayment)
             {
+                var oldStatus = order.PaymentStatus;
                 order.PaymentStatus      = responseCode == "00" ? PaymentStatusValue.Paid : PaymentStatusValue.Failed;
                 order.VNPayTransactionId = transactionNo;
                 order.UpdatedAt          = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
+
+                // Audit — VNPay return là sự kiện tài chính, log để truy vết
+                try
+                {
+                    await _audit.Log(order.UserId, null,
+                        responseCode == "00" ? "PAYMENT_VNPAY_SUCCESS" : "PAYMENT_VNPAY_FAILED",
+                        "Order", order.Id.ToString(),
+                        oldValue: new { paymentStatus = oldStatus.ToString() },
+                        newValue: new { paymentStatus = order.PaymentStatus.ToString(), responseCode, transactionNo },
+                        ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+                }
+                catch { }
             }
 
             var success = responseCode == "00";
@@ -212,58 +227,7 @@ namespace BaseCore.APIService.Controllers
             return Ok(new { message = "Đã ghi nhận. Admin sẽ xác nhận trong vài phút." });
         }
 
-        /// <summary>POST /api/payment/admin/bank/confirm/{orderId} — Admin xác nhận nhận tiền</summary>
-        [HttpPost("admin/bank/confirm/{orderId:int}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AdminConfirmBankPayment(int orderId)
-        {
-            var adminId = GetUserId();
-            var order   = await _db.Orders.FindAsync(orderId);
-            if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
-
-            if (order.PaymentStatus != PaymentStatusValue.PendingBankConfirm)
-                return BadRequest(new { message = "Đơn hàng không ở trạng thái chờ xác nhận chuyển khoản" });
-
-            order.PaymentStatus          = PaymentStatusValue.Paid;
-            order.BankTransferConfirmedBy = adminId;
-            order.BankTransferConfirmedAt = DateTime.UtcNow;
-            order.UpdatedAt              = DateTime.UtcNow;
-
-            _db.Notifications.Add(new Notification
-            {
-                UserId    = order.UserId,
-                Title     = "Đã xác nhận thanh toán",
-                Message   = $"Đơn hàng {order.OrderCode ?? ("ORD-" + order.Id)} đã được xác nhận chuyển khoản thành công.",
-                Link      = "/profile.html#orders",
-                CreatedAt = DateTime.UtcNow
-            });
-
-            await _db.SaveChangesAsync();
-            return Ok(new { message = "Đã xác nhận thanh toán chuyển khoản" });
-        }
-
-        /// <summary>GET /api/payment/admin/bank/pending — Admin xem danh sách đơn chờ xác nhận CK</summary>
-        [HttpGet("admin/bank/pending")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetPendingBankOrders()
-        {
-            var orders = await _db.Orders
-                .Include(o => o.User)
-                .Where(o => o.PaymentStatus == PaymentStatusValue.PendingBankConfirm)
-                .OrderBy(o => o.BankTransferConfirmedAt)
-                .Select(o => new {
-                    orderId              = o.Id,
-                    orderCode            = o.OrderCode ?? ("ORD-" + o.Id.ToString("D6")),
-                    finalAmount          = o.FinalAmount > 0 ? o.FinalAmount : o.TotalAmount + o.ShippingFee,
-                    confirmedAt          = o.BankTransferConfirmedAt,
-                    expireAt             = o.PaymentExpireAt,
-                    customerName         = o.User.Name,
-                    customerEmail        = o.User.Email
-                })
-                .ToListAsync();
-
-            return Ok(orders);
-        }
+        // Admin bank confirm/reject/pending → BankConfirmationController (/api/admin/bank-confirmation/*)
 
         // ─────────────────────────────────────────────────────────────
         // AUTO-EXPIRE

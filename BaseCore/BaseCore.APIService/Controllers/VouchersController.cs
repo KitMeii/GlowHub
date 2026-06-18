@@ -230,12 +230,20 @@ namespace BaseCore.APIService.Controllers
 
         // ── Admin endpoints ──
 
-        /// <summary>GET /api/Vouchers (admin only)</summary>
+        /// <summary>GET /api/Vouchers (admin only) — paginated</summary>
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int page  = 1,
+            [FromQuery] int limit = 20)
         {
-            return Ok(await _db.Vouchers.OrderByDescending(v => v.CreatedAt).ToListAsync());
+            var query = _db.Vouchers.OrderByDescending(v => v.CreatedAt);
+            var total = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
+            return Ok(new { items, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
         }
 
         /// <summary>POST /api/Vouchers (admin only)</summary>

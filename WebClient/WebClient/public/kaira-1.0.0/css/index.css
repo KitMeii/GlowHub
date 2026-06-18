@@ -27,8 +27,8 @@
         --gray: #888;
         --ease-lux: cubic-bezier(0.25, 1, 0.5, 1);
         --ease-exp: cubic-bezier(0.16, 1, 0.3, 1);
-        --font-disp: "Cormorant Garamond", "Georgia", serif;
-        --font-body: "Jost", sans-serif;
+        --font-disp: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       }
 
       html {
@@ -226,6 +226,93 @@
       }
       .gh-hero:hover .gh-hero-media img {
         transform: scale(1.04);
+      }
+      /* ── HERO SLIDER (Banner-driven, auto-rotate) ── */
+      .gh-hero-slides {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .gh-hero-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 1s var(--ease-lux), visibility 1s var(--ease-lux);
+        pointer-events: none;
+      }
+      .gh-hero-slide.is-active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .gh-hero-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform-origin: center center;
+        transform: scale(1.02);
+        transition: transform 8s var(--ease-lux);
+      }
+      .gh-hero-slide.is-active img {
+        transform: scale(1.06);
+      }
+      .gh-hero-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(17, 17, 17, 0.08);
+        color: var(--dark);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 5;
+        opacity: 0;
+        transition: opacity 0.3s, background 0.2s, transform 0.2s;
+      }
+      .gh-hero:hover .gh-hero-arrow { opacity: 1; }
+      .gh-hero-arrow:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
+      .gh-hero-arrow.prev { left: 24px; }
+      .gh-hero-arrow.next { right: 24px; }
+      .gh-hero-dots {
+        position: absolute;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 5;
+      }
+      .gh-hero-dot {
+        width: 28px;
+        height: 2px;
+        background: rgba(17, 17, 17, 0.25);
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: background 0.3s, width 0.3s;
+      }
+      .gh-hero-dot.is-active {
+        background: var(--dark);
+        width: 42px;
+      }
+      @media (max-width: 720px) {
+        .gh-hero-arrow { width: 38px; height: 38px; font-size: 15px; }
+        .gh-hero-arrow.prev { left: 10px; }
+        .gh-hero-arrow.next { right: 10px; }
+        .gh-hero-dots { bottom: 58px; gap: 8px; }
+        .gh-hero-dot { width: 22px; }
+        .gh-hero-dot.is-active { width: 32px; }
       }
       .gh-hero-gradient {
         position: absolute;

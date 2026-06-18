@@ -25,9 +25,9 @@
   --warning:     #f59e0b;
 
   /* ── Typography ── */
-  --font-display: "Cormorant Garamond", "Georgia", serif;
-  --font-body:    "Jost", sans-serif;
-  --font-brand:   "Marcellus", serif;
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body:    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-brand:   system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* ── Easing ── */
   --ease-lux:  cubic-bezier(0.25, 1, 0.5, 1);

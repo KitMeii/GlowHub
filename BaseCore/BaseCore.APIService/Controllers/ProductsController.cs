@@ -429,6 +429,23 @@ namespace BaseCore.APIService.Controllers
             product.DiscountPrice = dto.DiscountPrice ?? product.DiscountPrice;
             product.IsActive      = dto.IsActive ?? product.IsActive;
 
+            if (dto.Images != null)
+            {
+                // Loại bỏ ảnh chính khỏi JSON Images — GetById sẽ tự prepend ImageUrl,
+                // để trùng ở đây sẽ hiển thị duplicate trên trang chi tiết.
+                var mainUrl = (product.ImageUrl ?? "").Trim();
+                var imgs = dto.Images
+                    .Where(u => !string.IsNullOrWhiteSpace(u))
+                    .Select(u => u.Trim())
+                    .Where(u => u != mainUrl)
+                    .Distinct()
+                    .Take(4)
+                    .ToList();
+                product.Images = imgs.Count == 0
+                    ? null
+                    : System.Text.Json.JsonSerializer.Serialize(imgs);
+            }
+
             await _productRepository.UpdateAsync(product);
             return Ok(product);
         }
@@ -474,6 +491,46 @@ namespace BaseCore.APIService.Controllers
             }
 
             product.IsActive = !product.IsActive;
+            await _productRepository.UpdateAsync(product);
+            return Ok(new { isActive = product.IsActive });
+        }
+
+        // PUT /api/products/{id}/hide
+        [HttpPut("{id:int}/hide")]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> Hide(int id)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product == null) return NotFound(new { message = "Product not found" });
+
+            if (User.IsInRole(RoleConstant.Seller) && !User.IsInRole(RoleConstant.Admin))
+            {
+                var (shop, err) = await GetActiveShopAsync();
+                if (err != null) return err;
+                if (product.ShopId != shop!.Id) return Forbid();
+            }
+
+            product.IsActive = false;
+            await _productRepository.UpdateAsync(product);
+            return Ok(new { isActive = product.IsActive });
+        }
+
+        // PUT /api/products/{id}/show
+        [HttpPut("{id:int}/show")]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> Show(int id)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product == null) return NotFound(new { message = "Product not found" });
+
+            if (User.IsInRole(RoleConstant.Seller) && !User.IsInRole(RoleConstant.Admin))
+            {
+                var (shop, err) = await GetActiveShopAsync();
+                if (err != null) return err;
+                if (product.ShopId != shop!.Id) return Forbid();
+            }
+
+            product.IsActive = true;
             await _productRepository.UpdateAsync(product);
             return Ok(new { isActive = product.IsActive });
         }
@@ -547,5 +604,7 @@ namespace BaseCore.APIService.Controllers
         public string? ImageUrl { get; set; }
         public decimal? DiscountPrice { get; set; }
         public bool? IsActive { get; set; }
+        /// <summary>Mảng URL ảnh phụ (≤5). Khi không null → ghi đè cột Images (JSON).</summary>
+        public List<string>? Images { get; set; }
     }
 }

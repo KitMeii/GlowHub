@@ -127,6 +127,33 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+    // Force-logout khi admin đổi role / ban user:
+    // mỗi request đối chiếu "tv" claim với User.TokenVersion trong DB; lệch ⇒ 401 ⇒ client redirect login.
+    x.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var tvStr  = context.Principal?.FindFirst("tv")?.Value;
+
+            if (string.IsNullOrEmpty(userId) || !int.TryParse(tvStr, out var tv))
+            {
+                context.Fail("Token thiếu claim — vui lòng đăng nhập lại");
+                return;
+            }
+
+            var db   = context.HttpContext.RequestServices.GetRequiredService<MySqlDbContext>();
+            var info = await db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => new { u.TokenVersion, u.IsActive })
+                .FirstOrDefaultAsync();
+
+            if (info == null)            { context.Fail("Tài khoản không tồn tại"); return; }
+            if (!info.IsActive)          { context.Fail("Tài khoản đã bị khóa"); return; }
+            if (info.TokenVersion != tv) { context.Fail("Phiên đã bị thu hồi"); return; }
+        }
+    };
 });
 
 var app = builder.Build();

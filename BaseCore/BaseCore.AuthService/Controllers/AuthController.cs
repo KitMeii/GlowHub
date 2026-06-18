@@ -33,6 +33,11 @@ namespace BaseCore.AuthService.Controllers
                 return Unauthorized(new { message = "Invalid username or password" });
             }
 
+            if (!user.IsActive)
+            {
+                return Unauthorized(new { message = "Tài khoản đã bị khóa. Vui lòng liên hệ admin." });
+            }
+
             var role = user.UserType switch
             {
                 1 => RoleConstant.Admin,
@@ -40,13 +45,14 @@ namespace BaseCore.AuthService.Controllers
                 _ => RoleConstant.User
             };
 
-            // Generate JWT token
+            // Generate JWT token kèm tv claim → admin đổi role/ban sẽ làm token hiện tại fail check.
             var token = TokenHelper.GenerateToken(
                 SecretKey,
                 TokenExpirationMinutes,
                 user.Id.ToString(),
                 user.UserName,
-                role
+                role,
+                user.TokenVersion
             );
 
             return Ok(new LoginResponse

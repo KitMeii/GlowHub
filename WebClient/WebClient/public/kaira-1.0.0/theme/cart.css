@@ -24,7 +24,7 @@
 
       body {
         background: var(--light);
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 14px;
         color: var(--dark);
       }
@@ -47,7 +47,7 @@
         justify-content: space-between;
       }
       .logo {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.5rem;
         letter-spacing: 4px;
         color: var(--dark);
@@ -184,7 +184,7 @@
         padding: 40px 24px 16px;
       }
       .page-title h1 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 2.2rem;
         letter-spacing: 1px;
         color: var(--dark);
@@ -225,7 +225,7 @@
         font-size: 44px;
       }
       .empty-cart h3 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.6rem;
         margin-bottom: 8px;
       }
@@ -248,7 +248,7 @@
         justify-content: space-between;
       }
       .cart-section-header h2 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.1rem;
         letter-spacing: 0.5px;
       }
@@ -395,7 +395,7 @@
         border-right: 1px solid var(--border);
         text-align: center;
         font-size: 13px;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-weight: 500;
         outline: none;
         height: 34px;
@@ -442,7 +442,7 @@
         border: 1px solid var(--border);
         border-right: none;
         padding: 10px 14px;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 13px;
         outline: none;
         background: #fff;
@@ -457,7 +457,7 @@
         background: var(--dark);
         color: #fff;
         border: 1px solid var(--dark);
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 12px;
         font-weight: 500;
         letter-spacing: 1.5px;
@@ -513,7 +513,7 @@
         border-bottom: 1px solid var(--border);
       }
       .summary-box-header h2 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.1rem;
         letter-spacing: 0.5px;
       }
@@ -554,13 +554,13 @@
         border-top: 2px solid var(--dark);
       }
       .summary-total .label {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1rem;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
       .summary-total .value {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.4rem;
         color: var(--pink);
       }
@@ -572,7 +572,7 @@
         background: var(--dark);
         color: #fff;
         border: none;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 13px;
         font-weight: 500;
         letter-spacing: 2.5px;
@@ -654,7 +654,7 @@
         padding-top: 48px;
       }
       .recently-section h3 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.4rem;
         margin-bottom: 24px;
         letter-spacing: 0.5px;
@@ -702,7 +702,7 @@
         padding: 9px;
         border: 1px solid var(--dark);
         background: none;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 11px;
         font-weight: 500;
         letter-spacing: 1.5px;

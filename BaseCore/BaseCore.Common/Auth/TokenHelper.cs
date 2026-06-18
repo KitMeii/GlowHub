@@ -58,6 +58,10 @@ namespace BaseCore.Common
         }
 
         public static string GenerateToken(string secretKey, int minuteExpireTime, string userId, string userName, string roles)
+            => GenerateToken(secretKey, minuteExpireTime, userId, userName, roles, 0);
+
+        // Overload có "tv" claim — dùng cho luồng login mới để hỗ trợ force-logout khi admin đổi role.
+        public static string GenerateToken(string secretKey, int minuteExpireTime, string userId, string userName, string roles, int tokenVersion)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secretKey);
@@ -68,7 +72,8 @@ namespace BaseCore.Common
                 {
                     new Claim(ClaimTypes.Name, userName),
                     new Claim(ClaimTypes.NameIdentifier, userId),
-                    new Claim(ClaimTypes.Role, roles)
+                    new Claim(ClaimTypes.Role, roles),
+                    new Claim("tv", tokenVersion.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(minuteExpireTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

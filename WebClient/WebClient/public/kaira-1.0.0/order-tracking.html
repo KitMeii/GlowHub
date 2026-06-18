@@ -355,6 +355,18 @@
       document.getElementById("search-input").addEventListener("keydown", e => {
         if (e.key === "Enter") doSearch();
       });
+
+      // Auto-fire while typing (debounced) — only when input parses to a valid ID
+      // so we don't spam toast errors mid-typing.
+      let trackTimer = null;
+      document.getElementById("search-input").addEventListener("input", function () {
+        clearTimeout(trackTimer);
+        const raw = this.value.trim();
+        if (!raw) return;
+        const id = parseInt(raw.replace(/^ORD-0*/i, ""), 10);
+        if (isNaN(id) || id <= 0) return;
+        trackTimer = setTimeout(doSearch, 800);
+      });
     });
 
     // ─────────────────────────────────────────────────────────

@@ -19,7 +19,7 @@
     body { font-family: var(--font-body, 'Jost', sans-serif); background: var(--cream, #f8f5f0); min-height: 100vh; display: flex; flex-direction: column; color: var(--dark, #111); }
     .gh-topbar { background: var(--dark, #111); color: rgba(255,255,255,.65); text-align: center; padding: 7px 20px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }
     .gh-nav { background: #fff; border-bottom: 1px solid #e2ddd8; padding: 0 40px; height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .gh-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; letter-spacing: 7px; text-transform: uppercase; color: var(--dark, #111); text-decoration: none; text-align: center; }
+    .gh-logo { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 1.4rem; letter-spacing: 7px; text-transform: uppercase; color: var(--dark, #111); text-decoration: none; text-align: center; }
     .gh-nav-link { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #555; text-decoration: none; transition: color .2s; }
     .gh-nav-link:hover { color: var(--pink, #f759ab); }
 
@@ -31,13 +31,13 @@
     .pay-icon.bank-icon { background: #e8f5e9; color: #2e7d32; }
     .pay-icon.vnpay-icon { background: #fff3e0; color: #e65100; }
     .pay-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #888; margin-bottom: 10px; }
-    .pay-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px; }
+    .pay-title { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 2rem; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px; }
     .pay-sub { font-size: 12px; color: #888; letter-spacing: .5px; }
 
     /* Countdown */
     .countdown-box { background: #fff9f5; border: 1px solid #f3cdb3; border-radius: 8px; padding: 16px 20px; text-align: center; margin-bottom: 24px; }
     .countdown-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 8px; }
-    .countdown-timer { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; letter-spacing: 4px; color: var(--dark, #111); }
+    .countdown-timer { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 2.4rem; font-weight: 300; letter-spacing: 4px; color: var(--dark, #111); }
     .countdown-timer.urgent { color: #ef4444; }
     .countdown-expired { display: none; font-size: 13px; color: #ef4444; }
 
@@ -58,7 +58,7 @@
     .qr-hint { font-size: 11px; color: #888; margin-top: 8px; letter-spacing: .5px; }
 
     /* Actions */
-    .btn-primary { display: block; width: 100%; padding: 16px; background: var(--dark, #111); color: #fff; border: none; font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background .3s; text-align: center; text-decoration: none; }
+    .btn-primary { display: block; width: 100%; padding: 16px; background: var(--dark, #111); color: #fff; border: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background .3s; text-align: center; text-decoration: none; }
     .btn-primary:hover { background: var(--pink, #f759ab); }
     .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
     .btn-outline-lnk { display: block; text-align: center; margin-top: 12px; font-size: 11px; color: #888; letter-spacing: 1px; text-decoration: none; }
@@ -82,7 +82,7 @@
     /* Order summary mini */
     .order-mini { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 20px; padding: 14px 16px; background: #fafaf8; border: 1px solid #e2ddd8; }
     .order-mini-code { font-weight: 600; letter-spacing: .5px; }
-    .order-mini-amount { color: var(--pink, #f759ab); font-size: 18px; font-weight: 700; font-family: 'Cormorant Garamond', serif; }
+    .order-mini-amount { color: var(--pink, #f759ab); font-size: 18px; font-weight: 700; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
 
     #ghToast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
     .gh-toast { background: #111; color: #fff; padding: 12px 18px; font-size: 12px; border-left: 3px solid var(--pink, #f759ab); max-width: 300px; animation: toastIn .3s ease; }
@@ -292,7 +292,7 @@
     <!-- Confirmed state -->
     <div id="confirmedSection" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:48px;margin-bottom:16px">✅</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:8px">Đã Ghi Nhận Xác Nhận</div>
+      <div style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:1.6rem;margin-bottom:8px">Đã Ghi Nhận Xác Nhận</div>
       <p style="font-size:12px;color:#888;margin-bottom:24px">Admin sẽ xác nhận chuyển khoản trong vài phút.</p>
       <a href="profile.html" class="btn-primary" style="display:inline-block;max-width:300px">Xem Đơn Hàng</a>
     </div>

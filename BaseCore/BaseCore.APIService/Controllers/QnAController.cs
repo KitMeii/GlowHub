@@ -231,4 +231,132 @@ namespace BaseCore.APIService.Controllers
         public int ProductId { get; set; }
         public string Question { get; set; } = "";
     }
+
+    // ─── Admin Q&A ───────────────────────────────────────────────
+    [Route("api/admin/qna")]
+    [ApiController]
+    [Authorize(Roles = "Admin")]
+    public class AdminQnAController : ControllerBase
+    {
+        private readonly MySqlDbContext _db;
+        private readonly AuditLogService _audit;
+
+        public AdminQnAController(MySqlDbContext db, AuditLogService audit)
+        {
+            _db    = db;
+            _audit = audit;
+        }
+
+        private string? GetUserId()   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string? GetUserName() => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
+
+        /// <summary>GET /api/admin/qna?page=&limit=&answered=&search=&shopId=</summary>
+        [HttpGet]
+        public async Task<IActionResult> List(
+            [FromQuery] int page      = 1,
+            [FromQuery] int limit     = 20,
+            [FromQuery] bool? answered = null,
+            [FromQuery] string? search = null,
+            [FromQuery] string? shopId = null)
+        {
+            var query = _db.QnAs
+                .Include(q => q.Product)
+                .Include(q => q.Customer)
+                .Where(q => q.IsActive);
+
+            if (answered == true)  query = query.Where(q => q.Answer != null);
+            if (answered == false) query = query.Where(q => q.Answer == null);
+
+            if (!string.IsNullOrEmpty(shopId))
+                query = query.Where(q => q.Product != null && q.Product.ShopId == shopId);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var s = search.Trim();
+                query = query.Where(q =>
+                    q.Question.Contains(s)
+                    || (q.Answer != null && q.Answer.Contains(s))
+                    || (q.Product != null && q.Product.Name.Contains(s)));
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(q => q.AskedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(q => new {
+                    id            = q.Id,
+                    productId     = q.ProductId,
+                    productName   = q.Product != null ? q.Product.Name : "",
+                    productImage  = q.Product != null ? q.Product.ImageUrl : "",
+                    shopId        = q.Product != null ? q.Product.ShopId : null,
+                    customerId    = q.CustomerId,
+                    customerName  = q.Customer != null ? (q.Customer.Name ?? q.Customer.UserName) : q.CustomerId,
+                    customerEmail = q.Customer != null ? q.Customer.Email : null,
+                    q.Question,
+                    askedAt       = q.AskedAt,
+                    q.Answer,
+                    answeredAt    = q.AnsweredAt
+                })
+                .ToListAsync();
+
+            return Ok(new {
+                items,
+                total,
+                page,
+                totalPages = (int)Math.Ceiling((double)total / limit)
+            });
+        }
+
+        /// <summary>POST /api/admin/qna/{id}/answer — Admin trả lời (hoặc sửa lại câu trả lời)</summary>
+        [HttpPost("{id:int}/answer")]
+        public async Task<IActionResult> Answer(int id, [FromBody] AnswerQnADto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Answer))
+                return BadRequest(new { message = "Câu trả lời không được rỗng" });
+
+            var qna = await _db.QnAs.FindAsync(id);
+            if (qna == null || !qna.IsActive)
+                return NotFound(new { message = "Câu hỏi không tồn tại" });
+
+            var oldAnswer  = qna.Answer;
+            qna.Answer     = dto.Answer.Trim();
+            qna.AnsweredAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            await _audit.Log(GetUserId(), GetUserName(),
+                oldAnswer == null ? "QNA_ANSWER" : "QNA_ANSWER_EDIT",
+                "QnA", id.ToString(),
+                new { answer = oldAnswer },
+                new { answer = qna.Answer });
+
+            return Ok(new { message = "Đã gửi câu trả lời", id, answer = qna.Answer, answeredAt = qna.AnsweredAt });
+        }
+
+        /// <summary>DELETE /api/admin/qna/{id} — Soft-delete câu hỏi (ẩn khỏi khách + seller)</summary>
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var qna = await _db.QnAs.FindAsync(id);
+            if (qna == null) return NotFound(new { message = "Câu hỏi không tồn tại" });
+
+            qna.IsActive = false;
+            await _db.SaveChangesAsync();
+
+            await _audit.Log(GetUserId(), GetUserName(), "QNA_DELETE",
+                "QnA", id.ToString(),
+                new { question = qna.Question, answer = qna.Answer }, null);
+
+            return Ok(new { message = "Đã xóa câu hỏi" });
+        }
+
+        /// <summary>GET /api/admin/qna/stats — Đếm tổng / chưa trả lời / đã trả lời</summary>
+        [HttpGet("stats")]
+        public async Task<IActionResult> Stats()
+        {
+            var total     = await _db.QnAs.CountAsync(q => q.IsActive);
+            var answered  = await _db.QnAs.CountAsync(q => q.IsActive && q.Answer != null);
+            return Ok(new { total, answered, pending = total - answered });
+        }
+    }
 }

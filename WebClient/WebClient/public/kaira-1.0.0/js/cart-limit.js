@@ -17,13 +17,13 @@
       '.glm-box{position:relative;background:#fff;padding:40px 36px;max-width:400px;width:90%;text-align:center;transform:translateY(24px);opacity:0;transition:all .3s ease}',
       '.glm-box.show{transform:translateY(0);opacity:1}',
       '.glm-icon{font-size:48px;margin-bottom:16px}',
-      '.glm-title{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.3rem;font-weight:400;color:#111;margin-bottom:12px}',
-      '.glm-desc{font-size:13px;color:rgba(0,0,0,.6);font-family:"Jost",sans-serif;line-height:1.7;margin-bottom:10px}',
-      '.glm-hint{font-size:12px;color:rgba(0,0,0,.45);font-family:"Jost",sans-serif;line-height:1.6;margin-bottom:28px;padding:12px 16px;background:#f8f5f0;border-left:3px solid #f759ab;text-align:left}',
+      '.glm-title{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:1.3rem;font-weight:400;color:#111;margin-bottom:12px}',
+      '.glm-desc{font-size:13px;color:rgba(0,0,0,.6);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.7;margin-bottom:10px}',
+      '.glm-hint{font-size:12px;color:rgba(0,0,0,.45);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;margin-bottom:28px;padding:12px 16px;background:#f8f5f0;border-left:3px solid #f759ab;text-align:left}',
       '.glm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}',
-      '.glm-btn-primary{background:#111;color:#fff;padding:12px 24px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:"Jost",sans-serif;text-decoration:none;border:none;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center}',
+      '.glm-btn-primary{background:#111;color:#fff;padding:12px 24px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;text-decoration:none;border:none;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center}',
       '.glm-btn-primary:hover{background:#f759ab;color:#fff}',
-      '.glm-btn-secondary{background:none;color:#111;padding:12px 20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:"Jost",sans-serif;border:1px solid rgba(0,0,0,.15);cursor:pointer;transition:all .2s}',
+      '.glm-btn-secondary{background:none;color:#111;padding:12px 20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;border:1px solid rgba(0,0,0,.15);cursor:pointer;transition:all .2s}',
       '.glm-btn-secondary:hover{border-color:#111;background:#111;color:#fff}'
     ].join('');
     document.head.appendChild(s);

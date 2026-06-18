@@ -5,6 +5,7 @@ using BaseCore.Entities;
 using BaseCore.Repository.EFCore;
 using BaseCore.Repository;
 using BaseCore.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -22,6 +23,7 @@ namespace BaseCore.APIService.Controllers
         private readonly IShopRepositoryEF _shopRepository;
         private readonly MySqlDbContext _db;
         private readonly ShippingCalculatorService _shipping;
+        private readonly AuditLogService _audit;
 
         public OrdersController(
             IOrderRepositoryEF orderRepository,
@@ -30,7 +32,8 @@ namespace BaseCore.APIService.Controllers
             ICartRepositoryEF cartRepository,
             IShopRepositoryEF shopRepository,
             MySqlDbContext db,
-            ShippingCalculatorService shipping)
+            ShippingCalculatorService shipping,
+            AuditLogService audit)
         {
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
@@ -39,9 +42,11 @@ namespace BaseCore.APIService.Controllers
             _shopRepository = shopRepository;
             _db = db;
             _shipping = shipping;
+            _audit = audit;
         }
 
-        private string? GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        private string? GetUserId()   => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        private string? GetUserName() => User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
         // ─────────────────────────────────────────────────────────
         // CUSTOMER — my/ routes (Sprint 6)
@@ -683,8 +688,19 @@ namespace BaseCore.APIService.Controllers
                             UnitPrice = lockedPrice
                         });
 
-                        product.Stock     -= cartItem.Quantity;
-                        product.SoldCount += cartItem.Quantity;
+                        // ── Atomic stock decrement — chống race condition ──
+                        // Nếu 2 khách cùng mua sản phẩm cuối cùng, chỉ 1 UPDATE thành công.
+                        // Pre-check ở trên (line 503) chỉ để báo lỗi sớm với message đẹp;
+                        // đây mới là rào chắn thực sự.
+                        var stockRows = await _db.Database.ExecuteSqlRawAsync(
+                            @"UPDATE Products
+                              SET Stock     = Stock - @qty,
+                                  SoldCount = SoldCount + @qty
+                              WHERE Id = @pid AND IsActive = 1 AND Stock >= @qty",
+                            new SqlParameter("@qty", cartItem.Quantity),
+                            new SqlParameter("@pid", product.Id));
+                        if (stockRows == 0)
+                            throw new Exception($"'{product.Name}' đã hết hàng hoặc số lượng tồn không đủ.");
                     }
 
                     grandSubtotal            += groupSubtotal;
@@ -758,6 +774,22 @@ namespace BaseCore.APIService.Controllers
 
                 await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                // Audit log — checkout là sự kiện tài chính, phải log để truy vết khi có khiếu nại
+                try
+                {
+                    await _audit.Log(userId, GetUserName(), "ORDER_CREATE", "Order", order.Id.ToString(),
+                        newValue: new {
+                            orderCode = order.OrderCode,
+                            finalAmount = order.FinalAmount,
+                            paymentMethod,
+                            subOrderCount = subOrderResults.Count,
+                            appliedVoucher,
+                            appliedShipVoucher = shipVoucherEntity?.Code
+                        },
+                        ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+                }
+                catch { /* không để audit fail ngăn response */ }
 
                 return Ok(new {
                     message                  = "Đặt hàng thành công!",
@@ -891,7 +923,7 @@ namespace BaseCore.APIService.Controllers
         // ─────────────────────────────────────────────────────────
 
         /// <summary>GET /api/admin/orders?status=&amp;search=&amp;from=&amp;to=&amp;page=&amp;limit=</summary>
-        [HttpGet("admin/orders")]
+        [HttpGet("~/api/admin/orders")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAdminOrders(
             [FromQuery] string? status = null,
@@ -964,7 +996,7 @@ namespace BaseCore.APIService.Controllers
         }
 
         /// <summary>GET /api/admin/orders/{id} — Chi tiết đơn hàng cho admin</summary>
-        [HttpGet("admin/orders/{id:int}")]
+        [HttpGet("~/api/admin/orders/{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAdminOrderDetail(int id)
         {
@@ -1041,7 +1073,7 @@ namespace BaseCore.APIService.Controllers
         }
 
         /// <summary>PUT /api/admin/orders/{id}/status — Admin cập nhật trạng thái (có ghi lịch sử)</summary>
-        [HttpPut("admin/orders/{id:int}/status")]
+        [HttpPut("~/api/admin/orders/{id:int}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminUpdateOrderStatus(int id, [FromBody] UpdateStatusDto dto)
         {

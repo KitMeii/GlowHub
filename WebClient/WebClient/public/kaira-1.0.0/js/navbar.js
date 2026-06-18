@@ -8,8 +8,9 @@
 (function () {
   'use strict';
 
-  var API_URL  = 'http://localhost:5001';
-  var AUTH_URL = 'http://localhost:5002';
+  // Override khi deploy: <script>window.GH_CONFIG = {API_URL:'...',AUTH_URL:'...'}</script>
+  var API_URL  = (window.GH_CONFIG && window.GH_CONFIG.API_URL)  || 'http://localhost:5001';
+  var AUTH_URL = (window.GH_CONFIG && window.GH_CONFIG.AUTH_URL) || 'http://localhost:5002';
 
   /* ─────────────────────────────────
      Helpers

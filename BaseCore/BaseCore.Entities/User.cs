@@ -20,6 +20,9 @@ namespace BaseCore.Entities
         public int UserType { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
 
+        // Tăng mỗi khi admin đổi role / ban user → JWT cũ có "tv" khác sẽ bị reject ở OnTokenValidated.
+        public int TokenVersion { get; set; } = 0;
+
         /// <summary>GOOGLE | FACEBOOK | null (đăng nhập thường)</summary>
         [MaxLength(20)]
         public string? OAuthProvider { get; set; }

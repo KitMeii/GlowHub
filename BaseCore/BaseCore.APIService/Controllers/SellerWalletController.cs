@@ -6,6 +6,7 @@ using BaseCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Security.Claims;
 
 namespace BaseCore.APIService.Controllers
@@ -260,6 +261,76 @@ namespace BaseCore.APIService.Controllers
             }
         }
 
+        /// <summary>POST /api/admin/wallet/adjust — Cộng/trừ ví seller theo shop (ghi nhận giao dịch ADJUSTMENT + audit)</summary>
+        [HttpPost("adjust")]
+        public async Task<IActionResult> AdjustWallet([FromBody] AdjustWalletDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.ShopId))
+                return BadRequest(new { message = "Thiếu shopId" });
+            if (dto.Amount == 0)
+                return BadRequest(new { message = "Số tiền điều chỉnh phải khác 0" });
+            if (string.IsNullOrWhiteSpace(dto.Note))
+                return BadRequest(new { message = "Vui lòng nhập lý do điều chỉnh" });
+
+            var shop = await _db.Shops.FindAsync(dto.ShopId);
+            if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
+
+            // Serializable: InnoDB sẽ đặt row-lock trên SellerWallet khi đọc Balance,
+            // chặn 2 admin trừ song song dẫn đến double-spend ví.
+            await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
+            {
+                var wallet = await GetOrCreateWalletAsync(dto.ShopId);
+                var before = wallet.Balance;
+                var after  = before + dto.Amount;
+
+                if (after < 0)
+                {
+                    await tx.RollbackAsync();
+                    return BadRequest(new {
+                        message = $"Trừ {Math.Abs(dto.Amount):N0}₫ sẽ khiến ví âm (hiện {before:N0}₫)"
+                    });
+                }
+
+                _db.WalletTransactions.Add(new WalletTransaction {
+                    ShopId        = dto.ShopId,
+                    OrderId       = null,
+                    Type          = WalletTransactionType.Adjustment,
+                    Amount        = dto.Amount,
+                    BalanceBefore = before,
+                    BalanceAfter  = after,
+                    Note          = dto.Note.Trim(),
+                    CreatedAt     = DateTime.UtcNow
+                });
+
+                wallet.Balance   = after;
+                wallet.UpdatedAt = DateTime.UtcNow;
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                await _audit.Log(GetUserId(), GetUserName(), "WALLET_ADJUST",
+                    "SellerWallet", dto.ShopId,
+                    new { balance = before },
+                    new { balance = after, amount = dto.Amount, note = dto.Note });
+
+                return Ok(new {
+                    message     = dto.Amount > 0
+                        ? $"Đã cộng {dto.Amount:N0}₫ vào ví {shop.ShopName}"
+                        : $"Đã trừ {Math.Abs(dto.Amount):N0}₫ khỏi ví {shop.ShopName}",
+                    shopId      = dto.ShopId,
+                    shopName    = shop.ShopName,
+                    balance     = after,
+                    delta       = dto.Amount
+                });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         /// <summary>GET /api/admin/wallet/transactions?shopId=&type=&page=&limit=</summary>
         [HttpGet("transactions")]
         public async Task<IActionResult> GetTransactions(
@@ -289,5 +360,13 @@ namespace BaseCore.APIService.Controllers
 
             return Ok(new { items, total, page, totalPages = (int)Math.Ceiling((double)total / limit) });
         }
+    }
+
+    public class AdjustWalletDto
+    {
+        public string ShopId { get; set; } = "";
+        /// <summary>Số tiền (dương = cộng, âm = trừ).</summary>
+        public decimal Amount { get; set; }
+        public string Note { get; set; } = "";
     }
 }

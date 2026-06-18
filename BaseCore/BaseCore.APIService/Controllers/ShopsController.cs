@@ -70,81 +70,70 @@ namespace BaseCore.APIService.Controllers
 
             var shopId = shop.Id;
             var today = DateTime.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
             var monthStart = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-            var weekAgo = today.AddDays(-6);
+            var weekStart = today.AddDays(-6);
 
-            // Product IDs owned by this shop
-            var productIds = await _db.Products
-                .Where(p => p.ShopId == shopId)
-                .Select(p => p.Id)
-                .ToListAsync();
+            // SubOrder là source of truth cho per-shop financials (theo Admin Guide §3.6).
+            // Tránh load toàn bộ Orders + Include nested vào memory.
+            var subQ = _db.SubOrders.Where(s => s.ShopId == shopId);
 
-            // All orders that contain at least one product from this shop
-            var shopOrders = await _db.Orders
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                .Include(o => o.User)
-                .Include(o => o.SubOrders)
-                .Where(o => o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
-                .ToListAsync();
+            var todayRevenue = await subQ
+                .Where(s => s.Status == OrderStatus.Completed
+                         && s.Order.OrderDate >= today && s.Order.OrderDate < tomorrow)
+                .SumAsync(s => (decimal?)s.ProductRevenue) ?? 0m;
 
-            // Revenue helpers — only from COMPLETED orders, only for shop's products
-            decimal CalcRevenue(IEnumerable<Order> orders)
-                => orders.Where(o => o.Status == OrderStatus.Completed)
-                         .Sum(o => o.OrderDetails
-                             .Where(od => productIds.Contains(od.ProductId))
-                             .Sum(od => od.UnitPrice * od.Quantity));
+            var monthRevenue = await subQ
+                .Where(s => s.Status == OrderStatus.Completed && s.Order.OrderDate >= monthStart)
+                .SumAsync(s => (decimal?)s.ProductRevenue) ?? 0m;
 
-            var todayOrders = shopOrders.Where(o => o.OrderDate.Date == today);
-            var monthOrders = shopOrders.Where(o => o.OrderDate >= monthStart);
+            var totalOrders   = await subQ.CountAsync();
+            var pendingOrders = await subQ.CountAsync(s => s.Status == OrderStatus.Pending);
 
-            var todayRevenue  = CalcRevenue(todayOrders);
-            var monthRevenue  = CalcRevenue(monthOrders);
-            var totalOrders   = shopOrders.Count;
-            var pendingOrders = shopOrders.Count(o => o.Status == OrderStatus.Pending);
+            var totalProducts = await _db.Products.CountAsync(p => p.ShopId == shopId);
+            var lowStockCount = await _db.Products.CountAsync(p => p.ShopId == shopId && p.Stock < 10 && p.IsActive);
 
-            var totalProducts  = productIds.Count;
-            var lowStockCount  = await _db.Products.CountAsync(p => p.ShopId == shopId && p.Stock < 10 && p.IsActive);
-
-            // Recent 5 orders — amount is this shop's sub-order only
-            var recentOrders = shopOrders
-                .OrderByDescending(o => o.OrderDate)
+            // Recent 5 sub-orders — chỉ load những field cần
+            var recentOrders = await subQ
+                .OrderByDescending(s => s.Order.OrderDate)
                 .Take(5)
-                .Select(o => new
+                .Select(s => new
                 {
-                    orderId     = o.Id,
-                    customer    = o.User?.Name ?? o.UserId,
-                    totalAmount = o.SubOrders.FirstOrDefault(s => s.ShopId == shopId)?.FinalAmount
-                                  ?? o.OrderDetails
-                                       .Where(od => productIds.Contains(od.ProductId))
-                                       .Sum(od => od.UnitPrice * od.Quantity),
-                    status      = o.Status,
-                    createdAt   = o.OrderDate
-                });
+                    orderId     = s.OrderId,
+                    customer    = s.Order.User != null ? (s.Order.User.Name ?? s.Order.UserId) : s.Order.UserId,
+                    totalAmount = s.FinalAmount,
+                    status      = s.Status,
+                    createdAt   = s.Order.OrderDate
+                })
+                .ToListAsync();
 
-            // Top 5 products by sold count
-            var topProducts = await _db.OrderDetails
-                .Where(od => productIds.Contains(od.ProductId))
-                .GroupBy(od => od.ProductId)
-                .Select(g => new { productId = g.Key, soldCount = g.Sum(od => od.Quantity) })
+            // Top 5 products theo sold count (chỉ trong sub-orders của shop này)
+            var topProducts = await _db.SubOrderItems
+                .Where(soi => soi.SubOrder.ShopId == shopId)
+                .GroupBy(soi => soi.ProductId)
+                .Select(g => new { productId = g.Key, soldCount = g.Sum(x => x.Quantity) })
                 .OrderByDescending(x => x.soldCount)
                 .Take(5)
                 .Join(_db.Products, x => x.productId, p => p.Id,
                     (x, p) => new { p.Id, p.Name, p.ImageUrl, p.Price, x.soldCount })
                 .ToListAsync();
 
-            // Revenue chart — last 7 days
-            var revenueChart = Enumerable.Range(0, 7)
-                .Select(i =>
+            // Revenue chart 7 ngày — GroupBy trong DB rồi map sang dải ngày liên tục
+            var chartRaw = await subQ
+                .Where(s => s.Status == OrderStatus.Completed && s.Order.OrderDate >= weekStart)
+                .GroupBy(s => s.Order.OrderDate.Date)
+                .Select(g => new { date = g.Key, revenue = g.Sum(s => s.ProductRevenue) })
+                .ToListAsync();
+            var chartMap = chartRaw.ToDictionary(x => x.date, x => x.revenue);
+            var revenueChart = Enumerable.Range(0, 7).Select(i =>
+            {
+                var day = today.AddDays(-6 + i);
+                return new
                 {
-                    var day = today.AddDays(-6 + i);
-                    var rev = shopOrders
-                        .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date == day)
-                        .Sum(o => o.OrderDetails
-                            .Where(od => productIds.Contains(od.ProductId))
-                            .Sum(od => od.UnitPrice * od.Quantity));
-                    return new { date = day.ToString("yyyy-MM-dd"), revenue = rev };
-                });
+                    date    = day.ToString("yyyy-MM-dd"),
+                    revenue = chartMap.TryGetValue(day, out var r) ? r : 0m
+                };
+            });
 
             return Ok(new
             {
@@ -481,25 +470,27 @@ namespace BaseCore.APIService.Controllers
             if (shop == null) return NotFound(new { message = "Không tìm thấy shop" });
 
             var fromDate = DateTime.TryParse(from, out var f) ? f.ToUniversalTime().Date : DateTime.UtcNow.AddDays(-29).Date;
-            var toDate   = DateTime.TryParse(to, out var t) ? t.ToUniversalTime().Date : DateTime.UtcNow.Date;
+            var toDate   = DateTime.TryParse(to, out var t) ? t.ToUniversalTime().Date.AddDays(1) : DateTime.UtcNow.Date.AddDays(1);
 
-            var productIds = await _db.Products.Where(p => p.ShopId == id).Select(p => p.Id).ToListAsync();
-            var orders = await _db.Orders
-                .Include(o => o.OrderDetails)
-                .Where(o => o.OrderDate.Date >= fromDate && o.OrderDate.Date <= toDate
-                         && o.OrderDetails.Any(od => productIds.Contains(od.ProductId)))
-                .ToListAsync();
+            // ✅ SubOrder là nguồn sự thật cho doanh thu của shop — aggregate trong DB
+            var subsQuery = _db.SubOrders
+                .Where(s => s.ShopId == id
+                         && s.Order.OrderDate >= fromDate
+                         && s.Order.OrderDate < toDate);
 
-            var revenue    = orders.Where(o => o.Status == "COMPLETED").Sum(o => o.OrderDetails.Where(od => productIds.Contains(od.ProductId)).Sum(od => od.UnitPrice * od.Quantity));
-            var commission = revenue * (shop.CommissionRate / 100m);
+            var completedSubs = subsQuery.Where(s => s.Order.Status == OrderStatus.Completed);
+
+            var revenue    = await completedSubs.SumAsync(s => (decimal?)s.ProductRevenue) ?? 0m;
+            var commission = await completedSubs.SumAsync(s => (decimal?)s.CommissionAmount) ?? 0m;
+            var totalOrders = await subsQuery.Select(s => s.OrderId).Distinct().CountAsync();
 
             return Ok(new {
                 shopId   = id,
                 shopName = shop.ShopName,
                 from     = fromDate.ToString("yyyy-MM-dd"),
-                to       = toDate.ToString("yyyy-MM-dd"),
+                to       = toDate.AddDays(-1).ToString("yyyy-MM-dd"),
                 commissionRate = shop.CommissionRate,
-                totalOrders  = orders.Count,
+                totalOrders,
                 revenue,
                 commission,
                 net = revenue - commission

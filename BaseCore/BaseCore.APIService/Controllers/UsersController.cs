@@ -93,7 +93,13 @@ namespace BaseCore.APIService.Controllers
         {
             var u = await _db.Users.FindAsync(id);
             if (u == null) return NotFound(new { message = "Không tìm thấy người dùng" });
+            if (u.Id == GetUserId())
+                return BadRequest(new { message = "Không thể tự khóa chính mình" });
+            if (u.UserType == 1 && await IsLastActiveAdmin(u.Id))
+                return BadRequest(new { message = "Không thể khóa Admin cuối cùng còn hoạt động" });
+
             u.IsActive = false;
+            u.TokenVersion++;   // force-logout user trên mọi thiết bị
             await _db.SaveChangesAsync();
             await _audit.Log(GetUserId(), GetUserName(), "USER_BAN", "User", id,
                 new { isActive = true }, new { isActive = false });
@@ -124,11 +130,50 @@ namespace BaseCore.APIService.Controllers
             if (u == null) return NotFound(new { message = "Không tìm thấy người dùng" });
 
             var oldRole = u.UserType;
+            if (oldRole == dto.Role)
+                return Ok(new { message = "Vai trò không đổi", role = dto.Role });
+
+            // ── Safeguard: tránh tự khóa quyền admin của chính mình + đảm bảo còn Admin ──
+            if (u.Id == GetUserId() && dto.Role != 1)
+                return BadRequest(new { message = "Không thể tự gỡ quyền Admin của chính mình" });
+            if (oldRole == 1 && dto.Role != 1 && await IsLastActiveAdmin(u.Id))
+                return BadRequest(new { message = "Không thể demote Admin cuối cùng còn hoạt động" });
+
+            // ── Ràng buộc Shop khi đổi từ/sang Seller ──
+            // Promote → Seller: yêu cầu user đã có Shop (đăng ký qua register-shop.html trước)
+            //                   để không tạo "Seller ma" không có cửa hàng.
+            if (dto.Role == 2)
+            {
+                var hasShop = await _db.Shops.AnyAsync(s => s.SellerId == u.Id);
+                if (!hasShop)
+                    return BadRequest(new {
+                        message = "Người dùng chưa có cửa hàng — yêu cầu họ đăng ký Shop trước khi cấp quyền Seller."
+                    });
+            }
+            // Demote Seller → Customer/Admin: chặn nếu còn Shop đang Active (mồ côi sản phẩm/đơn).
+            if (oldRole == 2 && dto.Role != 2)
+            {
+                var hasActiveShop = await _db.Shops.AnyAsync(s => s.SellerId == u.Id && s.Status == ShopStatus.Active);
+                if (hasActiveShop)
+                    return BadRequest(new {
+                        message = "Người dùng vẫn còn cửa hàng đang hoạt động — hãy khóa Shop ở tab Cửa Hàng trước."
+                    });
+            }
+
             u.UserType = dto.Role;
+            u.TokenVersion++;   // JWT hiện tại của user mất hiệu lực → lần request kế tiếp bị 401 → redirect login → tự load lại đúng giao diện theo role mới
             await _db.SaveChangesAsync();
             await _audit.Log(GetUserId(), GetUserName(), "USER_CHANGE_ROLE", "User", id,
                 new { userType = oldRole }, new { userType = dto.Role });
-            return Ok(new { message = "Đã cập nhật quyền", role = dto.Role });
+            return Ok(new { message = "Đã cập nhật quyền — phiên cũ của người dùng đã bị thu hồi", role = dto.Role });
+        }
+
+        // Đếm Admin còn IsActive=true ngoài chính user đang được tác động.
+        private async Task<bool> IsLastActiveAdmin(string excludeUserId)
+        {
+            var hasOtherAdmin = await _db.Users
+                .AnyAsync(x => x.UserType == 1 && x.IsActive && x.Id != excludeUserId);
+            return !hasOtherAdmin;
         }
 
         /// <summary>DELETE /api/admin/users/{id}</summary>

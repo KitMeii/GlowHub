@@ -183,37 +183,49 @@
 </div>
 
     <!-- ══════════════════════════════
-     HERO — Full viewport
+     HERO — Full viewport (auto-rotating banner slider)
 ══════════════════════════════ -->
     <section class="gh-hero" id="heroSection">
-      <div class="gh-hero-media">
-        <img
-          id="heroImg"
-          src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1400&q=85"
-          alt="GlowHub Collection"
-          loading="eager"
-          onerror="
-            this.src =
-              'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85'
-          "
-        />
-      </div>
-      <div class="gh-hero-gradient"></div>
-      <div class="gh-hero-content">
-        <div class="gh-hero-eyebrow" id="heroEyebrow">
-          Bộ Sưu Tập Mới · 2026
+      <div class="gh-hero-slides" id="heroSlides">
+        <!-- Fallback slide (hiển thị khi chưa load Banner API hoặc không có banner active) -->
+        <div class="gh-hero-slide is-active" data-fallback="1">
+          <div class="gh-hero-media">
+            <img
+              id="heroImg"
+              src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1400&q=85"
+              alt="GlowHub Collection"
+              loading="eager"
+              onerror="
+                this.src =
+                  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85'
+              "
+            />
+          </div>
+          <div class="gh-hero-gradient"></div>
+          <div class="gh-hero-content">
+            <div class="gh-hero-eyebrow" id="heroEyebrow">
+              Bộ Sưu Tập Mới · 2026
+            </div>
+            <h1 class="gh-hero-title" id="heroTitle">
+              Vẻ Đẹp Rạng Rỡ<br />Từ Bên Trong
+            </h1>
+            <p class="gh-hero-sub" id="heroSub">
+              Skincare · Makeup · Nước Hoa · Chính Hãng
+            </p>
+            <a id="heroCta" href="shop.html?section=new" class="gh-hero-cta">
+              <span id="heroCtaText">Khám Phá Ngay</span>
+              <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
         </div>
-        <h1 class="gh-hero-title" id="heroTitle">
-          Vẻ Đẹp Rạng Rỡ<br />Từ Bên Trong
-        </h1>
-        <p class="gh-hero-sub" id="heroSub">
-          Skincare · Makeup · Nước Hoa · Chính Hãng
-        </p>
-        <a id="heroCta" href="shop.html?section=new" class="gh-hero-cta">
-          <span id="heroCtaText">Khám Phá Ngay</span>
-          <i class="bi bi-arrow-right"></i>
-        </a>
       </div>
+      <button class="gh-hero-arrow prev" id="heroPrev" type="button" aria-label="Banner trước" style="display:none">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button class="gh-hero-arrow next" id="heroNext" type="button" aria-label="Banner kế" style="display:none">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      <div class="gh-hero-dots" id="heroDots"></div>
       <div class="gh-hero-scroll">
         <div class="gh-hero-scroll-line"></div>
         <span>Cuộn</span>
@@ -230,7 +242,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
           <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
             <h2 style="
-              font-family:'Marcellus',serif;
+              font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
               font-size:clamp(1.4rem,3vw,2rem);
               color:#111;
               letter-spacing:4px;
@@ -240,17 +252,17 @@
             <!-- Inline countdown -->
             <div id="idx-fs-countdown" style="display:none; align-items:center; gap:6px;">
               <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
-                <span id="idx-cd-h" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span id="idx-cd-h" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; line-height:1;">00</span>
                 <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Giờ</span>
               </div>
               <span style="color:#f759ab; font-size:1.1rem; font-weight:700;">:</span>
               <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
-                <span id="idx-cd-m" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span id="idx-cd-m" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; line-height:1;">00</span>
                 <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Phút</span>
               </div>
               <span style="color:#f759ab; font-size:1.1rem; font-weight:700;">:</span>
               <div style="background:#fff; border:1px solid #fce7f3; border-radius:6px; padding:4px 10px; text-align:center; min-width:44px;">
-                <span id="idx-cd-s" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:'Jost',sans-serif; line-height:1;">00</span>
+                <span id="idx-cd-s" style="display:block; font-size:1.1rem; font-weight:700; color:#f759ab; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; line-height:1;">00</span>
                 <span style="font-size:9px; color:#888; letter-spacing:1px; text-transform:uppercase;">Giây</span>
               </div>
             </div>
@@ -706,7 +718,7 @@
     <section id="idx-recently-section" style="display:none; padding:48px 0; background:#fff; border-top:1px solid var(--border);">
       <div style="max-width:var(--container); margin:0 auto; padding:0 var(--gutter);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-          <h2 style="font-family:'Marcellus',serif; font-size:clamp(1.2rem,3vw,1.6rem); letter-spacing:3px; color:var(--dark); text-transform:uppercase; margin:0;">
+          <h2 style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; font-size:clamp(1.2rem,3vw,1.6rem); letter-spacing:3px; color:var(--dark); text-transform:uppercase; margin:0;">
             Xem Gần Đây
           </h2>
           <a href="shop.html" style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--pink)'" onmouseout="this.style.color='var(--gray)'">Xem Tất Cả →</a>
@@ -927,6 +939,130 @@
           .join("");
       }
 
+      // ── HERO SLIDER (Banner-driven, auto-rotate) ──
+      var _heroSlider = {
+        slides: [],
+        idx: 0,
+        timer: null,
+        intervalMs: 5500,
+        paused: false
+      };
+
+      function _escAttr(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function _renderHeroSlider(banners) {
+        var container = document.getElementById("heroSlides");
+        var dotsEl    = document.getElementById("heroDots");
+        var prevBtn   = document.getElementById("heroPrev");
+        var nextBtn   = document.getElementById("heroNext");
+        var heroEl    = document.getElementById("heroSection");
+        if (!container || !banners || !banners.length) return;
+
+        // Banner entity (cả PascalCase và camelCase)
+        var slidesHtml = banners.map(function (b, i) {
+          var img    = b.imageUrl || b.ImageUrl || "";
+          var title  = b.title    || b.Title    || "";
+          var sub    = b.subtitle || b.Subtitle || "";
+          var btn    = b.buttonText || b.ButtonText || "Khám Phá Ngay";
+          var link   = b.linkUrl  || b.LinkUrl  || "shop.html";
+          var bg     = b.bgColor  || b.BgColor  || "";
+          if (!img) return "";
+          var bgStyle = bg ? ' style="background:' + _escAttr(bg) + '"' : "";
+          var fallbackImg = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85";
+          return ''
+            + '<div class="gh-hero-slide" data-i="' + i + '"' + bgStyle + '>'
+            +   '<div class="gh-hero-media">'
+            +     '<img src="' + _escAttr(img) + '" alt="' + _escAttr(title) + '" loading="' + (i === 0 ? "eager" : "lazy") + '"'
+            +          ' onerror="this.src=\'' + fallbackImg + '\'"/>'
+            +   '</div>'
+            +   '<div class="gh-hero-gradient"></div>'
+            +   '<div class="gh-hero-content">'
+            +     (sub ? '<div class="gh-hero-eyebrow">' + _escAttr(sub) + '</div>' : '')
+            +     '<h1 class="gh-hero-title">' + _escAttr(title) + '</h1>'
+            +     '<a class="gh-hero-cta" href="' + _escAttr(link) + '">'
+            +       '<span>' + _escAttr(btn) + '</span>'
+            +       '<i class="bi bi-arrow-right"></i>'
+            +     '</a>'
+            +   '</div>'
+            + '</div>';
+        }).filter(Boolean).join("");
+
+        if (!slidesHtml) return;
+
+        // Thay thế nội dung — bỏ fallback slide
+        container.innerHTML = slidesHtml;
+        _heroSlider.slides = Array.prototype.slice.call(container.querySelectorAll(".gh-hero-slide"));
+        _heroSlider.idx = 0;
+        if (_heroSlider.slides.length) {
+          _heroSlider.slides[0].classList.add("is-active");
+        }
+
+        // Build dots
+        if (dotsEl) {
+          dotsEl.innerHTML = _heroSlider.slides.map(function (_, i) {
+            return '<button type="button" class="gh-hero-dot' + (i === 0 ? " is-active" : "") +
+                   '" data-i="' + i + '" aria-label="Banner ' + (i + 1) + '"></button>';
+          }).join("");
+          dotsEl.querySelectorAll(".gh-hero-dot").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              _heroGoto(parseInt(btn.getAttribute("data-i"), 10));
+              _heroRestart();
+            });
+          });
+        }
+
+        // Show prev/next if 2+ slides
+        if (_heroSlider.slides.length > 1) {
+          if (prevBtn) prevBtn.style.display = "flex";
+          if (nextBtn) nextBtn.style.display = "flex";
+          if (prevBtn) prevBtn.addEventListener("click", function () { _heroGoto(_heroSlider.idx - 1); _heroRestart(); });
+          if (nextBtn) nextBtn.addEventListener("click", function () { _heroGoto(_heroSlider.idx + 1); _heroRestart(); });
+
+          // Pause on hover
+          if (heroEl) {
+            heroEl.addEventListener("mouseenter", function () { _heroSlider.paused = true; });
+            heroEl.addEventListener("mouseleave", function () { _heroSlider.paused = false; });
+          }
+
+          // Pause when tab hidden
+          document.addEventListener("visibilitychange", function () {
+            _heroSlider.paused = document.hidden;
+          });
+
+          _heroStart();
+        } else {
+          if (dotsEl) dotsEl.innerHTML = "";
+        }
+      }
+
+      function _heroGoto(i) {
+        var slides = _heroSlider.slides;
+        if (!slides.length) return;
+        var n = slides.length;
+        var next = ((i % n) + n) % n;
+        slides.forEach(function (el, k) { el.classList.toggle("is-active", k === next); });
+        var dots = document.querySelectorAll("#heroDots .gh-hero-dot");
+        dots.forEach(function (d, k) { d.classList.toggle("is-active", k === next); });
+        _heroSlider.idx = next;
+      }
+      function _heroStart() {
+        _heroStop();
+        _heroSlider.timer = setInterval(function () {
+          if (_heroSlider.paused) return;
+          _heroGoto(_heroSlider.idx + 1);
+        }, _heroSlider.intervalMs);
+      }
+      function _heroStop() {
+        if (_heroSlider.timer) { clearInterval(_heroSlider.timer); _heroSlider.timer = null; }
+      }
+      function _heroRestart() { _heroStop(); _heroStart(); }
+
       function _renderSplitPanels(banners) {
         var wrap = document.getElementById("splitPanels");
         if (!wrap) return;
@@ -1062,7 +1198,7 @@
             .catch(function () {});
         }
 
-        // ── 2. Banner API → Split Panels ──
+        // ── 2. Banner API → Hero Slider + Split Panels ──
         if (typeof Banner !== "undefined") {
           Banner.getAll()
             .then(function (data) {
@@ -1071,7 +1207,12 @@
                 : data && data.items
                   ? data.items
                   : [];
-              if (banners.length) _renderSplitPanels(banners);
+              if (banners.length) {
+                _renderHeroSlider(banners);
+                _renderSplitPanels(banners);
+              } else {
+                _renderSplitPanels([]);
+              }
             })
             .catch(function () {
               // Fallback static
@@ -1480,7 +1621,7 @@
           + '<div style="font-size:12px; color:#111; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em;">' + p.name + '</div>'
           + '<div style="display:flex; flex-direction:column; gap:2px; min-height:3.2em;">'
           + '<span style="font-size:10px; color:#888; text-decoration:line-through; display:block; min-height:1.4em;">' + _fmt(p.originalPrice) + '</span>'
-          + '<span style="font-size:1.05rem; font-weight:700; color:#f759ab; font-family:Jost,sans-serif; display:block;">' + _fmt(p.salePrice) + '</span>'
+          + '<span style="font-size:1.05rem; font-weight:700; color:#f759ab; font-family:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,\'Helvetica Neue\',Arial,sans-serif; display:block;">' + _fmt(p.salePrice) + '</span>'
           + '</div>'
           + '<div style="height:4px; background:#e2ddd8; border-radius:999px; overflow:hidden; margin-top:auto;">'
           + '<div style="height:100%; background:linear-gradient(90deg,#d946a0,#f759ab); border-radius:999px; width:0%; transition:width 1s ease;" data-pct="' + pct + '"></div>'

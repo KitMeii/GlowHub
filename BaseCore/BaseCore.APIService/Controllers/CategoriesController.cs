@@ -17,17 +17,25 @@ namespace BaseCore.APIService.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            // 2 query phẳng — tránh subquery COUNT chạy per-row (an toàn dù EF có optimize hay không)
+            var counts = await _db.Products
+                .GroupBy(p => p.CategoryId)
+                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CategoryId, x => x.Count);
+
             var cats = await _db.Categories
                 .Where(c => !c.IsDeleted)
-                .Select(c => new {
-                    c.Id,
-                    c.Name,
-                    c.Description,
-                    ProductCount = _db.Products.Count(p => p.CategoryId == c.Id)
-                })
                 .OrderBy(c => c.Name)
+                .Select(c => new { c.Id, c.Name, c.Description })
                 .ToListAsync();
-            return Ok(cats);
+
+            var result = cats.Select(c => new {
+                c.Id,
+                c.Name,
+                c.Description,
+                ProductCount = counts.TryGetValue(c.Id, out var n) ? n : 0
+            });
+            return Ok(result);
         }
 
         // GET /api/categories/{id}

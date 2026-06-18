@@ -76,7 +76,7 @@
       <!-- Offcanvas Cart -->
       <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
         <div class="offcanvas-header justify-content-between border-bottom py-3">
-          <h5 class="m-0" style="font-family:'Marcellus',serif;text-transform:uppercase;letter-spacing:2px" id="offcanvasCartLabel">Giỏ Hàng</h5>
+          <h5 class="m-0" style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;text-transform:uppercase;letter-spacing:2px" id="offcanvasCartLabel">Giỏ Hàng</h5>
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">

@@ -15,18 +15,18 @@
       }
       body {
         background: var(--bg);
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         color: var(--dark);
       }
       h1,
       h2,
       h3,
       h4 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-weight: 400;
       }
       .brand-name {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         letter-spacing: 4px;
         color: var(--dark);
         text-decoration: none;
@@ -100,7 +100,7 @@
       }
 
       .policy-hd {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.8rem;
         margin-bottom: 6px;
       }
@@ -117,7 +117,7 @@
         color: #444;
       }
       .policy-body h3 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1.1rem;
         color: var(--dark);
         margin: 24px 0 10px;
@@ -240,7 +240,7 @@
         margin-bottom: 10px;
       }
       .contact-card h5 {
-        font-family: "Marcellus", serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 1rem;
         margin-bottom: 6px;
       }
@@ -259,7 +259,7 @@
         width: 100%;
         padding: 11px 14px;
         border: 1px solid var(--border);
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 13px;
         margin-bottom: 12px;
         border-radius: 0;
@@ -282,7 +282,7 @@
         text-transform: uppercase;
         letter-spacing: 2px;
         cursor: pointer;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         transition: 0.2s;
         width: 100%;
       }
@@ -304,7 +304,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         cursor: pointer;
-        font-family: "Jost", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         display: none;
         gap: 8px;
         align-items: center;
